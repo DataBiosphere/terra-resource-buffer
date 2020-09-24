@@ -1,10 +1,8 @@
 openapi: 3.0.0
 info:
-  title: TEMPLATE API
+  title: RBS API
   description: |
-    Template REST API to illustrate the plumbing of an endpoint through to a service
-    executing something. In general, replace the word TEMPLATE everywhere with your
-    service.
+    Resource Buffering Service to allocate and buffer cloud resources
   version: 0.0.1
 
 servers:
@@ -28,13 +26,13 @@ paths:
           description: Service is broken
           $ref: '#/components/responses/StatusResponse'
 
-  '/api/template/v1/ping':
+  '/api/rbs/v1/ping':
     post:
       description: |
         Send a message and get it back in the response
       operationId: ping
       tags:
-        - template
+        - rbs
       parameters:
         - in: query
           name: message
