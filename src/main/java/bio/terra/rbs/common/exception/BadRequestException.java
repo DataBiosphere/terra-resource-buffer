@@ -1,13 +1,15 @@
 package bio.terra.rbs.common.exception;
 
-// This base class has data that corresponds to the ErrorReport model generated from
-// the OpenAPI yaml. The global exception handler auto-magically converts exceptions
-// of this base class into the appropriate ErrorReport REST response.
-
-import java.util.List;
 import org.springframework.http.HttpStatus;
 
-public abstract class BadRequestException extends ErrorReportException {
+import java.util.List;
+
+/**
+ * This base class has data that corresponds to the ErrorReport model generated from the OpenAPI
+ * yaml. The global exception handler auto-magically converts exceptions of this base class into the
+ * appropriate ErrorReport REST response.
+ */
+public class BadRequestException extends ErrorReportException {
   private static final HttpStatus thisStatus = HttpStatus.BAD_REQUEST;
 
   public BadRequestException(String message) {

@@ -1,7 +1,7 @@
 package bio.terra.rbs.app.controller;
 
-import bio.terra.rbs.common.exception.ErrorReportException;
 import bio.terra.rbs.generated.model.ErrorReport;
+import bio.terra.rbs.common.exception.ErrorReportException;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,10 +12,14 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-// This module provides a top-level exception handler for controllers.
-// All exceptions that rise through the controllers are caught in this handler.
-// It converts the exceptions into standard ErrorReport responses.
-
+/**
+ * This module provides a top-level exception handler for controllers. All exceptions that rise
+ * through the controllers are caught in this handler. It converts the exceptions into standard
+ * ErrorReport responses.
+ *
+ * <p>TODO: This class and other exception classes are exactly the same as Workspace Manager and
+ * Data Repo's code. Use the common library once we have.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
   private final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
@@ -28,9 +32,9 @@ public class GlobalExceptionHandler {
 
   // -- validation exceptions - we don't control the exception raised
   @ExceptionHandler({
-    MethodArgumentNotValidException.class,
-    IllegalArgumentException.class,
-    NoHandlerFoundException.class
+          MethodArgumentNotValidException.class,
+          IllegalArgumentException.class,
+          NoHandlerFoundException.class
   })
   public ResponseEntity<ErrorReport> validationExceptionHandler(Exception ex) {
     return buildErrorReport(ex, HttpStatus.BAD_REQUEST, null);
@@ -44,13 +48,13 @@ public class GlobalExceptionHandler {
   }
 
   private ResponseEntity<ErrorReport> buildErrorReport(
-      Throwable ex, HttpStatus statusCode, List<String> causes) {
+          Throwable ex, HttpStatus statusCode, List<String> causes) {
     logger.error("Global exception handler: catch stack", ex);
     for (Throwable cause = ex; cause != null; cause = cause.getCause()) {
       logger.error("   cause: " + cause.toString());
     }
     ErrorReport errorReport =
-        new ErrorReport().message(ex.getMessage()).statusCode(statusCode.value()).causes(causes);
+            new ErrorReport().message(ex.getMessage()).statusCode(statusCode.value()).causes(causes);
     return new ResponseEntity<>(errorReport, statusCode);
   }
 }
