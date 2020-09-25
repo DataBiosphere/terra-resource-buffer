@@ -6,9 +6,7 @@ info:
   version: 0.0.1
 
 servers:
-  # When developing locally/with Skaffold, add local entry with url prefix here:
-  # E.g. url: /env-terra0rbs
-  - url: http://localhost:8080
+  - url: /
 
 paths:
   '/status':
