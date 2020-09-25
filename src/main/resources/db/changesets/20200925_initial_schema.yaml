@@ -1,0 +1,139 @@
+databaseChangeLog:
+  - changeSet:
+      id: init_rbs_table
+        author: yonghaoy
+        changes:
+          - createTable:
+              tableName: pool
+              columns:
+                - column:
+                    name: id
+                    type: uuid
+                    constraints:
+                      primaryKey: true
+                      nullable: false
+                      unique: true
+                - column:
+                    name: name
+                    type: text
+                    constraints:
+                      primaryKey: false
+                      nullable: false
+                - column:
+                    name: version
+                    type: int
+                    constraints:
+                      nullable: false
+                      unique: false
+                - column:
+                    name: creation
+                    type: timestamptz
+                    constraints:
+                      nullable: false
+                      unique: false
+                - column:
+                    name: expiration
+                    type: timestamptz
+                    constraints:
+                      nullable: true
+                      unique: false
+                - column:
+                    name: resource_type
+                    type: text
+                    remarks: contains resource type enum('GOOGLE_PROJECT', 'GKE_CLUSTER')
+                    constraints:
+                      nullable: false
+                      unique: false
+                - column:
+                    name: resource_config
+                    type: jsonb
+                    constraints:
+                      nullable: false
+                      unique: false
+                - column:
+                    name: size
+                    type: int
+                    constraints:
+                      nullable: false
+                      unique: false
+                - column:
+                    name: status
+                    type: text
+                    remarks: pool status enum('ACTIVE', 'INACTIVE')
+                    constraints:
+                      nullable: false
+                      unique: false
+          - createTable:
+              tableName: resource
+              columns:
+                - column:
+                    name: id
+                    type: uuid
+                    constraints:
+                      primaryKey: true
+                      nullable: false
+                      unique: true
+                - column:
+                    name: pool_id
+                    type: uuid
+                    constraints:
+                      references: pool(id)
+                      foreignKeyName: fk_pool_id
+                      unique: false
+                      nullable: false
+                - column:
+                    name: creation
+                    type: timestamptz
+                    constraints:
+                      nullable: false
+                      unique: false
+                - column:
+                    name: handout_time
+                    type: timestamptz
+                    constraints:
+                      nullable: true
+                      unique: false
+                - column:
+                    name: state
+                    type: text
+                    remarks: resource state enum('CREATING', 'READY', 'HANDEDOUT')
+                    constraints:
+                      nullable: false
+                      unique: false
+                - column:
+                    name: resource_request_id
+                    type: uuid
+                    constraints:
+                      nullable: true
+                      unique: false
+                - column:
+                    name: terra_resource_uid
+                    type: jsonb
+                    constraints:
+                      nullable: true
+                      unique: false
+          - createTable:
+              tableName: resource_flight
+              columns:
+                - column:
+                    name: flight_id
+                    type: text
+                    constraints:
+                      primaryKey: true
+                      nullable: false
+                      unique: true
+                - column:
+                    name: resource_id
+                    type: uuid
+                    constraints:
+                      references: resource(id)
+                      foreignKeyName: fk_resource_id
+                      unique: false
+                      nullable: false
+                - column:
+                    name: flight_state
+                    type: text
+                    remarks: Contains flight state enum('INITIATING', 'IN_FLIGHT', 'FINISHING', 'FATAL', 'FINISHED')
+                    constraints:
+                      nullable: false
+                      unique: false
