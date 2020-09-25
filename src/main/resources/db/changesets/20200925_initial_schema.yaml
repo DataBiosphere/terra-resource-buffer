@@ -101,7 +101,7 @@ databaseChangeLog:
                   nullable: false
                   unique: false
             - column:
-                name: resource_request_id
+                name: request_handout_id
                 type: uuid
                 constraints:
                   nullable: true
