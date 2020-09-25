@@ -1,0 +1,22 @@
+#This is a Skaffold configuration, which lets developers continuously push new images to their development namespaces.
+apiVersion: skaffold/v2alpha4
+kind: Config
+build:
+  artifacts:
+  - image: gcr.io/terra-kernel-k8s/terra-rbs
+    context: ../
+    jib: {}
+deploy:
+  helm:
+    releases:
+      - name: rbs-ENV
+        namespace: terra-ENV
+        chartPath: terra-helm/charts/rbs
+        skipBuildDependencies: true
+        values:
+          image: gcr.io/terra-kernel-k8s/terra-rbs
+        valuesFiles:
+          - terra-helmfile/terra/values/rbs.yaml
+          - terra-helmfile/terra/values/rbs/personal.yaml
+          - terra-helmfile/terra/values/rbs/personal/ENV.yaml
+          - values.yaml

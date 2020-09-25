@@ -1,0 +1,9 @@
+rbs:
+  db:
+    password: ${DATABASE_USER_PASSWORD}
+    recreate-db-on-start: false
+    update-db-on-start: true
+    uri: jdbc:postgresql://127.0.0.1:5432/${DATABASE_NAME}
+    username: ${DATABASE_USER}
+  server:
+    port: 8080
