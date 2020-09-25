@@ -34,7 +34,10 @@ You may need to use gcloud to provide GCR
   your target environment as the first argument:
 
 ```
-local-dev/setup_gke_deploy.sh <environment>
+cd local/dev
+```
+```
+./setup_gke_deploy.sh <environment>
 ```
 
 You can now push to the specified environment by running

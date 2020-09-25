@@ -1,8 +1,7 @@
 package bio.terra.rbs.common.exception;
 
-import org.springframework.http.HttpStatus;
-
 import java.util.List;
+import org.springframework.http.HttpStatus;
 
 /**
  * This base class has data that corresponds to the ErrorReport model generated from the OpenAPI

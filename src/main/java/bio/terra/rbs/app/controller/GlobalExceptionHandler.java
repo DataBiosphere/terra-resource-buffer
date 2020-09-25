@@ -1,7 +1,7 @@
 package bio.terra.rbs.app.controller;
 
-import bio.terra.rbs.generated.model.ErrorReport;
 import bio.terra.rbs.common.exception.ErrorReportException;
+import bio.terra.rbs.generated.model.ErrorReport;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,9 +32,9 @@ public class GlobalExceptionHandler {
 
   // -- validation exceptions - we don't control the exception raised
   @ExceptionHandler({
-          MethodArgumentNotValidException.class,
-          IllegalArgumentException.class,
-          NoHandlerFoundException.class
+    MethodArgumentNotValidException.class,
+    IllegalArgumentException.class,
+    NoHandlerFoundException.class
   })
   public ResponseEntity<ErrorReport> validationExceptionHandler(Exception ex) {
     return buildErrorReport(ex, HttpStatus.BAD_REQUEST, null);
@@ -48,13 +48,13 @@ public class GlobalExceptionHandler {
   }
 
   private ResponseEntity<ErrorReport> buildErrorReport(
-          Throwable ex, HttpStatus statusCode, List<String> causes) {
+      Throwable ex, HttpStatus statusCode, List<String> causes) {
     logger.error("Global exception handler: catch stack", ex);
     for (Throwable cause = ex; cause != null; cause = cause.getCause()) {
       logger.error("   cause: " + cause.toString());
     }
     ErrorReport errorReport =
-            new ErrorReport().message(ex.getMessage()).statusCode(statusCode.value()).causes(causes);
+        new ErrorReport().message(ex.getMessage()).statusCode(statusCode.value()).causes(causes);
     return new ResponseEntity<>(errorReport, statusCode);
   }
 }

@@ -72,10 +72,13 @@ jobs:
       run: chmod +x gradlew
     - name: Build and push GCR image using Jib
       run: "./gradlew jib --image=gcr.io/${GOOGLE_PROJECT}/${SERVICE_NAME}:${{ steps.tag.outputs.tag }}"
+      env:
+        SERVICE_VERSION: ${{ steps.tag.outputs.tag }}
     - name: Update Version Mapping
       uses: broadinstitute/repository-dispatch@master
       with:
         token: ${{ secrets.REPO_ACCESS_TOKEN }}
         repository: broadinstitute/terra-helmfile
-        event-type: version-bump
-        client-payload: '{"service": "rbs", "version": "${{ steps.tag.outputs.tag }}"}'
+        event-type: update-service
+        client-payload: '{"service": "crljanitor", "version": "${{ steps.tag.outputs.tag }}"}'
+

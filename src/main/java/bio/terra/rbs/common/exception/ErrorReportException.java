@@ -1,9 +1,8 @@
 package bio.terra.rbs.common.exception;
 
+import java.util.List;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.http.HttpStatus;
-
-import java.util.List;
 
 /**
  * This base class has data that corresponds to the ErrorReport model generated from the OpenAPI
@@ -39,7 +38,7 @@ public abstract class ErrorReportException extends RuntimeException {
   }
 
   public ErrorReportException(
-          String message, Throwable cause, List<String> causes, HttpStatus statusCode) {
+      String message, Throwable cause, List<String> causes, HttpStatus statusCode) {
     super(message, cause);
     this.causes = causes;
     this.statusCode = statusCode;
