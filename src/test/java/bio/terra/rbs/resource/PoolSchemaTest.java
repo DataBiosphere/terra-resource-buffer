@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 public class PoolSchemaTest {
   /** PList of pool config folders for all environments, e.g. prod, staging, dev. */
   private static final List<String> POOL_CONFIG_FOLDERS =
-      ImmutableList.of("src/main/resources/config/pool-config/dev/");
+      ImmutableList.of("src/main/resources/config/dev/");
   /** Pool schema file name should be the same name for all environments. */
   private static final String POOL_SCHEMA_NAME = "pool_schema.yml";
   /** Resource configs folder name should be the same name for all environments. */
