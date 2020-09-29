@@ -22,8 +22,12 @@ components:
         - version
       properties:
         configName:
+          description: |-
+            Name of the config
           type: string
         version:
+          description: |-
+            The config version. For updated config, it will have the same config name but a higher version number.
           type: string
         gcpProjectConfig:
           $ref: '#/components/schemas/GcpProjectConfig'
@@ -36,12 +40,20 @@ components:
         - projectIdPrefix
       properties:
         projectIdPrefix:
+          description: |-
+            The created project name prefix.
           type: string
         parentFolderId:
+          description: |-
+            The parent folder id of created project.
           type: string
         billingAccount:
+          description: |-
+            The billing account id the project associated to.
           type: string
         enabledApis:
+          description: |-
+            List of APIs enable
           type: array
           items:
             type: string
