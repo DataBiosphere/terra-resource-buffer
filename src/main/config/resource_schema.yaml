@@ -12,7 +12,7 @@ paths: {}
 components:
   schemas:
     # We are not doing polymorphism at this moment because of lack of support in swagger-codegen or openApiGenerator
-    # Now CloudResourceUid contains all possible cloud resource types, and we will assume there is only one being set
+    # Now ResourceConfig contains all possible resource configs, and we will assume there is only one being set
     # when using this.
     ResourceConfig:
       description: |-
