@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.io.ClassPathResource;
 
 /**
  * Validates PoolConfig for all pool config folders to verify
@@ -27,8 +28,7 @@ import org.junit.jupiter.api.Test;
 @Tag("unit")
 public class PoolSchemaTest {
   /** PList of pool config folders for all environments, e.g. prod, staging, dev. */
-  private static final List<String> POOL_CONFIG_FOLDERS =
-      ImmutableList.of("src/main/resources/config/dev/");
+  private static final List<String> POOL_CONFIG_FOLDERS = ImmutableList.of("config/dev/");
   /** Pool schema file name should be the same name for all environments. */
   private static final String POOL_SCHEMA_NAME = "pool_schema.yml";
   /** Resource configs folder name should be the same name for all environments. */
@@ -45,8 +45,14 @@ public class PoolSchemaTest {
 
   private void assertPoolConfigValid(String folderName) throws Exception {
     try {
-      Pools pools = mapper.readValue(new File(folderName + POOL_SCHEMA_NAME), Pools.class);
-      File configFolder = new File(folderName + "/" + RESOURCE_CONFIG_SUB_DIR_NAME);
+      ClassLoader classLoader = this.getClass().getClassLoader();
+      Pools pools =
+          mapper.readValue(
+              new ClassPathResource(folderName + POOL_SCHEMA_NAME).getFile(), Pools.class);
+
+      File configFolder =
+          new File(
+              classLoader.getResource(folderName + "/" + RESOURCE_CONFIG_SUB_DIR_NAME).getFile());
       Map<String, String> resourceNameVersionMap = new HashMap<>();
       for (File file : configFolder.listFiles()) {
         ResourceConfig resourceConfig = mapper.readValue(file, ResourceConfig.class);
