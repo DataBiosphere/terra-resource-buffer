@@ -109,15 +109,6 @@ components:
           type: string
       type: object
 
-    RbsResourceConfig:
-      description: |-
-        Placeholder for referenceing resource_schema.yaml file. SwaggerCodegen is not able to source multiple yaml file
-        correctly. Eventually resource_schema.yaml will be in seperate package and has its own build.gradle.
-        TODO: Remove this reference once resource_schema.yaml has its own package.
-      properties:
-        resourceConfig:
-          $ref: 'resource_schema.yaml#/components/schemas/ResourceConfig'
-
   responses:
     ErrorResponse:
       description: common error response

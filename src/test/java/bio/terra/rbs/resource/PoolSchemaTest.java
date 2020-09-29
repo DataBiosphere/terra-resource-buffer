@@ -1,6 +1,5 @@
 package bio.terra.rbs.resource;
 
-// import bio.terra.rbs.generated.pool.*;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import bio.terra.rbs.generated.model.PoolConfig;
@@ -29,7 +28,7 @@ import org.junit.jupiter.api.Test;
 public class PoolSchemaTest {
   /** PList of pool config folders for all environments, e.g. prod, staging, dev. */
   private static final List<String> POOL_CONFIG_FOLDERS =
-      ImmutableList.of("src/main/resources/pool-config/dev/");
+      ImmutableList.of("src/main/config/pool-config/dev/");
   /** Pool schema file name should be the same name for all environments. */
   private static final String POOL_SCHEMA_NAME = "pool_schema.yml";
   /** Resource configs folder name should be the same name for all environments. */

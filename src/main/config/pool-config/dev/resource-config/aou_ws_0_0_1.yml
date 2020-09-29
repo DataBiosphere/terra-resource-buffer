@@ -6,7 +6,7 @@ gcpProjectConfig:
   projectIdPrefix: "aou_rw_dev"
   # TODO: Fill this
   parentFolderId: null
-  # TODO: Fill the billing account
+  # TODO: Fill this
   billingAccount: null
   enabledApis:
     - "bigquery-json.googleapis.com"

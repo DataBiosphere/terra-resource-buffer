@@ -74,15 +74,17 @@ spotless {
 
 // OpenAPI Server Generation
 // - define dependencies to include the generated code
-def openapiSourceDir = "${projectDir}/src/main/resources"
+def openapiServerSourceDir = "${projectDir}/src/main/resources/api"
+def openapiResourceSourceDir = "${projectDir}/src/main/config"
 def openapiTargetDir = "${buildDir}/generated"
 swaggerSources {
     server {
-        inputFile = file("${openapiSourceDir}/api/service_openapi.yaml")
+        inputFile = file("${openapiServerSourceDir}/service_openapi.yaml")
         code {
             language = "spring"
             outputDir = file("${openapiTargetDir}")
             components = ["models", "apis"]
+            wipeOutputDir = false
             rawOptions = [
                     "--api-package", "${this.group}.rbs.generated.controller",
                     "--model-package", "${this.group}.rbs.generated.model",
@@ -94,14 +96,14 @@ swaggerSources {
         }
     }
 
-    server {
-        inputFile = file("${openapiSourceDir}/api/service_openapi.yaml")
+    resource {
+        inputFile = file("${openapiResourceSourceDir}/resource_schema.yaml")
         code {
             language = "spring"
             outputDir = file("${openapiTargetDir}")
-            components = ["models", "apis"]
+            components = ["models"]
+            wipeOutputDir = false
             rawOptions = [
-                    "--api-package", "${this.group}.rbs.generated.controller",
                     "--model-package", "${this.group}.rbs.generated.model",
                     "--library", "spring-boot",
                     "-D", "interfaceOnly=true," +
@@ -115,12 +117,22 @@ swaggerSources {
 // Note: Spotless deletes the classes OpenApi generates.
 // The order needs to be spotlessApply -> openApiGenerate -> build/test/run
 
-swaggerSources.server.code.dependsOn tasks.spotlessApply
-compileJava.dependsOn swaggerSources.server.code, spotlessApply
-
-sourceSets.main.java.srcDir "${openapiTargetDir}/src/main/java"
+swaggerSources.server.code.dependsOn swaggerSources.resource.code.dependsOn, tasks.spotlessApply
+compileJava.dependsOn swaggerSources.server.code, swaggerSources.resource.code, spotlessApply
 ideaModule.dependsOn swaggerSources.server.code
-
+sourceSets {
+    main {
+        java {
+            srcDir "${openapiTargetDir}/src/main/java"
+        }
+    }
+    test {
+        // Allow unit tests to directly load config files.
+        resources {
+            srcDir "config/"
+        }
+    }
+}
 
 tasks.withType(Test) {
     testLogging {

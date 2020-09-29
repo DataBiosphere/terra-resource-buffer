@@ -1,4 +1,4 @@
-# RBS Pools Schema
+# RBS Pools Schema in dev encironment
 ---
 poolConfigs:
   - poolName: "aou_ws_dev_pool"
