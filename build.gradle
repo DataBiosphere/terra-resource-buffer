@@ -46,6 +46,9 @@ dependencies {
     // TODO: this version of swagger-annotations is old, but the code gen is still relying on it
     // There is an open bug tracking the fix: https://github.com/OpenAPITools/openapi-generator/issues/4245
     implementation 'io.swagger:swagger-annotations:1.6.0'
+    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.11.2'
+    implementation group: 'com.fasterxml.jackson.module', name: 'jackson-module-jaxb-annotations', version: '2.11.2'
+
 
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
@@ -71,11 +74,28 @@ spotless {
 
 // OpenAPI Server Generation
 // - define dependencies to include the generated code
-def openapiSourceDir = "${projectDir}/src/main/resources/api"
+def openapiSourceDir = "${projectDir}/src/main/resources"
 def openapiTargetDir = "${buildDir}/generated"
 swaggerSources {
     server {
-        inputFile = file("${openapiSourceDir}/service_openapi.yaml")
+        inputFile = file("${openapiSourceDir}/api/service_openapi.yaml")
+        code {
+            language = "spring"
+            outputDir = file("${openapiTargetDir}")
+            components = ["models", "apis"]
+            rawOptions = [
+                    "--api-package", "${this.group}.rbs.generated.controller",
+                    "--model-package", "${this.group}.rbs.generated.model",
+                    "--library", "spring-boot",
+                    "-D", "interfaceOnly=true," +
+                            "useTags=true," +
+                            "dateLibrary=java8"
+            ]
+        }
+    }
+
+    server {
+        inputFile = file("${openapiSourceDir}/api/service_openapi.yaml")
         code {
             language = "spring"
             outputDir = file("${openapiTargetDir}")
@@ -94,12 +114,13 @@ swaggerSources {
 
 // Note: Spotless deletes the classes OpenApi generates.
 // The order needs to be spotlessApply -> openApiGenerate -> build/test/run
+
 swaggerSources.server.code.dependsOn tasks.spotlessApply
 compileJava.dependsOn swaggerSources.server.code, spotlessApply
 
 sourceSets.main.java.srcDir "${openapiTargetDir}/src/main/java"
 ideaModule.dependsOn swaggerSources.server.code
-// end of OpenAPI Server Generation
+
 
 tasks.withType(Test) {
     testLogging {

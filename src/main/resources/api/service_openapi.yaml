@@ -78,6 +78,46 @@ components:
                 items:
                   type: string
 
+    Pools:
+      description: |-
+        Terra RBS Reource Pools
+      required:
+        - poolConfigs
+      properties:
+        poolConfigs:
+          type: array
+          items:
+            $ref: '#/components/schemas/PoolConfig'
+      type: object
+
+    PoolConfig:
+      description: |-
+        Terra RBS Reource Pool Config
+      required:
+        - poolName
+        - version
+        - size
+        - resourceConfigName
+      properties:
+        poolName:
+          type: string
+        version:
+          type: string
+        size:
+          type: integer
+        resourceConfigName:
+          type: string
+      type: object
+
+    RbsResourceConfig:
+      description: |-
+        Placeholder for referenceing resource_schema.yaml file. SwaggerCodegen is not able to source multiple yaml file
+        correctly. Eventually resource_schema.yaml will be in seperate package and has its own build.gradle.
+        TODO: Remove this reference once resource_schema.yaml has its own package.
+      properties:
+        resourceConfig:
+          $ref: 'resource_schema.yaml#/components/schemas/ResourceConfig'
+
   responses:
     ErrorResponse:
       description: common error response
@@ -92,4 +132,5 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/SystemStatus'
+
 
