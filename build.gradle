@@ -75,7 +75,7 @@ spotless {
 // OpenAPI Server Generation
 // - define dependencies to include the generated code
 def openapiServerSourceDir = "${projectDir}/src/main/resources/api"
-def openapiResourceSourceDir = "${projectDir}/src/main/config"
+def openapiResourceSourceDir = "${projectDir}/src/main/resources/config"
 def openapiTargetDir = "${buildDir}/generated"
 swaggerSources {
     server {
