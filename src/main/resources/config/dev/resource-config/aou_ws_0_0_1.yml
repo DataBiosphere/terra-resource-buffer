@@ -1,9 +1,8 @@
 # All Of Us buffered workspace template
 ---
-configName: "aou_ws_resource_config"
-version: "0.0.1"
+configName: "aou_ws_resource_v1"
 gcpProjectConfig:
-  projectIdPrefix: "aou_rw_dev"
+  projectIDPrefix: "aou-rw-test"
   # TODO: Fill this
   parentFolderId: null
   # TODO: Fill this
