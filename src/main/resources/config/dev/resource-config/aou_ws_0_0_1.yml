@@ -1,6 +1,6 @@
 # All Of Us buffered workspace template
 ---
-configName: "aou_ws_resource_config"
+configName: "aou_ws_resource"
 version: "0.0.1"
 gcpProjectConfig:
   projectIdPrefix: "aou_rw_dev"

@@ -99,14 +99,12 @@ components:
         - size
         - resourceConfigName
       properties:
-        poolName:
+        resourceConfigName:
           type: string
         version:
           type: string
         size:
           type: integer
-        resourceConfigName:
-          type: string
       type: object
 
   responses:

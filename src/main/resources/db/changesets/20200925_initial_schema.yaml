@@ -14,7 +14,7 @@ databaseChangeLog:
                   nullable: false
                   unique: true
             - column:
-                name: name
+                name: resource_config_name
                 type: text
                 constraints:
                   primaryKey: false

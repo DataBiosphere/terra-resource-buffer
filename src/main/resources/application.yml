@@ -7,3 +7,5 @@ rbs:
     username: ${DATABASE_USER}
   server:
     port: 8080
+  pool:
+    configPath: config/dev
