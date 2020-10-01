@@ -40,6 +40,9 @@ dependencies {
 
     implementation 'com.google.guava:guava:29.0-jre'
 
+    implementation "com.google.auto.value:auto-value-annotations:1.7.3"
+    annotationProcessor "com.google.auto.value:auto-value:1.7.3"
+
     // -- Swagger CodeGen dependencies --
     swaggerCodegen 'io.swagger.codegen.v3:swagger-codegen-cli:3.0.20'
     implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.1.4'
@@ -74,15 +77,15 @@ spotless {
 
 // OpenAPI Server Generation
 // - define dependencies to include the generated code
-def openapiServerSourceDir = "${projectDir}/src/main/resources/api"
-def openapiResourceSourceDir = "${projectDir}/src/main/resources/config"
-def openapiTargetDir = "${buildDir}/generated"
+def openApiServerSourceDir = "${projectDir}/src/main/resources/api"
+def openApiResourceSourceDir = "${projectDir}/src/main/resources/config"
+def openApiTargetDir = "${buildDir}/generated"
 swaggerSources {
     server {
-        inputFile = file("${openapiServerSourceDir}/service_openapi.yaml")
+        inputFile = file("${openApiServerSourceDir}/service_openapi.yaml")
         code {
             language = "spring"
-            outputDir = file("${openapiTargetDir}")
+            outputDir = file("${openApiTargetDir}")
             components = ["models", "apis"]
             wipeOutputDir = false
             rawOptions = [
@@ -97,10 +100,10 @@ swaggerSources {
     }
 
     resource {
-        inputFile = file("${openapiResourceSourceDir}/resource_schema.yaml")
+        inputFile = file("${openApiResourceSourceDir}/resource_schema.yaml")
         code {
             language = "spring"
-            outputDir = file("${openapiTargetDir}")
+            outputDir = file("${openApiTargetDir}")
             components = ["models"]
             wipeOutputDir = false
             rawOptions = [
@@ -117,13 +120,13 @@ swaggerSources {
 // Note: Spotless deletes the classes OpenApi generates.
 // The order needs to be spotlessApply -> openApiGenerate -> build/test/run
 
-swaggerSources.server.code.dependsOn swaggerSources.resource.code.dependsOn, tasks.spotlessApply
-compileJava.dependsOn swaggerSources.server.code, swaggerSources.resource.code, spotlessApply
+swaggerSources.server.code.dependsOn swaggerSources.resource.code, tasks.spotlessApply
+compileJava.dependsOn swaggerSources.server.code, swaggerSources.resource.code, tasks.spotlessApply
 ideaModule.dependsOn swaggerSources.server.code
 sourceSets {
     main {
         java {
-            srcDir "${openapiTargetDir}/src/main/java"
+            srcDir "${openApiTargetDir}/src/main/java"
         }
     }
     test {

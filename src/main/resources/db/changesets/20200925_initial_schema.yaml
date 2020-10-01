@@ -14,17 +14,17 @@ databaseChangeLog:
                   nullable: false
                   unique: true
             - column:
-                name: resource_config_name
+                name: name
                 type: text
                 constraints:
                   primaryKey: false
                   nullable: false
             - column:
-                name: version
+                name: resource_config_name
                 type: text
                 constraints:
+                  primaryKey: false
                   nullable: false
-                  unique: false
             - column:
                 name: creation
                 type: timestamptz

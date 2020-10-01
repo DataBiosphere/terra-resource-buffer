@@ -47,7 +47,6 @@ public class RbsDao {
         new MapSqlParameterSource()
             .addValue("id", resource.trackedResourceId().uuid())
             .addValue("resource_uid", serialize(resourceConfig))
-            .addValue("version", poolConfig.getVersion())
             .addValue("size", poolConfig.getSize())
             .addValue("creation", OffsetDateTime.now(ZoneOffset.UTC))
             .addValue("status", "ACTIVATE")

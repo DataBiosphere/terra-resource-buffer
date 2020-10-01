@@ -9,9 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.collect.ImmutableList;
 import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
@@ -53,27 +51,26 @@ public class PoolSchemaTest {
       File configFolder =
           new File(
               classLoader.getResource(folderName + "/" + RESOURCE_CONFIG_SUB_DIR_NAME).getFile());
+      Set<String> resourceConfigName = new HashSet<>();
+
       Map<String, String> resourceNameVersionMap = new HashMap<>();
       for (File file : configFolder.listFiles()) {
         ResourceConfig resourceConfig = mapper.readValue(file, ResourceConfig.class);
-        if (resourceNameVersionMap.containsKey(resourceConfig.getConfigName())) {
+        if (resourceConfigName.contains(resourceConfig.getConfigName())) {
           fail(
               String.format(
-                  "Duplicate key found for ResourceConfig: %s, folder:",
+                  "Duplicate config name found for ResourceConfig: %s, folder:",
                   resourceConfig.getConfigName(), folderName));
         }
-        resourceNameVersionMap.put(resourceConfig.getConfigName(), resourceConfig.getVersion());
+        resourceConfigName.add(resourceConfig.getConfigName());
       }
 
       for (PoolConfig poolConfig : pools.getPoolConfigs()) {
-        if (!resourceNameVersionMap.containsKey(poolConfig.getResourceConfigName())
-            || !resourceNameVersionMap
-                .get(poolConfig.getResourceConfigName())
-                .equals(poolConfig.getVersion())) {
+        if (!resourceConfigName.contains(poolConfig.getResourceConfigName())) {
           fail(
               String.format(
-                  "ResourceConfig not found for name: %s, version:%s, folder: %s",
-                  poolConfig.getResourceConfigName(), poolConfig.getVersion(), folderName));
+                  "ResourceConfig not found for name: %s, folder: %s",
+                  poolConfig.getResourceConfigName(), folderName));
         }
       }
     } catch (Exception e) {
