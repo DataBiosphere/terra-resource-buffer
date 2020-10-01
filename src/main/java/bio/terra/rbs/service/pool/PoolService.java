@@ -43,11 +43,21 @@ public class PoolService {
 
   }
 
-  private void loadPoolConfigs(File configFolder) {
-      ClassLoader classLoader = this.getClass().getClassLoader();
+  private static Pools parsePoolConfig(ClassLoader classLoader, String folderName) {
+    ObjectMapper objectMapper = new ObjectMapper();
+    try {
+      return objectMapper.readValue(
+              new ClassPathResource(folderName + POOL_SCHEMA_NAME).getFile(), Pools.class);
+    } catch (IOException e) {
+      throw new InvalidPoolConfigException(String.format("Failed to parse PoolConfig for %s", folderName + POOL_SCHEMA_NAME));
+    }
+  }
 
-    Pools pools =
-            null;
+  private static List<ResourceConfig> loadResourceConfigs()
+
+  private static void loadPoolConfigs(ClassLoader classLoader, String folderName) {
+    ObjectMapper objectMapper = new ObjectMapper();
+    Pools pools;
     try {
       pools = objectMapper.readValue(
               new ClassPathResource(folderName + POOL_SCHEMA_NAME).getFile(), Pools.class);
@@ -78,7 +88,6 @@ public class PoolService {
       }
 
       for (PoolConfig poolConfig : pools.getPoolConfigs()) {
-
         if (!resourceConfigName.contains(poolConfig.getResourceConfigName())) {
           throw new RuntimeException( String.format(
                   "ResourceConfig not found for name: %s, folder: %s",
