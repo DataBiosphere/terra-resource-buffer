@@ -1,0 +1,26 @@
+# All Of Us buffered workspace template
+---
+configName: "aou_ws_resource_v1"
+gcpProjectConfig:
+  projectIDPrefix: "aou-rw-test"
+  # TODO: Fill this
+  parentFolderId: null
+  # TODO: Fill this
+  billingAccount: null
+  enabledApis:
+    - "bigquery-json.googleapis.com"
+    - "compute.googleapis.com"
+    - "container.googleapis.com"
+    - "cloudbilling.googleapis.com"
+    - "clouderrorreporting.googleapis.com"
+    - "cloudkms.googleapis.com"
+    - "cloudtrace.googleapis.com"
+    - "containerregistry.googleapis.com"
+    - "dataflow.googleapis.com"
+    - "dataproc.googleapis.com"
+    - "genomics.googleapis.com"
+    - "logging.googleapis.com"
+    - "monitoring.googleapis.com"
+    - "storage-api.googleapis.com"
+    - "storage-component.googleapis.com"
+    - "dns.googleapis.com"

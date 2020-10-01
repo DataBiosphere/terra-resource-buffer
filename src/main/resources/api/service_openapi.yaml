@@ -78,6 +78,40 @@ components:
                 items:
                   type: string
 
+    Pools:
+      description: |-
+        Terra RBS Reource Pools
+      required:
+        - poolConfigs
+      properties:
+        poolConfigs:
+          type: array
+          items:
+            $ref: '#/components/schemas/PoolConfig'
+      type: object
+
+    PoolConfig:
+      description: |-
+        Terra RBS Reource Pool Config
+      required:
+        - poolName
+        - size
+        - resourceConfigName
+      properties:
+        poolName:
+          description: |
+            The name of the pool.
+          type: string
+        size:
+          description: |
+            Maximum number of resources in the pool.
+          type: integer
+        resourceConfigName:
+          description: |
+            The config name the pool use. RBS will use it to locate the actual config file.
+          type: string
+      type: object
+
   responses:
     ErrorResponse:
       description: common error response
@@ -92,4 +126,5 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/SystemStatus'
+
 
