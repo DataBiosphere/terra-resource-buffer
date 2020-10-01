@@ -5,9 +5,9 @@ import com.google.auto.value.AutoValue;
 
 import java.time.Instant;
 
-/** Represents a record in the pool table in the RBS's database. */
+/** Represents a record in the pool table in the RBS database. */
 @AutoValue
-public abstract class PoolSchema {
+public abstract class Pool {
     public abstract PoolId id();
 
     public abstract String name();
@@ -23,6 +23,12 @@ public abstract class PoolSchema {
     public abstract Instant creation();
 
     public abstract Instant expiration();
+
+    public static Builder builder() {
+        return new AutoValue_Pool.Builder();
+    }
+
+    public abstract Builder toBuilder();
 
     @AutoValue.Builder
     public abstract static class Builder {
@@ -42,6 +48,6 @@ public abstract class PoolSchema {
 
         public abstract Builder expiration(Instant expiration);
 
-        public abstract PoolSchema build();
+        public abstract Pool build();
     }
 }

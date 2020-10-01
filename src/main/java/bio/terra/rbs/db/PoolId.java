@@ -9,7 +9,7 @@ import com.google.auto.value.AutoValue;
 
 import java.util.UUID;
 
-/** Wraps the pool_id in db pool table. */
+/** Wraps the id in db pool table. */
 @AutoValue
 @JsonSerialize(as = PoolId.class)
 @JsonDeserialize(builder = AutoValue_PoolId.Builder.class)
