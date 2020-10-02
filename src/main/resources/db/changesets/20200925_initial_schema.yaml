@@ -20,12 +20,6 @@ databaseChangeLog:
                   primaryKey: false
                   nullable: false
             - column:
-                name: resource_config_name
-                type: text
-                constraints:
-                  primaryKey: false
-                  nullable: false
-            - column:
                 name: creation
                 type: timestamptz
                 constraints:

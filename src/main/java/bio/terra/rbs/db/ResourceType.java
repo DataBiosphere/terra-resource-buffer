@@ -1,6 +1,5 @@
 package bio.terra.rbs.db;
 
-
 /**
  * Enums to represent cloud resource type we supported in DB schema.
  *
@@ -10,6 +9,6 @@ package bio.terra.rbs.db;
  * <p>It is ok to add new values. Also update the BackwardsCompatibilityTest.
  */
 public enum ResourceType {
-    GOOGLE_PROJECT,
-    GKE_CLUSTER,
+  GOOGLE_PROJECT,
+  GKE_CLUSTER,
 }

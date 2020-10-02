@@ -1,0 +1,56 @@
+openapi: 3.0.0
+info:
+  title: Terra Resource Buffer Service Resource Config
+  description: |
+    Terra Resource Buffering Service definitions of resource config schema.
+    The templates follows Cloud original openApi, schemas can be found here: https://github.com/APIs-guru/openapi-directory/tree/master/APIs
+  version: 0.0.1
+
+# This file defines component models to be reused, not a service path.
+paths: {}
+
+components:
+  schemas:
+    # We are not doing polymorphism at this moment because of lack of support in swagger-codegen or openApiGenerator
+    # Now ResourceConfig contains all possible resource configs, and we will assume there is only one being set
+    # when using this.
+    ResourceConfig:
+      description: |-
+        Reource Config template in Terra
+      required:
+        - configName
+      properties:
+        configName:
+          description: |-
+            Name of the config
+          type: string
+        gcpProjectConfig:
+          $ref: '#/components/schemas/GcpProjectConfig'
+      type: object
+
+    GcpProjectConfig:
+      description: |-
+        Represents a GCP Project resource with extra cloud resource setup when creating project.
+      required:
+        - projectIdPrefix
+      properties:
+        projectIDPrefix:
+          description: |-
+            The created project name prefix. For example, if the prefix is aou-rw-test, the generated project id may be
+            aou-rw-test-abc123
+          type: string
+        parentFolderId:
+          description: |-
+            The parent folder id of created project.
+          type: string
+        billingAccount:
+          description: |-
+            The billing account id the project associated to.
+          type: string
+        enabledApis:
+          description: |-
+            List of APIs to enable
+          type: array
+          items:
+            type: string
+      type: object

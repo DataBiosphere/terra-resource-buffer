@@ -1,9 +1,9 @@
 package bio.terra.rbs.db;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import bio.terra.rbs.common.BaseUnitTest;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Unit tests to verify that changes to Java classes do not break backwards compatibility with
@@ -24,13 +24,13 @@ public class BackwardsCompatibilityTest extends BaseUnitTest {
     assertEquals(2, ResourceType.values().length);
 
     assertEquals(ResourceType.GOOGLE_PROJECT, ResourceType.valueOf("GOOGLE_PROJECT"));
-    assertEquals(
-        ResourceType.GKE_CLUSTER, ResourceType.valueOf("GKE_CLUSTER"));;
+    assertEquals(ResourceType.GKE_CLUSTER, ResourceType.valueOf("GKE_CLUSTER"));
+    ;
   }
 
   /**
-   * Change detection test for existing {@link PoolStatus} enum values. More values should be
-   * added as the enum expands.
+   * Change detection test for existing {@link PoolStatus} enum values. More values should be added
+   * as the enum expands.
    */
   @Test
   public void poolStatus() {
@@ -38,7 +38,7 @@ public class BackwardsCompatibilityTest extends BaseUnitTest {
     assertEquals(2, PoolStatus.values().length);
 
     assertEquals(PoolStatus.ACTIVE, ResourceType.valueOf("ACTIVE"));
-    assertEquals(
-            PoolStatus.INACTIVE, ResourceType.valueOf("INACTIVE"));;
+    assertEquals(PoolStatus.INACTIVE, ResourceType.valueOf("INACTIVE"));
+    ;
   }
 }

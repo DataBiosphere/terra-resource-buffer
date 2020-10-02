@@ -17,7 +17,9 @@ public class PoolConfiguration {
 
   // The path to have pool and resource config files.
   private String configPath;
-  private boolean updateDbOnStart;
+
+  // Whether to update pool from pool config when server start.
+  private boolean updatePoolOnStart;
 
   public String getConfigPath() {
     return configPath;
@@ -25,5 +27,13 @@ public class PoolConfiguration {
 
   public void setConfigPath(String configPath) {
     this.configPath = configPath;
+  }
+
+  public boolean isUpdatePoolOnStart() {
+    return updatePoolOnStart;
+  }
+
+  public void setUpdatePoolOnStart(boolean updatePoolOnStart) {
+    this.updatePoolOnStart = updatePoolOnStart;
   }
 }

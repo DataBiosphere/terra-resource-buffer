@@ -7,6 +7,6 @@ package bio.terra.rbs.db;
  * changed.
  */
 public enum PoolStatus {
-    ACTIVE,
-    INACTIVE,
+  ACTIVE,
+  INACTIVE,
 }
