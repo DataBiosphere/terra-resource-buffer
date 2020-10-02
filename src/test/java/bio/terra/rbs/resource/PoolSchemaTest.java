@@ -45,12 +45,12 @@ public class PoolSchemaTest {
     try {
       ClassLoader classLoader = this.getClass().getClassLoader();
       Pools pools =
-              mapper.readValue(
-                      new ClassPathResource(folderName + POOL_SCHEMA_NAME).getFile(), Pools.class);
+          mapper.readValue(
+              new ClassPathResource(folderName + POOL_SCHEMA_NAME).getFile(), Pools.class);
 
       File configFolder =
-              new File(
-                      classLoader.getResource(folderName + "/" + RESOURCE_CONFIG_SUB_DIR_NAME).getFile());
+          new File(
+              classLoader.getResource(folderName + "/" + RESOURCE_CONFIG_SUB_DIR_NAME).getFile());
       Set<String> resourceConfigName = new HashSet<>();
 
       Map<String, String> resourceNameVersionMap = new HashMap<>();
@@ -58,9 +58,9 @@ public class PoolSchemaTest {
         ResourceConfig resourceConfig = mapper.readValue(file, ResourceConfig.class);
         if (resourceConfigName.contains(resourceConfig.getConfigName())) {
           fail(
-                  String.format(
-                          "Duplicate config name found for ResourceConfig: %s, folder:",
-                          resourceConfig.getConfigName(), folderName));
+              String.format(
+                  "Duplicate config name found for ResourceConfig: %s, folder:",
+                  resourceConfig.getConfigName(), folderName));
         }
         resourceConfigName.add(resourceConfig.getConfigName());
       }
@@ -68,9 +68,9 @@ public class PoolSchemaTest {
       for (PoolConfig poolConfig : pools.getPoolConfigs()) {
         if (!resourceConfigName.contains(poolConfig.getResourceConfigName())) {
           fail(
-                  String.format(
-                          "ResourceConfig not found for name: %s, folder: %s",
-                          poolConfig.getResourceConfigName(), folderName));
+              String.format(
+                  "ResourceConfig not found for name: %s, folder: %s",
+                  poolConfig.getResourceConfigName(), folderName));
         }
       }
     } catch (Exception e) {
