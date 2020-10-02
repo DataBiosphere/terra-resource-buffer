@@ -25,7 +25,6 @@ public class BackwardsCompatibilityTest extends BaseUnitTest {
 
     assertEquals(ResourceType.GOOGLE_PROJECT, ResourceType.valueOf("GOOGLE_PROJECT"));
     assertEquals(ResourceType.GKE_CLUSTER, ResourceType.valueOf("GKE_CLUSTER"));
-    ;
   }
 
   /**
@@ -39,6 +38,5 @@ public class BackwardsCompatibilityTest extends BaseUnitTest {
 
     assertEquals(PoolStatus.ACTIVE, PoolStatus.valueOf("ACTIVE"));
     assertEquals(PoolStatus.INACTIVE, PoolStatus.valueOf("INACTIVE"));
-    ;
   }
 }
