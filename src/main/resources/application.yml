@@ -7,6 +7,3 @@ rbs:
     username: ${DATABASE_USER}
   server:
     port: 8080
-  pool:
-    update-pool-on-start: true
-    configPath: config/dev

@@ -5,6 +5,3 @@ rbs:
     update-db-on-start: true
     uri: jdbc:postgresql://127.0.0.1:5432/testdb
     username: dbuser
-  pool:
-    update-pool-on-start: false
-    configPath: config/test
