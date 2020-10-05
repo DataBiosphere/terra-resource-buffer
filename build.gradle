@@ -23,6 +23,10 @@ sourceCompatibility = '1.8'
 
 repositories {
     mavenCentral()
+
+    maven {
+        url 'https://broadinstitute.jfrog.io/broadinstitute/libs-release-local/'
+    }
 }
 
 dependencies {
@@ -42,6 +46,8 @@ dependencies {
 
     implementation "com.google.auto.value:auto-value-annotations:1.7.3"
     annotationProcessor "com.google.auto.value:auto-value:1.7.3"
+
+    implementation 'bio.terra:stairway:0.0.20-SNAPSHOT'
 
     // -- Swagger CodeGen dependencies --
     swaggerCodegen 'io.swagger.codegen.v3:swagger-codegen-cli:3.0.20'
