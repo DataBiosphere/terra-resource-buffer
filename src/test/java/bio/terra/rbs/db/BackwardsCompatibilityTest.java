@@ -25,7 +25,6 @@ public class BackwardsCompatibilityTest extends BaseUnitTest {
 
     assertEquals(ResourceType.GOOGLE_PROJECT, ResourceType.valueOf("GOOGLE_PROJECT"));
     assertEquals(ResourceType.GKE_CLUSTER, ResourceType.valueOf("GKE_CLUSTER"));
-    ;
   }
 
   /**
@@ -37,8 +36,7 @@ public class BackwardsCompatibilityTest extends BaseUnitTest {
     // Make sure we won't forget to modify this test when we add/remove enums.
     assertEquals(2, PoolStatus.values().length);
 
-    assertEquals(PoolStatus.ACTIVE, ResourceType.valueOf("ACTIVE"));
-    assertEquals(PoolStatus.INACTIVE, ResourceType.valueOf("INACTIVE"));
-    ;
+    assertEquals(PoolStatus.ACTIVE, PoolStatus.valueOf("ACTIVE"));
+    assertEquals(PoolStatus.INACTIVE, PoolStatus.valueOf("INACTIVE"));
   }
 }

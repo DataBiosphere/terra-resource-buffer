@@ -4,7 +4,6 @@ import static bio.terra.rbs.app.configuration.PoolConfiguration.POOL_SCHEMA_NAME
 import static bio.terra.rbs.app.configuration.PoolConfiguration.RESOURCE_CONFIG_SUB_DIR_NAME;
 
 import bio.terra.rbs.app.configuration.PoolConfiguration;
-import bio.terra.rbs.common.exception.InvalidPoolConfigException;
 import bio.terra.rbs.db.Pool;
 import bio.terra.rbs.db.PoolId;
 import bio.terra.rbs.db.PoolStatus;
@@ -17,7 +16,6 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
-import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
@@ -25,7 +23,8 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Component;
 
 /** Service to handle pool operations. */
@@ -33,7 +32,6 @@ import org.springframework.stereotype.Component;
 public class PoolService {
   private final Logger logger = LoggerFactory.getLogger(PoolService.class);
 
-  private final ObjectMapper objectMapper;
   private final PoolConfiguration poolConfiguration;
   private final RbsDao rbsDao;
   private final ResourceConfigTypeVisitor typeVisitor;
@@ -44,23 +42,27 @@ public class PoolService {
       PoolConfiguration poolConfiguration,
       RbsDao rbsDao,
       ResourceConfigTypeVisitor typeVisitor) {
-    this.objectMapper = objectMapper;
     this.poolConfiguration = poolConfiguration;
     this.rbsDao = rbsDao;
     this.typeVisitor = typeVisitor;
   }
 
-  /** Initialize Pool*/
+  /** Initialize Pool from config and figure out pools to create/delete/update */
   public void initialize() {
     logger.info("Pool config update enabled: " + poolConfiguration.isUpdatePoolOnStart());
-    if(!poolConfiguration.isUpdatePoolOnStart()) {
-      return;
+    if (poolConfiguration.isUpdatePoolOnStart()) {
+      initializeFromConfig();
     }
+  }
+
+  @VisibleForTesting
+  void initializeFromConfig() {
+    System.out.println("~~~~~~~~!!!!!!!");
     Map<String, Pool> activePoolMap =
         rbsDao.retrievePools(PoolStatus.ACTIVE).stream()
             .collect(Collectors.toMap(Pool::name, pool -> pool));
     Map<String, Pool> loadedPoolMap = loadPoolConfig(poolConfiguration.getConfigPath());
-
+    System.out.println(activePoolMap.size());
     MapDifference<String, Pool> mapDifference = Maps.difference(activePoolMap, loadedPoolMap);
     Map<String, Pool> poolsToCreate = mapDifference.entriesOnlyOnRight();
     createPools(poolsToCreate);
@@ -74,13 +76,14 @@ public class PoolService {
   private void createPools(Map<String, Pool> poolsToCreate) {
     List<Pool> pools = new ArrayList<>();
     for (Pool pool : poolsToCreate.values()) {
-      pool.toBuilder()
-          .id(PoolId.create(UUID.randomUUID()))
-          .creation(Instant.now())
-          .resourceType(typeVisitor.accept(pool.resourceConfig()))
-          .status(PoolStatus.ACTIVE)
-          .build();
-      pools.add(pool);
+      Pool createdPool =
+          pool.toBuilder()
+              .id(PoolId.create(UUID.randomUUID()))
+              .creation(Instant.now())
+              .resourceType(typeVisitor.accept(pool.resourceConfig()))
+              .status(PoolStatus.ACTIVE)
+              .build();
+      pools.add(createdPool);
     }
     rbsDao.createPools(pools);
   }
@@ -88,38 +91,33 @@ public class PoolService {
   /** Parse and load {@link PoolConfig} and {@link ResourceConfig} from file. */
   @VisibleForTesting
   public static Map<String, Pool> loadPoolConfig(String folderName) {
+    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
     ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory()).findAndRegisterModules();
     // Parse PoolConfig
     Pools pools;
     try {
       pools =
           objectMapper.readValue(
-              new ClassPathResource(folderName + POOL_SCHEMA_NAME).getFile(), Pools.class);
+              classLoader.getResourceAsStream(folderName + "/" + POOL_SCHEMA_NAME), Pools.class);
     } catch (IOException e) {
       throw new RuntimeException(
-          String.format("Failed to parse PoolConfig for %s", folderName + POOL_SCHEMA_NAME));
+          String.format("Failed to parse pool schema for folder %s", folderName), e);
     }
 
     // Parse ResourceConfig
-    File configFolder;
-    try {
-      configFolder =
-          new ClassPathResource(folderName + "/" + RESOURCE_CONFIG_SUB_DIR_NAME).getFile();
-    } catch (IOException e) {
-      throw new InvalidPoolConfigException(
-          String.format("Failed to load resource configs from %s", folderName));
-    }
-
     Map<String, ResourceConfig> resourceConfigNameMap = new HashMap<>();
-    for (File file : configFolder.listFiles()) {
-      ResourceConfig resourceConfig = null;
-      try {
-        resourceConfig = objectMapper.readValue(file, ResourceConfig.class);
+    PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+    try {
+      Resource[] resources =
+          resolver.getResources(folderName + "/" + RESOURCE_CONFIG_SUB_DIR_NAME + "/*.yml");
+      for (Resource resource : resources) {
+        ResourceConfig resourceConfig =
+            objectMapper.readValue(resource.getInputStream(), ResourceConfig.class);
         resourceConfigNameMap.put(resourceConfig.getConfigName(), resourceConfig);
-      } catch (IOException e) {
-        throw new RuntimeException(
-            String.format("Failed to parse PoolConfig for %s", file.getName()));
       }
+    } catch (IOException e) {
+      throw new RuntimeException(
+          String.format("Failed to parse ResourceConfig for %s", folderName), e);
     }
 
     // Verify PoolConfig and ResourceConfig name match, then construct parsed result.

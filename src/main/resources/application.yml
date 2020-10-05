@@ -9,4 +9,6 @@ rbs:
     port: 8080
   pool:
     update-pool-on-start: true
+    # The Folder to have all RBS configs.
+    # TODO: Investigate where and how to put those files.
     configPath: config/dev

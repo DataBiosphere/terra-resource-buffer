@@ -8,18 +8,22 @@ import javax.annotation.Nullable;
 /** Represents a record in the pool table in the RBS database. */
 @AutoValue
 public abstract class Pool {
+  @Nullable
   public abstract PoolId id();
 
   public abstract String name();
 
   public abstract ResourceConfig resourceConfig();
 
-  public abstract ResourceType resourceType();
-
-  public abstract PoolStatus status();
-
   public abstract int size();
 
+  @Nullable
+  public abstract ResourceType resourceType();
+
+  @Nullable
+  public abstract PoolStatus status();
+
+  @Nullable
   public abstract Instant creation();
 
   @Nullable
