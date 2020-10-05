@@ -21,10 +21,9 @@ public class BackwardsCompatibilityTest extends BaseUnitTest {
   @Test
   public void resourceType() {
     // Make sure we won't forget to modify this test when we add/remove enums.
-    assertEquals(2, ResourceType.values().length);
+    assertEquals(1, ResourceType.values().length);
 
     assertEquals(ResourceType.GOOGLE_PROJECT, ResourceType.valueOf("GOOGLE_PROJECT"));
-    assertEquals(ResourceType.GKE_CLUSTER, ResourceType.valueOf("GKE_CLUSTER"));
   }
 
   /**

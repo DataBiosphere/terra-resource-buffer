@@ -7,6 +7,8 @@ package bio.terra.rbs.db;
  * changed.
  */
 public enum PoolStatus {
+  /** Active pool, able to handout resources. */
   ACTIVE,
+  /** Inactive pool, all resources are deleted or being deleted, not able to handout resources. */
   INACTIVE,
 }

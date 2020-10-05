@@ -34,7 +34,7 @@ databaseChangeLog:
             - column:
                 name: resource_type
                 type: text
-                remarks: contains resource type enum('GOOGLE_PROJECT', 'GKE_CLUSTER')
+                remarks: contains resource type enum('GOOGLE_PROJECT')
                 constraints:
                   nullable: false
                   unique: false

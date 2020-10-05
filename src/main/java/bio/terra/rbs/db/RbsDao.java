@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+/** RBS Database data access object. */
 @Component
 public class RbsDao {
   private final NamedParameterJdbcTemplate jdbcTemplate;
