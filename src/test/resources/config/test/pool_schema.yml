@@ -1,4 +1,4 @@
-# RBS Pools Schema in dev environment
+# RBS Pools Schema for test
 ---
 poolConfigs:
   - poolName: "aou_ws_test_v1"
