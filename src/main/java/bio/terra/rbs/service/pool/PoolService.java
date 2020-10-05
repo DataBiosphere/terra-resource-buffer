@@ -38,10 +38,7 @@ public class PoolService {
 
   @Autowired
   public PoolService(
-      ObjectMapper objectMapper,
-      PoolConfiguration poolConfiguration,
-      RbsDao rbsDao,
-      ResourceConfigTypeVisitor typeVisitor) {
+      PoolConfiguration poolConfiguration, RbsDao rbsDao, ResourceConfigTypeVisitor typeVisitor) {
     this.poolConfiguration = poolConfiguration;
     this.rbsDao = rbsDao;
     this.typeVisitor = typeVisitor;
@@ -57,40 +54,55 @@ public class PoolService {
 
   @VisibleForTesting
   void initializeFromConfig() {
-    System.out.println("~~~~~~~~!!!!!!!");
-    Map<String, Pool> activePoolMap =
-        rbsDao.retrievePools(PoolStatus.ACTIVE).stream()
-            .collect(Collectors.toMap(Pool::name, pool -> pool));
-    Map<String, Pool> loadedPoolMap = loadPoolConfig(poolConfiguration.getConfigPath());
-    System.out.println(activePoolMap.size());
-    MapDifference<String, Pool> mapDifference = Maps.difference(activePoolMap, loadedPoolMap);
-    Map<String, Pool> poolsToCreate = mapDifference.entriesOnlyOnRight();
-    createPools(poolsToCreate);
+    List<Pool> activatePools = rbsDao.retrievePools(PoolStatus.ACTIVE);
+    Map<PoolConfig, ResourceConfig> parsedPoolConfigs =
+        loadPoolConfig(poolConfiguration.getConfigPath());
+
+    Map<String, Integer> activatePoolNameSizeMap =
+        activatePools.stream().collect(Collectors.toMap(Pool::name, Pool::size));
+    Map<String, Integer> parsedPoolNameSizeMap =
+        parsedPoolConfigs.keySet().stream()
+            .collect(Collectors.toMap(PoolConfig::getPoolName, PoolConfig::getSize));
+    MapDifference<String, Integer> mapDifference =
+        Maps.difference(activatePoolNameSizeMap, parsedPoolNameSizeMap);
+
+    Map<String, Integer> poolsToCreate = mapDifference.entriesOnlyOnRight();
+    Map<String, Integer> poolsToDelete = mapDifference.entriesOnlyOnLeft();
+    Map<String, MapDifference.ValueDifference<Integer>> poolsToUpdateSize =
+        mapDifference.entriesDiffering();
+
+    // Create Pools
+    createPools(poolsToCreate, parsedPoolConfigs);
 
     // TODO: Delete pool
-    Map<String, Pool> poolsToDelete = mapDifference.entriesOnlyOnLeft();
 
     // TODO: Update pool size
   }
 
-  private void createPools(Map<String, Pool> poolsToCreate) {
+  private void createPools(
+      Map<String, Integer> poolsToCreate, Map<PoolConfig, ResourceConfig> parsedPools) {
     List<Pool> pools = new ArrayList<>();
-    for (Pool pool : poolsToCreate.values()) {
-      Pool createdPool =
-          pool.toBuilder()
-              .id(PoolId.create(UUID.randomUUID()))
-              .creation(Instant.now())
-              .resourceType(typeVisitor.accept(pool.resourceConfig()))
-              .status(PoolStatus.ACTIVE)
-              .build();
-      pools.add(createdPool);
+    for (Map.Entry<PoolConfig, ResourceConfig> poolConfig : parsedPools.entrySet()) {
+      if (poolsToCreate.containsKey(poolConfig.getKey().getPoolName())) {
+        Pool createdPool =
+            Pool.builder()
+                .id(PoolId.create(UUID.randomUUID()))
+                .name(poolConfig.getKey().getPoolName())
+                .size(poolConfig.getKey().getSize())
+                .resourceConfig(poolConfig.getValue())
+                .creation(Instant.now())
+                .resourceType(typeVisitor.accept(poolConfig.getValue()))
+                .status(PoolStatus.ACTIVE)
+                .build();
+        pools.add(createdPool);
+      }
     }
     rbsDao.createPools(pools);
   }
 
   /** Parse and load {@link PoolConfig} and {@link ResourceConfig} from file. */
   @VisibleForTesting
-  public static Map<String, Pool> loadPoolConfig(String folderName) {
+  public static Map<PoolConfig, ResourceConfig> loadPoolConfig(String folderName) {
     ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
     ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory()).findAndRegisterModules();
     // Parse PoolConfig
@@ -121,7 +133,7 @@ public class PoolService {
     }
 
     // Verify PoolConfig and ResourceConfig name match, then construct parsed result.
-    Map<String, Pool> parsedPoolMap = new HashMap<>();
+    Map<PoolConfig, ResourceConfig> parsedPoolMap = new HashMap<>();
     for (PoolConfig poolConfig : pools.getPoolConfigs()) {
       if (!resourceConfigNameMap.containsKey(poolConfig.getResourceConfigName())) {
         throw new RuntimeException(
@@ -129,13 +141,7 @@ public class PoolService {
                 "ResourceConfig not found for name: %s, folder: %s",
                 poolConfig.getResourceConfigName(), folderName));
       }
-      Pool pool =
-          Pool.builder()
-              .name(poolConfig.getPoolName())
-              .size(poolConfig.getSize())
-              .resourceConfig(resourceConfigNameMap.get(poolConfig.getResourceConfigName()))
-              .build();
-      parsedPoolMap.put(pool.name(), pool);
+      parsedPoolMap.put(poolConfig, resourceConfigNameMap.get(poolConfig.getResourceConfigName()));
     }
     return parsedPoolMap;
   }
