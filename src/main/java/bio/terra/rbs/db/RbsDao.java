@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+/** RBS Database data access object. */
 @Component
 public class RbsDao {
   private final NamedParameterJdbcTemplate jdbcTemplate;
@@ -36,7 +37,7 @@ public class RbsDao {
   /**
    * Creates the pool record and adding labels.
    *
-   * <p>Note that we assume int input {@code cloudResourceUid} is valid.
+   * <p>Note that we assume the nested {@link ResourceConfig} is valid.
    */
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
   public void createPools(List<Pool> pools) {

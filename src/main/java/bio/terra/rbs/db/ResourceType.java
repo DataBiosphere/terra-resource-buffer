@@ -10,5 +10,4 @@ package bio.terra.rbs.db;
  */
 public enum ResourceType {
   GOOGLE_PROJECT,
-  GKE_CLUSTER,
 }
