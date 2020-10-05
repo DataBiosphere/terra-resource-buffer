@@ -20,12 +20,6 @@ databaseChangeLog:
                   primaryKey: false
                   nullable: false
             - column:
-                name: version
-                type: text
-                constraints:
-                  nullable: false
-                  unique: false
-            - column:
                 name: creation
                 type: timestamptz
                 constraints:
@@ -40,7 +34,7 @@ databaseChangeLog:
             - column:
                 name: resource_type
                 type: text
-                remarks: contains resource type enum('GOOGLE_PROJECT', 'GKE_CLUSTER')
+                remarks: contains resource type enum('GOOGLE_PROJECT')
                 constraints:
                   nullable: false
                   unique: false
