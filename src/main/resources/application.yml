@@ -1,17 +1,17 @@
 rbs:
   db:
-    password: ${DATABASE_USER_PASSWORD}
+    password:
     recreate-db-on-start: false
     update-db-on-start: true
-    uri: jdbc:postgresql://127.0.0.1:5432/${DATABASE_NAME}
-    username: ${DATABASE_USER}
+    uri: jdbc:postgresql://127.0.0.1:5432/${RBS_DATABASE_NAME}
+    username:
   server:
     port: 8080
   stairway:
     db:
-      password: ${STAIRWAY_DATABASE_USER_PASSWORD}
-      uri: jdbc:postgresql://127.0.0.1:5432/${STAIRWAY_DATABASE_NAME}
-      username: ${STAIRWAY_DATABASE_USER}
+      password:
+      uri: jdbc:postgresql://127.0.0.1:5432/${RBS_STAIRWAY_DB_NAME}
+      username:
     force-clean-start: false
     max-parallel-flights: 40
     migrate-upgrade: true

@@ -1,9 +1,9 @@
 #!/bin/bash
 
-export DATABASE_USER=dbuser
-export DATABASE_USER_PASSWORD=dbpwd
-export DATABASE_NAME=testdb
-export STAIRWAY_DATABASE_USER=dbuser_stairway
-export STAIRWAY_DATABASE_USER_PASSWORD=dbpwd_stairway
-export STAIRWAY_DATABASE_NAME=testdb_stairway
+export RBS_DB_USER=dbuser
+export RBS_DB_PASSWORD=dbpwd
+export RBS_DATABASE_NAME=testdb
+export RBS_STAIRWAY_DB_USER=dbuser_stairway
+export RBS_STAIRWAY_DB_PASSWORD=dbpwd_stairway
+export RBS_STAIRWAY_DATABASE_NAME=testdb_stairway
 ./gradlew bootRun
