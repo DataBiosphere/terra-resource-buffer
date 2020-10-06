@@ -90,7 +90,7 @@ public class PoolServiceTest extends BaseUnitTest {
   }
 
   @Test
-  public void updateFromConfig_resourceConfigUpdate() throws Exception {
+  public void updateFromConfig_updateResourceConfigOnExistingPool() throws Exception {
     PoolId poolId = PoolId.create("poolId");
     PoolConfig poolConfig =
         new PoolConfig().poolId(poolId.toString()).size(1).resourceConfigName(RESOURCE_CONFIG_NAME);
