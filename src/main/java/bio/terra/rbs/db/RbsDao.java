@@ -63,16 +63,13 @@ public class RbsDao {
 
   /** Retrieves all pools match the status. */
   @Transactional(propagation = Propagation.SUPPORTS)
-  public List<Pool> retrievePools(PoolStatus status) {
+  public List<Pool> retrievePools() {
+    // TODO: Add filter
     String sql =
         "select p.id, p.resource_config, p.resource_type, p.creation, p.size, p.status "
-            + "FROM pool p "
-            + "WHERE p.status = :pool_status";
+            + "FROM pool p ";
 
-    MapSqlParameterSource params =
-        new MapSqlParameterSource().addValue("pool_status", status.toString());
-
-    return jdbcTemplate.query(sql, params, POOL_ROW_MAPPER);
+    return jdbcTemplate.query(sql, POOL_ROW_MAPPER);
   }
 
   private static final RowMapper<Pool> POOL_ROW_MAPPER =

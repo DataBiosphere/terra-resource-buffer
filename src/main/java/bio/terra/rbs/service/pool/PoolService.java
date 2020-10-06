@@ -41,26 +41,36 @@ public class PoolService {
 
   @VisibleForTesting
   void initializeFromConfig(List<PoolWithResourceConfig> parsedPoolConfigs) {
-    Map<String, Pool> activatePoolMap =
-        Maps.uniqueIndex(rbsDao.retrievePools(PoolStatus.ACTIVE), pool -> pool.id().toString());
+    Map<String, Pool> allDbPoolsMap =
+        Maps.uniqueIndex(rbsDao.retrievePools(), pool -> pool.id().toString());
     Map<String, PoolWithResourceConfig> parsedPoolConfigMap =
         Maps.uniqueIndex(parsedPoolConfigs, config -> config.poolConfig().getPoolId());
 
-    Set<String> allPoolIds = Sets.union(activatePoolMap.keySet(), parsedPoolConfigMap.keySet());
+    Set<String> allPoolIds = Sets.union(allDbPoolsMap.keySet(), parsedPoolConfigMap.keySet());
 
     List<PoolWithResourceConfig> poolsToCreate = new ArrayList<>();
     List<Pool> poolsToDelete = new ArrayList<>();
     Map<PoolId, Integer> poolsToUpdateSize = new HashMap<>();
+
+    // Compare pool ids in DB and config. Validate config change is valid then update DB based on
+    // the change.
     for (String id : allPoolIds) {
-      if (parsedPoolConfigMap.containsKey(id) && !activatePoolMap.containsKey(id)) {
+      if (parsedPoolConfigMap.containsKey(id) && !allDbPoolsMap.containsKey(id)) {
         // Exists in config but not in DB.
         poolsToCreate.add(parsedPoolConfigMap.get(id));
-      } else if (!parsedPoolConfigMap.containsKey(id) && activatePoolMap.containsKey(id)) {
+      } else if (!parsedPoolConfigMap.containsKey(id) && allDbPoolsMap.containsKey(id)) {
         // Exists in DB but not in Config.
-        poolsToDelete.add(activatePoolMap.get(id));
+        poolsToDelete.add(allDbPoolsMap.get(id));
       } else {
-        Pool dbPool = activatePoolMap.get(id);
+        Pool dbPool = allDbPoolsMap.get(id);
         PoolWithResourceConfig configPool = parsedPoolConfigMap.get(id);
+        if (dbPool.status().equals(PoolStatus.INACTIVE)) {
+          throw new RuntimeException(
+              String.format(
+                  "An existing inactive pool with duplicate id(id= %s) found, "
+                      + "please consider change the pool id.",
+                  id));
+        }
         if (!dbPool.resourceConfig().equals(configPool.resourceConfig())) {
           // Updating existing resource config other than size.
           // Note that we already verify pool configs' resource_config_name matches inside

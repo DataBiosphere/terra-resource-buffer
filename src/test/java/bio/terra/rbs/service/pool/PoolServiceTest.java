@@ -42,7 +42,7 @@ public class PoolServiceTest extends BaseUnitTest {
             resourceConfig);
 
     poolService.initializeFromConfig(ImmutableList.of(parsedPoolConfig));
-    List<Pool> pools = rbsDao.retrievePools(PoolStatus.ACTIVE);
+    List<Pool> pools = rbsDao.retrievePools();
 
     assertEquals(1, pools.size());
     Pool createdPool = pools.get(0);
@@ -55,17 +55,18 @@ public class PoolServiceTest extends BaseUnitTest {
   @Test
   public void initialize_resourceConfigUpdate() throws Exception {
     String poolId = "poolId";
-    rbsDao.createPools(
-        ImmutableList.of(
-            Pool.builder()
-                .creation(Instant.now())
-                .id(PoolId.create(poolId))
-                .resourceType(ResourceType.GOOGLE_PROJECT)
-                .size(1)
-                .resourceConfig(
-                    newResourceConfig(new GcpProjectConfig().projectIDPrefix("aou-rw-test")))
-                .status(PoolStatus.ACTIVE)
-                .build()));
+    Pool pool =
+        Pool.builder()
+            .creation(Instant.now())
+            .id(PoolId.create(poolId))
+            .resourceType(ResourceType.GOOGLE_PROJECT)
+            .size(1)
+            .resourceConfig(
+                newResourceConfig(new GcpProjectConfig().projectIDPrefix("aou-rw-test")))
+            .status(PoolStatus.ACTIVE)
+            .build();
+
+    rbsDao.createPools(ImmutableList.of(pool));
 
     PoolWithResourceConfig parsedPoolConfig =
         PoolWithResourceConfig.create(
@@ -75,5 +76,7 @@ public class PoolServiceTest extends BaseUnitTest {
     assertThrows(
         RuntimeException.class,
         () -> poolService.initializeFromConfig(ImmutableList.of(parsedPoolConfig)));
+
+    assertEquals(rbsDao.retrievePools().get(0), pool);
   }
 }

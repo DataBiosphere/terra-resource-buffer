@@ -4,7 +4,7 @@ import static bio.terra.rbs.app.configuration.PoolConfiguration.POOL_SCHEMA_NAME
 import static bio.terra.rbs.app.configuration.PoolConfiguration.RESOURCE_CONFIG_SUB_DIR_NAME;
 
 import bio.terra.rbs.generated.model.PoolConfig;
-import bio.terra.rbs.generated.model.Pools;
+import bio.terra.rbs.generated.model.PoolConfigs;
 import bio.terra.rbs.generated.model.ResourceConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -16,6 +16,9 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 /**
  * Load and validate {@link PoolConfig} passed from config files.
+ *
+ * <p>Pool configs are stored in config folder, the expected files under the folder are: {@code
+ * resource-config - resource_config_1.yml - resource_config_2.yml pool_schema.yml }
  *
  * <p>Config is invalid if:
  *
@@ -29,18 +32,21 @@ public class PoolConfigLoader {
   /** Parse and validate {@link PoolConfig} and {@link ResourceConfig} from file. */
   @VisibleForTesting
   public static List<PoolWithResourceConfig> loadPoolConfig(String folderName) {
-    Pools pools = parsePools(folderName);
+    PoolConfigs poolConfigs = parsePools(folderName);
     Map<String, ResourceConfig> resourceConfigNameMap = parseResourceConfig(folderName);
-    return combineParsedConfig(pools, resourceConfigNameMap);
+    return combineParsedConfig(poolConfigs, resourceConfigNameMap);
   }
 
-  /** Deserialize {@link Pools} which contains list of {@link PoolConfig} from config folder. */
-  private static Pools parsePools(String folderName) {
+  /**
+   * Deserialize {@link PoolConfigs} which contains map of {@link PoolConfig} keyed on pool id from
+   * config folder.
+   */
+  private static PoolConfigs parsePools(String folderName) {
     ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
     ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory()).findAndRegisterModules();
     try {
       return objectMapper.readValue(
-          classLoader.getResourceAsStream(folderName + "/" + POOL_SCHEMA_NAME), Pools.class);
+          classLoader.getResourceAsStream(folderName + "/" + POOL_SCHEMA_NAME), PoolConfigs.class);
     } catch (IOException e) {
       throw new BadPoolConfigException(
           String.format("Failed to parse pool schema for folder %s", folderName), e);
@@ -69,20 +75,20 @@ public class PoolConfigLoader {
   }
 
   /**
-   * Combine parsed {@link Pools} with {@link ResourceConfig} into {@link PoolWithResourceConfig}.
+   * Combine parsed {@link PoolConfigs} with {@link ResourceConfig} into {@link
+   * PoolWithResourceConfig}.
    */
   @VisibleForTesting
   static List<PoolWithResourceConfig> combineParsedConfig(
-      Pools pools, Map<String, ResourceConfig> resourceConfigNameMap) {
+      PoolConfigs PoolConfigs, Map<String, ResourceConfig> resourceConfigNameMap) {
     List<PoolWithResourceConfig> result = new ArrayList<>();
-    Set<String> poolIds = new HashSet<>();
-    for (PoolConfig poolConfig : pools.getPoolConfigs()) {
+    Set<String> seenPoolIds = new HashSet<>();
+    for (PoolConfig poolConfig : PoolConfigs.getPoolConfigs()) {
       // Verify pool id is unique in config.
-      if (poolIds.contains(poolConfig.getPoolId())) {
+      if (!seenPoolIds.add(poolConfig.getPoolId())) {
         throw new BadPoolConfigException(
             String.format("Duplicate PoolId found for: %s", poolConfig.getPoolId()));
       }
-      poolIds.add(poolConfig.getPoolId());
 
       // Verify resource configs exist.
       if (!resourceConfigNameMap.containsKey(poolConfig.getResourceConfigName())) {
