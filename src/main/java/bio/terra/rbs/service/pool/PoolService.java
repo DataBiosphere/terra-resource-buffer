@@ -40,12 +40,12 @@ public class PoolService {
     if (poolConfiguration.isUpdatePoolOnStart()) {
       List<PoolWithResourceConfig> parsedPoolConfigs;
       parsedPoolConfigs = loadPoolConfig(poolConfiguration.getConfigPath());
-      transactionTemplate.execute(status -> initializeFromConfig(parsedPoolConfigs, status));
+      transactionTemplate.execute(status -> updateFromConfig(parsedPoolConfigs, status));
     }
   }
 
   @VisibleForTesting
-  boolean initializeFromConfig(
+  boolean updateFromConfig(
       List<PoolWithResourceConfig> parsedPoolConfigs, TransactionStatus status) {
     Map<PoolId, Pool> allDbPoolsMap = Maps.uniqueIndex(rbsDao.retrievePools(), pool -> pool.id());
     Map<PoolId, PoolWithResourceConfig> parsedPoolConfigMap =

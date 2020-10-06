@@ -40,7 +40,7 @@ public class PoolConfigLoader {
   }
 
   /**
-   * Deserialize {@link PoolConfigs} which contains map of {@link PoolConfig} keyed on pool id from
+   * Deserializes {@link PoolConfigs} which contains map of {@link PoolConfig} keyed on pool id from
    * config folder.
    */
   private static PoolConfigs parsePools(String folderName) {
@@ -55,7 +55,10 @@ public class PoolConfigLoader {
     }
   }
 
-  /** Deserialize {@link ResourceConfig} from config folder. */
+  /**
+   * Deserializes {@link ResourceConfig} which contains map of {@link ResourceConfig} keyed on
+   * resource config name from config folder.
+   */
   private static Map<String, ResourceConfig> parseResourceConfig(String folderName) {
     ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory()).findAndRegisterModules();
     Map<String, ResourceConfig> resourceConfigNameMap = new HashMap<>();
