@@ -15,12 +15,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.transaction.TransactionStatus;
 
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class PoolServiceTest extends BaseUnitTest {
   @Autowired PoolService poolService;
   @Autowired RbsDao rbsDao;
+  TransactionStatus transactionStatus;
 
   private static final String RESOURCE_CONFIG_NAME = "aou_ws_resource_v1";
 
@@ -30,7 +32,7 @@ public class PoolServiceTest extends BaseUnitTest {
 
   @Test
   public void initialize_createPool() throws Exception {
-    String poolId = "poolId";
+    PoolId poolId = PoolId.create("poolId");
     ResourceConfig resourceConfig =
         newResourceConfig(
             new GcpProjectConfig()
@@ -38,15 +40,18 @@ public class PoolServiceTest extends BaseUnitTest {
                 .enabledApis(ImmutableList.of("bigquery-json.googleapis.com")));
     PoolWithResourceConfig parsedPoolConfig =
         PoolWithResourceConfig.create(
-            new PoolConfig().poolId(poolId).size(10).resourceConfigName(RESOURCE_CONFIG_NAME),
+            new PoolConfig()
+                .poolId(poolId.toString())
+                .size(10)
+                .resourceConfigName(RESOURCE_CONFIG_NAME),
             resourceConfig);
 
-    poolService.initializeFromConfig(ImmutableList.of(parsedPoolConfig));
+    poolService.initializeFromConfig(ImmutableList.of(parsedPoolConfig), transactionStatus);
     List<Pool> pools = rbsDao.retrievePools();
 
     assertEquals(1, pools.size());
     Pool createdPool = pools.get(0);
-    assertEquals(poolId, createdPool.id().toString());
+    assertEquals(poolId, createdPool.id());
     assertEquals(ResourceType.GOOGLE_PROJECT, createdPool.resourceType());
     assertEquals(PoolStatus.ACTIVE, createdPool.status());
     assertEquals(resourceConfig, createdPool.resourceConfig());
@@ -54,11 +59,11 @@ public class PoolServiceTest extends BaseUnitTest {
 
   @Test
   public void initialize_resourceConfigUpdate() throws Exception {
-    String poolId = "poolId";
+    PoolId poolId = PoolId.create("poolId");
     Pool pool =
         Pool.builder()
             .creation(Instant.now())
-            .id(PoolId.create(poolId))
+            .id(poolId)
             .resourceType(ResourceType.GOOGLE_PROJECT)
             .size(1)
             .resourceConfig(
@@ -70,12 +75,17 @@ public class PoolServiceTest extends BaseUnitTest {
 
     PoolWithResourceConfig parsedPoolConfig =
         PoolWithResourceConfig.create(
-            new PoolConfig().poolId(poolId).size(10).resourceConfigName(RESOURCE_CONFIG_NAME),
+            new PoolConfig()
+                .poolId(poolId.toString())
+                .size(10)
+                .resourceConfigName(RESOURCE_CONFIG_NAME),
             newResourceConfig(new GcpProjectConfig().projectIDPrefix("aou-rw-test111")));
 
     assertThrows(
         RuntimeException.class,
-        () -> poolService.initializeFromConfig(ImmutableList.of(parsedPoolConfig)));
+        () ->
+            poolService.initializeFromConfig(
+                ImmutableList.of(parsedPoolConfig), transactionStatus));
 
     assertEquals(rbsDao.retrievePools().get(0), pool);
   }

@@ -14,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /** Service to handle pool operations. */
 @Component
@@ -22,11 +24,14 @@ public class PoolService {
 
   private final PoolConfiguration poolConfiguration;
   private final RbsDao rbsDao;
+  private final TransactionTemplate transactionTemplate;
 
   @Autowired
-  public PoolService(PoolConfiguration poolConfiguration, RbsDao rbsDao) {
+  public PoolService(
+      PoolConfiguration poolConfiguration, RbsDao rbsDao, TransactionTemplate transactionTemplate) {
     this.poolConfiguration = poolConfiguration;
     this.rbsDao = rbsDao;
+    this.transactionTemplate = transactionTemplate;
   }
 
   /** Initialize Pool from config and figure out pools to create/delete/update */
@@ -35,18 +40,19 @@ public class PoolService {
     if (poolConfiguration.isUpdatePoolOnStart()) {
       List<PoolWithResourceConfig> parsedPoolConfigs;
       parsedPoolConfigs = loadPoolConfig(poolConfiguration.getConfigPath());
-      initializeFromConfig(parsedPoolConfigs);
+      transactionTemplate.execute(status -> initializeFromConfig(parsedPoolConfigs, status));
     }
   }
 
   @VisibleForTesting
-  void initializeFromConfig(List<PoolWithResourceConfig> parsedPoolConfigs) {
-    Map<String, Pool> allDbPoolsMap =
-        Maps.uniqueIndex(rbsDao.retrievePools(), pool -> pool.id().toString());
-    Map<String, PoolWithResourceConfig> parsedPoolConfigMap =
-        Maps.uniqueIndex(parsedPoolConfigs, config -> config.poolConfig().getPoolId());
+  boolean initializeFromConfig(
+      List<PoolWithResourceConfig> parsedPoolConfigs, TransactionStatus status) {
+    Map<PoolId, Pool> allDbPoolsMap = Maps.uniqueIndex(rbsDao.retrievePools(), pool -> pool.id());
+    Map<PoolId, PoolWithResourceConfig> parsedPoolConfigMap =
+        Maps.uniqueIndex(
+            parsedPoolConfigs, config -> PoolId.create(config.poolConfig().getPoolId()));
 
-    Set<String> allPoolIds = Sets.union(allDbPoolsMap.keySet(), parsedPoolConfigMap.keySet());
+    Set<PoolId> allPoolIds = Sets.union(allDbPoolsMap.keySet(), parsedPoolConfigMap.keySet());
 
     List<PoolWithResourceConfig> poolsToCreate = new ArrayList<>();
     List<Pool> poolsToDelete = new ArrayList<>();
@@ -54,7 +60,7 @@ public class PoolService {
 
     // Compare pool ids in DB and config. Validate config change is valid then update DB based on
     // the change.
-    for (String id : allPoolIds) {
+    for (PoolId id : allPoolIds) {
       if (parsedPoolConfigMap.containsKey(id) && !allDbPoolsMap.containsKey(id)) {
         // Exists in config but not in DB.
         poolsToCreate.add(parsedPoolConfigMap.get(id));
@@ -86,10 +92,10 @@ public class PoolService {
         }
       }
     }
-
     createPools(poolsToCreate);
     deletePools(poolsToDelete);
     updatePoolSize(poolsToUpdateSize);
+    return true;
   }
 
   private void createPools(List<PoolWithResourceConfig> poolsToCreate) {
