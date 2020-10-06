@@ -2,6 +2,7 @@ package bio.terra.rbs.app;
 
 import bio.terra.rbs.app.configuration.RbsJdbcConfiguration;
 import bio.terra.rbs.service.migrate.MigrateService;
+import bio.terra.rbs.service.pool.PoolService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -19,11 +20,14 @@ public final class StartupInitializer {
     MigrateService migrateService = applicationContext.getBean(MigrateService.class);
     RbsJdbcConfiguration rbsJdbcConfiguration =
         applicationContext.getBean(RbsJdbcConfiguration.class);
+    PoolService poolService = applicationContext.getBean(PoolService.class);
 
     if (rbsJdbcConfiguration.isRecreateDbOnStart()) {
       migrateService.initialize(changelogPath, rbsJdbcConfiguration.getDataSource());
     } else if (rbsJdbcConfiguration.isUpdateDbOnStart()) {
       migrateService.upgrade(changelogPath, rbsJdbcConfiguration.getDataSource());
     }
+
+    poolService.initialize();
   }
 }

@@ -42,16 +42,15 @@ public class RbsDao {
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
   public void createPools(List<Pool> pools) {
     String sql =
-        "INSERT INTO pool (id, name, resource_type, resource_config, size, creation, status) values "
-            + "(:id, :name, :resource_type, :resource_config::jsonb, :size, :creation, :status)";
+        "INSERT INTO pool (id, resource_type, resource_config, size, creation, status) values "
+            + "(:id, :resource_type, :resource_config::jsonb, :size, :creation, :status)";
 
     MapSqlParameterSource[] sqlParameterSourceList =
         pools.stream()
             .map(
                 pool ->
                     new MapSqlParameterSource()
-                        .addValue("id", pool.id().uuid())
-                        .addValue("name", pool.name())
+                        .addValue("id", pool.id().toString())
                         .addValue("resource_type", pool.resourceType().toString())
                         .addValue("resource_config", serialize(pool.resourceConfig()))
                         .addValue("size", pool.size())
@@ -66,7 +65,7 @@ public class RbsDao {
   @Transactional(propagation = Propagation.SUPPORTS)
   public List<Pool> retrievePools(PoolStatus status) {
     String sql =
-        "select p.id, p.name, p.resource_config, p.resource_type, p.creation, p.size, p.status "
+        "select p.id, p.resource_config, p.resource_type, p.creation, p.size, p.status "
             + "FROM pool p "
             + "WHERE p.status = :pool_status";
 
@@ -79,8 +78,7 @@ public class RbsDao {
   private static final RowMapper<Pool> POOL_ROW_MAPPER =
       (rs, rowNum) ->
           Pool.builder()
-              .id(PoolId.create(rs.getObject("id", UUID.class)))
-              .name(rs.getString("name"))
+              .id(PoolId.create(rs.getString("id")))
               .resourceConfig(deserialize(rs.getString("resource_config")))
               .resourceType(ResourceType.valueOf(rs.getString("resource_type")))
               .status(PoolStatus.valueOf(rs.getString("status")))

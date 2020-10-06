@@ -94,13 +94,13 @@ components:
       description: |-
         Terra RBS Reource Pool Config
       required:
-        - poolName
+        - poolId
         - size
         - resourceConfigName
       properties:
-        poolName:
+        poolId:
           description: |
-            The name of the pool.
+            The unique id of the pool.
           type: string
         size:
           description: |

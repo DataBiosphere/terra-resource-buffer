@@ -1,6 +1,6 @@
 package bio.terra.rbs.resource;
 
-import static bio.terra.rbs.service.pool.PoolService.loadPoolConfig;
+import static bio.terra.rbs.service.pool.PoolConfigLoader.loadPoolConfig;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.google.common.collect.ImmutableList;

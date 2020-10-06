@@ -39,9 +39,8 @@ public class RbsDaoTest extends BaseUnitTest {
             .gcpProjectConfig(new GcpProjectConfig().projectIDPrefix("test"));
     Pool pool1 =
         Pool.builder()
-            .id(PoolId.create(UUID.randomUUID()))
             .creation(now)
-            .name("pool1")
+            .id(PoolId.create("pool1"))
             .resourceType(ResourceType.GOOGLE_PROJECT)
             .size(1)
             .resourceConfig(resourceConfig)
@@ -49,9 +48,8 @@ public class RbsDaoTest extends BaseUnitTest {
             .build();
     Pool pool2 =
         Pool.builder()
-            .id(PoolId.create(UUID.randomUUID()))
             .creation(now)
-            .name("pool2")
+            .id(PoolId.create("pool2"))
             .resourceType(ResourceType.GOOGLE_PROJECT)
             .size(2)
             .resourceConfig(resourceConfig)

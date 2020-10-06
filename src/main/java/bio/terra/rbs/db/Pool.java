@@ -10,8 +10,6 @@ import javax.annotation.Nullable;
 public abstract class Pool {
   public abstract PoolId id();
 
-  public abstract String name();
-
   public abstract ResourceConfig resourceConfig();
 
   public abstract ResourceType resourceType();
@@ -34,8 +32,6 @@ public abstract class Pool {
   @AutoValue.Builder
   public abstract static class Builder {
     public abstract Builder id(PoolId id);
-
-    public abstract Builder name(String name);
 
     public abstract Builder resourceConfig(ResourceConfig resourceConfig);
 

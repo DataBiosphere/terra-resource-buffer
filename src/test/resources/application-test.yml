@@ -7,4 +7,3 @@ rbs:
     username: dbuser
   pool:
     update-pool-on-start: false
-    configPath: config/test
