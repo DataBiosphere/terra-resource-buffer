@@ -1,8 +1,5 @@
 package bio.terra.rbs.service.pool;
 
-import static bio.terra.rbs.app.configuration.PoolConfiguration.POOL_SCHEMA_NAME;
-import static bio.terra.rbs.app.configuration.PoolConfiguration.RESOURCE_CONFIG_SUB_DIR_NAME;
-
 import bio.terra.rbs.generated.model.PoolConfig;
 import bio.terra.rbs.generated.model.PoolConfigs;
 import bio.terra.rbs.generated.model.ResourceConfig;
@@ -29,6 +26,11 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
  * </ul>
  */
 public class PoolConfigLoader {
+  /** Pool schema file name should be the same name for all environments. */
+  private static final String POOL_SCHEMA_NAME = "pool_schema.yml";
+  /** Resource configs folder name should be the same name for all environments. */
+  private static final String RESOURCE_CONFIG_SUB_DIR_NAME = "resource-config";
+
   /** Parse and validate {@link PoolConfig} and {@link ResourceConfig} from file. */
   @VisibleForTesting
   public static List<PoolWithResourceConfig> loadPoolConfig(String folderName) {
