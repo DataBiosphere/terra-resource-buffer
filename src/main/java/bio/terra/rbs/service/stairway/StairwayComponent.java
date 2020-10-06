@@ -43,7 +43,7 @@ public class StairwayComponent {
         "Creating Stairway: name: [{}]  cluster name: [{}]",
         stairwayConfiguration.getClusterName(),
         stairwayConfiguration.getClusterName());
-    // TODO(CA-941): Configure the workqueue pubsub subscription and topic for multi-instance.
+    // TODO(PF-161): Configure the workqueue pubsub subscription and topic for multi-instance.
     Stairway.Builder builder =
         Stairway.newBuilder()
             .maxParallelFlights(stairwayConfiguration.getMaxParallelFlights())
@@ -60,12 +60,12 @@ public class StairwayComponent {
   public void initialize() {
     logger.warn("stairway username {}", stairwayJdbcConfiguration.getUsername());
     try {
-      // TODO(CA-941): Determine if Stairway and rbs database migrations need to be coordinated.
+      // TODO(PF-161): Determine if Stairway and rbs database migrations need to be coordinated.
       stairway.initialize(
           stairwayJdbcConfiguration.getDataSource(),
           stairwayConfiguration.isForceCleanStart(),
           stairwayConfiguration.isMigrateUpgrade());
-      // TODO(CA-941): Get obsolete Stairway instances from k8s for multi-instance stairway.
+      // (PF-161): Get obsolete Stairway instances from k8s for multi-instance stairway.
       stairway.recoverAndStart(ImmutableList.of());
     } catch (StairwayException | InterruptedException e) {
       status = Status.ERROR;
