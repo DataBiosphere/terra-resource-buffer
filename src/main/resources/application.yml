@@ -7,3 +7,10 @@ rbs:
     username: ${DATABASE_USER}
   server:
     port: 8080
+  pool:
+    # Whether to update pool when config changes during server startup.
+    # Might be useful to avoid potential backward compatibility casued by config change and make tests easier.
+    update-pool-on-start: true
+    # The Folder to have all RBS configs.
+    # TODO: Investigate where and how to put those files.
+    configPath: config/dev

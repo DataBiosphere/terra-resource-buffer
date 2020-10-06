@@ -15,8 +15,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.test.annotation.DirtiesContext;
 
 @AutoConfigureMockMvc
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class RbsDaoTest extends BaseUnitTest {
   @Autowired RbsJdbcConfiguration jdbcConfiguration;
   @Autowired RbsDao rbsDao;
@@ -37,9 +39,8 @@ public class RbsDaoTest extends BaseUnitTest {
             .gcpProjectConfig(new GcpProjectConfig().projectIDPrefix("test"));
     Pool pool1 =
         Pool.builder()
-            .id(PoolId.create(UUID.randomUUID()))
             .creation(now)
-            .name("pool1")
+            .id(PoolId.create("pool1"))
             .resourceType(ResourceType.GOOGLE_PROJECT)
             .size(1)
             .resourceConfig(resourceConfig)
@@ -47,9 +48,8 @@ public class RbsDaoTest extends BaseUnitTest {
             .build();
     Pool pool2 =
         Pool.builder()
-            .id(PoolId.create(UUID.randomUUID()))
             .creation(now)
-            .name("pool2")
+            .id(PoolId.create("pool2"))
             .resourceType(ResourceType.GOOGLE_PROJECT)
             .size(2)
             .resourceConfig(resourceConfig)
@@ -58,7 +58,7 @@ public class RbsDaoTest extends BaseUnitTest {
 
     rbsDao.createPools(ImmutableList.of(pool1, pool2));
 
-    List<Pool> pools = rbsDao.retrievePools(PoolStatus.ACTIVE);
+    List<Pool> pools = rbsDao.retrievePools();
     assertThat(pools, Matchers.containsInAnyOrder(pool1, pool2));
   }
 }

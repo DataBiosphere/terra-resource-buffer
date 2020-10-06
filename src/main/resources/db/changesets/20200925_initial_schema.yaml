@@ -8,17 +8,11 @@ databaseChangeLog:
           columns:
             - column:
                 name: id
-                type: uuid
+                type: text
                 constraints:
                   primaryKey: true
                   nullable: false
                   unique: true
-            - column:
-                name: name
-                type: text
-                constraints:
-                  primaryKey: false
-                  nullable: false
             - column:
                 name: creation
                 type: timestamptz
@@ -69,7 +63,7 @@ databaseChangeLog:
                   unique: true
             - column:
                 name: pool_id
-                type: uuid
+                type: text
                 constraints:
                   references: pool(id)
                   foreignKeyName: fk_pool_id
@@ -106,4 +100,3 @@ databaseChangeLog:
                 constraints:
                   nullable: true
                   unique: false
-
