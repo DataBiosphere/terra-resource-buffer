@@ -2,6 +2,7 @@ package bio.terra.rbs.app;
 
 import bio.terra.rbs.app.configuration.RbsJdbcConfiguration;
 import bio.terra.rbs.service.migrate.MigrateService;
+import bio.terra.rbs.service.stairway.StairwayComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -25,5 +26,6 @@ public final class StartupInitializer {
     } else if (rbsJdbcConfiguration.isUpdateDbOnStart()) {
       migrateService.upgrade(changelogPath, rbsJdbcConfiguration.getDataSource());
     }
+    applicationContext.getBean(StairwayComponent.class).initialize();
   }
 }

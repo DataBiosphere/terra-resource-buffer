@@ -7,3 +7,13 @@ rbs:
     username: ${DATABASE_USER}
   server:
     port: 8080
+  stairway:
+    db:
+      password: ${STAIRWAY_DATABASE_USER_PASSWORD}
+      uri: jdbc:postgresql://127.0.0.1:5432/${STAIRWAY_DATABASE_NAME}
+      username: ${STAIRWAY_DATABASE_USER}
+    force-clean-start: false
+    max-parallel-flights: 40
+    migrate-upgrade: true
+    quiet-down-timeout: 20s
+    terminate-timeout: 5s
