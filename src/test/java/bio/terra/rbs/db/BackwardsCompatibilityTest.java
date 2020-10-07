@@ -36,6 +36,6 @@ public class BackwardsCompatibilityTest extends BaseUnitTest {
     assertEquals(2, PoolStatus.values().length);
 
     assertEquals(PoolStatus.ACTIVE, PoolStatus.valueOf("ACTIVE"));
-    assertEquals(PoolStatus.INACTIVE, PoolStatus.valueOf("INACTIVE"));
+    assertEquals(PoolStatus.DEACTIVATED, PoolStatus.valueOf("DEACTIVATED"));
   }
 }
