@@ -40,8 +40,8 @@ public class BackwardsCompatibilityTest extends BaseUnitTest {
   }
 
   /**
-   * Change detection test for existing {@link ResourceState} enum values. More values should be added
-   * as the enum expands.
+   * Change detection test for existing {@link ResourceState} enum values. More values should be
+   * added as the enum expands.
    */
   @Test
   public void resourceState() {
@@ -50,6 +50,6 @@ public class BackwardsCompatibilityTest extends BaseUnitTest {
 
     assertEquals(ResourceState.CREATING, ResourceState.valueOf("CREATING"));
     assertEquals(ResourceState.READY, ResourceState.valueOf("READY"));
-    assertEquals(ResourceState.HANDEDOUT, ResourceState.valueOf("HANDEDOUT"));
+    assertEquals(ResourceState.USED, ResourceState.valueOf("USED"));
   }
 }

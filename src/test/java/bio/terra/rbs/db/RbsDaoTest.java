@@ -9,6 +9,7 @@ import bio.terra.rbs.generated.model.GcpProjectConfig;
 import bio.terra.rbs.generated.model.ResourceConfig;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultiset;
 import java.time.Instant;
 import java.util.*;
 import org.hamcrest.Matchers;
@@ -97,8 +98,9 @@ public class RbsDaoTest extends BaseUnitTest {
     rbsDao.createPools(ImmutableList.of(pool1, pool2));
 
     assertThat(
-        rbsDao.retrievePoolAndResourceCount(),
+        rbsDao.retrievePoolAndResourceStatesCount(),
         Matchers.containsInAnyOrder(
-            PoolAndResourceCount.create(pool1, 0), PoolAndResourceCount.create(pool2, 0)));
+            PoolAndResourceStates.create(pool1, ImmutableMultiset.of()),
+            PoolAndResourceStates.create(pool2, ImmutableMultiset.of())));
   }
 }

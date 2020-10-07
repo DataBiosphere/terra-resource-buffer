@@ -7,6 +7,8 @@ import bio.terra.rbs.generated.model.ResourceConfig;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Multiset;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
@@ -74,13 +76,15 @@ public class RbsDao {
 
   /** Retrieves all pools and READY resource count in each pool. */
   @Transactional(propagation = Propagation.SUPPORTS)
-  public List<PoolAndResourceCount> retrievePoolAndResourceCount() {
+  public List<PoolAndResourceStates> retrievePoolAndResourceStatesCount() {
     // TODO: Add filter
     String sql =
-        "select p.id, p.resource_config, p.resource_type, p.creation, p.size, p.status, "
-            + "(select count (*) from resource where pool_id = p.id and state = :state) as resource_count "
-            + "FROM pool p "
-            + "GROUP BY p.id, p.resource_config, p.resource_type, p.creation, p.size, p.status";
+        "select count (*) FILTER (WHERE r.state='READY') as ready_count, "
+            + "count(*) FILTER (WHERE r.state='CREATING') as creating_count, "
+            + "p.id, p.resource_config, p.resource_type, p.creation, p.size, p.status "
+            + "FROM resource r "
+            + "RIGHT JOIN pool p on r.pool_id = p.id "
+            + "GROUP BY p.id";
 
     MapSqlParameterSource params =
         new MapSqlParameterSource().addValue("state", ResourceState.READY.toString());
@@ -89,8 +93,9 @@ public class RbsDao {
         sql,
         params,
         (rs, rowNum) ->
-            PoolAndResourceCount.create(
-                POOL_ROW_MAPPER.mapRow(rs, rowNum), rs.getInt("resource_count")));
+            PoolAndResourceStates.create(
+                POOL_ROW_MAPPER.mapRow(rs, rowNum),
+                getResourceStateCountSet(rs.getInt("ready_count"), rs.getInt("creating_count"))));
   }
 
   /** Updates list of pools' status to DEACTIVATED. */
@@ -157,5 +162,13 @@ public class RbsDao {
     } catch (JsonProcessingException e) {
       throw new InvalidPoolConfigException("Failed to deserialize ResourceConfig");
     }
+  }
+
+  private static Multiset<ResourceState> getResourceStateCountSet(
+      int readyCount, int creatingCount) {
+    Multiset<ResourceState> result = HashMultiset.create();
+    result.add(ResourceState.READY, readyCount);
+    result.add(ResourceState.CREATING, creatingCount);
+    return result;
   }
 }

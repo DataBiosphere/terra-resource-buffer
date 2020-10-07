@@ -1,15 +1,16 @@
 package bio.terra.rbs.db;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.Multiset;
 
-/** Represents a {@link Pool} with number of READY resources in the pool. */
+/** Represents a {@link Pool} with number of resources in each state. */
 @AutoValue
-abstract class PoolAndResourceCount {
+abstract class PoolAndResourceStates {
   abstract Pool pool();
 
-  abstract int readyResourceCount();
+  abstract Multiset<ResourceState> resourceStates();
 
-  static PoolAndResourceCount create(Pool pool, int readyResourceCount) {
-    return new AutoValue_PoolAndResourceCount(pool, readyResourceCount);
+  static PoolAndResourceStates create(Pool pool, Multiset<ResourceState> resourceStates) {
+    return new AutoValue_PoolAndResourceStates(pool, resourceStates);
   }
 }

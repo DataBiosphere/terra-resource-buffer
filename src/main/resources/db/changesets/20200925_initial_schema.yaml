@@ -73,7 +73,7 @@ databaseChangeLog:
                 name: creation
                 type: timestamptz
                 constraints:
-                  nullable: false
+                  nullable: true
                   unique: false
             - column:
                 name: handout_time
@@ -84,7 +84,7 @@ databaseChangeLog:
             - column:
                 name: state
                 type: text
-                remarks: resource state enum('CREATING', 'READY', 'HANDEDOUT')
+                remarks: resource state enum('CREATING', 'READY', 'USED')
                 constraints:
                   nullable: false
                   unique: false

@@ -12,5 +12,5 @@ public enum ResourceState {
   /** Resource is ready to handout. */
   READY,
   /** Resource is handed out. */
-  HANDEDOUT,
+  USED,
 }
