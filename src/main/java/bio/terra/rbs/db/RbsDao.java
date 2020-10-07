@@ -78,11 +78,19 @@ public class RbsDao {
     // TODO: Add filter
     String sql =
         "select p.id, p.resource_config, p.resource_type, p.creation, p.size, p.status, "
-            + "(select count (*) from resource where pool_id = p.id) as resource_count "
+            + "(select count (*) from resource where pool_id = p.id and state = :state) as resource_count "
             + "FROM pool p "
             + "GROUP BY p.id, p.resource_config, p.resource_type, p.creation, p.size, p.status";
 
-    return jdbcTemplate.query(sql, POOL_AND_RESOURCE_COUNT_ROW_MAPPER);
+    MapSqlParameterSource params =
+        new MapSqlParameterSource().addValue("state", ResourceState.READY.toString());
+
+    return jdbcTemplate.query(
+        sql,
+        params,
+        (rs, rowNum) ->
+            PoolAndResourceCount.create(
+                POOL_ROW_MAPPER.mapRow(rs, rowNum), rs.getInt("resource_count")));
   }
 
   /** Updates list of pools' status to DEACTIVATED. */
@@ -130,19 +138,6 @@ public class RbsDao {
               .size(rs.getInt("size"))
               .creation(rs.getObject("creation", OffsetDateTime.class).toInstant())
               .build();
-
-  private static final RowMapper<PoolAndResourceCount> POOL_AND_RESOURCE_COUNT_ROW_MAPPER =
-      (rs, rowNum) ->
-          PoolAndResourceCount.create(
-              Pool.builder()
-                  .id(PoolId.create(rs.getString("id")))
-                  .resourceConfig(deserialize(rs.getString("resource_config")))
-                  .resourceType(ResourceType.valueOf(rs.getString("resource_type")))
-                  .status(PoolStatus.valueOf(rs.getString("status")))
-                  .size(rs.getInt("size"))
-                  .creation(rs.getObject("creation", OffsetDateTime.class).toInstant())
-                  .build(),
-              rs.getInt("resource_count"));
 
   /** Serializes {@link ResourceConfig} into json format string. */
   private static String serialize(ResourceConfig resourceConfig) {

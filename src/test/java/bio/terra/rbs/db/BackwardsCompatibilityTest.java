@@ -38,4 +38,18 @@ public class BackwardsCompatibilityTest extends BaseUnitTest {
     assertEquals(PoolStatus.ACTIVE, PoolStatus.valueOf("ACTIVE"));
     assertEquals(PoolStatus.DEACTIVATED, PoolStatus.valueOf("DEACTIVATED"));
   }
+
+  /**
+   * Change detection test for existing {@link PoolStatus} enum values. More values should be added
+   * as the enum expands.
+   */
+  @Test
+  public void resourceState() {
+    // Make sure we won't forget to modify this test when we add/remove enums.
+    assertEquals(3, ResourceState.values().length);
+
+    assertEquals(ResourceState.CREATING, ResourceState.valueOf("CREATING"));
+    assertEquals(ResourceState.READY, ResourceState.valueOf("READY"));
+    assertEquals(ResourceState.HANDEDOUT, ResourceState.valueOf("HANDEDOUT"));
+  }
 }
