@@ -110,7 +110,7 @@ public class PoolServiceTest extends BaseUnitTest {
   }
 
   @Test
-  public void updateFromConfig_inactivePoolExistsWithDuplicatePoolId_throwException()
+  public void updateFromConfig_deactivatedPoolExistsWithDuplicatePoolId_throwException()
       throws Exception {
     PoolId poolId = PoolId.create("poolId");
     PoolWithResourceConfig parsedPoolConfig =
@@ -126,7 +126,7 @@ public class PoolServiceTest extends BaseUnitTest {
     List<Pool> pools = rbsDao.retrievePools();
 
     Pool createdPool = pools.get(0);
-    assertEquals(PoolStatus.INACTIVE, createdPool.status());
+    assertEquals(PoolStatus.DEACTIVATED, createdPool.status());
 
     assertThrows(
         RuntimeException.class,
@@ -134,7 +134,7 @@ public class PoolServiceTest extends BaseUnitTest {
   }
 
   @Test
-  public void updateFromConfig_deletePool_updatePoolStatusSuccess() throws Exception {
+  public void updateFromConfig_deactivatePool_updatePoolStatusSuccess() throws Exception {
     PoolId poolId = PoolId.create("poolId");
     PoolWithResourceConfig parsedPoolConfig =
         PoolWithResourceConfig.create(
@@ -153,9 +153,9 @@ public class PoolServiceTest extends BaseUnitTest {
 
     poolService.updateFromConfig(ImmutableList.of(), transactionStatus);
 
-    Pool updatedPool = rbsDao.retrievePools().get(0);
-    assertEquals(poolId, updatedPool.id());
-    assertEquals(PoolStatus.INACTIVE, updatedPool.status());
+    Pool resizedPool = rbsDao.retrievePools().get(0);
+    assertEquals(poolId, resizedPool.id());
+    assertEquals(PoolStatus.DEACTIVATED, resizedPool.status());
   }
 
   @Test

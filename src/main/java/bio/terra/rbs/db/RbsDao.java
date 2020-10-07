@@ -72,7 +72,7 @@ public class RbsDao {
     return jdbcTemplate.query(sql, POOL_ROW_MAPPER);
   }
 
-  /** Updates list of pools' status to INACTIVE. */
+  /** Updates list of pools' status to DEACTIVATED. */
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
   public void deactivatePools(List<PoolId> poolIds) {
     String sql = "UPDATE pool SET status = :status, expiration = :expiration where id = :id ";
@@ -83,7 +83,7 @@ public class RbsDao {
                 poolId ->
                     new MapSqlParameterSource()
                         .addValue("id", poolId.id())
-                        .addValue("status", PoolStatus.INACTIVE.toString())
+                        .addValue("status", PoolStatus.DEACTIVATED.toString())
                         .addValue("expiration", OffsetDateTime.now(ZoneOffset.UTC)))
             .toArray(MapSqlParameterSource[]::new);
 

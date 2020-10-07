@@ -72,7 +72,7 @@ public class RbsDaoTest extends BaseUnitTest {
     rbsDao.deactivatePools(ImmutableList.of(poolId));
     retrievedPool = rbsDao.retrievePools().get(0);
     assertEquals(poolId, retrievedPool.id());
-    assertEquals(PoolStatus.INACTIVE, retrievedPool.status());
+    assertEquals(PoolStatus.DEACTIVATED, retrievedPool.status());
   }
 
   @Test
@@ -82,9 +82,9 @@ public class RbsDaoTest extends BaseUnitTest {
 
     rbsDao.createPools(ImmutableList.of(pool));
     Pool retrievedPool = rbsDao.retrievePools().get(0);
-    Pool newPool = pool.toBuilder().size(retrievedPool.size() + 10).build();
+    Pool resizedPool = pool.toBuilder().size(retrievedPool.size() + 10).build();
 
-    rbsDao.updatePoolsSize(ImmutableMap.of(poolId, newPool.size()));
-    assertThat(rbsDao.retrievePools(), Matchers.containsInAnyOrder(newPool));
+    rbsDao.updatePoolsSize(ImmutableMap.of(poolId, resizedPool.size()));
+    assertThat(rbsDao.retrievePools(), Matchers.containsInAnyOrder(resizedPool));
   }
 }

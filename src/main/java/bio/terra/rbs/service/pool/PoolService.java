@@ -35,7 +35,7 @@ public class PoolService {
     this.transactionTemplate = transactionTemplate;
   }
 
-  /** Initialize Pool from config and figure out pools to create/delete/update */
+  /** Initialize Pool from config and figure out pools to create/deactivate/update */
   public void initialize() {
     logger.info("Pool config update enabled: " + poolConfiguration.isUpdatePoolOnStart());
     if (poolConfiguration.isUpdatePoolOnStart()) {
@@ -56,7 +56,7 @@ public class PoolService {
     Set<PoolId> allPoolIds = Sets.union(allDbPoolsMap.keySet(), parsedPoolConfigMap.keySet());
 
     List<PoolWithResourceConfig> poolsToCreate = new ArrayList<>();
-    List<Pool> poolsToDelete = new ArrayList<>();
+    List<Pool> poolsToDeactivate = new ArrayList<>();
     Map<PoolId, Integer> poolsToUpdateSize = new HashMap<>();
 
     // Compare pool ids in DB and config. Validate config change is valid then update DB based on
@@ -67,14 +67,14 @@ public class PoolService {
         poolsToCreate.add(parsedPoolConfigMap.get(id));
       } else if (!parsedPoolConfigMap.containsKey(id) && allDbPoolsMap.containsKey(id)) {
         // Exists in DB but not in Config.
-        poolsToDelete.add(allDbPoolsMap.get(id));
+        poolsToDeactivate.add(allDbPoolsMap.get(id));
       } else {
         Pool dbPool = allDbPoolsMap.get(id);
         PoolWithResourceConfig configPool = parsedPoolConfigMap.get(id);
-        if (dbPool.status().equals(PoolStatus.INACTIVE)) {
+        if (dbPool.status().equals(PoolStatus.DEACTIVATED)) {
           throw new RuntimeException(
               String.format(
-                  "An existing inactive pool with duplicate id(id= %s) found, "
+                  "An existing deactivated pool with duplicate id(id= %s) found, "
                       + "please consider change the pool id.",
                   id));
         }
@@ -94,7 +94,7 @@ public class PoolService {
       }
     }
     createPools(poolsToCreate);
-    deletePools(poolsToDelete);
+    deactivatePools(poolsToDeactivate);
     updatePoolSize(poolsToUpdateSize);
     return true;
   }
@@ -123,11 +123,11 @@ public class PoolService {
     rbsDao.createPools(pools);
   }
 
-  private void deletePools(List<Pool> poolsToDelete) {
-    rbsDao.deactivatePools(poolsToDelete.stream().map(Pool::id).collect(Collectors.toList()));
+  private void deactivatePools(List<Pool> poolsToDeactivate) {
+    rbsDao.deactivatePools(poolsToDeactivate.stream().map(Pool::id).collect(Collectors.toList()));
   }
 
-  private void updatePoolSize(Map<PoolId, Integer> poolsToUpdateSize) {
-    rbsDao.updatePoolsSize(poolsToUpdateSize);
+  private void updatePoolSize(Map<PoolId, Integer> poolSizes) {
+    rbsDao.updatePoolsSize(poolSizes);
   }
 }
