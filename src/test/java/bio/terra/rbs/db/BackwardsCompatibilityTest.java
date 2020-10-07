@@ -40,7 +40,7 @@ public class BackwardsCompatibilityTest extends BaseUnitTest {
   }
 
   /**
-   * Change detection test for existing {@link PoolStatus} enum values. More values should be added
+   * Change detection test for existing {@link ResourceState} enum values. More values should be added
    * as the enum expands.
    */
   @Test
