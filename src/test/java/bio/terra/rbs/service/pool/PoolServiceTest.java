@@ -32,21 +32,23 @@ public class PoolServiceTest extends BaseUnitTest {
     return new ResourceConfig().configName(RESOURCE_CONFIG_NAME).gcpProjectConfig(gcpProjectConfig);
   }
 
+  private static ResourceConfig newResourceConfig() {
+    return newResourceConfig(
+        new GcpProjectConfig()
+            .projectIDPrefix("aou-rw-test")
+            .enabledApis(ImmutableList.of("bigquery-json.googleapis.com")));
+  }
+
   @Test
   public void updateFromConfig_createPool() throws Exception {
     PoolId poolId = PoolId.create("poolId");
-    ResourceConfig resourceConfig =
-        newResourceConfig(
-            new GcpProjectConfig()
-                .projectIDPrefix("aou-rw-test")
-                .enabledApis(ImmutableList.of("bigquery-json.googleapis.com")));
     PoolWithResourceConfig parsedPoolConfig =
         PoolWithResourceConfig.create(
             new PoolConfig()
                 .poolId(poolId.toString())
                 .size(10)
                 .resourceConfigName(RESOURCE_CONFIG_NAME),
-            resourceConfig);
+            newResourceConfig());
 
     poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig), transactionStatus);
     List<Pool> pools = rbsDao.retrievePools();
@@ -56,24 +58,19 @@ public class PoolServiceTest extends BaseUnitTest {
     assertEquals(poolId, createdPool.id());
     assertEquals(ResourceType.GOOGLE_PROJECT, createdPool.resourceType());
     assertEquals(PoolStatus.ACTIVE, createdPool.status());
-    assertEquals(resourceConfig, createdPool.resourceConfig());
+    assertEquals(parsedPoolConfig.resourceConfig(), createdPool.resourceConfig());
   }
 
   @Test
   public void updateFromConfig_alreadyExists() throws Exception {
     PoolId poolId = PoolId.create("poolId");
-    ResourceConfig resourceConfig =
-        newResourceConfig(
-            new GcpProjectConfig()
-                .projectIDPrefix("aou-rw-test")
-                .enabledApis(ImmutableList.of("bigquery-json.googleapis.com")));
     PoolWithResourceConfig parsedPoolConfig =
         PoolWithResourceConfig.create(
             new PoolConfig()
                 .poolId(poolId.toString())
                 .size(10)
                 .resourceConfigName(RESOURCE_CONFIG_NAME),
-            resourceConfig);
+            newResourceConfig());
 
     poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig), transactionStatus);
     List<Pool> pools = rbsDao.retrievePools();
@@ -83,7 +80,7 @@ public class PoolServiceTest extends BaseUnitTest {
     assertEquals(poolId, createdPool.id());
     assertEquals(ResourceType.GOOGLE_PROJECT, createdPool.resourceType());
     assertEquals(PoolStatus.ACTIVE, createdPool.status());
-    assertEquals(resourceConfig, createdPool.resourceConfig());
+    assertEquals(parsedPoolConfig.resourceConfig(), createdPool.resourceConfig());
 
     poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig), transactionStatus);
     assertThat(rbsDao.retrievePools(), Matchers.containsInAnyOrder(pools.toArray()));
@@ -95,10 +92,8 @@ public class PoolServiceTest extends BaseUnitTest {
     PoolId poolId = PoolId.create("poolId");
     PoolConfig poolConfig =
         new PoolConfig().poolId(poolId.toString()).size(1).resourceConfigName(RESOURCE_CONFIG_NAME);
-    ResourceConfig resourceConfig =
-        newResourceConfig(new GcpProjectConfig().projectIDPrefix("aou-rw-test1"));
     PoolWithResourceConfig parsedPoolConfig =
-        PoolWithResourceConfig.create(poolConfig, resourceConfig);
+        PoolWithResourceConfig.create(poolConfig, newResourceConfig());
     poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig), transactionStatus);
 
     // Sets ResourceConfig's GCP project id prefix to newer value.
@@ -111,11 +106,89 @@ public class PoolServiceTest extends BaseUnitTest {
         () -> poolService.updateFromConfig(ImmutableList.of(updatedPoolConfig), transactionStatus));
     assertThat(
         rbsDao.retrievePools().stream().map(Pool::resourceConfig).collect(Collectors.toList()),
-        Matchers.containsInAnyOrder(resourceConfig));
+        Matchers.containsInAnyOrder(parsedPoolConfig.resourceConfig()));
   }
 
   @Test
-  public void updateFromConfig_duplicatePoolId() throws Exception {
-    // TODO: Implement this once Dao support update status.
+  public void updateFromConfig_inactivePoolExistsWithDuplicatePoolId_throwException()
+      throws Exception {
+    PoolId poolId = PoolId.create("poolId");
+    PoolWithResourceConfig parsedPoolConfig =
+        PoolWithResourceConfig.create(
+            new PoolConfig()
+                .poolId(poolId.toString())
+                .size(10)
+                .resourceConfigName(RESOURCE_CONFIG_NAME),
+            newResourceConfig());
+
+    poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig), transactionStatus);
+    rbsDao.deactivatePools(ImmutableList.of(poolId));
+    List<Pool> pools = rbsDao.retrievePools();
+
+    assertEquals(1, pools.size());
+    Pool createdPool = pools.get(0);
+    assertEquals(PoolStatus.INACTIVE, createdPool.status());
+
+    assertThrows(
+        RuntimeException.class,
+        () -> poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig), transactionStatus));
+  }
+
+  @Test
+  public void updateFromConfig_deletePool_updatePoolStatusSuccess() throws Exception {
+    PoolId poolId = PoolId.create("poolId");
+    PoolWithResourceConfig parsedPoolConfig =
+        PoolWithResourceConfig.create(
+            new PoolConfig()
+                .poolId(poolId.toString())
+                .size(10)
+                .resourceConfigName(RESOURCE_CONFIG_NAME),
+            newResourceConfig());
+
+    poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig), transactionStatus);
+    List<Pool> pools = rbsDao.retrievePools();
+
+    assertEquals(1, pools.size());
+    Pool createdPool = pools.get(0);
+    assertEquals(poolId, createdPool.id());
+    assertEquals(PoolStatus.ACTIVE, createdPool.status());
+
+    poolService.updateFromConfig(ImmutableList.of(), transactionStatus);
+
+    Pool updatedPool = rbsDao.retrievePools().get(0);
+    assertEquals(poolId, updatedPool.id());
+    assertEquals(PoolStatus.INACTIVE, updatedPool.status());
+  }
+
+  @Test
+  public void updateFromConfig_updateSize_updatePoolSizeSuccess() throws Exception {
+    PoolId poolId = PoolId.create("poolId");
+    int size = 10;
+    PoolWithResourceConfig parsedPoolConfig =
+        PoolWithResourceConfig.create(
+            new PoolConfig()
+                .poolId(poolId.toString())
+                .size(size)
+                .resourceConfigName(RESOURCE_CONFIG_NAME),
+            newResourceConfig());
+
+    poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig), transactionStatus);
+    List<Pool> pools = rbsDao.retrievePools();
+
+    assertEquals(1, pools.size());
+    Pool createdPool = pools.get(0);
+    assertEquals(poolId, createdPool.id());
+    assertEquals(size, createdPool.size());
+
+    parsedPoolConfig =
+        PoolWithResourceConfig.create(
+            new PoolConfig()
+                .poolId(poolId.toString())
+                .size(size + 10)
+                .resourceConfigName(RESOURCE_CONFIG_NAME),
+            newResourceConfig());
+
+    poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig), transactionStatus);
+    assertEquals(rbsDao.retrievePools().get(0), createdPool.toBuilder().size(size + 10).build());
   }
 }

@@ -1,12 +1,14 @@
 package bio.terra.rbs.db;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import bio.terra.rbs.app.configuration.RbsJdbcConfiguration;
 import bio.terra.rbs.common.BaseUnitTest;
 import bio.terra.rbs.generated.model.GcpProjectConfig;
 import bio.terra.rbs.generated.model.ResourceConfig;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
 import java.util.*;
 import org.hamcrest.Matchers;
@@ -30,35 +32,59 @@ public class RbsDaoTest extends BaseUnitTest {
     jdbcTemplate = new NamedParameterJdbcTemplate(jdbcConfiguration.getDataSource());
   }
 
-  @Test
-  public void createPoolAndRetrievePools() {
-    Instant now = Instant.now();
+  private static Pool newPool(PoolId poolId) {
     ResourceConfig resourceConfig =
         new ResourceConfig()
             .configName("resourceName")
             .gcpProjectConfig(new GcpProjectConfig().projectIDPrefix("test"));
-    Pool pool1 =
-        Pool.builder()
-            .creation(now)
-            .id(PoolId.create("pool1"))
-            .resourceType(ResourceType.GOOGLE_PROJECT)
-            .size(1)
-            .resourceConfig(resourceConfig)
-            .status(PoolStatus.ACTIVE)
-            .build();
-    Pool pool2 =
-        Pool.builder()
-            .creation(now)
-            .id(PoolId.create("pool2"))
-            .resourceType(ResourceType.GOOGLE_PROJECT)
-            .size(2)
-            .resourceConfig(resourceConfig)
-            .status(PoolStatus.ACTIVE)
-            .build();
+
+    return Pool.builder()
+        .creation(Instant.now())
+        .id(poolId)
+        .resourceType(ResourceType.GOOGLE_PROJECT)
+        .size(1)
+        .resourceConfig(resourceConfig)
+        .status(PoolStatus.ACTIVE)
+        .build();
+  }
+
+  @Test
+  public void createPoolAndRetrievePools() {
+    Pool pool1 = newPool(PoolId.create("pool1"));
+    Pool pool2 = newPool(PoolId.create("pool2"));
 
     rbsDao.createPools(ImmutableList.of(pool1, pool2));
 
     List<Pool> pools = rbsDao.retrievePools();
     assertThat(pools, Matchers.containsInAnyOrder(pool1, pool2));
+  }
+
+  @Test
+  public void deactivatePool() {
+    PoolId poolId = PoolId.create("poolId");
+    Pool pool = newPool(poolId);
+
+    rbsDao.createPools(ImmutableList.of(pool));
+    Pool retrievedPool = rbsDao.retrievePools().get(0);
+    assertEquals(poolId, retrievedPool.id());
+    assertEquals(PoolStatus.ACTIVE, retrievedPool.status());
+
+    rbsDao.deactivatePools(ImmutableList.of(poolId));
+    retrievedPool = rbsDao.retrievePools().get(0);
+    assertEquals(poolId, retrievedPool.id());
+    assertEquals(PoolStatus.INACTIVE, retrievedPool.status());
+  }
+
+  @Test
+  public void updatePoolSize() {
+    PoolId poolId = PoolId.create("poolId");
+    Pool pool = newPool(poolId);
+
+    rbsDao.createPools(ImmutableList.of(pool));
+    Pool retrievedPool = rbsDao.retrievePools().get(0);
+    Pool newPool = pool.toBuilder().size(retrievedPool.size() + 10).build();
+
+    rbsDao.updatePoolsSize(ImmutableMap.of(poolId, newPool.size()));
+    assertThat(rbsDao.retrievePools(), Matchers.containsInAnyOrder(newPool));
   }
 }

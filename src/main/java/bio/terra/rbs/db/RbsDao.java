@@ -72,6 +72,41 @@ public class RbsDao {
     return jdbcTemplate.query(sql, POOL_ROW_MAPPER);
   }
 
+  /** Updates list of pools' status to INACTIVE. */
+  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+  public void deactivatePools(List<PoolId> poolIds) {
+    String sql = "UPDATE pool SET status = :status, expiration = :expiration where id = :id ";
+
+    MapSqlParameterSource[] sqlParameterSourceList =
+        poolIds.stream()
+            .map(
+                poolId ->
+                    new MapSqlParameterSource()
+                        .addValue("id", poolId.id())
+                        .addValue("status", PoolStatus.INACTIVE.toString())
+                        .addValue("expiration", OffsetDateTime.now(ZoneOffset.UTC)))
+            .toArray(MapSqlParameterSource[]::new);
+
+    jdbcTemplate.batchUpdate(sql, sqlParameterSourceList);
+  }
+
+  /** Updates list of pools' size. */
+  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+  public void updatePoolsSize(Map<PoolId, Integer> poolsToUpdateSize) {
+    String sql = "UPDATE pool SET size = :size where id = :id ";
+
+    MapSqlParameterSource[] sqlParameterSourceList =
+        poolsToUpdateSize.entrySet().stream()
+            .map(
+                entry ->
+                    new MapSqlParameterSource()
+                        .addValue("id", entry.getKey().id())
+                        .addValue("size", entry.getValue()))
+            .toArray(MapSqlParameterSource[]::new);
+
+    jdbcTemplate.batchUpdate(sql, sqlParameterSourceList);
+  }
+
   private static final RowMapper<Pool> POOL_ROW_MAPPER =
       (rs, rowNum) ->
           Pool.builder()

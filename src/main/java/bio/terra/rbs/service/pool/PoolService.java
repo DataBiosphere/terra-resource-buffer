@@ -10,6 +10,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -123,10 +124,10 @@ public class PoolService {
   }
 
   private void deletePools(List<Pool> poolsToDelete) {
-    // TODO: Delete pool
+    rbsDao.deactivatePools(poolsToDelete.stream().map(Pool::id).collect(Collectors.toList()));
   }
 
   private void updatePoolSize(Map<PoolId, Integer> poolsToUpdateSize) {
-    // TODO: Update pool size
+    rbsDao.updatePoolsSize(poolsToUpdateSize);
   }
 }
