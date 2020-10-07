@@ -24,28 +24,6 @@ paths:
           description: Service is broken
           $ref: '#/components/responses/StatusResponse'
 
-  '/api/rbs/v1/ping':
-    post:
-      description: |
-        Send a message and get it back in the response
-      operationId: ping
-      tags:
-        - rbs
-      parameters:
-        - in: query
-          name: message
-          schema:
-            type: string
-      responses:
-        200:
-          description: OK
-          content:
-            text/plain:
-              schema:
-                type: string
-        500:
-          $ref: '#/components/responses/ErrorResponse'
-
 components:
   schemas:
     ErrorReport:
