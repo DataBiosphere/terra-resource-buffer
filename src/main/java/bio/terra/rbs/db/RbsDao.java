@@ -61,7 +61,7 @@ public class RbsDao {
     jdbcTemplate.batchUpdate(sql, sqlParameterSourceList);
   }
 
-  /** Retrieves all pools match the status. */
+  /** Retrieves all pools. */
   @Transactional(propagation = Propagation.SUPPORTS)
   public List<Pool> retrievePools() {
     // TODO: Add filter
@@ -70,6 +70,19 @@ public class RbsDao {
             + "FROM pool p ";
 
     return jdbcTemplate.query(sql, POOL_ROW_MAPPER);
+  }
+
+  /** Retrieves all pools and resource count in each pool. */
+  @Transactional(propagation = Propagation.SUPPORTS)
+  public List<PoolAndResourceCount> retrievePoolAndResourceCount() {
+    // TODO: Add filter
+    String sql =
+        "select p.id, p.resource_config, p.resource_type, p.creation, p.size, p.status, "
+            + "(select count (*) from resource where pool_id = p.id) as resource_count "
+            + "FROM pool p "
+            + "GROUP BY p.id, p.resource_config, p.resource_type, p.creation, p.size, p.status";
+
+    return jdbcTemplate.query(sql, POOL_AND_RESOURCE_COUNT_ROW_MAPPER);
   }
 
   /** Updates list of pools' status to DEACTIVATED. */
@@ -117,6 +130,19 @@ public class RbsDao {
               .size(rs.getInt("size"))
               .creation(rs.getObject("creation", OffsetDateTime.class).toInstant())
               .build();
+
+  private static final RowMapper<PoolAndResourceCount> POOL_AND_RESOURCE_COUNT_ROW_MAPPER =
+      (rs, rowNum) ->
+          PoolAndResourceCount.create(
+              Pool.builder()
+                  .id(PoolId.create(rs.getString("id")))
+                  .resourceConfig(deserialize(rs.getString("resource_config")))
+                  .resourceType(ResourceType.valueOf(rs.getString("resource_type")))
+                  .status(PoolStatus.valueOf(rs.getString("status")))
+                  .size(rs.getInt("size"))
+                  .creation(rs.getObject("creation", OffsetDateTime.class).toInstant())
+                  .build(),
+              rs.getInt("resource_count"));
 
   /** Serializes {@link ResourceConfig} into json format string. */
   private static String serialize(ResourceConfig resourceConfig) {

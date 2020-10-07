@@ -4,3 +4,9 @@ poolConfigs:
   - poolId: "aou_ws_dev_v1"
     size: 10
     resourceConfigName: "aou_ws_resource_v1"
+  - poolId: "aou_ws_dev_v2"
+    size: 10
+    resourceConfigName: "aou_ws_resource_v1"
+  - poolId: "aou_ws_dev_v3"
+    size: 10
+    resourceConfigName: "aou_ws_resource_v1"
