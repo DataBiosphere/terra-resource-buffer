@@ -72,7 +72,7 @@ public class RbsDao {
     return jdbcTemplate.query(sql, POOL_ROW_MAPPER);
   }
 
-  /** Retrieves all pools and resource count in each pool. */
+  /** Retrieves all pools and READY resource count in each pool. */
   @Transactional(propagation = Propagation.SUPPORTS)
   public List<PoolAndResourceCount> retrievePoolAndResourceCount() {
     // TODO: Add filter
