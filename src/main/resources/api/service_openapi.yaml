@@ -90,51 +90,24 @@ components:
           type: string
       type: object
 
-    PoolConfig:
-      description: |-
-        Terra RBS Reource Pool Config
-      required:
-        - poolId
-        - size
-        - resourceConfigName
-      properties:
-        poolId:
-          description: |
-            A unique id for the pool. No two pools can ever have the same id. Any string is allowed.
-          type: string
-        size:
-          description: |
-            Maximum number of resources in the pool.
-          type: integer
-        resourceConfigName:
-          description: |
-            The config name the pool use. RBS will use it to locate the actual config file.
-          type: string
-      type: object
-
-    CloudResourceUid:
-      $ref: '../../../../build/crlSchema/cloud_resources_uid.yaml#/components/schemas/CloudResourceUid'
-
     ResourceInfo:
       description: |-
         Information represents a resource in RBS
       required:
         - poolId
-        - size
-        - resourceConfigName
+        - requestHandoutId
+        - cloudResourceUid
       properties:
         poolId:
           description: |
-            A unique id for the pool. No two pools can ever have the same id. Any string is allowed.
+            The pool id the resource belongs to.
           type: string
-        size:
+        requestHandoutId:
           description: |
-            Maximum number of resources in the pool.
-          type: integer
-        resourceConfigName:
-          description: |
-            The config name the pool use. RBS will use it to locate the actual config file.
+            The unique identifier used for handout resource. RBS will handout the same resource for the same id.
           type: string
+        cloudResourceUid:
+          $ref: '../../../../build/crlSchema/cloud_resources_uid.yaml#/components/schemas/CloudResourceUid'
       type: object
 
   responses:
