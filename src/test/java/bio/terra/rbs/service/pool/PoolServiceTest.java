@@ -125,7 +125,6 @@ public class PoolServiceTest extends BaseUnitTest {
     rbsDao.deactivatePools(ImmutableList.of(poolId));
     List<Pool> pools = rbsDao.retrievePools();
 
-    assertEquals(1, pools.size());
     Pool createdPool = pools.get(0);
     assertEquals(PoolStatus.INACTIVE, createdPool.status());
 
@@ -148,7 +147,6 @@ public class PoolServiceTest extends BaseUnitTest {
     poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig), transactionStatus);
     List<Pool> pools = rbsDao.retrievePools();
 
-    assertEquals(1, pools.size());
     Pool createdPool = pools.get(0);
     assertEquals(poolId, createdPool.id());
     assertEquals(PoolStatus.ACTIVE, createdPool.status());
@@ -175,7 +173,6 @@ public class PoolServiceTest extends BaseUnitTest {
     poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig), transactionStatus);
     List<Pool> pools = rbsDao.retrievePools();
 
-    assertEquals(1, pools.size());
     Pool createdPool = pools.get(0);
     assertEquals(poolId, createdPool.id());
     assertEquals(size, createdPool.size());
