@@ -73,7 +73,7 @@ databaseChangeLog:
                 name: creation
                 type: timestamptz
                 constraints:
-                  nullable: true
+                  nullable: false
                   unique: false
             - column:
                 name: handout_time
