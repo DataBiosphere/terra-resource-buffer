@@ -47,7 +47,7 @@ databaseChangeLog:
             - column:
                 name: status
                 type: text
-                remarks: pool status enum('ACTIVE', 'INACTIVE')
+                remarks: pool status enum('ACTIVE', 'DEACTIVATED')
                 constraints:
                   nullable: false
                   unique: false
