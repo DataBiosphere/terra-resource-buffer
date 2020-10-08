@@ -95,7 +95,7 @@ databaseChangeLog:
                   nullable: true
                   unique: false
             - column:
-                name: terra_resource_uid
+                name: cloud_resource_uid
                 type: jsonb
                 constraints:
                   nullable: true

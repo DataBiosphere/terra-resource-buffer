@@ -48,6 +48,15 @@ public class RbsDaoTest extends BaseUnitTest {
         .build();
   }
 
+  private static Resource newResource(PoolId poolId, ResourceState state) {
+    return Resource.builder()
+        .id(ResourceId.create(UUID.randomUUID()))
+        .poolId(poolId)
+        .creation(Instant.now())
+        .state(state)
+        .build();
+  }
+
   @Test
   public void createPoolAndRetrievePools() {
     Pool pool1 = newPool(PoolId.create("pool1"));
@@ -89,17 +98,43 @@ public class RbsDaoTest extends BaseUnitTest {
   }
 
   @Test
-  public void retrievePoolWithResourceCount() {
-    // TODO(yonghao): Insert some resource and verify count matches once RbsDao supports insert
-    // resource
+  public void retrievePoolWithResourceState() {
     Pool pool1 = newPool(PoolId.create("poolId1"));
     Pool pool2 = newPool(PoolId.create("poolId2"));
-    rbsDao.createPools(ImmutableList.of(pool1, pool2));
+    Pool pool3 = newPool(PoolId.create("poolId3"));
+
+    // Pool1 has 1 CREATING, 2 READY, Pool2 has 1 READY, 1 HANDED_OUT, Pool3 is empty
+    rbsDao.createPools(ImmutableList.of(pool1, pool2, pool3));
+    rbsDao.createResource(newResource(pool1.id(), ResourceState.CREATING));
+    rbsDao.createResource(newResource(pool1.id(), ResourceState.READY));
+    rbsDao.createResource(newResource(pool1.id(), ResourceState.READY));
+    rbsDao.createResource(newResource(pool2.id(), ResourceState.READY));
+    rbsDao.createResource(newResource(pool2.id(), ResourceState.HANDED_OUT));
 
     assertThat(
         rbsDao.retrievePoolAndResourceStates(),
         Matchers.containsInAnyOrder(
-            PoolAndResourceStates.builder().setPool(pool1).build(),
-            PoolAndResourceStates.builder().setPool(pool2).build()));
+            PoolAndResourceStates.builder()
+                .setPool(pool1)
+                .setResourceStateCount(ResourceState.CREATING, 1)
+                .setResourceStateCount(ResourceState.READY, 2)
+                .build(),
+            PoolAndResourceStates.builder()
+                .setPool(pool2)
+                .setResourceStateCount(ResourceState.READY, 1)
+                .setResourceStateCount(ResourceState.HANDED_OUT, 1)
+                .build(),
+            PoolAndResourceStates.builder().setPool(pool3).build()));
+  }
+
+  @Test
+  public void createAndRetrieveResource() {
+    PoolId poolId = PoolId.create("poolId");
+    Pool pool = newPool(poolId);
+    rbsDao.createPools(ImmutableList.of(pool));
+    Resource resource = newResource(poolId, ResourceState.CREATING);
+
+    rbsDao.createResource(resource);
+    assertEquals(resource, rbsDao.retrieveResource(resource.id()).get());
   }
 }

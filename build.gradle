@@ -23,11 +23,16 @@ sourceCompatibility = '1.8'
 
 repositories {
     mavenCentral()
-
     maven {
         url 'https://broadinstitute.jfrog.io/broadinstitute/libs-release/'
     }
+    maven {
+        url 'https://broadinstitute.jfrog.io/broadinstitute/libs-snapshot-local/'
+    }
 }
+
+// The version of CRL schema library
+def crlSchemaVersion = "0.0.2-SNAPSHOT"
 
 dependencies {
     implementation group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
@@ -57,6 +62,7 @@ dependencies {
     implementation group: 'com.fasterxml.jackson.module', name: 'jackson-module-jaxb-annotations', version: '2.11.2'
 
     implementation 'bio.terra:stairway:0.0.20'
+    implementation group: 'bio.terra.cloud-resource-lib', name: 'cloud-resource-schema', version: crlSchemaVersion
 
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
@@ -85,6 +91,22 @@ spotless {
 def openApiServerSourceDir = "${projectDir}/src/main/resources/api"
 def openApiResourceSourceDir = "${projectDir}/src/main/resources/config"
 def openApiTargetDir = "${buildDir}/generated"
+def cloudResourceSchemaTargetDor = "${buildDir}/crlSchema"
+
+configurations {
+    cloudResourceSchema { transitive = false }
+}
+dependencies {
+    cloudResourceSchema group: 'bio.terra.cloud-resource-lib', name: 'cloud-resource-schema', version: crlSchemaVersion
+}
+task unzipCloudResourceSchema(type: Copy) {
+    from zipTree(configurations.cloudResourceSchema.singleFile).matching {
+        include 'cloud_resources_uid.yaml'
+    }
+    into cloudResourceSchemaTargetDor
+}
+
+
 swaggerSources {
     server {
         inputFile = file("${openApiServerSourceDir}/service_openapi.yaml")
@@ -122,9 +144,11 @@ swaggerSources {
     }
 }
 
+// Note The Open API schema depends on an external library - cloud-resource-schema, so need to unzip it first.
+swaggerSources.server.code.dependsOn tasks.unzipCloudResourceSchema
+
 // Note: Spotless deletes the classes OpenApi generates.
 // The order needs to be spotlessApply -> openApiGenerate -> build/test/run
-
 swaggerSources.server.code.dependsOn swaggerSources.resource.code, tasks.spotlessApply
 compileJava.dependsOn swaggerSources.server.code, swaggerSources.resource.code, tasks.spotlessApply
 ideaModule.dependsOn swaggerSources.server.code

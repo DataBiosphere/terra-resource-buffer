@@ -90,6 +90,26 @@ components:
           type: string
       type: object
 
+    ResourceInfo:
+      description: |-
+        Information represents a resource in RBS
+      required:
+        - poolId
+        - requestHandoutId
+        - cloudResourceUid
+      properties:
+        poolId:
+          description: |
+            The pool id the resource belongs to.
+          type: string
+        requestHandoutId:
+          description: |
+            The unique identifier used for handout resource. RBS will handout the same resource for the same id.
+          type: string
+        cloudResourceUid:
+          $ref: '../../../../build/crlSchema/cloud_resources_uid.yaml#/components/schemas/CloudResourceUid'
+      type: object
+
   responses:
     ErrorResponse:
       description: common error response

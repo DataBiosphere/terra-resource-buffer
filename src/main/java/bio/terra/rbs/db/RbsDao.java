@@ -2,7 +2,7 @@ package bio.terra.rbs.db;
 
 import static bio.terra.rbs.app.configuration.BeanNames.OBJECT_MAPPER;
 
-import bio.terra.rbs.common.exception.InvalidPoolConfigException;
+import bio.terra.rbs.generated.model.CloudResourceUid;
 import bio.terra.rbs.generated.model.ResourceConfig;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -57,7 +58,7 @@ public class RbsDao {
                     new MapSqlParameterSource()
                         .addValue("id", pool.id().toString())
                         .addValue("resource_type", pool.resourceType().toString())
-                        .addValue("resource_config", serialize(pool.resourceConfig()))
+                        .addValue("resource_config", serializeResourceConfig(pool.resourceConfig()))
                         .addValue("size", pool.size())
                         .addValue("creation", pool.creation().atOffset(ZoneOffset.UTC))
                         .addValue("status", pool.status().toString()))
@@ -125,15 +126,66 @@ public class RbsDao {
     jdbcTemplate.batchUpdate(sql, sqlParameterSourceList);
   }
 
+  /** Updates list of pools' size. */
+  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+  public void createResource(Resource resource) {
+    String sql =
+        "INSERT INTO resource (id, pool_id, creation, state) values "
+            + "(:id, :pool_id, :creation, :state)";
+    MapSqlParameterSource params =
+        new MapSqlParameterSource()
+            .addValue("id", resource.id().id())
+            .addValue("pool_id", resource.poolId().id())
+            .addValue("creation", resource.creation().atOffset(ZoneOffset.UTC))
+            .addValue("state", resource.state().toString());
+
+    jdbcTemplate.update(sql, params);
+  }
+
+  /** Updates list of pools' size. */
+  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+  public Optional<Resource> retrieveResource(ResourceId resourceId) {
+    String sql =
+        "select id, pool_id, creation, handout_time, state, request_handout_id, cloud_resource_uid "
+            + "FROM resource "
+            + "WHERE id = :id";
+
+    MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", resourceId.id());
+
+    return Optional.ofNullable(
+        DataAccessUtils.singleResult(jdbcTemplate.query(sql, params, RESOURCE_ROW_MAPPER)));
+  }
+
   private static final RowMapper<Pool> POOL_ROW_MAPPER =
       (rs, rowNum) ->
           Pool.builder()
               .id(PoolId.create(rs.getString("id")))
-              .resourceConfig(deserialize(rs.getString("resource_config")))
+              .resourceConfig(deserializeResourceConfig(rs.getString("resource_config")))
               .resourceType(ResourceType.valueOf(rs.getString("resource_type")))
               .status(PoolStatus.valueOf(rs.getString("status")))
               .size(rs.getInt("size"))
               .creation(rs.getObject("creation", OffsetDateTime.class).toInstant())
+              .build();
+
+  private static final RowMapper<Resource> RESOURCE_ROW_MAPPER =
+      (rs, rowNum) ->
+          Resource.builder()
+              .id(ResourceId.create(rs.getObject("id", UUID.class)))
+              .poolId(PoolId.create(rs.getString("pool_id")))
+              .cloudResourceUid(
+                  rs.getString("cloud_resource_uid") == null
+                      ? null
+                      : deserializeResourceUid(rs.getString("cloud_resource_uid")))
+              .state(ResourceState.valueOf(rs.getString("state")))
+              .requestHandoutId(
+                  rs.getString("request_handout_id") == null
+                      ? null
+                      : RequestHandoutId.create(rs.getString("request_handout_id")))
+              .creation(rs.getObject("creation", OffsetDateTime.class).toInstant())
+              .handoutTime(
+                  rs.getString("handout_time") == null
+                      ? null
+                      : rs.getObject("handout_time", OffsetDateTime.class).toInstant())
               .build();
 
   /**
@@ -169,22 +221,46 @@ public class RbsDao {
   }
 
   /** Serializes {@link ResourceConfig} into json format string. */
-  private static String serialize(ResourceConfig resourceConfig) {
+  private static String serializeResourceConfig(ResourceConfig resourceConfig) {
     try {
       return new ObjectMapper()
           .setSerializationInclusion(JsonInclude.Include.NON_NULL)
           .writeValueAsString(resourceConfig);
     } catch (JsonProcessingException e) {
-      throw new InvalidPoolConfigException("Failed to serialize ResourceConfig");
+      throw new RuntimeException(
+          String.format("Failed to serialize ResourceConfig: %s", resourceConfig), e);
     }
   }
 
   /** Deserializes {@link ResourceConfig} into json format string. */
-  private static ResourceConfig deserialize(String resourceConfig) {
+  private static ResourceConfig deserializeResourceConfig(String resourceConfig) {
     try {
       return new ObjectMapper().readValue(resourceConfig, ResourceConfig.class);
     } catch (JsonProcessingException e) {
-      throw new InvalidPoolConfigException("Failed to deserialize ResourceConfig");
+      throw new RuntimeException(
+          String.format("Failed to deserialize ResourceConfig: %s", resourceConfig), e);
+    }
+  }
+
+  /** Serializes {@link CloudResourceUid} into json format string. */
+  private static String serializeResourceUid(CloudResourceUid resourceUid) {
+    try {
+      return new ObjectMapper()
+          .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+          .writeValueAsString(resourceUid);
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException(
+          String.format("Failed to serialize ResourceConfig: %s", resourceUid), e);
+    }
+  }
+
+  /** Deserializes {@link CloudResourceUid} into json format string. */
+  private static CloudResourceUid deserializeResourceUid(String cloudResourceUid) {
+    try {
+      return new ObjectMapper().readValue(cloudResourceUid, CloudResourceUid.class);
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException(
+          String.format("Failed to deserialize ResourceConfig: %s", cloudResourceUid), e);
     }
   }
 }
