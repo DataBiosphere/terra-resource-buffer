@@ -15,29 +15,29 @@ public abstract class Resource {
   public abstract PoolId poolId();
 
   /**
-   * The resource state. During resource creation, it is CREATING; when resource successfully created, it is READY;
-   * After handed out to client, it is HANDED_OUT.
+   * The resource state. During resource creation, it is CREATING; when resource successfully
+   * created, it is READY; After handed out to client, it is HANDED_OUT.
    */
   public abstract ResourceState state();
 
   /**
    * Represent the cloud resource in Terra. It will be empty until resource is successfully.
    *
-   * TODO(yonghao): Investigate to have a TerraResourceUid to represent all Terra resources.
+   * <p>TODO(yonghao): Investigate to have a TerraResourceUid to represent all Terra resources.
    */
   @Nullable
   public abstract CloudResourceUid cloudResourceUid();
 
   /**
-   * The unique id from client when asking for resource. Using the same resource will get the same resource back.
-   *  It is set when the resource is handed out.
+   * The unique id from client when asking for resource. Using the same resource will get the same
+   * resource back. It is set when the resource is handed out.
    */
   @Nullable
   public abstract RequestHandoutId requestHandoutId();
 
   /**
-   * The resource creation time. It is the time when we start creating the resources. The actual resource creation
-   * finish time is later than that.
+   * The resource creation time. It is the time when we start creating the resources. The actual
+   * resource creation finish time is later than that.
    */
   public abstract Instant creation();
 

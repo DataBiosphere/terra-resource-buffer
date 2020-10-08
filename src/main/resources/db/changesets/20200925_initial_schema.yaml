@@ -84,7 +84,7 @@ databaseChangeLog:
             - column:
                 name: state
                 type: text
-                remarks: resource state enum('CREATING', 'READY', 'USED')
+                remarks: resource state enum('CREATING', 'READY', 'HANDED_OUT')
                 constraints:
                   nullable: false
                   unique: false
@@ -95,7 +95,7 @@ databaseChangeLog:
                   nullable: true
                   unique: false
             - column:
-                name: terra_resource_uid
+                name: cloud_resource_uid
                 type: jsonb
                 constraints:
                   nullable: true

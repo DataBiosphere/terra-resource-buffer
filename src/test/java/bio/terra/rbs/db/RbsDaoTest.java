@@ -7,7 +7,8 @@ import bio.terra.rbs.app.configuration.RbsJdbcConfiguration;
 import bio.terra.rbs.common.BaseUnitTest;
 import bio.terra.rbs.generated.model.GcpProjectConfig;
 import bio.terra.rbs.generated.model.ResourceConfig;
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
 import java.util.*;
 import org.hamcrest.Matchers;
@@ -107,21 +108,69 @@ public class RbsDaoTest extends BaseUnitTest {
     rbsDao.createResource(newResource(pool1.id(), ResourceState.CREATING));
     rbsDao.createResource(newResource(pool1.id(), ResourceState.READY));
     rbsDao.createResource(newResource(pool1.id(), ResourceState.READY));
-    rbsDao.createResource(newResource(pool2.id(), ResourceState.HANDED_OUT));
     rbsDao.createResource(newResource(pool2.id(), ResourceState.READY));
+    rbsDao.createResource(newResource(pool2.id(), ResourceState.HANDED_OUT));
 
-    Multiset<ResourceState> expectedPool1State = HashMultiset.create();
-    expectedPool1State.add(ResourceState.CREATING, 1);
-    expectedPool1State.add(ResourceState.READY, 2);
-    Multiset<ResourceState> expectedPool2State = HashMultiset.create();
-    expectedPool2State.add(ResourceState.READY, 1);
+    System.out.println("~~~~~~~11111");
+    System.out.println("~~~~~~~1111111");
+    System.out.println("~~~~~~~");
+    System.out.println("~~~~~~~");
+    System.out.println("~~~~~~~");
+    System.out.println("~~~~~~~");
+    System.out.println(rbsDao.retrievePoolAndResourceStatesCount().get(0));
+    System.out.println("~~~~~~~23232323");
+    System.out.println("~~~~~~~2323232323");
+    System.out.println("~~~~~~~");
+    System.out.println(rbsDao.retrievePoolAndResourceStatesCount().get(1));
+    System.out.println("~~~~~~~555555");
+    System.out.println("~~~~~~~555");
+    System.out.println("~~~~~~~5555555");
+    System.out.println(rbsDao.retrievePoolAndResourceStatesCount().get(2));
+
+    System.out.println("~~~~~~~566666");
+    System.out.println("~~~~~~~66666");
+    System.out.println("~~~~~~~6666666");
+    System.out.println(PoolAndResourceStates.builder().setPool(pool3).build());
+
+    System.out.println("~~~~~~~77777");
+    System.out.println("~~~~~~~8888888");
+    System.out.println("~~~~~~~8888888");
+    System.out.println(
+        PoolAndResourceStates.builder()
+            .setPool(pool2)
+            .resourceStatesBuilder()
+            .setCount(ResourceState.READY, 1)
+            .setCount(ResourceState.HANDED_OUT, 1)
+            .build());
+
+    System.out.println("~~~~~~~999999");
+    System.out.println("~~~~~~~9999999999");
+    System.out.println("~~~~~~~8888888");
+    System.out.println(
+        PoolAndResourceStates.builder()
+            .setPool(pool1)
+            .resourceStatesBuilder()
+            .setCount(ResourceState.CREATING, 1)
+            .setCount(ResourceState.READY, 2)
+            .build()
+            .build());
 
     assertThat(
         rbsDao.retrievePoolAndResourceStatesCount(),
         Matchers.containsInAnyOrder(
-            PoolAndResourceStates.create(pool1, expectedPool1State),
-            PoolAndResourceStates.create(pool2, expectedPool2State),
-            PoolAndResourceStates.create(pool3, ImmutableMultiset.of())));
+            PoolAndResourceStates.builder()
+                .setPool(pool1)
+                .resourceStatesBuilder()
+                .setCount(ResourceState.CREATING, 1)
+                .setCount(ResourceState.READY, 2)
+                .build(),
+            PoolAndResourceStates.builder()
+                .setPool(pool2)
+                .resourceStatesBuilder()
+                .setCount(ResourceState.READY, 1)
+                .setCount(ResourceState.HANDED_OUT, 1)
+                .build(),
+            PoolAndResourceStates.builder().setPool(pool3).build()));
   }
 
   @Test

@@ -7,14 +7,17 @@ import bio.terra.rbs.generated.model.ResourceConfig;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.HashMultiset;
-import com.google.common.collect.Multiset;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.support.DataAccessUtils;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -75,28 +78,17 @@ public class RbsDao {
     return jdbcTemplate.query(sql, POOL_ROW_MAPPER);
   }
 
-  /** Retrieves all pools and READY resource count in each pool. */
+  /** Retrieves all pools and resource count for each state. */
   @Transactional(propagation = Propagation.SUPPORTS)
   public List<PoolAndResourceStates> retrievePoolAndResourceStatesCount() {
-    // TODO: Add filter
     String sql =
-        "select count (*) FILTER (WHERE r.state='READY') as ready_count, "
-            + "count(*) FILTER (WHERE r.state='CREATING') as creating_count, "
+        "select count(*) as resource_count, r.state, "
             + "p.id, p.resource_config, p.resource_type, p.creation, p.size, p.status "
-            + "FROM resource r "
-            + "RIGHT JOIN pool p on r.pool_id = p.id "
-            + "GROUP BY p.id";
+            + "FROM pool p "
+            + "LEFT JOIN resource r on r.pool_id = p.id "
+            + "GROUP BY p.id, r.state";
 
-    MapSqlParameterSource params =
-        new MapSqlParameterSource().addValue("state", ResourceState.READY.toString());
-
-    return jdbcTemplate.query(
-        sql,
-        params,
-        (rs, rowNum) ->
-            PoolAndResourceStates.create(
-                POOL_ROW_MAPPER.mapRow(rs, rowNum),
-                getResourceStateCountSet(rs.getInt("ready_count"), rs.getInt("creating_count"))));
+    return jdbcTemplate.query(sql, new PoolAndResourceStatesExtractor());
   }
 
   /** Updates list of pools' status to DEACTIVATED. */
@@ -154,7 +146,7 @@ public class RbsDao {
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
   public Optional<Resource> retrieveResource(ResourceId resourceId) {
     String sql =
-        "select id, pool_id, creation, handout_time, state, request_handout_id, terra_resource_uid "
+        "select id, pool_id, creation, handout_time, state, request_handout_id, cloud_resource_uid "
             + "FROM resource "
             + "WHERE id = :id";
 
@@ -181,9 +173,9 @@ public class RbsDao {
               .id(ResourceId.create(rs.getObject("id", UUID.class)))
               .poolId(PoolId.create(rs.getString("pool_id")))
               .cloudResourceUid(
-                  rs.getString("terra_resource_uid") == null
+                  rs.getString("cloud_resource_uid") == null
                       ? null
-                      : deserializeResourceUid(rs.getString("terra_resource_uid")))
+                      : deserializeResourceUid(rs.getString("cloud_resource_uid")))
               .state(ResourceState.valueOf(rs.getString("state")))
               .requestHandoutId(
                   rs.getString("request_handout_id") == null
@@ -195,6 +187,39 @@ public class RbsDao {
                       ? null
                       : rs.getObject("handout_time", OffsetDateTime.class).toInstant())
               .build();
+
+  /**
+   * A {@link ResultSetExtractor} for extracting the results of a join of the one pool to many
+   * {@link ResourceState} relationship.
+   */
+  private static class PoolAndResourceStatesExtractor
+      implements ResultSetExtractor<List<PoolAndResourceStates>> {
+    @Override
+    public List<PoolAndResourceStates> extractData(ResultSet rs)
+        throws SQLException, DataAccessException {
+      Map<PoolId, PoolAndResourceStates.Builder> pools = new HashMap<>();
+      int rowNum = 0;
+      while (rs.next()) {
+        PoolId id = PoolId.create(rs.getString("id"));
+        PoolAndResourceStates.Builder poolAndResourceStateBuilder = pools.get(id);
+        if (poolAndResourceStateBuilder == null) {
+          poolAndResourceStateBuilder = PoolAndResourceStates.builder();
+          poolAndResourceStateBuilder.setPool(POOL_ROW_MAPPER.mapRow(rs, rowNum));
+          pools.put(id, poolAndResourceStateBuilder);
+        }
+        if (rs.getString("state") != null) {
+          // resourceState may be null from left join for a pool with no resources.
+          poolAndResourceStateBuilder
+              .resourceStatesBuilder()
+              .setCount(ResourceState.valueOf(rs.getString("state")), rs.getInt("resource_count"));
+        }
+        ++rowNum;
+      }
+      return pools.values().stream()
+          .map(PoolAndResourceStates.Builder::build)
+          .collect(Collectors.toList());
+    }
+  }
 
   /** Serializes {@link ResourceConfig} into json format string. */
   private static String serializeResourceConfig(ResourceConfig resourceConfig) {
@@ -238,13 +263,5 @@ public class RbsDao {
       throw new RuntimeException(
           String.format("Failed to deserialize ResourceConfig: %s", cloudResourceUid), e);
     }
-  }
-
-  private static Multiset<ResourceState> getResourceStateCountSet(
-      int readyCount, int creatingCount) {
-    Multiset<ResourceState> result = HashMultiset.create();
-    result.add(ResourceState.READY, readyCount);
-    result.add(ResourceState.CREATING, creatingCount);
-    return result;
   }
 }
