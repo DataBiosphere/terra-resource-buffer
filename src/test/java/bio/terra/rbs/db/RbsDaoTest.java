@@ -7,8 +7,7 @@ import bio.terra.rbs.app.configuration.RbsJdbcConfiguration;
 import bio.terra.rbs.common.BaseUnitTest;
 import bio.terra.rbs.generated.model.GcpProjectConfig;
 import bio.terra.rbs.generated.model.ResourceConfig;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.*;
 import java.time.Instant;
 import java.util.*;
 import org.hamcrest.Matchers;
@@ -45,6 +44,15 @@ public class RbsDaoTest extends BaseUnitTest {
         .size(1)
         .resourceConfig(resourceConfig)
         .status(PoolStatus.ACTIVE)
+        .build();
+  }
+
+  private static Resource newResource(PoolId poolId, ResourceState state) {
+    return Resource.builder()
+        .id(ResourceId.create(UUID.randomUUID()))
+        .poolId(poolId)
+        .creation(Instant.now())
+        .state(state)
         .build();
   }
 
@@ -86,5 +94,50 @@ public class RbsDaoTest extends BaseUnitTest {
 
     rbsDao.updatePoolsSize(ImmutableMap.of(poolId, resizedPool.size()));
     assertThat(rbsDao.retrievePools(), Matchers.containsInAnyOrder(resizedPool));
+  }
+
+  @Test
+  public void retrievePoolWithResourceCount() {
+    Pool pool1 = newPool(PoolId.create("poolId1"));
+    Pool pool2 = newPool(PoolId.create("poolId2"));
+    Pool pool3 = newPool(PoolId.create("poolId3"));
+
+    // Pool1 has 1 CREATING, 2 READY, Pool2 has 1 READY, 1 USED, Pool3 is empty
+    Resource pool1CreatingResource1 = newResource(pool1.id(), ResourceState.CREATING);
+    Resource pool1ReadyResource1 = newResource(pool1.id(), ResourceState.READY);
+    Resource pool1ReadyResource2 = newResource(pool1.id(), ResourceState.READY);
+    Resource pool2UsedResource1 = newResource(pool2.id(), ResourceState.USED);
+    Resource pool2ReadyResource1 = newResource(pool2.id(), ResourceState.READY);
+
+    rbsDao.createPools(ImmutableList.of(pool1, pool2, pool3));
+    rbsDao.createResource(pool1CreatingResource1);
+    rbsDao.createResource(pool1ReadyResource1);
+    rbsDao.createResource(pool1ReadyResource2);
+    rbsDao.createResource(pool2UsedResource1);
+    rbsDao.createResource(pool2ReadyResource1);
+
+    Multiset<ResourceState> expectedPool1State = HashMultiset.create();
+    expectedPool1State.add(ResourceState.CREATING, 1);
+    expectedPool1State.add(ResourceState.READY, 2);
+    Multiset<ResourceState> expectedPool2State = HashMultiset.create();
+    expectedPool2State.add(ResourceState.READY, 1);
+
+    assertThat(
+        rbsDao.retrievePoolAndResourceStatesCount(),
+        Matchers.containsInAnyOrder(
+            PoolAndResourceStates.create(pool1, expectedPool1State),
+            PoolAndResourceStates.create(pool2, expectedPool2State),
+            PoolAndResourceStates.create(pool3, ImmutableMultiset.of())));
+  }
+
+  @Test
+  public void createAndRetrieveResource() {
+    PoolId poolId = PoolId.create("poolId");
+    Pool pool = newPool(poolId);
+    rbsDao.createPools(ImmutableList.of(pool));
+    Resource resource = newResource(poolId, ResourceState.CREATING);
+
+    rbsDao.createResource(resource);
+    assertEquals(resource, rbsDao.retrieveResource(resource.id()).get());
   }
 }

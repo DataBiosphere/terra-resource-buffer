@@ -1,6 +1,6 @@
 package bio.terra.rbs.db;
 
-import bio.terra.rbs.generated.model.ResourceConfig;
+import bio.terra.rbs.generated.model.CloudResourceUid;
 import com.google.auto.value.AutoValue;
 import java.time.Instant;
 import javax.annotation.Nullable;
@@ -10,14 +10,21 @@ import javax.annotation.Nullable;
 public abstract class Resource {
   public abstract ResourceId id();
 
-  public abstract ResourceConfig resourceConfig();
+  public abstract PoolId poolId();
 
-  public abstract ResourceType resourceType();
+  public abstract ResourceState state();
 
+  @Nullable
+  public abstract CloudResourceUid terraResourceUid();
+
+  @Nullable
+  public abstract RequestHandoutId requestHandoutId();
+
+  @Nullable
   public abstract Instant creation();
 
   @Nullable
-  public abstract Instant expiration();
+  public abstract Instant handoutTime();
 
   public static Builder builder() {
     return new AutoValue_Resource.Builder();
@@ -29,17 +36,17 @@ public abstract class Resource {
   public abstract static class Builder {
     public abstract Builder id(ResourceId id);
 
-    public abstract Builder resourceConfig(ResourceConfig resourceConfig);
+    public abstract Builder poolId(PoolId poolId);
 
-    public abstract Builder resourceType(ResourceType resourceType);
+    public abstract Builder state(ResourceState state);
 
-    public abstract Builder status(ResourceStatus status);
+    public abstract Builder terraResourceUid(CloudResourceUid terraResourceUid);
 
-    public abstract Builder size(int size);
+    public abstract Builder requestHandoutId(RequestHandoutId requestHandoutId);
 
     public abstract Builder creation(Instant creation);
 
-    public abstract Builder expiration(Instant expiration);
+    public abstract Builder handoutTime(Instant handoutTime);
 
     public abstract Resource build();
   }
