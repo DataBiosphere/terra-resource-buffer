@@ -18,7 +18,12 @@ public abstract class PoolAndResourceStates {
   public abstract static class Builder {
     public abstract Builder setPool(Pool pool);
 
-    public abstract ImmutableMultiset.Builder<ResourceState> resourceStatesBuilder();
+    abstract ImmutableMultiset.Builder<ResourceState> resourceStatesBuilder();
+
+    public Builder setResourceStateCount(ResourceState state, int count) {
+      resourceStatesBuilder().setCount(state, count);
+      return this;
+    }
 
     public abstract PoolAndResourceStates build();
   }
