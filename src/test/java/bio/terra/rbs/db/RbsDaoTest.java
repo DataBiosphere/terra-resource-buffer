@@ -97,7 +97,7 @@ public class RbsDaoTest extends BaseUnitTest {
     rbsDao.createPools(ImmutableList.of(pool1, pool2));
 
     assertThat(
-        rbsDao.retrievePoolAndResourceStatesCount(),
+        rbsDao.retrievePoolAndResourceStates(),
         Matchers.containsInAnyOrder(
             PoolAndResourceStates.builder().setPool(pool1).build(),
             PoolAndResourceStates.builder().setPool(pool2).build()));
