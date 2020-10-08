@@ -98,7 +98,7 @@ public class RbsDaoTest extends BaseUnitTest {
   }
 
   @Test
-  public void retrievePoolWithResourceCount() {
+  public void retrievePoolWithResourceState() {
     Pool pool1 = newPool(PoolId.create("poolId1"));
     Pool pool2 = newPool(PoolId.create("poolId2"));
     Pool pool3 = newPool(PoolId.create("poolId3"));
