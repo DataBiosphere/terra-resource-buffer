@@ -111,64 +111,18 @@ public class RbsDaoTest extends BaseUnitTest {
     rbsDao.createResource(newResource(pool2.id(), ResourceState.READY));
     rbsDao.createResource(newResource(pool2.id(), ResourceState.HANDED_OUT));
 
-    System.out.println("~~~~~~~11111");
-    System.out.println("~~~~~~~1111111");
-    System.out.println("~~~~~~~");
-    System.out.println("~~~~~~~");
-    System.out.println("~~~~~~~");
-    System.out.println("~~~~~~~");
-    System.out.println(rbsDao.retrievePoolAndResourceStatesCount().get(0));
-    System.out.println("~~~~~~~23232323");
-    System.out.println("~~~~~~~2323232323");
-    System.out.println("~~~~~~~");
-    System.out.println(rbsDao.retrievePoolAndResourceStatesCount().get(1));
-    System.out.println("~~~~~~~555555");
-    System.out.println("~~~~~~~555");
-    System.out.println("~~~~~~~5555555");
-    System.out.println(rbsDao.retrievePoolAndResourceStatesCount().get(2));
-
-    System.out.println("~~~~~~~566666");
-    System.out.println("~~~~~~~66666");
-    System.out.println("~~~~~~~6666666");
-    System.out.println(PoolAndResourceStates.builder().setPool(pool3).build());
-
-    System.out.println("~~~~~~~77777");
-    System.out.println("~~~~~~~8888888");
-    System.out.println("~~~~~~~8888888");
-    System.out.println(
-        PoolAndResourceStates.builder()
-            .setPool(pool2)
-            .resourceStatesBuilder()
-            .setCount(ResourceState.READY, 1)
-            .setCount(ResourceState.HANDED_OUT, 1)
-            .build());
-
-    System.out.println("~~~~~~~999999");
-    System.out.println("~~~~~~~9999999999");
-    System.out.println("~~~~~~~8888888");
-    System.out.println(
-        PoolAndResourceStates.builder()
-            .setPool(pool1)
-            .resourceStatesBuilder()
-            .setCount(ResourceState.CREATING, 1)
-            .setCount(ResourceState.READY, 2)
-            .build()
-            .build());
-
     assertThat(
         rbsDao.retrievePoolAndResourceStatesCount(),
         Matchers.containsInAnyOrder(
             PoolAndResourceStates.builder()
                 .setPool(pool1)
-                .resourceStatesBuilder()
-                .setCount(ResourceState.CREATING, 1)
-                .setCount(ResourceState.READY, 2)
+                .setResourceStateCount(ResourceState.CREATING, 1)
+                .setResourceStateCount(ResourceState.READY, 2)
                 .build(),
             PoolAndResourceStates.builder()
                 .setPool(pool2)
-                .resourceStatesBuilder()
-                .setCount(ResourceState.READY, 1)
-                .setCount(ResourceState.HANDED_OUT, 1)
+                .setResourceStateCount(ResourceState.READY, 1)
+                .setResourceStateCount(ResourceState.HANDED_OUT, 1)
                 .build(),
             PoolAndResourceStates.builder().setPool(pool3).build()));
   }
