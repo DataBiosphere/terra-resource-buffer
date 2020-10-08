@@ -102,19 +102,13 @@ public class RbsDaoTest extends BaseUnitTest {
     Pool pool2 = newPool(PoolId.create("poolId2"));
     Pool pool3 = newPool(PoolId.create("poolId3"));
 
-    // Pool1 has 1 CREATING, 2 READY, Pool2 has 1 READY, 1 USED, Pool3 is empty
-    Resource pool1CreatingResource1 = newResource(pool1.id(), ResourceState.CREATING);
-    Resource pool1ReadyResource1 = newResource(pool1.id(), ResourceState.READY);
-    Resource pool1ReadyResource2 = newResource(pool1.id(), ResourceState.READY);
-    Resource pool2UsedResource1 = newResource(pool2.id(), ResourceState.USED);
-    Resource pool2ReadyResource1 = newResource(pool2.id(), ResourceState.READY);
-
+    // Pool1 has 1 CREATING, 2 READY, Pool2 has 1 READY, 1 HANDED_OUT, Pool3 is empty
     rbsDao.createPools(ImmutableList.of(pool1, pool2, pool3));
-    rbsDao.createResource(pool1CreatingResource1);
-    rbsDao.createResource(pool1ReadyResource1);
-    rbsDao.createResource(pool1ReadyResource2);
-    rbsDao.createResource(pool2UsedResource1);
-    rbsDao.createResource(pool2ReadyResource1);
+    rbsDao.createResource(newResource(pool1.id(), ResourceState.CREATING));
+    rbsDao.createResource(newResource(pool1.id(), ResourceState.READY));
+    rbsDao.createResource(newResource(pool1.id(), ResourceState.READY));
+    rbsDao.createResource(newResource(pool2.id(), ResourceState.HANDED_OUT));
+    rbsDao.createResource(newResource(pool2.id(), ResourceState.READY));
 
     Multiset<ResourceState> expectedPool1State = HashMultiset.create();
     expectedPool1State.add(ResourceState.CREATING, 1);

@@ -180,7 +180,7 @@ public class RbsDao {
           Resource.builder()
               .id(ResourceId.create(rs.getObject("id", UUID.class)))
               .poolId(PoolId.create(rs.getString("pool_id")))
-              .terraResourceUid(
+              .cloudResourceUid(
                   rs.getString("terra_resource_uid") == null
                       ? null
                       : deserializeResourceUid(rs.getString("terra_resource_uid")))
@@ -231,12 +231,12 @@ public class RbsDao {
   }
 
   /** Deserializes {@link CloudResourceUid} into json format string. */
-  private static CloudResourceUid deserializeResourceUid(String terraResourceUid) {
+  private static CloudResourceUid deserializeResourceUid(String cloudResourceUid) {
     try {
-      return new ObjectMapper().readValue(terraResourceUid, CloudResourceUid.class);
+      return new ObjectMapper().readValue(cloudResourceUid, CloudResourceUid.class);
     } catch (JsonProcessingException e) {
       throw new RuntimeException(
-          String.format("Failed to deserialize ResourceConfig: %s", terraResourceUid), e);
+          String.format("Failed to deserialize ResourceConfig: %s", cloudResourceUid), e);
     }
   }
 
