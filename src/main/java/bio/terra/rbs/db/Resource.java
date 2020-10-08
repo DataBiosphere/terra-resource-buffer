@@ -35,10 +35,7 @@ public abstract class Resource {
   @Nullable
   public abstract RequestHandoutId requestHandoutId();
 
-  /**
-   * The resource creation time. It is the time when we start creating the resources. The actual
-   * resource creation finish time is later than that.
-   */
+  /** The time resource is created. This is *not* the time when the resource becomes READY. */
   public abstract Instant creation();
 
   /** The time when RBS handed out resource to client. It is set when the resource is handed out. */

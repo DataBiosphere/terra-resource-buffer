@@ -112,7 +112,7 @@ public class RbsDaoTest extends BaseUnitTest {
     rbsDao.createResource(newResource(pool2.id(), ResourceState.HANDED_OUT));
 
     assertThat(
-        rbsDao.retrievePoolAndResourceStatesCount(),
+        rbsDao.retrievePoolAndResourceStates(),
         Matchers.containsInAnyOrder(
             PoolAndResourceStates.builder()
                 .setPool(pool1)

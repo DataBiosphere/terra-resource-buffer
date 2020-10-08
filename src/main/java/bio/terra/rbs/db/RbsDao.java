@@ -80,7 +80,7 @@ public class RbsDao {
 
   /** Retrieves all pools and resource count for each state. */
   @Transactional(propagation = Propagation.SUPPORTS)
-  public List<PoolAndResourceStates> retrievePoolAndResourceStatesCount() {
+  public List<PoolAndResourceStates> retrievePoolAndResourceStates() {
     String sql =
         "select count(*) as resource_count, r.state, "
             + "p.id, p.resource_config, p.resource_type, p.creation, p.size, p.status "
