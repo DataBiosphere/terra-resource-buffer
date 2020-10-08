@@ -159,7 +159,7 @@ public class RbsDao {
           // resourceState may be null from left join for a pool with no resources.
           poolAndResourceStateBuilder
               .resourceStatesBuilder()
-              .setCount(ResourceState.valueOf(rs.getString("state")), rs.getInt("count"));
+              .setCount(ResourceState.valueOf(rs.getString("state")), rs.getInt("resource_count"));
         }
         ++rowNum;
       }
