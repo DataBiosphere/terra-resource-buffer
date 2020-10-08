@@ -87,4 +87,19 @@ public class RbsDaoTest extends BaseUnitTest {
     rbsDao.updatePoolsSize(ImmutableMap.of(poolId, resizedPool.size()));
     assertThat(rbsDao.retrievePools(), Matchers.containsInAnyOrder(resizedPool));
   }
+
+  @Test
+  public void retrievePoolWithResourceCount() {
+    // TODO(yonghao): Insert some resource and verify count matches once RbsDao supports insert
+    // resource
+    Pool pool1 = newPool(PoolId.create("poolId1"));
+    Pool pool2 = newPool(PoolId.create("poolId2"));
+    rbsDao.createPools(ImmutableList.of(pool1, pool2));
+
+    assertThat(
+        rbsDao.retrievePoolAndResourceStates(),
+        Matchers.containsInAnyOrder(
+            PoolAndResourceStates.builder().setPool(pool1).build(),
+            PoolAndResourceStates.builder().setPool(pool2).build()));
+  }
 }
