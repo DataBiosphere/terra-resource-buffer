@@ -50,6 +50,6 @@ public class BackwardsCompatibilityTest extends BaseUnitTest {
 
     assertEquals(ResourceState.CREATING, ResourceState.valueOf("CREATING"));
     assertEquals(ResourceState.READY, ResourceState.valueOf("READY"));
-    assertEquals(ResourceState.USED, ResourceState.valueOf("USED"));
+    assertEquals(ResourceState.HANDED_OUT, ResourceState.valueOf("HANDED_OUT"));
   }
 }
