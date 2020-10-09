@@ -7,5 +7,6 @@ import bio.terra.stairway.FlightMap;
 public class GoogleProjectDeletionFlight extends Flight {
   public GoogleProjectDeletionFlight(FlightMap inputParameters, Object applicationContext) {
     super(inputParameters, applicationContext);
+    // TODO(PF-143): GCP Project deletion
   }
 }

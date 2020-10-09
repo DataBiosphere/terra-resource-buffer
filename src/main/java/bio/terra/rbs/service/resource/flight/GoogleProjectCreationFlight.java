@@ -7,5 +7,7 @@ import bio.terra.stairway.FlightMap;
 public class GoogleProjectCreationFlight extends Flight {
   public GoogleProjectCreationFlight(FlightMap inputParameters, Object applicationContext) {
     super(inputParameters, applicationContext);
+    // TODO(PF-127): GCP Project Creation
+    // TODO(PF-144): GCP VPC setup
   }
 }

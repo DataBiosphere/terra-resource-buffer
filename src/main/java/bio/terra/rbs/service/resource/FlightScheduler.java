@@ -113,7 +113,7 @@ public class FlightScheduler {
       }
     }
     logger.info(
-        "Successfully submit {} number of resource creation flights for pool: {} .",
+        "Successfully submitted {} number of resource creation flights for pool: {} .",
         pool.id(),
         successSubmitNum);
   }
@@ -136,7 +136,7 @@ public class FlightScheduler {
       }
     }
     logger.info(
-        "Successfully submit {} number of resource deletion flights for pool: {} .",
+        "Successfully submitted {} number of resource deletion flights for pool: {} .",
         pool.id(),
         successSubmitNum);
   }
