@@ -22,7 +22,7 @@ public class FlightScheduler {
   private final Logger logger = LoggerFactory.getLogger(FlightScheduler.class);
 
   /** Only need as many threads as we have scheduled tasks. */
-  private final ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(4);
+  private final ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(1);
 
   private final FlightManager flightManager;
   private final PrimaryConfiguration primaryConfiguration;
@@ -83,16 +83,14 @@ public class FlightScheduler {
           scheduleCreationFlights(poolAndResources.pool(), size - readyAndCreatingCount);
         } else if (readyAndCreatingCount > size) {
           // Only deletion READY resource, we hope future schedule runs will deletion resources
-          // just turns
-          // to READY from CREATING.
+          // just turns to READY from CREATING.
           scheduleDeletionFlights(
               poolAndResources.pool(),
               poolAndResources.resourceStates().count(ResourceState.READY));
         }
       } else {
         // Only deletion READY resource, we hope future schedule runs will deletion resources
-        // just turns
-        // to READY from CREATING.
+        // just turns to READY from CREATING.
         scheduleDeletionFlights(
             poolAndResources.pool(), poolAndResources.resourceStates().count(ResourceState.READY));
       }
@@ -107,9 +105,8 @@ public class FlightScheduler {
         pool.id(),
         flightToSchedule);
 
-    while (flightToSchedule > 0) {
+    while (flightToSchedule-- > 0) {
       flightManager.submitCreationFlight(pool);
-      flightToSchedule--;
     }
   }
 
