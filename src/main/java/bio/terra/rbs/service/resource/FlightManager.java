@@ -2,16 +2,51 @@ package bio.terra.rbs.service.resource;
 
 import bio.terra.rbs.db.Pool;
 import bio.terra.rbs.db.Resource;
+import bio.terra.rbs.db.ResourceType;
+import bio.terra.rbs.service.stairway.StairwayComponent;
+import bio.terra.stairway.Flight;
+import bio.terra.stairway.FlightMap;
+import bio.terra.stairway.Stairway;
+import bio.terra.stairway.exception.DatabaseOperationException;
+import bio.terra.stairway.exception.StairwayExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /** Manages the Stairway flights to create or delete resources. */
 @Component
 public class FlightManager {
-  public void submitCreationFlight(Pool pool) {
-    // TODO: Implement.
+  private Logger logger = LoggerFactory.getLogger(FlightManager.class);
+
+  private final FlightFactory flightFactory;
+  private final Stairway stairway;
+
+  @Autowired
+  public FlightManager(FlightFactory flightFactory, StairwayComponent stairwayComponent) {
+    this.flightFactory = flightFactory;
+    this.stairway = stairwayComponent.get();
   }
 
-  public void submitDeleationFlight(Resource resource) {
-    // TODO: Implement.
+  public boolean submitCreationFlight(Pool pool) {
+    // TODO: Add input into FlightMap
+    return submitToStairway(
+        flightFactory.getCreationFlightClass(pool.resourceType()), new FlightMap());
+  }
+
+  public boolean submitDeletionFlight(Resource resource, ResourceType resourceType) {
+    // TODO: Add input into FlightMap
+    return submitToStairway(flightFactory.getDeletionFlightClass(resourceType), new FlightMap());
+  }
+
+  private boolean submitToStairway(Class<? extends Flight> clazz, FlightMap flightMap) {
+    String flightId = stairway.createFlightId();
+    try {
+      stairway.submitToQueue(flightId, clazz, flightMap);
+      return true;
+    } catch (DatabaseOperationException | StairwayExecutionException | InterruptedException e) {
+      logger.error("Error submitting flight id: {}", flightId, e);
+      return false;
+    }
   }
 }
