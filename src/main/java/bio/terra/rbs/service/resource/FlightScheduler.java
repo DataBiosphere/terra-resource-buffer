@@ -67,8 +67,8 @@ public class FlightScheduler {
   }
 
   /**
-   * Try to schedule flights to create and delete resources until resource count matches each
-   * pool state or reach to configuration limit.
+   * Try to schedule flights to create and delete resources until resource count matches each pool
+   * state or reach to configuration limit.
    */
   private void scheduleFlights() {
     logger.info("Beginning scheduling flights.");
@@ -115,8 +115,7 @@ public class FlightScheduler {
 
   /** Schedules up to {@code number} of resources creation flight for a pool. */
   private void scheduleDeletionFlights(Pool pool, int number) {
-    int flightToSchedule =
-        Math.min(primaryConfiguration.getResourceDeletionPerPoolLimit(), number);
+    int flightToSchedule = Math.min(primaryConfiguration.getResourceDeletionPerPoolLimit(), number);
     logger.info(
         "Beginning resource deletion flights for pool: {}, target submission number: {} .",
         pool.id(),
