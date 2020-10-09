@@ -120,7 +120,7 @@ public class FlightScheduler {
 
     List<Resource> resources = rbsDao.retrieveResources(ResourceState.READY, flightToSchedule);
     for (Resource resource : resources) {
-      flightManager.submitDeleationFlight(resource);
+      flightManager.submitDeletionFlight(resource);
     }
   }
 
