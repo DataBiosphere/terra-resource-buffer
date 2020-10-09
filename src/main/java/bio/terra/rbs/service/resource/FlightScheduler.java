@@ -67,7 +67,7 @@ public class FlightScheduler {
   }
 
   /**
-   * Try to schedule flights to create and deactivate resources until resource count matches each
+   * Try to schedule flights to create and delete resources until resource count matches each
    * pool state or reach to configuration limit.
    */
   private void scheduleFlights() {
@@ -82,18 +82,18 @@ public class FlightScheduler {
         if (size > readyAndCreatingCount) {
           scheduleCreationFlights(poolAndResources.pool(), size - readyAndCreatingCount);
         } else if (readyAndCreatingCount > size) {
-          // Only deactivate READY resource, we hope future schedule runs will deactivate resources
+          // Only deletion READY resource, we hope future schedule runs will deletion resources
           // just turns
           // to READY from CREATING.
-          scheduleDeactivateFlights(
+          scheduleDeletionFlights(
               poolAndResources.pool(),
               poolAndResources.resourceStates().count(ResourceState.READY));
         }
       } else {
-        // Only deactivate READY resource, we hope future schedule runs will deactivate resources
+        // Only deletion READY resource, we hope future schedule runs will deletion resources
         // just turns
         // to READY from CREATING.
-        scheduleDeactivateFlights(
+        scheduleDeletionFlights(
             poolAndResources.pool(), poolAndResources.resourceStates().count(ResourceState.READY));
       }
     }
@@ -114,17 +114,17 @@ public class FlightScheduler {
   }
 
   /** Schedules up to {@code number} of resources creation flight for a pool. */
-  private void scheduleDeactivateFlights(Pool pool, int number) {
+  private void scheduleDeletionFlights(Pool pool, int number) {
     int flightToSchedule =
-        Math.min(primaryConfiguration.getResourceDeactivationPerPoolLimit(), number);
+        Math.min(primaryConfiguration.getResourceDeletionPerPoolLimit(), number);
     logger.info(
-        "Beginning resource deactivation flights for pool: {}, target submission number: {} .",
+        "Beginning resource deletion flights for pool: {}, target submission number: {} .",
         pool.id(),
         flightToSchedule);
 
     List<Resource> resources = rbsDao.retrieveResources(ResourceState.READY, flightToSchedule);
     for (Resource resource : resources) {
-      flightManager.submitDeactivationFlight(resource);
+      flightManager.submitDeleationFlight(resource);
     }
   }
 

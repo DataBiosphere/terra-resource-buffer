@@ -53,7 +53,7 @@ public class FlightSchedulerTest extends BaseUnitTest {
     PrimaryConfiguration primaryConfiguration = new PrimaryConfiguration();
     primaryConfiguration.setSchedulerEnabled(true);
     primaryConfiguration.setResourceCreationPerPoolLimit(10);
-    primaryConfiguration.setResourceDeactivationPerPoolLimit(10);
+    primaryConfiguration.setResourceDeletionPerPoolLimit(10);
     // Sets submissionPeriod to a big number to make sure it is only runs once.
     primaryConfiguration.setFlightSubmissionPeriod(Duration.ofSeconds(2000));
     return primaryConfiguration;
@@ -103,12 +103,12 @@ public class FlightSchedulerTest extends BaseUnitTest {
 
     verify(flightManager, times(2)).submitCreationFlight(pool1);
     verify(flightManager, never()).submitCreationFlight(pool2);
-    verify(flightManager, never()).submitDeactivationFlight(any(Resource.class));
+    verify(flightManager, never()).submitDeleationFlight(any(Resource.class));
   }
 
   @Test
-  public void scheduleDeactivationFlights_poolSizeReduced() throws Exception {
-    // pool size 5, should deactivate the 2 READY resources.
+  public void scheduleDeactivationFlights_poolDeactivated() throws Exception {
+    // pool is delete, should delete the 2 READY resources.
     Pool pool =
         newPoolWithResourceCount(
             5,
@@ -119,12 +119,12 @@ public class FlightSchedulerTest extends BaseUnitTest {
     initializeScheduler();
     Thread.sleep(4000);
 
-    resources.forEach(resource -> verify(flightManager).submitDeactivationFlight(resource));
+    resources.forEach(resource -> verify(flightManager).submitDeleationFlight(resource));
     verify(flightManager, never()).submitCreationFlight(any(Pool.class));
   }
 
   @Test
-  public void scheduleDeactivationFlights_poolDeactivated() throws Exception {
+  public void scheduleDeactivationFlights_poolSizeReduced() throws Exception {
     // Pool size 1, should deactivate 2 resources(only READY resources).
     newPoolWithResourceCount(
         1, ImmutableMultiset.of(ResourceState.READY, ResourceState.READY, ResourceState.CREATING));
@@ -133,7 +133,7 @@ public class FlightSchedulerTest extends BaseUnitTest {
     initializeScheduler();
     Thread.sleep(4000);
 
-    resources.forEach(resource -> verify(flightManager).submitDeactivationFlight(resource));
+    resources.forEach(resource -> verify(flightManager).submitDeleationFlight(resource));
     verify(flightManager, never()).submitCreationFlight(any(Pool.class));
   }
 
@@ -152,7 +152,7 @@ public class FlightSchedulerTest extends BaseUnitTest {
     Thread.sleep(4000);
 
     verify(flightManager, times(5)).submitCreationFlight(pool);
-    verify(flightManager, never()).submitDeactivationFlight(any(Resource.class));
+    verify(flightManager, never()).submitDeleationFlight(any(Resource.class));
   }
 
   @Test
@@ -173,12 +173,12 @@ public class FlightSchedulerTest extends BaseUnitTest {
     List<Resource> resources = rbsDao.retrieveResources(ResourceState.READY, 2);
 
     PrimaryConfiguration primaryConfiguration = newPrimaryConfiguration();
-    primaryConfiguration.setResourceDeactivationPerPoolLimit(3);
+    primaryConfiguration.setResourceDeletionPerPoolLimit(3);
     initializeScheduler(primaryConfiguration);
 
     Thread.sleep(4000);
 
-    resources.forEach(resource -> verify(flightManager).submitDeactivationFlight(resource));
+    resources.forEach(resource -> verify(flightManager).submitDeleationFlight(resource));
     verify(flightManager, never()).submitCreationFlight(any(Pool.class));
   }
 }

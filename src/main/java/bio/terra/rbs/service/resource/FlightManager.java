@@ -11,7 +11,7 @@ public class FlightManager {
     // TODO: Implement.
   }
 
-  public void submitDeactivationFlight(Resource resource) {
+  public void submitDeleationFlight(Resource resource) {
     // TODO: Implement.
   }
 }

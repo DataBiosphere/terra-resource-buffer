@@ -24,10 +24,10 @@ public class PrimaryConfiguration {
   private int resourceCreationPerPoolLimit = 100;
 
   /**
-   * How many resource deactivation flights for a pool to process because we don't want a pool eats
+   * How many resource deletion flights for a pool to process because we don't want a pool eats
    * all flights.
    */
-  private int resourceDeactivationPerPoolLimit = 50;
+  private int resourceDeletionPerPoolLimit = 50;
 
   /** How often to record the counts of the different resources in the database. */
   private Duration recordResourceCountPeriod = Duration.ofMinutes(10);
@@ -44,8 +44,8 @@ public class PrimaryConfiguration {
     return resourceCreationPerPoolLimit;
   }
 
-  public int getResourceDeactivationPerPoolLimit() {
-    return resourceDeactivationPerPoolLimit;
+  public int getResourceDeletionPerPoolLimit() {
+    return resourceDeletionPerPoolLimit;
   }
 
   public void setSchedulerEnabled(boolean schedulerEnabled) {
@@ -60,7 +60,7 @@ public class PrimaryConfiguration {
     this.resourceCreationPerPoolLimit = resourceCreationPerPoolLimit;
   }
 
-  public void setResourceDeactivationPerPoolLimit(int resourceDeactivationPerPoolLimit) {
-    this.resourceDeactivationPerPoolLimit = resourceDeactivationPerPoolLimit;
+  public void setResourceDeletionPerPoolLimit(int resourceDeletionPerPoolLimit) {
+    this.resourceDeletionPerPoolLimit = resourceDeletionPerPoolLimit;
   }
 }
