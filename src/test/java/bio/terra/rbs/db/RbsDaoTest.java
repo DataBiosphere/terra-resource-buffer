@@ -137,4 +137,24 @@ public class RbsDaoTest extends BaseUnitTest {
     rbsDao.createResource(resource);
     assertEquals(resource, rbsDao.retrieveResource(resource.id()).get());
   }
+
+  @Test
+  public void retrieveResourcesWithState() {
+    Pool pool = newPool(PoolId.create("poolId1"));
+
+    // 1 CREATING, 3 READY resources; and ask for 2 READY resources.
+    Resource creating = newResource(pool.id(), ResourceState.CREATING);
+    Resource ready1 = newResource(pool.id(), ResourceState.READY);
+    Resource ready2 = newResource(pool.id(), ResourceState.READY);
+    Resource ready3 = newResource(pool.id(), ResourceState.READY);
+    rbsDao.createPools(ImmutableList.of(pool));
+    rbsDao.createResource(creating);
+    rbsDao.createResource(ready1);
+    rbsDao.createResource(ready2);
+    rbsDao.createResource(ready3);
+
+    List<Resource> resources = rbsDao.retrieveResources(ResourceState.READY, 2);
+    assertEquals(2, resources.size());
+    assertThat(ImmutableList.of(ready1, ready2, ready3), Matchers.hasItems(resources.toArray()));
+  }
 }

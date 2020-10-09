@@ -1,4 +1,4 @@
-package bio.terra.rbs.resource;
+package bio.terra.rbs.config;
 
 import static bio.terra.rbs.service.pool.PoolConfigLoader.loadPoolConfig;
 import static org.junit.jupiter.api.Assertions.fail;
