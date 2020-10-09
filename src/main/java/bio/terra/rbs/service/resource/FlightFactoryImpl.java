@@ -10,8 +10,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class FlightFactoryImpl implements FlightFactory {
+  /** Supported resource creation flight map. */
   Map<ResourceType, Class<? extends Flight>> CREATION_FLIGHT_MAP =
       ImmutableMap.of(ResourceType.GOOGLE_PROJECT, GoogleProjectCreationFlight.class);
+
+  /** Supported resource deletion flight map. */
   Map<ResourceType, Class<? extends Flight>> DELETION_FLIGHT_MAP =
       ImmutableMap.of(ResourceType.GOOGLE_PROJECT, GoogleProjectDeletionFlight.class);
 
