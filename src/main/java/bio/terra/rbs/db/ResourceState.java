@@ -13,4 +13,8 @@ public enum ResourceState {
   READY,
   /** Resource is handed out. */
   HANDED_OUT,
+  /** Resource is deleting. */
+  DELETING,
+  /** Resource is deleted. */
+  DELETED,
 }

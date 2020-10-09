@@ -46,10 +46,12 @@ public class BackwardsCompatibilityTest extends BaseUnitTest {
   @Test
   public void resourceState() {
     // Make sure we won't forget to modify this test when we add/remove enums.
-    assertEquals(3, ResourceState.values().length);
+    assertEquals(5, ResourceState.values().length);
 
     assertEquals(ResourceState.CREATING, ResourceState.valueOf("CREATING"));
     assertEquals(ResourceState.READY, ResourceState.valueOf("READY"));
     assertEquals(ResourceState.HANDED_OUT, ResourceState.valueOf("HANDED_OUT"));
+    assertEquals(ResourceState.DELETING, ResourceState.valueOf("DELETING"));
+    assertEquals(ResourceState.DELETED, ResourceState.valueOf("DELETED"));
   }
 }

@@ -84,7 +84,7 @@ databaseChangeLog:
             - column:
                 name: state
                 type: text
-                remarks: resource state enum('CREATING', 'READY', 'HANDED_OUT')
+                remarks: resource state enum('CREATING', 'READY', 'HANDED_OUT', 'DELETING', 'DELETED')
                 constraints:
                   nullable: false
                   unique: false
