@@ -142,7 +142,7 @@ public class RbsDao {
     jdbcTemplate.update(sql, params);
   }
 
-  /** Updates list of pools' size. */
+  /** Retrieve a resource by id. */
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
   public Optional<Resource> retrieveResource(ResourceId resourceId) {
     String sql =
@@ -154,6 +154,21 @@ public class RbsDao {
 
     return Optional.ofNullable(
         DataAccessUtils.singleResult(jdbcTemplate.query(sql, params, RESOURCE_ROW_MAPPER)));
+  }
+
+  /** Retrieve resources match the {@link ResourceState}. */
+  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+  public List<Resource> retrieveResources(ResourceState state, int limit) {
+    String sql =
+        "select id, pool_id, creation, handout_time, state, request_handout_id, cloud_resource_uid "
+            + "FROM resource "
+            + "WHERE state = :state "
+            + "LIMIT :limit";
+
+    MapSqlParameterSource params =
+        new MapSqlParameterSource().addValue("state", state.toString()).addValue("limit", limit);
+
+    return jdbcTemplate.query(sql, params, RESOURCE_ROW_MAPPER);
   }
 
   private static final RowMapper<Pool> POOL_ROW_MAPPER =

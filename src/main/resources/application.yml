@@ -5,6 +5,8 @@ rbs:
     update-db-on-start: true
     uri: jdbc:postgresql://127.0.0.1:5432/${RBS_DATABASE_NAME}
     username:
+  primary:
+    scheduler-enabled: true
   pool:
     # The Folder to have all RBS configs.
     # TODO: Investigate where and how to put those files.
