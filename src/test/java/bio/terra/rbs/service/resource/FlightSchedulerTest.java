@@ -103,7 +103,8 @@ public class FlightSchedulerTest extends BaseUnitTest {
 
     verify(flightManager, times(2)).submitCreationFlight(pool1);
     verify(flightManager, never()).submitCreationFlight(pool2);
-    verify(flightManager, never()).submitDeleationFlight(any(Resource.class));
+    verify(flightManager, never())
+        .submitDeletionFlight(any(Resource.class), any(ResourceType.class));
   }
 
   @Test
@@ -119,7 +120,9 @@ public class FlightSchedulerTest extends BaseUnitTest {
     initializeScheduler();
     Thread.sleep(4000);
 
-    resources.forEach(resource -> verify(flightManager).submitDeleationFlight(resource));
+    resources.forEach(
+        resource ->
+            verify(flightManager).submitDeletionFlight(resource, ResourceType.GOOGLE_PROJECT));
     verify(flightManager, never()).submitCreationFlight(any(Pool.class));
   }
 
@@ -133,7 +136,9 @@ public class FlightSchedulerTest extends BaseUnitTest {
     initializeScheduler();
     Thread.sleep(4000);
 
-    resources.forEach(resource -> verify(flightManager).submitDeleationFlight(resource));
+    resources.forEach(
+        resource ->
+            verify(flightManager).submitDeletionFlight(resource, ResourceType.GOOGLE_PROJECT));
     verify(flightManager, never()).submitCreationFlight(any(Pool.class));
   }
 
@@ -152,7 +157,8 @@ public class FlightSchedulerTest extends BaseUnitTest {
     Thread.sleep(4000);
 
     verify(flightManager, times(5)).submitCreationFlight(pool);
-    verify(flightManager, never()).submitDeleationFlight(any(Resource.class));
+    verify(flightManager, never())
+        .submitDeletionFlight(any(Resource.class), any(ResourceType.class));
   }
 
   @Test
@@ -178,7 +184,9 @@ public class FlightSchedulerTest extends BaseUnitTest {
 
     Thread.sleep(4000);
 
-    resources.forEach(resource -> verify(flightManager).submitDeleationFlight(resource));
+    resources.forEach(
+        resource ->
+            verify(flightManager).submitDeletionFlight(resource, ResourceType.GOOGLE_PROJECT));
     verify(flightManager, never()).submitCreationFlight(any(Pool.class));
   }
 }
