@@ -107,8 +107,7 @@ public class FlightScheduler {
 
     int successSubmitNum = 0;
     while (flightToSchedule-- > 0) {
-      boolean submissionSuccessful = flightManager.submitCreationFlight(pool);
-      if (submissionSuccessful) {
+      if (flightManager.submitCreationFlight(pool)) {
         ++successSubmitNum;
       }
     }
