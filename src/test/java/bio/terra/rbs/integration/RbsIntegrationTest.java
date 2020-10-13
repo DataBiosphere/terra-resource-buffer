@@ -54,8 +54,6 @@ public class RbsIntegrationTest extends BaseIntegrationTest {
     resources = pollUntilResourceCreated(AOU_POOL_ID, 5, Duration.ofSeconds(10), 10);
     resources.forEach(
         resource -> {
-          System.out.println("~~~~~~~~~~~");
-          System.out.println(resource);
           try {
             assertProjectMatch(resource.cloudResourceUid());
           } catch (Exception e) {
