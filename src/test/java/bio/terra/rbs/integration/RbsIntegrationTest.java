@@ -1,14 +1,17 @@
 package bio.terra.rbs.integration;
 
+import static bio.terra.rbs.app.configuration.BeanNames.CRL_CLIENT_CONFIG;
 import static bio.terra.rbs.app.configuration.BeanNames.GOOGLE_RM_COW;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import bio.terra.cloudres.common.ClientConfig;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.rbs.common.BaseIntegrationTest;
 import bio.terra.rbs.db.*;
 import bio.terra.rbs.generated.model.CloudResourceUid;
 import com.google.api.services.cloudresourcemanager.model.Project;
+import com.google.common.collect.ImmutableMap;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -28,13 +31,31 @@ public class RbsIntegrationTest extends BaseIntegrationTest {
   @Qualifier(GOOGLE_RM_COW)
   CloudResourceManagerCow rmCow;
 
+  @Autowired
+  @Qualifier(CRL_CLIENT_CONFIG)
+  ClientConfig clientConfig;
+
   @Autowired RbsDao rbsDao;
 
   @Test
   public void testCreateGoogleProject() throws Exception {
-    List<Resource> resources = pollUntilResourceCreated(AOU_POOL_ID, 2, Duration.ofSeconds(5), 10);
+    List<Resource> resources = pollUntilResourceCreated(AOU_POOL_ID, 2, Duration.ofSeconds(10), 10);
     resources.forEach(
         resource -> {
+          try {
+            assertProjectMatch(resource.cloudResourceUid());
+          } catch (Exception e) {
+            fail("Error occurs when verifying GCP project creation", e);
+          }
+        });
+
+    // Upgrade the size from 2 to 5. Expect 3 more resources will be created.
+    rbsDao.updatePoolsSize(ImmutableMap.of(AOU_POOL_ID, 5));
+    resources = pollUntilResourceCreated(AOU_POOL_ID, 5, Duration.ofSeconds(10), 10);
+    resources.forEach(
+        resource -> {
+          System.out.println("~~~~~~~~~~~");
+          System.out.println(resource);
           try {
             assertProjectMatch(resource.cloudResourceUid());
           } catch (Exception e) {

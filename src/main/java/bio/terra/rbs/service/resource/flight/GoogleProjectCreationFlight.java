@@ -16,7 +16,6 @@ import org.springframework.context.ApplicationContext;
 public class GoogleProjectCreationFlight extends Flight {
   public GoogleProjectCreationFlight(FlightMap inputParameters, Object applicationContext) {
     super(inputParameters, applicationContext);
-    // TODO(PF-144): GCP VPC setup
     RbsDao rbsDao = ((ApplicationContext) applicationContext).getBean(RbsDao.class);
     CloudResourceManagerCow rmCow =
         ((ApplicationContext) applicationContext)
@@ -25,7 +24,9 @@ public class GoogleProjectCreationFlight extends Flight {
         inputParameters.get(RESOURCE_CONFIG, ResourceConfig.class).getGcpProjectConfig();
     RetryRuleFixedInterval retryRule =
         new RetryRuleFixedInterval(/* intervalSeconds =*/ 180, /* maxCount =*/ 5);
-    addStep(new InitialCreateResourceStep(rbsDao));
+    addStep(new GenerateResourceIdStep());
+    addStep(new CreateResourceDbEntityStep(rbsDao));
+    addStep(new GenerateGoogleProjectIdStep());
     addStep(new CreateGoogleProjectStep(rmCow, gcpProjectConfig), retryRule);
     addStep(new FinalCreateResourceStep(rbsDao));
     // TODO(PF-144): GCP VPC setup

@@ -7,30 +7,27 @@ import bio.terra.stairway.FlightMap;
 import bio.terra.stairway.Step;
 import bio.terra.stairway.StepResult;
 import java.time.Instant;
-import java.util.UUID;
 
 /**
- * The initial step to create resource. It creates a entity in resource db table with CREATING
- * state.
+ * Step to create resource record in DB. Depends on previous CreateResourceId step to generate
+ * {@link ResourceId}
  */
-public class InitialCreateResourceStep implements Step {
+public class CreateResourceDbEntityStep implements Step {
   private final RbsDao rbsDao;
 
-  public InitialCreateResourceStep(RbsDao rbsDao) {
+  public CreateResourceDbEntityStep(RbsDao rbsDao) {
     this.rbsDao = rbsDao;
   }
 
   @Override
   public StepResult doStep(FlightContext flightContext) {
-    flightContext.getWorkingMap();
     FlightMap inputMap = flightContext.getInputParameters();
-    FlightMap workingMap = flightContext.getWorkingMap();
-    ResourceId resourceId = ResourceId.create(UUID.randomUUID());
-    workingMap.put(FlightMapKeys.RESOURCE_ID, resourceId);
+    ResourceId resourceId =
+        flightContext.getWorkingMap().get(FlightMapKeys.RESOURCE_ID, ResourceId.class);
 
     rbsDao.createResource(
         Resource.builder()
-            .id(ResourceId.create(UUID.randomUUID()))
+            .id(resourceId)
             .poolId(inputMap.get(FlightMapKeys.POOL_ID, PoolId.class))
             .creation(Instant.now())
             .state(ResourceState.CREATING)

@@ -1,7 +1,5 @@
 package bio.terra.rbs.service.resource;
 
-import static bio.terra.rbs.service.resource.flight.CreateGoogleProjectStep.randomProjectId;
-
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.rbs.db.Pool;
 import bio.terra.rbs.db.Resource;
@@ -12,8 +10,6 @@ import bio.terra.stairway.FlightMap;
 import bio.terra.stairway.Stairway;
 import bio.terra.stairway.exception.DatabaseOperationException;
 import bio.terra.stairway.exception.StairwayExecutionException;
-import com.google.api.services.cloudresourcemanager.model.Project;
-import com.google.api.services.cloudresourcemanager.model.ResourceId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,11 +32,6 @@ public class FlightManager {
   }
 
   public boolean submitCreationFlight(Pool pool) {
-    String projectId = randomProjectId();
-    Project project =
-        new Project()
-            .setProjectId(projectId)
-            .setParent(new ResourceId().setType("folder").setId("637867149294"));
     FlightMap flightMap = new FlightMap();
     flightMap.put(FlightMapKeys.POOL_ID, pool.id());
     flightMap.put(FlightMapKeys.RESOURCE_CONFIG, pool.resourceConfig());

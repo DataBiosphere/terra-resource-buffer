@@ -1,11 +1,7 @@
 rbs:
   crl:
-    # If CRL is used in testing mode.
-    testing-mode: true
-    # Janitor configs used in test.
-    janitor-client-credential-file-path:
-    janitor-track-resource-project-id:
-    janitor-track-resource-topic-id:
+    # Configurations to use Terra Cloud Resource Library. Don't need to set anything here, but CRL client needs to setup
+    # to use Janitor in test.
 
   db:
     password:

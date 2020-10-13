@@ -35,35 +35,19 @@ public class CrlConfiguration {
   /** How long to keep the resource before the 'prod' Janitor do the cleanup. */
   public static final Duration RESOURCE_TIME_TO_LIVE_PROD = Duration.ofMinutes(30);
 
-  public boolean isTestingMode() {
-    return testingMode;
-  }
-
-  public String getJanitorClientCredentialFilePath() {
-    return janitorClientCredentialFilePath;
-  }
-
-  public String getJanitorTrackResourceProjectId() {
-    return janitorTrackResourceProjectId;
-  }
-
-  public String getJanitorTrackResourceTopicId() {
-    return janitorTrackResourceTopicId;
-  }
-
   /**
    * Whether to use crl in test. If in test, we need Janitor to cleanup the resource after creation.
    */
-  private boolean testingMode;
+  private boolean testingMode = false;
 
   /** Credential file path to be able to publish message to Janitor test env (toolsalpha). */
-  private String janitorClientCredentialFilePath;
+  private String janitorClientCredentialFilePath = "";
 
   /** pubsub project id to publish track resource to Janitor prod env(tools) */
-  private String janitorTrackResourceProjectId;
+  private String janitorTrackResourceProjectId = "";
 
   /** pubsub topic id to publish track resource to Janitor prod env(tools) */
-  private String janitorTrackResourceTopicId;
+  private String janitorTrackResourceTopicId = "";
 
   public void setTestingMode(boolean testingMode) {
     this.testingMode = testingMode;
