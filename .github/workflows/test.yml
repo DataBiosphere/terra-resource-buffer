@@ -43,6 +43,10 @@ jobs:
               secret_id=${{ secrets.VAULT_APPROLE_SECRET_ID }})
           echo ::set-output name=vault-token::$VAULT_TOKEN
           echo ::add-mask::$VAULT_TOKEN
+      - name: Grant execute permission for render-config
+        run: chmod +x local-dev/render-config.sh
+      - name: Render configuration for tests
+        run: local-dev/render-config.sh ${{ steps.vault-token-step.outputs.vault-token }}
       - name: Initialize Postgres DB
         env:
           PGPASSWORD: postgres
