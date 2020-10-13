@@ -9,6 +9,7 @@ VAULT_JANITOR_CLIENT_SERVICE_ACCOUNT_PATH=secret/dsde/terra/kernel/integration/t
 SERVICE_ACCOUNT_OUTPUT_FILE_PATH="$(dirname $0)"/../src/test/resources/rendered/sa-account.json
 JANITOR_CLIENT_SERVICE_ACCOUNT_OUTPUT_FILE_PATH="$(dirname $0)"/../src/test/resources/rendered/janitor-client-sa-account.json
 
+mkdir -p /../src/test/resources/rendered
 docker run --rm -e VAULT_TOKEN=$VAULT_TOKEN ${DSDE_TOOLBOX_DOCKER_IMAGE} \
             vault read -format json ${VAULT_SERVICE_ACCOUNT_PATH} \
             | jq -r .data.key | base64 -d > ${SERVICE_ACCOUNT_OUTPUT_FILE_PATH}
