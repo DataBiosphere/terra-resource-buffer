@@ -94,7 +94,7 @@ public class RbsDao {
   /** Updates list of pools' status to DEACTIVATED. */
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
   public void deactivatePools(List<PoolId> poolIds) {
-    String sql = "UPDATE pool SET status = :status, expiration = :expiration where id = :id ";
+    String sql = "UPDATE pool SET status = :status, expiration = :expiration WHERE id = :id ";
 
     MapSqlParameterSource[] sqlParameterSourceList =
         poolIds.stream()
@@ -112,7 +112,7 @@ public class RbsDao {
   /** Updates list of pools' size. */
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
   public void updatePoolsSize(Map<PoolId, Integer> poolsToUpdateSize) {
-    String sql = "UPDATE pool SET size = :size where id = :id ";
+    String sql = "UPDATE pool SET size = :size WHERE id = :id ";
 
     MapSqlParameterSource[] sqlParameterSourceList =
         poolsToUpdateSize.entrySet().stream()
@@ -169,6 +169,29 @@ public class RbsDao {
         new MapSqlParameterSource().addValue("state", state.toString()).addValue("limit", limit);
 
     return jdbcTemplate.query(sql, params, RESOURCE_ROW_MAPPER);
+  }
+
+  /** Updates resource state and resource uid after resource is created. */
+  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+  public void updateResourceAfterCreation(ResourceId id, CloudResourceUid resourceUid) {
+    String sql =
+        "UPDATE resource SET state = :state, cloud_resource_uid = :cloud_resource_uid::jsonb WHERE id = :id";
+
+    MapSqlParameterSource params =
+        new MapSqlParameterSource()
+            .addValue("state", ResourceState.READY.toString())
+            .addValue("cloud_resource_uid", serializeResourceUid(resourceUid))
+            .addValue("id", id.id());
+    jdbcTemplate.update(sql, params);
+  }
+
+  /** Delete the resource match the {@link ResourceId}. */
+  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+  public void deleteResource(ResourceId id) {
+    String sql = "DELETE FROM resource WHERE id = :id";
+    MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", id.id());
+
+    jdbcTemplate.update(sql, params);
   }
 
   private static final RowMapper<Pool> POOL_ROW_MAPPER =

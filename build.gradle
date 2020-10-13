@@ -167,7 +167,13 @@ sourceSets {
     }
 }
 
+// This is the path to the default Google service account for the rbs service to run as.
+def googleCredentialsFile = "${projectDir}/src/test/resources/rendered/sa-account.json"
+
 tasks.withType(Test) {
+    environment = [
+            'GOOGLE_APPLICATION_CREDENTIALS': "${googleCredentialsFile}"
+    ]
     testLogging {
         events = ["passed", "failed", "skipped"]
         // Causes the correct line to be reported on an exception.

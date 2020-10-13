@@ -105,9 +105,16 @@ public class FlightScheduler {
         pool.id(),
         flightToSchedule);
 
+    int successSubmitNum = 0;
     while (flightToSchedule-- > 0) {
-      flightManager.submitCreationFlight(pool);
+      if (flightManager.submitCreationFlight(pool)) {
+        ++successSubmitNum;
+      }
     }
+    logger.info(
+        "Successfully submitted {} number of resource creation flights for pool: {} .",
+        pool.id(),
+        successSubmitNum);
   }
 
   /** Schedules up to {@code number} of resources creation flight for a pool. */
@@ -119,9 +126,18 @@ public class FlightScheduler {
         flightToSchedule);
 
     List<Resource> resources = rbsDao.retrieveResources(ResourceState.READY, flightToSchedule);
+    int successSubmitNum = 0;
     for (Resource resource : resources) {
-      flightManager.submitDeleationFlight(resource);
+      boolean submissionSuccessful =
+          flightManager.submitDeletionFlight(resource, pool.resourceType());
+      if (submissionSuccessful) {
+        ++successSubmitNum;
+      }
     }
+    logger.info(
+        "Successfully submitted {} number of resource deletion flights for pool: {} .",
+        pool.id(),
+        successSubmitNum);
   }
 
   public void shutdown() {
