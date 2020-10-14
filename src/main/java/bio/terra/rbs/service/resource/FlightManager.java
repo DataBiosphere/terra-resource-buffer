@@ -1,6 +1,5 @@
 package bio.terra.rbs.service.resource;
 
-import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.rbs.db.Pool;
 import bio.terra.rbs.db.Resource;
 import bio.terra.rbs.db.ResourceType;
@@ -10,6 +9,7 @@ import bio.terra.stairway.FlightMap;
 import bio.terra.stairway.Stairway;
 import bio.terra.stairway.exception.DatabaseOperationException;
 import bio.terra.stairway.exception.StairwayExecutionException;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,35 +22,33 @@ public class FlightManager {
 
   private final FlightFactory flightFactory;
   private final Stairway stairway;
-  private CloudResourceManagerCow rmCow;
 
   @Autowired
   public FlightManager(FlightFactory flightFactory, StairwayComponent stairwayComponent) {
     this.flightFactory = flightFactory;
     this.stairway = stairwayComponent.get();
-    this.rmCow = rmCow;
   }
 
-  public boolean submitCreationFlight(Pool pool) {
+  public Optional<String> submitCreationFlight(Pool pool) {
     FlightMap flightMap = new FlightMap();
     flightMap.put(FlightMapKeys.POOL_ID, pool.id());
     flightMap.put(FlightMapKeys.RESOURCE_CONFIG, pool.resourceConfig());
     return submitToStairway(flightFactory.getCreationFlightClass(pool.resourceType()), flightMap);
   }
 
-  public boolean submitDeletionFlight(Resource resource, ResourceType resourceType) {
+  public Optional<String> submitDeletionFlight(Resource resource, ResourceType resourceType) {
     // TODO: Add input into FlightMap
     return submitToStairway(flightFactory.getDeletionFlightClass(resourceType), new FlightMap());
   }
 
-  private boolean submitToStairway(Class<? extends Flight> clazz, FlightMap flightMap) {
+  private Optional<String> submitToStairway(Class<? extends Flight> clazz, FlightMap flightMap) {
     String flightId = stairway.createFlightId();
     try {
       stairway.submitToQueue(flightId, clazz, flightMap);
-      return true;
+      return Optional.of(flightId);
     } catch (DatabaseOperationException | StairwayExecutionException | InterruptedException e) {
       logger.error("Error submitting flight id: {}", flightId, e);
-      return false;
+      return Optional.empty();
     }
   }
 }

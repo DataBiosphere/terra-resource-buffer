@@ -8,5 +8,3 @@ rbs:
     janitor-track-resource-topic-id: crljanitor-tools-pubsub-topic
   primary:
     scheduler-enabled: true
-  pool:
-    update-pool-on-start: true

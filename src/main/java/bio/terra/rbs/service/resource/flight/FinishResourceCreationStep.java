@@ -12,10 +12,10 @@ import bio.terra.stairway.StepResult;
  * The initial step to create resource. It creates a entity in resource db table with CREATING
  * state.
  */
-public class FinalCreateResourceStep implements Step {
+public class FinishResourceCreationStep implements Step {
   private final RbsDao rbsDao;
 
-  public FinalCreateResourceStep(RbsDao rbsDao) {
+  public FinishResourceCreationStep(RbsDao rbsDao) {
     this.rbsDao = rbsDao;
   }
 
@@ -23,7 +23,7 @@ public class FinalCreateResourceStep implements Step {
   public StepResult doStep(FlightContext flightContext) {
     FlightMap workingMap = flightContext.getWorkingMap();
 
-    rbsDao.updateResourceAfterCreation(
+    rbsDao.updateResourceAsReady(
         workingMap.get(FlightMapKeys.RESOURCE_ID, ResourceId.class),
         workingMap.get(FlightMapKeys.CLOUD_RESOURCE_UID, CloudResourceUid.class));
     return StepResult.getStepResultSuccess();

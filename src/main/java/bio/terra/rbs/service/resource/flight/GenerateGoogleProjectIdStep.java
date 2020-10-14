@@ -15,7 +15,7 @@ public class GenerateGoogleProjectIdStep implements Step {
   @Override
   public StepResult doStep(FlightContext flightContext) {
     FlightMap workingMap = flightContext.getWorkingMap();
-    // TODO(yonghao): Use Terra Project Id generator.
+    // TODO(PF-168): Use Terra Project Id generator.
     String projectId = randomProjectId();
     flightContext.getWorkingMap().put(GOOGLE_PROJECT_ID, projectId);
     workingMap.put(

@@ -1,8 +1,4 @@
 rbs:
-  crl:
-    # Configurations to use Terra Cloud Resource Library. Don't need to set anything here, but CRL client needs to setup
-    # to use Janitor in test.
-
   db:
     password:
     recreate-db-on-start: false

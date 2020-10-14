@@ -1,6 +1,5 @@
 package bio.terra.rbs.service.resource.flight;
 
-import static bio.terra.rbs.app.configuration.BeanNames.GOOGLE_RM_COW;
 import static bio.terra.rbs.service.resource.FlightMapKeys.RESOURCE_CONFIG;
 
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
@@ -18,8 +17,7 @@ public class GoogleProjectCreationFlight extends Flight {
     super(inputParameters, applicationContext);
     RbsDao rbsDao = ((ApplicationContext) applicationContext).getBean(RbsDao.class);
     CloudResourceManagerCow rmCow =
-        ((ApplicationContext) applicationContext)
-            .getBean(GOOGLE_RM_COW, CloudResourceManagerCow.class);
+        ((ApplicationContext) applicationContext).getBean(CloudResourceManagerCow.class);
     GcpProjectConfig gcpProjectConfig =
         inputParameters.get(RESOURCE_CONFIG, ResourceConfig.class).getGcpProjectConfig();
     RetryRuleFixedInterval retryRule =
@@ -28,7 +26,7 @@ public class GoogleProjectCreationFlight extends Flight {
     addStep(new CreateResourceDbEntityStep(rbsDao));
     addStep(new GenerateGoogleProjectIdStep());
     addStep(new CreateGoogleProjectStep(rmCow, gcpProjectConfig), retryRule);
-    addStep(new FinalCreateResourceStep(rbsDao));
+    addStep(new FinishResourceCreationStep(rbsDao));
     // TODO(PF-144): GCP VPC setup
   }
 }

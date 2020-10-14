@@ -1,8 +1,5 @@
 package bio.terra.rbs.app.configuration;
 
-import static bio.terra.rbs.app.configuration.BeanNames.CRL_CLIENT_CONFIG;
-import static bio.terra.rbs.app.configuration.BeanNames.GOOGLE_RM_COW;
-
 import bio.terra.cloudres.common.ClientConfig;
 import bio.terra.cloudres.common.cleanup.CleanupConfig;
 import bio.terra.cloudres.google.api.services.common.Defaults;
@@ -32,22 +29,23 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 public class CrlConfiguration {
   /** The client name required by CRL. */
   public static final String CLIENT_NAME = "terra-rbs";
-  /** How long to keep the resource before the 'prod' Janitor do the cleanup. */
-  public static final Duration RESOURCE_TIME_TO_LIVE_PROD = Duration.ofMinutes(30);
+  /** How long to keep the resource before Janitor do the cleanup. */
+  public static final Duration TEST_RESOURCE_TIME_TO_LIVE = Duration.ofMinutes(30);
 
   /**
-   * Whether to use crl in test. If in test, we need Janitor to cleanup the resource after creation.
+   * Whether we're running RBS in test mode with Cloud Resource Library. If so, we enable to the
+   * Janitor to auto-delete all created cloud resources.
    */
   private boolean testingMode = false;
 
   /** Credential file path to be able to publish message to Janitor test env (toolsalpha). */
-  private String janitorClientCredentialFilePath = "";
+  private String janitorClientCredentialFilePath;
 
-  /** pubsub project id to publish track resource to Janitor prod env(tools) */
-  private String janitorTrackResourceProjectId = "";
+  /** pubsub project id to publish track resource to Janitor */
+  private String janitorTrackResourceProjectId;
 
-  /** pubsub topic id to publish track resource to Janitor prod env(tools) */
-  private String janitorTrackResourceTopicId = "";
+  /** pubsub topic id to publish track resource to Janitor */
+  private String janitorTrackResourceTopicId;
 
   public void setTestingMode(boolean testingMode) {
     this.testingMode = testingMode;
@@ -69,7 +67,7 @@ public class CrlConfiguration {
    * The {@link ClientConfig} in CRL's COW object. If in test, it will also include {@link
    * CleanupConfig}.
    */
-  @Bean(CRL_CLIENT_CONFIG)
+  @Bean
   @Lazy
   public ClientConfig clientConfig() {
     ClientConfig.Builder builder = ClientConfig.Builder.newBuilder().setClient(CLIENT_NAME);
@@ -78,7 +76,7 @@ public class CrlConfiguration {
           CleanupConfig.builder()
               .setCleanupId(CLIENT_NAME + "-test")
               .setJanitorProjectId(janitorTrackResourceProjectId)
-              .setTimeToLive(RESOURCE_TIME_TO_LIVE_PROD)
+              .setTimeToLive(TEST_RESOURCE_TIME_TO_LIVE)
               .setJanitorTopicName(janitorTrackResourceTopicId)
               .setCredentials(getGoogleCredentialsOrDie(janitorClientCredentialFilePath))
               .build());
@@ -87,7 +85,7 @@ public class CrlConfiguration {
   }
 
   /** The CRL {@link CloudResourceManagerCow} which wrappers Google Cloud Resource Manager API. */
-  @Bean(GOOGLE_RM_COW)
+  @Bean
   @Lazy
   public CloudResourceManagerCow cloudResourceManagerCow()
       throws IOException, GeneralSecurityException {

@@ -154,7 +154,7 @@ public class RbsDaoTest extends BaseUnitTest {
         new CloudResourceUid().googleProjectUid(new GoogleProjectUid().projectId("p-123"));
     rbsDao.createResource(resource);
 
-    rbsDao.updateResourceAfterCreation(resource.id(), resourceUid);
+    rbsDao.updateResourceAsReady(resource.id(), resourceUid);
     Resource updatedResource = rbsDao.retrieveResource(resource.id()).get();
     assertEquals(ResourceState.READY, updatedResource.state());
     assertEquals(resourceUid, updatedResource.cloudResourceUid());

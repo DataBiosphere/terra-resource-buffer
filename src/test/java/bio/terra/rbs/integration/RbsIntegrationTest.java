@@ -1,45 +1,51 @@
 package bio.terra.rbs.integration;
 
-import static bio.terra.rbs.app.configuration.BeanNames.CRL_CLIENT_CONFIG;
-import static bio.terra.rbs.app.configuration.BeanNames.GOOGLE_RM_COW;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import bio.terra.cloudres.common.ClientConfig;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.rbs.common.BaseIntegrationTest;
 import bio.terra.rbs.db.*;
 import bio.terra.rbs.generated.model.CloudResourceUid;
+import bio.terra.rbs.generated.model.GcpProjectConfig;
+import bio.terra.rbs.generated.model.ResourceConfig;
 import com.google.api.services.cloudresourcemanager.model.Project;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 
 @AutoConfigureMockMvc
 public class RbsIntegrationTest extends BaseIntegrationTest {
-  // The AOU pool id defined in pool config.
-  // Currently
-  private static PoolId AOU_POOL_ID = PoolId.create("aou_ws_test_v1");
-
-  @Autowired
-  @Qualifier(GOOGLE_RM_COW)
-  CloudResourceManagerCow rmCow;
-
-  @Autowired
-  @Qualifier(CRL_CLIENT_CONFIG)
-  ClientConfig clientConfig;
+  @Autowired CloudResourceManagerCow rmCow;
 
   @Autowired RbsDao rbsDao;
 
   @Test
   public void testCreateGoogleProject() throws Exception {
-    List<Resource> resources = pollUntilResourceCreated(AOU_POOL_ID, 2, Duration.ofSeconds(10), 10);
+    PoolId poolId = PoolId.create("ws_test_v1");
+    ResourceConfig resourceConfig =
+        new ResourceConfig()
+            .configName("ws_config")
+            .gcpProjectConfig(new GcpProjectConfig().parentFolderId("637867149294"));
+    Pool pool =
+        Pool.builder()
+            .id(poolId)
+            .status(PoolStatus.ACTIVE)
+            .size(2)
+            .creation(Instant.now())
+            .resourceType(ResourceType.GOOGLE_PROJECT)
+            .resourceConfig(resourceConfig)
+            .build();
+    rbsDao.createPools(ImmutableList.of(pool));
+
+    List<Resource> resources = pollUntilResourceCreated(poolId, 2, Duration.ofSeconds(10), 10);
     resources.forEach(
         resource -> {
           try {
@@ -50,8 +56,8 @@ public class RbsIntegrationTest extends BaseIntegrationTest {
         });
 
     // Upgrade the size from 2 to 5. Expect 3 more resources will be created.
-    rbsDao.updatePoolsSize(ImmutableMap.of(AOU_POOL_ID, 5));
-    resources = pollUntilResourceCreated(AOU_POOL_ID, 5, Duration.ofSeconds(10), 10);
+    rbsDao.updatePoolsSize(ImmutableMap.of(poolId, 5));
+    resources = pollUntilResourceCreated(poolId, 5, Duration.ofSeconds(10), 10);
     resources.forEach(
         resource -> {
           try {

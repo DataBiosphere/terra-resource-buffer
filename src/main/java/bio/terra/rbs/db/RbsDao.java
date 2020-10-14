@@ -173,7 +173,7 @@ public class RbsDao {
 
   /** Updates resource state and resource uid after resource is created. */
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
-  public void updateResourceAfterCreation(ResourceId id, CloudResourceUid resourceUid) {
+  public boolean updateResourceAsReady(ResourceId id, CloudResourceUid resourceUid) {
     String sql =
         "UPDATE resource SET state = :state, cloud_resource_uid = :cloud_resource_uid::jsonb WHERE id = :id";
 
@@ -182,7 +182,7 @@ public class RbsDao {
             .addValue("state", ResourceState.READY.toString())
             .addValue("cloud_resource_uid", serializeResourceUid(resourceUid))
             .addValue("id", id.id());
-    jdbcTemplate.update(sql, params);
+    return jdbcTemplate.update(sql, params) == 1;
   }
 
   /** Delete the resource match the {@link ResourceId}. */
