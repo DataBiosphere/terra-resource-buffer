@@ -24,7 +24,7 @@ public class GoogleProjectCreationFlight extends Flight {
         new RetryRuleFixedInterval(/* intervalSeconds =*/ 180, /* maxCount =*/ 5);
     addStep(new GenerateResourceIdStep());
     addStep(new CreateResourceDbEntityStep(rbsDao));
-    addStep(new GenerateGoogleProjectIdStep());
+    addStep(new GenerateProjectIdStep());
     addStep(new CreateGoogleProjectStep(rmCow, gcpProjectConfig), retryRule);
     addStep(new FinishResourceCreationStep(rbsDao));
     // TODO(PF-144): GCP VPC setup

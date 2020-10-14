@@ -7,6 +7,7 @@ import bio.terra.rbs.db.*;
 import bio.terra.rbs.generated.model.GcpProjectConfig;
 import bio.terra.rbs.generated.model.ResourceConfig;
 import bio.terra.rbs.service.resource.flight.CreateResourceDbEntityStep;
+import bio.terra.rbs.service.resource.flight.ErrorStep;
 import bio.terra.rbs.service.resource.flight.GenerateResourceIdStep;
 import bio.terra.rbs.service.resource.flight.LatchStep;
 import bio.terra.rbs.service.stairway.StairwayComponent;
@@ -109,19 +110,6 @@ public class FlightManagerTest extends BaseUnitTest {
       addStep(new CreateResourceDbEntityStep(rbsDao));
       addStep(new LatchStep());
       addStep(new ErrorStep());
-    }
-  }
-
-  /** An error step with successfully undo. */
-  public static class ErrorStep implements Step {
-    @Override
-    public StepResult doStep(FlightContext flightContext) {
-      return new StepResult(StepStatus.STEP_RESULT_FAILURE_FATAL);
-    }
-
-    @Override
-    public StepResult undoStep(FlightContext flightContext) {
-      return StepResult.getStepResultSuccess();
     }
   }
 

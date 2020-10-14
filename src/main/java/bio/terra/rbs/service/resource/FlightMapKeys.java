@@ -8,5 +8,4 @@ public class FlightMapKeys {
   public static final String GOOGLE_PROJECT_ID = "googleProjectId";
   public static final String RESOURCE_CONFIG = "resourceConfig";
   public static final String RESOURCE_ID = "resourceId";
-  public static final String POOL_ID = "poolId";
 }

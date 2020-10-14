@@ -3,11 +3,11 @@ package bio.terra.rbs.db;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import bio.terra.rbs.common.BaseUnitTest;
+import bio.terra.stairway.FlightMap;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
-/** Unit tests to verify {@link ResourceId} is serializable/deserializable by Jackson. */
 public class ResourceIdTest extends BaseUnitTest {
   @Test
   public void serialize() throws Exception {
@@ -26,5 +26,13 @@ public class ResourceIdTest extends BaseUnitTest {
             .readValue(
                 "[\"bio.terra.rbs.db.AutoValue_ResourceId\",{\"id\":\"" + id.toString() + "\"}]",
                 ResourceId.class));
+  }
+
+  @Test
+  public void storeAndRetrieveFromFlightMap() throws Exception {
+    ResourceId id = ResourceId.create(UUID.randomUUID());
+    FlightMap flightMap = new FlightMap();
+    id.store(flightMap);
+    assertEquals(id, ResourceId.retrieve(flightMap));
   }
 }

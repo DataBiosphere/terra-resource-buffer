@@ -9,8 +9,8 @@ import bio.terra.stairway.Step;
 import bio.terra.stairway.StepResult;
 
 /**
- * The initial step to create resource. It creates a entity in resource db table with CREATING
- * state.
+ * The step after resource is successfully created, it updates resource entity to set
+ * CloudResourceUid and state to READY.
  */
 public class FinishResourceCreationStep implements Step {
   private final RbsDao rbsDao;
@@ -24,14 +24,16 @@ public class FinishResourceCreationStep implements Step {
     FlightMap workingMap = flightContext.getWorkingMap();
 
     rbsDao.updateResourceAsReady(
-        workingMap.get(FlightMapKeys.RESOURCE_ID, ResourceId.class),
+        ResourceId.retrieve(flightContext.getWorkingMap()),
         workingMap.get(FlightMapKeys.CLOUD_RESOURCE_UID, CloudResourceUid.class));
     return StepResult.getStepResultSuccess();
   }
 
   @Override
   public StepResult undoStep(FlightContext flightContext) {
-    // Nothing need to do.
+    // Nothing need to do. Unto a resource creation flight needs to delete the resource from Cloud
+    // and delete entity
+    // from db. Both steps are handled in previous steps undo method.
     return StepResult.getStepResultSuccess();
   }
 }

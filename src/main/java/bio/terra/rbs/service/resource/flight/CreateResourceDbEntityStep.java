@@ -1,7 +1,6 @@
 package bio.terra.rbs.service.resource.flight;
 
 import bio.terra.rbs.db.*;
-import bio.terra.rbs.service.resource.FlightMapKeys;
 import bio.terra.stairway.FlightContext;
 import bio.terra.stairway.FlightMap;
 import bio.terra.stairway.Step;
@@ -22,13 +21,12 @@ public class CreateResourceDbEntityStep implements Step {
   @Override
   public StepResult doStep(FlightContext flightContext) {
     FlightMap inputMap = flightContext.getInputParameters();
-    ResourceId resourceId =
-        flightContext.getWorkingMap().get(FlightMapKeys.RESOURCE_ID, ResourceId.class);
+    ResourceId resourceId = ResourceId.retrieve(flightContext.getWorkingMap());
 
     rbsDao.createResource(
         Resource.builder()
             .id(resourceId)
-            .poolId(inputMap.get(FlightMapKeys.POOL_ID, PoolId.class))
+            .poolId(PoolId.retrieve(inputMap))
             .creation(Instant.now())
             .state(ResourceState.CREATING)
             .build());
@@ -39,8 +37,7 @@ public class CreateResourceDbEntityStep implements Step {
   public StepResult undoStep(FlightContext flightContext) {
     // Just delete the resource entity if creation not succeed. There is no need to keep this
     // record.
-    rbsDao.deleteResource(
-        flightContext.getWorkingMap().get(FlightMapKeys.RESOURCE_ID, ResourceId.class));
+    rbsDao.deleteResource(ResourceId.retrieve(flightContext.getWorkingMap()));
     return StepResult.getStepResultSuccess();
   }
 }

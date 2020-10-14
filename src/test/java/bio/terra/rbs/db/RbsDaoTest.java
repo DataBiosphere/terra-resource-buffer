@@ -1,8 +1,7 @@
 package bio.terra.rbs.db;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 import bio.terra.rbs.app.configuration.RbsJdbcConfiguration;
 import bio.terra.rbs.common.BaseUnitTest;
@@ -140,12 +139,12 @@ public class RbsDaoTest extends BaseUnitTest {
     rbsDao.createResource(resource);
     assertEquals(resource, rbsDao.retrieveResource(resource.id()).get());
 
-    rbsDao.deleteResource(resource.id());
+    assertTrue(rbsDao.deleteResource(resource.id()));
     assertFalse(rbsDao.retrieveResource(resource.id()).isPresent());
   }
 
   @Test
-  public void updateResourceAfterCreation() {
+  public void updateResourceAsReady() {
     PoolId poolId = PoolId.create("poolId");
     Pool pool = newPool(poolId);
     rbsDao.createPools(ImmutableList.of(pool));

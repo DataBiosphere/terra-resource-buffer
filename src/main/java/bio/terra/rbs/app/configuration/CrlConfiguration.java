@@ -38,7 +38,7 @@ public class CrlConfiguration {
    */
   private boolean testingMode = false;
 
-  /** Credential file path to be able to publish message to Janitor test env (toolsalpha). */
+  /** Credential file path to be able to publish message to Janitor */
   private String janitorClientCredentialFilePath;
 
   /** pubsub project id to publish track resource to Janitor */

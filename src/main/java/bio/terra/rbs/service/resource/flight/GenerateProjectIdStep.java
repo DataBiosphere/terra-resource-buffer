@@ -9,8 +9,8 @@ import bio.terra.stairway.*;
 import java.util.UUID;
 
 /** Generates Project Id and put it in working map. */
-public class GenerateGoogleProjectIdStep implements Step {
-  public GenerateGoogleProjectIdStep() {}
+public class GenerateProjectIdStep implements Step {
+  public GenerateProjectIdStep() {}
 
   @Override
   public StepResult doStep(FlightContext flightContext) {

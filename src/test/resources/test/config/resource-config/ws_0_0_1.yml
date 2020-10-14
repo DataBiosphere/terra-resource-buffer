@@ -1,6 +1,6 @@
 # All Of Us buffered workspace template
 ---
-configName: "aou_ws_resource_v1"
+configName: "ws_resource_v1"
 gcpProjectConfig:
   projectIDPrefix: "aou-rw-test"
   # RBS Testing

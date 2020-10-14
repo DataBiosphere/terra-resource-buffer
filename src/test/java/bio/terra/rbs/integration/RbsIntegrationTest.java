@@ -1,5 +1,6 @@
 package bio.terra.rbs.integration;
 
+import static bio.terra.rbs.service.pool.PoolConfigLoader.loadPoolConfig;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -7,43 +8,31 @@ import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.rbs.common.BaseIntegrationTest;
 import bio.terra.rbs.db.*;
 import bio.terra.rbs.generated.model.CloudResourceUid;
-import bio.terra.rbs.generated.model.GcpProjectConfig;
-import bio.terra.rbs.generated.model.ResourceConfig;
+import bio.terra.rbs.service.pool.PoolService;
 import com.google.api.services.cloudresourcemanager.model.Project;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.transaction.TransactionStatus;
 
 @AutoConfigureMockMvc
 public class RbsIntegrationTest extends BaseIntegrationTest {
   @Autowired CloudResourceManagerCow rmCow;
 
   @Autowired RbsDao rbsDao;
+  @Autowired PoolService poolService;
+  TransactionStatus transactionStatus;
 
   @Test
   public void testCreateGoogleProject() throws Exception {
+    // The pool id in config file.
     PoolId poolId = PoolId.create("ws_test_v1");
-    ResourceConfig resourceConfig =
-        new ResourceConfig()
-            .configName("ws_config")
-            .gcpProjectConfig(new GcpProjectConfig().parentFolderId("637867149294"));
-    Pool pool =
-        Pool.builder()
-            .id(poolId)
-            .status(PoolStatus.ACTIVE)
-            .size(2)
-            .creation(Instant.now())
-            .resourceType(ResourceType.GOOGLE_PROJECT)
-            .resourceConfig(resourceConfig)
-            .build();
-    rbsDao.createPools(ImmutableList.of(pool));
+    poolService.updateFromConfig(loadPoolConfig("test/config"), transactionStatus);
 
     List<Resource> resources = pollUntilResourceCreated(poolId, 2, Duration.ofSeconds(10), 10);
     resources.forEach(

@@ -187,11 +187,11 @@ public class RbsDao {
 
   /** Delete the resource match the {@link ResourceId}. */
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
-  public void deleteResource(ResourceId id) {
+  public boolean deleteResource(ResourceId id) {
     String sql = "DELETE FROM resource WHERE id = :id";
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", id.id());
 
-    jdbcTemplate.update(sql, params);
+    return jdbcTemplate.update(sql, params) == 1;
   }
 
   private static final RowMapper<Pool> POOL_ROW_MAPPER =

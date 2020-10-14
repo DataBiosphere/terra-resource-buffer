@@ -29,13 +29,15 @@ public class FlightManager {
     this.stairway = stairwayComponent.get();
   }
 
+  /** Submit Stairway Flight to create resource. */
   public Optional<String> submitCreationFlight(Pool pool) {
     FlightMap flightMap = new FlightMap();
-    flightMap.put(FlightMapKeys.POOL_ID, pool.id());
+    flightMap = pool.id().store(flightMap);
     flightMap.put(FlightMapKeys.RESOURCE_CONFIG, pool.resourceConfig());
     return submitToStairway(flightFactory.getCreationFlightClass(pool.resourceType()), flightMap);
   }
 
+  /** Submit Stairway Flight to delete resource. */
   public Optional<String> submitDeletionFlight(Resource resource, ResourceType resourceType) {
     // TODO: Add input into FlightMap
     return submitToStairway(flightFactory.getDeletionFlightClass(resourceType), new FlightMap());

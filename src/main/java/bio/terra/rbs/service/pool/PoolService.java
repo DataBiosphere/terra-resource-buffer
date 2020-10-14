@@ -46,7 +46,7 @@ public class PoolService {
   }
 
   @VisibleForTesting
-  boolean updateFromConfig(
+  public boolean updateFromConfig(
       List<PoolWithResourceConfig> parsedPoolConfigs, TransactionStatus status) {
     Map<PoolId, Pool> allDbPoolsMap = Maps.uniqueIndex(rbsDao.retrievePools(), pool -> pool.id());
     Map<PoolId, PoolWithResourceConfig> parsedPoolConfigMap =

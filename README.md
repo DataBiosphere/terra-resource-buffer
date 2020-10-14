@@ -6,7 +6,7 @@ Cloud resource buffering server for Terra.
 Local Testing and Github Action tests require credentials to be able to call GCP, run
 ``` local-dev/render-config.sh``` first for local testing. It generates:
 * A Google Service Account Secret to create/delete cloud resources in test.
-* A Google Service Account Secret to publish message to 'prod' Janitor instance.
+* A Google Service Account Secret to publish message to Janitor instance.
 
 ## Run Locally
 Set executable permissions:
