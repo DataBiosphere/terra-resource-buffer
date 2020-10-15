@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 /** Utilities used in integration test. */
 public class IntegrationUtils {
-  private static final Duration PERIOD = Duration.ofSeconds(5);
+  private static final Duration PERIOD = Duration.ofSeconds(10);
   private static final int MAX_POLL_NUM = 10;
 
   public static List<Resource> pollUntilResourcesMatch(
