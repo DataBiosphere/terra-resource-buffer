@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 public class BackwardsCompatibilityTest extends BaseUnitTest {
 
   /**
-   * Change detection test for existing {@link bio.terra.rbs.common.ResourceType} enum values. More
+   * Change detection test for existing {@link ResourceType} enum values. More
    * values should be added as the enum expands.
    */
   @Test
@@ -26,7 +26,7 @@ public class BackwardsCompatibilityTest extends BaseUnitTest {
   }
 
   /**
-   * Change detection test for existing {@link bio.terra.rbs.common.PoolStatus} enum values. More
+   * Change detection test for existing {@link PoolStatus} enum values. More
    * values should be added as the enum expands.
    */
   @Test
@@ -39,7 +39,7 @@ public class BackwardsCompatibilityTest extends BaseUnitTest {
   }
 
   /**
-   * Change detection test for existing {@link bio.terra.rbs.common.ResourceState} enum values. More
+   * Change detection test for existing {@link ResourceState} enum values. More
    * values should be added as the enum expands.
    */
   @Test
