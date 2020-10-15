@@ -10,6 +10,9 @@ import java.util.concurrent.CountDownLatch;
  *
  * <p>This step relies on in-memory state and does not work across services or after a service
  * restart. It is only useful for testing.
+ *
+ * <p>Reference:
+ * https://github.com/DataBiosphere/terra-resource-janitor/blob/master/src/test/java/bio/terra/janitor/service/cleanup/flight/LatchStep.java
  */
 public class LatchStep implements Step {
   private static CountDownLatch latch = new CountDownLatch(0);

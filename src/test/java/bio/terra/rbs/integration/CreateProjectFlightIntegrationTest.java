@@ -1,6 +1,6 @@
 package bio.terra.rbs.integration;
 
-import static bio.terra.rbs.integration.IntegrationUtils.pollUntilResourceExists;
+import static bio.terra.rbs.integration.IntegrationUtils.pollUntilResourcesMatch;
 import static bio.terra.rbs.service.resource.FlightMapKeys.RESOURCE_CONFIG;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -14,8 +14,7 @@ import bio.terra.rbs.service.resource.FlightFactory;
 import bio.terra.rbs.service.resource.FlightManager;
 import bio.terra.rbs.service.resource.flight.*;
 import bio.terra.rbs.service.stairway.StairwayComponent;
-import bio.terra.stairway.Flight;
-import bio.terra.stairway.FlightMap;
+import bio.terra.stairway.*;
 import bio.terra.stairway.exception.DatabaseOperationException;
 import com.google.common.collect.ImmutableList;
 import java.time.Duration;
@@ -59,10 +58,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertTrue(rbsDao.retrieveResources(ResourceState.CREATING, 1).isEmpty());
     String flightId = manager.submitCreationFlight(pool).get();
     // Resource is created in db
-    Resource resource =
-        pollUntilResourceExists(
-                rbsDao, ResourceState.CREATING, poolId, 1, Duration.ofSeconds(10), 10)
-            .get(0);
+    Resource resource = pollUntilResourcesMatch(rbsDao, poolId, ResourceState.CREATING, 1).get(0);
 
     LatchStep.releaseLatch();
     blockUntilFlightComplete(flightId);
@@ -119,6 +115,19 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     @Override
     public Class<? extends Flight> getDeletionFlightClass(ResourceType type) {
       return flightClass;
+    }
+  }
+
+  /** Dummy {@link CreateProjectStep} which fails in doStep but still runs undoStep. */
+  public static class ErrorCreateProjectStep extends CreateProjectStep {
+    public ErrorCreateProjectStep(
+        CloudResourceManagerCow rmCow, GcpProjectConfig gcpProjectConfig) {
+      super(rmCow, gcpProjectConfig);
+    }
+
+    @Override
+    public StepResult doStep(FlightContext flightContext) {
+      return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY);
     }
   }
 }

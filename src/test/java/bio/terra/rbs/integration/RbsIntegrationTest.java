@@ -1,5 +1,6 @@
 package bio.terra.rbs.integration;
 
+import static bio.terra.rbs.integration.IntegrationUtils.pollUntilResourcesMatch;
 import static bio.terra.rbs.service.pool.PoolConfigLoader.loadPoolConfig;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -10,14 +11,10 @@ import bio.terra.rbs.generated.model.CloudResourceUid;
 import bio.terra.rbs.service.pool.PoolService;
 import com.google.api.services.cloudresourcemanager.model.Project;
 import com.google.common.collect.ImmutableMap;
-import java.time.Duration;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.transaction.TransactionStatus;
 
 @AutoConfigureMockMvc
 public class RbsIntegrationTest extends BaseIntegrationTest {
@@ -26,17 +23,13 @@ public class RbsIntegrationTest extends BaseIntegrationTest {
   @Autowired RbsDao rbsDao;
   @Autowired PoolService poolService;
 
-  // Requreid by the method but not used in test.
-  TransactionStatus unusedTransactionStatus;
-
   @Test
   public void testCreateGoogleProject() throws Exception {
     // The pool id in config file.
     PoolId poolId = PoolId.create("ws_test_v1");
-    poolService.updateFromConfig(loadPoolConfig("test/config"), unusedTransactionStatus);
+    poolService.updateFromConfig(loadPoolConfig("test/config"), null);
 
-    List<Resource> resources =
-        pollUntilResourceExists(ResourceState.READY, poolId, 2, Duration.ofSeconds(10), 10);
+    List<Resource> resources = pollUntilResourcesMatch(rbsDao, poolId, ResourceState.CREATING, 2);
     resources.forEach(
         resource -> {
           try {
@@ -48,7 +41,7 @@ public class RbsIntegrationTest extends BaseIntegrationTest {
 
     // Upgrade the size from 2 to 5. Expect 3 more resources will be created.
     rbsDao.updatePoolsSize(ImmutableMap.of(poolId, 5));
-    resources = pollUntilResourceExists(ResourceState.READY, poolId, 5, Duration.ofSeconds(10), 10);
+    resources = pollUntilResourcesMatch(rbsDao, poolId, ResourceState.READY, 5);
     resources.forEach(
         resource -> {
           try {
@@ -57,24 +50,6 @@ public class RbsIntegrationTest extends BaseIntegrationTest {
             fail("Error occurs when verifying GCP project creation", e);
           }
         });
-  }
-
-  private List<Resource> pollUntilResourceExists(
-      ResourceState state, PoolId poolId, int expectedResourceNum, Duration period, int maxNumPolls)
-      throws Exception {
-    int numPolls = 0;
-    while (numPolls < maxNumPolls) {
-      TimeUnit.MILLISECONDS.sleep(period.toMillis());
-      List<Resource> resources =
-          rbsDao.retrieveResources(state, 10).stream()
-              .filter(r -> r.poolId().equals(poolId))
-              .collect(Collectors.toList());
-      if (resources.size() == expectedResourceNum) {
-        return resources;
-      }
-      ++numPolls;
-    }
-    throw new InterruptedException("Polling exceeded maxNumPolls");
   }
 
   private void assertProjectMatch(CloudResourceUid resourceUid) throws Exception {

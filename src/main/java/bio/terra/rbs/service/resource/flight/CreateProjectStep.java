@@ -29,7 +29,7 @@ public class CreateProjectStep implements Step {
   }
 
   @Override
-  public StepResult doStep(FlightContext flightContext) {
+  public StepResult doStep(FlightContext flightContext) throws RetryException {
     String projectId = flightContext.getWorkingMap().get(GOOGLE_PROJECT_ID, String.class);
     try {
       // If the project id us used. Fail the flight and let Stairway rollback the flight.
@@ -44,7 +44,7 @@ public class CreateProjectStep implements Step {
       OperationCow<?> operation =
           rmCow.operations().operationCow(rmCow.projects().create(project).execute());
       pollUntilSuccess(operation, Duration.ofSeconds(10), Duration.ofMinutes(5));
-    } catch (IOException | InterruptedException | RetryException e) {
+    } catch (IOException | InterruptedException e) {
       logger.info("Error when creating GCP project", e);
       return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY, e);
     }

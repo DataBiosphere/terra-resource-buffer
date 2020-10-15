@@ -11,17 +11,14 @@ import java.util.stream.Collectors;
 
 /** Utilities used in integration test. */
 public class IntegrationUtils {
-  public static List<Resource> pollUntilResourceExists(
-      RbsDao rbsDao,
-      ResourceState state,
-      PoolId poolId,
-      int expectedResourceNum,
-      Duration period,
-      int maxNumPolls)
-      throws Exception {
+  private static final Duration PERIOD = Duration.ofSeconds(5);
+  private static final int MAX_POLL_NUM = 10;
+
+  public static List<Resource> pollUntilResourcesMatch(
+      RbsDao rbsDao, PoolId poolId, ResourceState state, int expectedResourceNum) throws Exception {
     int numPolls = 0;
-    while (numPolls < maxNumPolls) {
-      TimeUnit.MILLISECONDS.sleep(period.toMillis());
+    while (numPolls < MAX_POLL_NUM) {
+      TimeUnit.MILLISECONDS.sleep(PERIOD.toMillis());
       List<Resource> resources =
           rbsDao.retrieveResources(state, 10).stream()
               .filter(r -> r.poolId().equals(poolId))
