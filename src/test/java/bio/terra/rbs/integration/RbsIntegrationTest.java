@@ -6,6 +6,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.rbs.common.BaseIntegrationTest;
+import bio.terra.rbs.common.PoolId;
+import bio.terra.rbs.common.Resource;
+import bio.terra.rbs.common.ResourceState;
 import bio.terra.rbs.db.*;
 import bio.terra.rbs.generated.model.CloudResourceUid;
 import bio.terra.rbs.service.pool.PoolService;

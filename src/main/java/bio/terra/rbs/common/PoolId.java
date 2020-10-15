@@ -1,4 +1,4 @@
-package bio.terra.rbs.db;
+package bio.terra.rbs.common;
 
 import bio.terra.stairway.FlightMap;
 import com.google.auto.value.AutoValue;

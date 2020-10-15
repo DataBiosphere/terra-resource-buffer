@@ -1,9 +1,9 @@
 package bio.terra.rbs.integration;
 
-import bio.terra.rbs.db.PoolId;
+import bio.terra.rbs.common.PoolId;
+import bio.terra.rbs.common.Resource;
+import bio.terra.rbs.common.ResourceState;
 import bio.terra.rbs.db.RbsDao;
-import bio.terra.rbs.db.Resource;
-import bio.terra.rbs.db.ResourceState;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.TimeUnit;

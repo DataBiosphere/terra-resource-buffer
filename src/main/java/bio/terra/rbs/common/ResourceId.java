@@ -1,10 +1,10 @@
-package bio.terra.rbs.db;
+package bio.terra.rbs.common;
 
 import bio.terra.stairway.FlightMap;
 import com.google.auto.value.AutoValue;
 import java.util.UUID;
 
-/** Wraps the id in db pool table. */
+/** The unique identifier for every resource. */
 @AutoValue
 public abstract class ResourceId {
   private static final String RESOURCE_ID_MAP_KEY = "ResourceId";

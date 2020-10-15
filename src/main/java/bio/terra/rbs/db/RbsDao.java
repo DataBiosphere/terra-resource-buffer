@@ -2,6 +2,7 @@ package bio.terra.rbs.db;
 
 import static bio.terra.rbs.app.configuration.BeanNames.OBJECT_MAPPER;
 
+import bio.terra.rbs.common.*;
 import bio.terra.rbs.generated.model.CloudResourceUid;
 import bio.terra.rbs.generated.model.ResourceConfig;
 import com.fasterxml.jackson.annotation.JsonInclude;

@@ -1,4 +1,4 @@
-package bio.terra.rbs.db;
+package bio.terra.rbs.common;
 
 /**
  * The state of the resource

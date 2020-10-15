@@ -1,8 +1,8 @@
 package bio.terra.rbs.service.resource;
 
-import bio.terra.rbs.db.Pool;
-import bio.terra.rbs.db.Resource;
-import bio.terra.rbs.db.ResourceType;
+import bio.terra.rbs.common.Pool;
+import bio.terra.rbs.common.Resource;
+import bio.terra.rbs.common.ResourceType;
 import bio.terra.rbs.service.stairway.StairwayComponent;
 import bio.terra.stairway.Flight;
 import bio.terra.stairway.FlightMap;

@@ -4,7 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import bio.terra.rbs.common.BaseUnitTest;
+import bio.terra.rbs.common.*;
 import bio.terra.rbs.db.*;
 import bio.terra.rbs.generated.model.GcpProjectConfig;
 import bio.terra.rbs.generated.model.PoolConfig;

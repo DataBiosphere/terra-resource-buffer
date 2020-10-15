@@ -1,6 +1,6 @@
 package bio.terra.rbs.service.resource;
 
-import bio.terra.rbs.db.ResourceType;
+import bio.terra.rbs.common.ResourceType;
 import bio.terra.stairway.Flight;
 import org.springframework.stereotype.Component;
 

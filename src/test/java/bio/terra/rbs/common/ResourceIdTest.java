@@ -1,8 +1,7 @@
-package bio.terra.rbs.db;
+package bio.terra.rbs.common;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import bio.terra.rbs.common.BaseUnitTest;
 import bio.terra.stairway.FlightMap;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;

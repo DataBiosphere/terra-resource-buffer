@@ -1,6 +1,6 @@
 package bio.terra.rbs.service.pool;
 
-import static bio.terra.rbs.db.ResourceType.GOOGLE_PROJECT;
+import static bio.terra.rbs.common.ResourceType.GOOGLE_PROJECT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 

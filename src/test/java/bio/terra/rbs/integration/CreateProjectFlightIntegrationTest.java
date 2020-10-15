@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
-import bio.terra.rbs.common.BaseIntegrationTest;
+import bio.terra.rbs.common.*;
 import bio.terra.rbs.db.*;
 import bio.terra.rbs.generated.model.GcpProjectConfig;
 import bio.terra.rbs.generated.model.ResourceConfig;
