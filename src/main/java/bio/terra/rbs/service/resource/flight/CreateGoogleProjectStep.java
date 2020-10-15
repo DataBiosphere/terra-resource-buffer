@@ -53,6 +53,7 @@ public class CreateGoogleProjectStep implements Step {
 
   @Override
   public StepResult undoStep(FlightContext flightContext) {
+    System.out.println("~~~~~~~~~~~~~~CreateGoogleProjectStep undo");
     try {
       String projectId = flightContext.getWorkingMap().get(GOOGLE_PROJECT_ID, String.class);
       Optional<Project> project = retrieveProject(projectId);
