@@ -31,7 +31,7 @@ public class FinishResourceCreationStep implements Step {
 
   @Override
   public StepResult undoStep(FlightContext flightContext) {
-    // TODO(yonghao): Fail the flight if resource is already handed out.
+    // TODO(PF-127): Fail the flight if resource is already handed out.
     return StepResult.getStepResultSuccess();
   }
 }
