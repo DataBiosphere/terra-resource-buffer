@@ -148,7 +148,7 @@ public class RbsIntegrationTest extends BaseIntegrationTest {
     assertEquals("ACTIVE", project.getLifecycleState());
   }
 
-  /** A {@link Flight} fail to create Google Project. */
+  /** A {@link Flight} that will fail to create Google Project. */
   public static class ErrorCreateProjectFlight extends Flight {
     public ErrorCreateProjectFlight(FlightMap inputParameters, Object applicationContext) {
       super(inputParameters, applicationContext);
