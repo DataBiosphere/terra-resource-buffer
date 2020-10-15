@@ -3,6 +3,7 @@ package bio.terra.rbs.app;
 import bio.terra.rbs.app.configuration.RbsJdbcConfiguration;
 import bio.terra.rbs.service.migrate.MigrateService;
 import bio.terra.rbs.service.pool.PoolService;
+import bio.terra.rbs.service.resource.FlightScheduler;
 import bio.terra.rbs.service.stairway.StairwayComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +22,6 @@ public final class StartupInitializer {
     MigrateService migrateService = applicationContext.getBean(MigrateService.class);
     RbsJdbcConfiguration rbsJdbcConfiguration =
         applicationContext.getBean(RbsJdbcConfiguration.class);
-    PoolService poolService = applicationContext.getBean(PoolService.class);
 
     if (rbsJdbcConfiguration.isRecreateDbOnStart()) {
       migrateService.initialize(changelogPath, rbsJdbcConfiguration.getDataSource());
@@ -29,6 +29,7 @@ public final class StartupInitializer {
       migrateService.upgrade(changelogPath, rbsJdbcConfiguration.getDataSource());
     }
     applicationContext.getBean(StairwayComponent.class).initialize();
-    poolService.initialize();
+    applicationContext.getBean(PoolService.class).initialize();
+    applicationContext.getBean(FlightScheduler.class).initialize();
   }
 }

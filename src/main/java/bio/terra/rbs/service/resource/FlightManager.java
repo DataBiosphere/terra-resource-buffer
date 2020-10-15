@@ -9,6 +9,7 @@ import bio.terra.stairway.FlightMap;
 import bio.terra.stairway.Stairway;
 import bio.terra.stairway.exception.DatabaseOperationException;
 import bio.terra.stairway.exception.StairwayExecutionException;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,25 +29,28 @@ public class FlightManager {
     this.stairway = stairwayComponent.get();
   }
 
-  public boolean submitCreationFlight(Pool pool) {
-    // TODO: Add input into FlightMap
-    return submitToStairway(
-        flightFactory.getCreationFlightClass(pool.resourceType()), new FlightMap());
+  /** Submit Stairway Flight to create resource. */
+  public Optional<String> submitCreationFlight(Pool pool) {
+    FlightMap flightMap = new FlightMap();
+    pool.id().store(flightMap);
+    flightMap.put(FlightMapKeys.RESOURCE_CONFIG, pool.resourceConfig());
+    return submitToStairway(flightFactory.getCreationFlightClass(pool.resourceType()), flightMap);
   }
 
-  public boolean submitDeletionFlight(Resource resource, ResourceType resourceType) {
+  /** Submit Stairway Flight to delete resource. */
+  public Optional<String> submitDeletionFlight(Resource resource, ResourceType resourceType) {
     // TODO: Add input into FlightMap
     return submitToStairway(flightFactory.getDeletionFlightClass(resourceType), new FlightMap());
   }
 
-  private boolean submitToStairway(Class<? extends Flight> clazz, FlightMap flightMap) {
+  private Optional<String> submitToStairway(Class<? extends Flight> clazz, FlightMap flightMap) {
     String flightId = stairway.createFlightId();
     try {
       stairway.submitToQueue(flightId, clazz, flightMap);
-      return true;
+      return Optional.of(flightId);
     } catch (DatabaseOperationException | StairwayExecutionException | InterruptedException e) {
       logger.error("Error submitting flight id: {}", flightId, e);
-      return false;
+      return Optional.empty();
     }
   }
 }

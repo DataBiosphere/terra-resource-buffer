@@ -107,7 +107,7 @@ public class FlightScheduler {
 
     int successSubmitNum = 0;
     while (flightToSchedule-- > 0) {
-      if (flightManager.submitCreationFlight(pool)) {
+      if (flightManager.submitCreationFlight(pool).isPresent()) {
         ++successSubmitNum;
       }
     }
@@ -129,7 +129,7 @@ public class FlightScheduler {
     int successSubmitNum = 0;
     for (Resource resource : resources) {
       boolean submissionSuccessful =
-          flightManager.submitDeletionFlight(resource, pool.resourceType());
+          flightManager.submitDeletionFlight(resource, pool.resourceType()).isPresent();
       if (submissionSuccessful) {
         ++successSubmitNum;
       }

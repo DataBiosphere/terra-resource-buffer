@@ -1,11 +1,13 @@
 package bio.terra.rbs.db;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 import bio.terra.rbs.app.configuration.RbsJdbcConfiguration;
 import bio.terra.rbs.common.BaseUnitTest;
+import bio.terra.rbs.generated.model.CloudResourceUid;
 import bio.terra.rbs.generated.model.GcpProjectConfig;
+import bio.terra.rbs.generated.model.GoogleProjectUid;
 import bio.terra.rbs.generated.model.ResourceConfig;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -128,7 +130,7 @@ public class RbsDaoTest extends BaseUnitTest {
   }
 
   @Test
-  public void createAndRetrieveResource() {
+  public void createRetrieveDeleteResource() {
     PoolId poolId = PoolId.create("poolId");
     Pool pool = newPool(poolId);
     rbsDao.createPools(ImmutableList.of(pool));
@@ -136,6 +138,25 @@ public class RbsDaoTest extends BaseUnitTest {
 
     rbsDao.createResource(resource);
     assertEquals(resource, rbsDao.retrieveResource(resource.id()).get());
+
+    assertTrue(rbsDao.deleteResource(resource.id()));
+    assertFalse(rbsDao.retrieveResource(resource.id()).isPresent());
+  }
+
+  @Test
+  public void updateResourceAsReady() {
+    PoolId poolId = PoolId.create("poolId");
+    Pool pool = newPool(poolId);
+    rbsDao.createPools(ImmutableList.of(pool));
+    Resource resource = newResource(poolId, ResourceState.CREATING);
+    CloudResourceUid resourceUid =
+        new CloudResourceUid().googleProjectUid(new GoogleProjectUid().projectId("p-123"));
+    rbsDao.createResource(resource);
+
+    rbsDao.updateResourceAsReady(resource.id(), resourceUid);
+    Resource updatedResource = rbsDao.retrieveResource(resource.id()).get();
+    assertEquals(ResourceState.READY, updatedResource.state());
+    assertEquals(resourceUid, updatedResource.cloudResourceUid());
   }
 
   @Test

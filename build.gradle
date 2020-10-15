@@ -63,6 +63,7 @@ dependencies {
 
     implementation 'bio.terra:stairway:0.0.20'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'cloud-resource-schema', version: crlSchemaVersion
+    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-cloudresourcemanager', version: '0.0.8-SNAPSHOT'
 
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
@@ -166,7 +167,13 @@ sourceSets {
     }
 }
 
+// This is the path to the default Google service account for the rbs service to run as.
+def googleCredentialsFile = "${projectDir}/src/test/resources/rendered/sa-account.json"
+
 tasks.withType(Test) {
+    environment = [
+            'GOOGLE_APPLICATION_CREDENTIALS': "${googleCredentialsFile}"
+    ]
     testLogging {
         events = ["passed", "failed", "skipped"]
         // Causes the correct line to be reported on an exception.

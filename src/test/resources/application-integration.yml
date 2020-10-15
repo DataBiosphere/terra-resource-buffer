@@ -1,0 +1,10 @@
+rbs:
+  crl:
+    # If CRL is used in testing mode.
+    testing-mode: true
+    # Use in test to clean up created cloud resource.
+    janitor-client-credential-file-path: rendered/janitor-client-sa-account.json
+    janitor-track-resource-project-id: terra-kernel-k8s
+    janitor-track-resource-topic-id: crljanitor-tools-pubsub-topic
+  primary:
+    scheduler-enabled: true
