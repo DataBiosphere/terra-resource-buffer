@@ -35,7 +35,6 @@ public class CreateResourceDbEntityStep implements Step {
 
   @Override
   public StepResult undoStep(FlightContext flightContext) {
-    System.out.println("~~~~~~~~~~~~~~CreateResourceDbEntityStep undo");
     // Just delete the resource entity if creation not succeed. There is no need to keep this
     // record.
     rbsDao.deleteResource(ResourceId.retrieve(flightContext.getWorkingMap()));

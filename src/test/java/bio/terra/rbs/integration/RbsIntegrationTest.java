@@ -75,6 +75,8 @@ public class RbsIntegrationTest extends BaseIntegrationTest {
 
   @Test
   public void testCreateGoogleProject_errorDuringProjectCreation() throws Exception {
+    // Verify flight is able to successfully rollback when project fails to create and doesn't
+    // exist.
     TestingFlightFactory.setFlightClassToUse(ErrorCreateProjectFlight.class);
     LatchStep.startNewLatch();
 
@@ -96,12 +98,14 @@ public class RbsIntegrationTest extends BaseIntegrationTest {
     rbsDao.createPools(ImmutableList.of(pool));
     assertTrue(rbsDao.retrieveResources(ResourceState.CREATING, 1).isEmpty());
     String flightId = manager.submitCreationFlight(pool).get();
+    // Resource is created in db
     Resource resource =
         pollUntilResourceExists(ResourceState.CREATING, poolId, 1, Duration.ofSeconds(10), 10)
             .get(0);
 
     LatchStep.releaseLatch();
     blockUntilFlightComplete(flightId);
+    // Resource is deleted.
     assertFalse(rbsDao.retrieveResource(resource.id()).isPresent());
   }
 
@@ -169,10 +173,12 @@ public class RbsIntegrationTest extends BaseIntegrationTest {
     public static void setFlightClassToUse(Class<? extends Flight> clazz) {
       flightClass = clazz;
     }
+
     @Override
     public Class<? extends Flight> getCreationFlightClass(ResourceType type) {
       return flightClass;
     }
+
     @Override
     public Class<? extends Flight> getDeletionFlightClass(ResourceType type) {
       return flightClass;

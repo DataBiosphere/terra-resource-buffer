@@ -16,26 +16,26 @@ import org.springframework.test.annotation.DirtiesContext;
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class LatchStepTest extends BaseUnitTest {
-    @Autowired StairwayComponent stairwayComponent;
+  @Autowired StairwayComponent stairwayComponent;
 
-    @Test
-    public void latchBlocksUntilReleased() throws Exception {
-        String flightId = stairwayComponent.get().createFlightId();
-        stairwayComponent.get().submit(flightId, LatchFlight.class, new FlightMap());
+  @Test
+  public void latchBlocksUntilReleased() throws Exception {
+    String flightId = stairwayComponent.get().createFlightId();
+    stairwayComponent.get().submit(flightId, LatchFlight.class, new FlightMap());
 
-        LatchStep.startNewLatch();
-        TimeUnit.SECONDS.sleep(2);
-        assertTrue(stairwayComponent.get().getFlightState(flightId).isActive());
+    LatchStep.startNewLatch();
+    TimeUnit.SECONDS.sleep(2);
+    assertTrue(stairwayComponent.get().getFlightState(flightId).isActive());
 
-        LatchStep.releaseLatch();
-        TimeUnit.SECONDS.sleep(2);
-        assertFalse(stairwayComponent.get().getFlightState(flightId).isActive());
+    LatchStep.releaseLatch();
+    TimeUnit.SECONDS.sleep(2);
+    assertFalse(stairwayComponent.get().getFlightState(flightId).isActive());
+  }
+
+  public static class LatchFlight extends Flight {
+    public LatchFlight(FlightMap inputParameters, Object applicationContext) {
+      super(inputParameters, applicationContext);
+      addStep(new LatchStep());
     }
-
-    public static class LatchFlight extends Flight {
-        public LatchFlight(FlightMap inputParameters, Object applicationContext) {
-            super(inputParameters, applicationContext);
-            addStep(new LatchStep());
-        }
-    }
+  }
 }

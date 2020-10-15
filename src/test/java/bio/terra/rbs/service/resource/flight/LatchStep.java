@@ -12,26 +12,26 @@ import java.util.concurrent.CountDownLatch;
  * restart. It is only useful for testing.
  */
 public class LatchStep implements Step {
-    private static CountDownLatch latch = new CountDownLatch(0);
+  private static CountDownLatch latch = new CountDownLatch(0);
 
-    /** Start a latch for testing. */
-    public static void startNewLatch() {
-        latch = new CountDownLatch(1);
-    }
+  /** Start a latch for testing. */
+  public static void startNewLatch() {
+    latch = new CountDownLatch(1);
+  }
 
-    /** Releases the latch. */
-    public static void releaseLatch() {
-        latch.countDown();
-    }
+  /** Releases the latch. */
+  public static void releaseLatch() {
+    latch.countDown();
+  }
 
-    @Override
-    public StepResult doStep(FlightContext flightContext) throws InterruptedException {
-        latch.await();
-        return StepResult.getStepResultSuccess();
-    }
+  @Override
+  public StepResult doStep(FlightContext flightContext) throws InterruptedException {
+    latch.await();
+    return StepResult.getStepResultSuccess();
+  }
 
-    @Override
-    public StepResult undoStep(FlightContext flightContext) {
-        return StepResult.getStepResultSuccess();
-    }
+  @Override
+  public StepResult undoStep(FlightContext flightContext) {
+    return StepResult.getStepResultSuccess();
+  }
 }
