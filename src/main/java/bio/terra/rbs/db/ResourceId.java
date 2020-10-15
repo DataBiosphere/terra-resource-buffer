@@ -26,8 +26,7 @@ public abstract class ResourceId {
   }
 
   /** Stores ResourceId value in {@link FlightMap}. */
-  public FlightMap store(FlightMap map) {
+  public void store(FlightMap map) {
     map.put(RESOURCE_ID_MAP_KEY, id());
-    return map;
   }
 }

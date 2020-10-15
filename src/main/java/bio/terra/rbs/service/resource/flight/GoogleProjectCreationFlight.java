@@ -25,7 +25,7 @@ public class GoogleProjectCreationFlight extends Flight {
     addStep(new GenerateResourceIdStep());
     addStep(new CreateResourceDbEntityStep(rbsDao));
     addStep(new GenerateProjectIdStep());
-    addStep(new CreateGoogleProjectStep(rmCow, gcpProjectConfig), retryRule);
+    addStep(new CreateProjectStep(rmCow, gcpProjectConfig), retryRule);
     addStep(new FinishResourceCreationStep(rbsDao));
     // TODO(PF-144): GCP VPC setup
   }

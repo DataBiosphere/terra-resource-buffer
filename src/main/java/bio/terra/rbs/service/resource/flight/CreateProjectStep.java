@@ -18,12 +18,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Creates the basic GCP project. */
-public class CreateGoogleProjectStep implements Step {
-  private final Logger logger = LoggerFactory.getLogger(CreateGoogleProjectStep.class);
+public class CreateProjectStep implements Step {
+  private final Logger logger = LoggerFactory.getLogger(CreateProjectStep.class);
   private final CloudResourceManagerCow rmCow;
   private final GcpProjectConfig gcpProjectConfig;
 
-  public CreateGoogleProjectStep(CloudResourceManagerCow rmCow, GcpProjectConfig gcpProjectConfig) {
+  public CreateProjectStep(CloudResourceManagerCow rmCow, GcpProjectConfig gcpProjectConfig) {
     this.rmCow = rmCow;
     this.gcpProjectConfig = gcpProjectConfig;
   }
@@ -44,7 +44,7 @@ public class CreateGoogleProjectStep implements Step {
       OperationCow<?> operation =
           rmCow.operations().operationCow(rmCow.projects().create(project).execute());
       pollUntilSuccess(operation, Duration.ofSeconds(10), Duration.ofMinutes(5));
-    } catch (IOException | RetryException e) {
+    } catch (IOException | InterruptedException | RetryException e) {
       logger.info("Error when creating GCP project", e);
       return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY, e);
     }

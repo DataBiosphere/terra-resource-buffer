@@ -6,10 +6,9 @@ import bio.terra.stairway.FlightContext;
 import bio.terra.stairway.StepResult;
 import bio.terra.stairway.StepStatus;
 
-/** Dummy {@link CreateGoogleProjectStep} which fails in doStep. */
-public class ErrorCreateGoogleProjectStep extends CreateGoogleProjectStep {
-  public ErrorCreateGoogleProjectStep(
-      CloudResourceManagerCow rmCow, GcpProjectConfig gcpProjectConfig) {
+/** Dummy {@link CreateProjectStep} which fails in doStep. */
+public class ErrorCreateProjectStep extends CreateProjectStep {
+  public ErrorCreateProjectStep(CloudResourceManagerCow rmCow, GcpProjectConfig gcpProjectConfig) {
     super(rmCow, gcpProjectConfig);
   }
 

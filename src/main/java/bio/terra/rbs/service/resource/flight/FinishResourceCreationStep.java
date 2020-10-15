@@ -32,8 +32,7 @@ public class FinishResourceCreationStep implements Step {
   @Override
   public StepResult undoStep(FlightContext flightContext) {
     // Nothing need to do. Unto a resource creation flight needs to delete the resource from Cloud
-    // and delete entity
-    // from db. Both steps are handled in previous steps undo method.
+    // and delete entity from db. Both steps are handled in previous steps undo method.
     return StepResult.getStepResultSuccess();
   }
 }

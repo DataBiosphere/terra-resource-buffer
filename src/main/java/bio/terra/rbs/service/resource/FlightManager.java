@@ -32,7 +32,7 @@ public class FlightManager {
   /** Submit Stairway Flight to create resource. */
   public Optional<String> submitCreationFlight(Pool pool) {
     FlightMap flightMap = new FlightMap();
-    flightMap = pool.id().store(flightMap);
+    pool.id().store(flightMap);
     flightMap.put(FlightMapKeys.RESOURCE_CONFIG, pool.resourceConfig());
     return submitToStairway(flightFactory.getCreationFlightClass(pool.resourceType()), flightMap);
   }

@@ -25,8 +25,7 @@ public abstract class PoolId {
   }
 
   /** Stores PoolId value in {@link FlightMap}. */
-  public FlightMap store(FlightMap map) {
+  public void store(FlightMap map) {
     map.put(POOL_ID_MAP_KEY, id());
-    return map;
   }
 }

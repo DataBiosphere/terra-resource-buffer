@@ -13,20 +13,16 @@ public class StepUtils {
    * {@link RetryException}.
    */
   public static void pollUntilSuccess(
-      OperationCow<?> operation, Duration pollingInterval, Duration timeout) throws RetryException {
-    try {
-      operation =
-          OperationUtils.pollUntilComplete(
-              operation, Duration.ofSeconds(20), Duration.ofMinutes(5));
-      if (operation.getOperationAdapter().getError() != null) {
-        throw new RetryException(
-            String.format(
-                "Error polling operation. name [%s] message [%s]",
-                operation.getOperationAdapter().getName(),
-                operation.getOperationAdapter().getError().getMessage()));
-      }
-    } catch (IOException | InterruptedException e) {
-      throw new RetryException("Error polling.", e);
+      OperationCow<?> operation, Duration pollingInterval, Duration timeout)
+      throws RetryException, IOException, InterruptedException {
+    operation =
+        OperationUtils.pollUntilComplete(operation, Duration.ofSeconds(20), Duration.ofMinutes(5));
+    if (operation.getOperationAdapter().getError() != null) {
+      throw new RetryException(
+          String.format(
+              "Error polling operation. name [%s] message [%s]",
+              operation.getOperationAdapter().getName(),
+              operation.getOperationAdapter().getError().getMessage()));
     }
   }
 }
