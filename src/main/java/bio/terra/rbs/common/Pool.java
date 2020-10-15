@@ -1,11 +1,11 @@
-package bio.terra.rbs.db;
+package bio.terra.rbs.common;
 
 import bio.terra.rbs.generated.model.ResourceConfig;
 import com.google.auto.value.AutoValue;
 import java.time.Instant;
 import javax.annotation.Nullable;
 
-/** Represents a record in the pool table in the RBS database. */
+/** Represents a pool entity used in RBS. */
 @AutoValue
 public abstract class Pool {
   public abstract PoolId id();

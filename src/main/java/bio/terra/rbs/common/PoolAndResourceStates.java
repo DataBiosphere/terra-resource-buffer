@@ -1,4 +1,4 @@
-package bio.terra.rbs.db;
+package bio.terra.rbs.common;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMultiset;

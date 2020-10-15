@@ -1,5 +1,9 @@
 package bio.terra.rbs.service.resource.flight;
 
+import bio.terra.rbs.common.PoolId;
+import bio.terra.rbs.common.Resource;
+import bio.terra.rbs.common.ResourceId;
+import bio.terra.rbs.common.ResourceState;
 import bio.terra.rbs.db.*;
 import bio.terra.stairway.FlightContext;
 import bio.terra.stairway.FlightMap;

@@ -3,6 +3,9 @@ package bio.terra.rbs.service.pool;
 import static bio.terra.rbs.service.pool.PoolConfigLoader.loadPoolConfig;
 
 import bio.terra.rbs.app.configuration.PoolConfiguration;
+import bio.terra.rbs.common.Pool;
+import bio.terra.rbs.common.PoolId;
+import bio.terra.rbs.common.PoolStatus;
 import bio.terra.rbs.common.ResourceConfigVisitor;
 import bio.terra.rbs.db.*;
 import com.google.common.annotations.VisibleForTesting;

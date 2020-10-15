@@ -1,6 +1,7 @@
 package bio.terra.rbs.service.resource;
 
 import bio.terra.rbs.app.configuration.PrimaryConfiguration;
+import bio.terra.rbs.common.*;
 import bio.terra.rbs.db.*;
 import bio.terra.rbs.service.stairway.StairwayComponent;
 import com.google.common.base.Preconditions;

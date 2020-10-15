@@ -4,7 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 import bio.terra.rbs.app.configuration.RbsJdbcConfiguration;
-import bio.terra.rbs.common.BaseUnitTest;
+import bio.terra.rbs.common.*;
 import bio.terra.rbs.generated.model.CloudResourceUid;
 import bio.terra.rbs.generated.model.GcpProjectConfig;
 import bio.terra.rbs.generated.model.GoogleProjectUid;

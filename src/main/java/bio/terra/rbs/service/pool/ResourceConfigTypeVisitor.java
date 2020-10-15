@@ -1,7 +1,7 @@
 package bio.terra.rbs.service.pool;
 
 import bio.terra.rbs.common.ResourceConfigVisitor;
-import bio.terra.rbs.db.ResourceType;
+import bio.terra.rbs.common.ResourceType;
 import bio.terra.rbs.generated.model.GcpProjectConfig;
 import bio.terra.rbs.generated.model.ResourceConfig;
 import java.util.Optional;

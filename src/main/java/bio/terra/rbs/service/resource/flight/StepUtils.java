@@ -15,8 +15,7 @@ public class StepUtils {
   public static void pollUntilSuccess(
       OperationCow<?> operation, Duration pollingInterval, Duration timeout)
       throws RetryException, IOException, InterruptedException {
-    operation =
-        OperationUtils.pollUntilComplete(operation, pollingInterval, timeout);
+    operation = OperationUtils.pollUntilComplete(operation, pollingInterval, timeout);
     if (operation.getOperationAdapter().getError() != null) {
       throw new RetryException(
           String.format(

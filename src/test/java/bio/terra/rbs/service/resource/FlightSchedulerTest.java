@@ -3,7 +3,7 @@ package bio.terra.rbs.service.resource;
 import static org.mockito.Mockito.*;
 
 import bio.terra.rbs.app.configuration.PrimaryConfiguration;
-import bio.terra.rbs.common.BaseUnitTest;
+import bio.terra.rbs.common.*;
 import bio.terra.rbs.db.*;
 import bio.terra.rbs.generated.model.ResourceConfig;
 import bio.terra.rbs.service.stairway.StairwayComponent;

@@ -1,6 +1,6 @@
 package bio.terra.rbs.service.resource.flight;
 
-import bio.terra.rbs.db.*;
+import bio.terra.rbs.common.ResourceId;
 import bio.terra.stairway.FlightContext;
 import bio.terra.stairway.Step;
 import bio.terra.stairway.StepResult;

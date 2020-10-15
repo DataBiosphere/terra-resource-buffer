@@ -1,4 +1,4 @@
-package bio.terra.rbs.db;
+package bio.terra.rbs.common;
 
 /**
  * Enums to represent cloud resource type we supported in DB schema.
