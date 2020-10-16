@@ -1,7 +1,7 @@
 package bio.terra.rbs.service.resource.flight;
 
 import static bio.terra.rbs.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
-import static bio.terra.rbs.service.resource.FlightMapKeys.RESOURCE_READY;
+import static bio.terra.rbs.service.resource.flight.StepUtils.isResourceReady;
 import static bio.terra.rbs.service.resource.flight.StepUtils.pollUntilSuccess;
 
 import bio.terra.cloudres.google.api.services.common.OperationCow;
@@ -54,14 +54,11 @@ public class CreateProjectStep implements Step {
 
   @Override
   public StepResult undoStep(FlightContext flightContext) {
-    FlightMap workingMap = flightContext.getWorkingMap();
-    // Don't do anything if resource is READY.
-    if (workingMap.get(RESOURCE_READY, Boolean.class) != null
-        && workingMap.get(RESOURCE_READY, Boolean.class)) {
+    if (isResourceReady(flightContext)) {
       return StepResult.getStepResultSuccess();
     }
     try {
-      String projectId = workingMap.get(GOOGLE_PROJECT_ID, String.class);
+      String projectId = flightContext.getWorkingMap().get(GOOGLE_PROJECT_ID, String.class);
       Optional<Project> project = retrieveProject(projectId);
       if (!project.isPresent()) {
         // The project does not exist.

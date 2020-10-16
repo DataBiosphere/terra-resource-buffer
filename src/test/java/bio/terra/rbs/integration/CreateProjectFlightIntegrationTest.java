@@ -58,6 +58,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     blockUntilFlightComplete(flightId);
     // Resource is deleted.
     assertFalse(rbsDao.retrieveResource(resource.id()).isPresent());
+    assertEquals(
+        FlightStatus.ERROR, stairwayComponent.get().getFlightState(flightId).getFlightStatus());
   }
 
   @Test
@@ -81,6 +83,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
             .get(resource.cloudResourceUid().getGoogleProjectUid().getProjectId())
             .execute()
             .getLifecycleState());
+    assertEquals(
+        FlightStatus.ERROR, stairwayComponent.get().getFlightState(flightId).getFlightStatus());
   }
 
   /** A {@link Flight} that will fail to create Google Project. */

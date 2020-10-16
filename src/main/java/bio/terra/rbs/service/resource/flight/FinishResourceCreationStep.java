@@ -30,8 +30,6 @@ public class FinishResourceCreationStep implements Step {
         ResourceId.retrieve(flightContext.getWorkingMap()),
         workingMap.get(FlightMapKeys.CLOUD_RESOURCE_UID, CloudResourceUid.class));
 
-    // Having a boolean value in working map to indicate the resource is already marked as READY.
-    // This can prevent a READY resource got rollback.
     workingMap.put(RESOURCE_READY, true);
     return StepResult.getStepResultSuccess();
   }
