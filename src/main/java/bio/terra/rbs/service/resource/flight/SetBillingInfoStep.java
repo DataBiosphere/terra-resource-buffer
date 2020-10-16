@@ -21,7 +21,7 @@ public class SetBillingInfoStep implements Step {
 
   @Override
   public StepResult doStep(FlightContext flightContext) {
-    // no-op if billing account is not set.
+    // Skip if billing account is not set.
     if (gcpProjectConfig.getBillingAccount() != null
         && !gcpProjectConfig.getBillingAccount().isEmpty()) {
       return StepResult.getStepResultSuccess();

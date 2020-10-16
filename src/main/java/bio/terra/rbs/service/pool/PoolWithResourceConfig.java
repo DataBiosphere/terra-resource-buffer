@@ -7,9 +7,9 @@ import com.google.auto.value.AutoValue;
 /** Represents a {@link PoolConfig} with corresponding {@link ResourceConfig}. */
 @AutoValue
 public abstract class PoolWithResourceConfig {
-  public abstract PoolConfig poolConfig();
+   abstract PoolConfig poolConfig();
 
-  public abstract ResourceConfig resourceConfig();
+   abstract ResourceConfig resourceConfig();
 
   static PoolWithResourceConfig create(PoolConfig poolConfig, ResourceConfig resourceConfig) {
     return new AutoValue_PoolWithResourceConfig(poolConfig, resourceConfig);

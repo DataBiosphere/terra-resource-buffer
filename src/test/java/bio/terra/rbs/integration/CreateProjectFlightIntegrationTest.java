@@ -44,6 +44,27 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   @Autowired FlightSubmissionFactoryImpl flightSubmissionFactoryImpl;
 
   @Test
+  public void testCreateGoogleProject_basicCreation() throws Exception {
+    FlightManager manager = new FlightManager(flightSubmissionFactoryImpl, stairwayComponent);
+    Pool pool = preparePool(newBasicGcpConfig());
+
+    String flightId = manager.submitCreationFlight(pool).get();
+    blockUntilFlightComplete(flightId);
+    assertProjectCreated(pool);
+  }
+
+  @Test
+  public void testCreateGoogleProject_withBillingAccount() throws Exception {
+    // Basic GCP project with billing setup.
+    FlightManager manager = new FlightManager(flightSubmissionFactoryImpl, stairwayComponent);
+    Pool pool = preparePool(newBasicGcpConfig().billingAccount(BILLING_ACCOUNT_NAME));
+
+    String flightId = manager.submitCreationFlight(pool).get();
+    blockUntilFlightComplete(flightId);
+    assertProjectCreated(pool);
+  }
+
+  @Test
   public void testCreateGoogleProject_errorDuringProjectCreation() throws Exception {
     // Verify flight is able to successfully rollback when project fails to create and doesn't
     // exist.
@@ -64,27 +85,6 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertFalse(rbsDao.retrieveResource(resource.id()).isPresent());
     assertEquals(
         FlightStatus.ERROR, stairwayComponent.get().getFlightState(flightId).getFlightStatus());
-  }
-
-  @Test
-  public void testCreateGoogleProject_basicCreation() throws Exception {
-    FlightManager manager = new FlightManager(flightSubmissionFactoryImpl, stairwayComponent);
-    Pool pool = preparePool(newBasicGcpConfig());
-
-    String flightId = manager.submitCreationFlight(pool).get();
-    blockUntilFlightComplete(flightId);
-    assertProjectCreated(pool);
-  }
-
-  @Test
-  public void testCreateGoogleProject_withBillingAccount() throws Exception {
-    // Basic GCP project with billing setup.
-    FlightManager manager = new FlightManager(flightSubmissionFactoryImpl, stairwayComponent);
-    Pool pool = preparePool(newBasicGcpConfig().billingAccount(BILLING_ACCOUNT_NAME));
-
-    String flightId = manager.submitCreationFlight(pool).get();
-    blockUntilFlightComplete(flightId);
-    assertProjectCreated(pool);
   }
 
   @Test
@@ -155,7 +155,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     throw new InterruptedException("Flight did not complete in time.");
   }
 
-  /** Prepares a Pool with {@link ResourceConfig} and update db. */
+  /** Prepares a Pool with {@link GcpProjectConfig}. */
   private Pool preparePool(GcpProjectConfig gcpProjectConfig) {
     PoolId poolId = PoolId.create("poolId");
     Pool pool =
