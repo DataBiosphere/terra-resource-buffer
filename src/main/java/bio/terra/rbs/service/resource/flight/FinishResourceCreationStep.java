@@ -1,11 +1,9 @@
 package bio.terra.rbs.service.resource.flight;
 
-import bio.terra.rbs.common.ResourceId;
+import static bio.terra.rbs.service.resource.flight.StepUtils.markResourceReady;
+
 import bio.terra.rbs.db.*;
-import bio.terra.rbs.generated.model.CloudResourceUid;
-import bio.terra.rbs.service.resource.FlightMapKeys;
 import bio.terra.stairway.FlightContext;
-import bio.terra.stairway.FlightMap;
 import bio.terra.stairway.Step;
 import bio.terra.stairway.StepResult;
 
@@ -22,17 +20,12 @@ public class FinishResourceCreationStep implements Step {
 
   @Override
   public StepResult doStep(FlightContext flightContext) {
-    FlightMap workingMap = flightContext.getWorkingMap();
-
-    rbsDao.updateResourceAsReady(
-        ResourceId.retrieve(flightContext.getWorkingMap()),
-        workingMap.get(FlightMapKeys.CLOUD_RESOURCE_UID, CloudResourceUid.class));
+    markResourceReady(rbsDao, flightContext);
     return StepResult.getStepResultSuccess();
   }
 
   @Override
   public StepResult undoStep(FlightContext flightContext) {
-    // TODO(PF-127): Fail the flight if resource is already handed out.
     return StepResult.getStepResultSuccess();
   }
 }

@@ -2,8 +2,7 @@ package bio.terra.rbs.integration;
 
 import static bio.terra.rbs.integration.IntegrationUtils.pollUntilResourcesMatch;
 import static bio.terra.rbs.service.resource.FlightMapKeys.RESOURCE_CONFIG;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.rbs.common.*;
@@ -24,11 +23,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.context.ApplicationContext;
+import org.springframework.test.annotation.DirtiesContext;
 
 @AutoConfigureMockMvc
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
+  /** The folder to create project within in test. */
+  private static final String FOLDER_ID = "637867149294";
+
   @Autowired RbsDao rbsDao;
   @Autowired StairwayComponent stairwayComponent;
+  @Autowired CloudResourceManagerCow rmCow;
 
   FlightFactory flightFactory = new TestingFlightFactory();
 
@@ -40,30 +45,46 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     LatchStep.startNewLatch();
 
     FlightManager manager = new FlightManager(flightFactory, stairwayComponent);
-    PoolId poolId = PoolId.create("poolId");
-    Pool pool =
-        Pool.builder()
-            .id(poolId)
-            .resourceType(ResourceType.GOOGLE_PROJECT)
-            .size(1)
-            .resourceConfig(
-                new ResourceConfig()
-                    .configName("configName")
-                    .gcpProjectConfig(new GcpProjectConfig().projectIDPrefix("prefix")))
-            .status(PoolStatus.ACTIVE)
-            .creation(Instant.now())
-            .build();
+    Pool pool = preparePool();
 
     rbsDao.createPools(ImmutableList.of(pool));
     assertTrue(rbsDao.retrieveResources(ResourceState.CREATING, 1).isEmpty());
     String flightId = manager.submitCreationFlight(pool).get();
     // Resource is created in db
-    Resource resource = pollUntilResourcesMatch(rbsDao, poolId, ResourceState.CREATING, 1).get(0);
+    Resource resource =
+        pollUntilResourcesMatch(rbsDao, pool.id(), ResourceState.CREATING, 1).get(0);
 
     LatchStep.releaseLatch();
     blockUntilFlightComplete(flightId);
     // Resource is deleted.
     assertFalse(rbsDao.retrieveResource(resource.id()).isPresent());
+    assertEquals(
+        FlightStatus.ERROR, stairwayComponent.get().getFlightState(flightId).getFlightStatus());
+  }
+
+  @Test
+  public void errorCreateProject_noRollbackAfterResourceReady() throws Exception {
+    // Verify project and db entity won't get deleted if resource id READY, even the flight fails.
+    TestingFlightFactory.setFlightClassToUse(ErrorAfterCreateResourceFlight.class);
+    FlightManager manager = new FlightManager(flightFactory, stairwayComponent);
+
+    Pool pool = preparePool();
+    rbsDao.createPools(ImmutableList.of(pool));
+    assertTrue(rbsDao.retrieveResources(ResourceState.CREATING, 1).isEmpty());
+    assertTrue(rbsDao.retrieveResources(ResourceState.READY, 1).isEmpty());
+    String flightId = manager.submitCreationFlight(pool).get();
+    blockUntilFlightComplete(flightId);
+
+    Resource resource = rbsDao.retrieveResources(ResourceState.READY, 1).get(0);
+    assertEquals(
+        "ACTIVE",
+        rmCow
+            .projects()
+            .get(resource.cloudResourceUid().getGoogleProjectUid().getProjectId())
+            .execute()
+            .getLifecycleState());
+    assertEquals(
+        FlightStatus.ERROR, stairwayComponent.get().getFlightState(flightId).getFlightStatus());
   }
 
   /** A {@link Flight} that will fail to create Google Project. */
@@ -84,6 +105,14 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     }
   }
 
+  /** A {@link Flight} with extra error step after resource creation steps. */
+  public static class ErrorAfterCreateResourceFlight extends GoogleProjectCreationFlight {
+    public ErrorAfterCreateResourceFlight(FlightMap inputParameters, Object applicationContext) {
+      super(inputParameters, applicationContext);
+      addStep(new ErrorStep());
+    }
+  }
+
   private void blockUntilFlightComplete(String flightId)
       throws InterruptedException, DatabaseOperationException {
     Duration maxWait = Duration.ofSeconds(10);
@@ -99,6 +128,22 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     throw new InterruptedException("Flight did not complete in time.");
   }
 
+  /** Create a Pool in db. */
+  private Pool preparePool() {
+    PoolId poolId = PoolId.create("poolId");
+    return Pool.builder()
+        .id(poolId)
+        .resourceType(ResourceType.GOOGLE_PROJECT)
+        .size(1)
+        .resourceConfig(
+            new ResourceConfig()
+                .configName("configName")
+                .gcpProjectConfig(
+                    new GcpProjectConfig().projectIDPrefix("prefix").parentFolderId(FOLDER_ID)))
+        .status(PoolStatus.ACTIVE)
+        .creation(Instant.now())
+        .build();
+  }
   /** A {@link FlightFactory} used in test. */
   public static class TestingFlightFactory implements FlightFactory {
     public static Class<? extends Flight> flightClass;

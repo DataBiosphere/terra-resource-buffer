@@ -1,0 +1,4 @@
+rbs:
+  primary:
+    # Enable scheduler service which will submit flight by scanning db.
+    scheduler-enabled: true
