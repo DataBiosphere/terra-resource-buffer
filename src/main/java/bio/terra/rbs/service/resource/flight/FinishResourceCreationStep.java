@@ -1,6 +1,7 @@
 package bio.terra.rbs.service.resource.flight;
 
 import static bio.terra.rbs.service.resource.FlightMapKeys.RESOURCE_READY;
+import static bio.terra.rbs.service.resource.flight.StepUtils.markResourceReady;
 
 import bio.terra.rbs.common.ResourceId;
 import bio.terra.rbs.db.*;
@@ -24,13 +25,7 @@ public class FinishResourceCreationStep implements Step {
 
   @Override
   public StepResult doStep(FlightContext flightContext) {
-    FlightMap workingMap = flightContext.getWorkingMap();
-
-    rbsDao.updateResourceAsReady(
-        ResourceId.retrieve(flightContext.getWorkingMap()),
-        workingMap.get(FlightMapKeys.CLOUD_RESOURCE_UID, CloudResourceUid.class));
-
-    workingMap.put(RESOURCE_READY, true);
+    markResourceReady(rbsDao, flightContext);
     return StepResult.getStepResultSuccess();
   }
 
