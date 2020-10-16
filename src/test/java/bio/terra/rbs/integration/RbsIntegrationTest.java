@@ -32,7 +32,7 @@ public class RbsIntegrationTest extends BaseIntegrationTest {
   public void testCreateGoogleProject() throws Exception {
     // The pool id in config file.
     PoolId poolId = PoolId.create("ws_test_v1");
-    poolService.updateFromConfig(loadPoolConfig("test/config"), null);
+    poolService.updateFromConfig(loadPoolConfig("test/config"));
 
     List<Resource> resources = pollUntilResourcesMatch(rbsDao, poolId, ResourceState.READY, 2);
     resources.forEach(
