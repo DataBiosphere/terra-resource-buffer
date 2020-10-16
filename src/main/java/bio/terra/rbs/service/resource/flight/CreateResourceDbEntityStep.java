@@ -1,5 +1,7 @@
 package bio.terra.rbs.service.resource.flight;
 
+import static bio.terra.rbs.service.resource.FlightMapKeys.RESOURCE_READY;
+
 import bio.terra.rbs.common.PoolId;
 import bio.terra.rbs.common.Resource;
 import bio.terra.rbs.common.ResourceId;
@@ -39,9 +41,15 @@ public class CreateResourceDbEntityStep implements Step {
 
   @Override
   public StepResult undoStep(FlightContext flightContext) {
+    FlightMap workingMap = flightContext.getWorkingMap();
+    // Don't do anything if resource is READY.
+    if (workingMap.get(RESOURCE_READY, Boolean.class) != null
+        && workingMap.get(RESOURCE_READY, Boolean.class) != null) {
+      return StepResult.getStepResultSuccess();
+    }
     // Just delete the resource entity if creation not succeed. There is no need to keep this
     // record.
-    rbsDao.deleteResource(ResourceId.retrieve(flightContext.getWorkingMap()));
+    rbsDao.deleteResource(ResourceId.retrieve(workingMap));
     return StepResult.getStepResultSuccess();
   }
 }

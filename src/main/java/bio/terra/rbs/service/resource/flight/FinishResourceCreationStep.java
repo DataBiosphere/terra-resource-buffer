@@ -1,5 +1,7 @@
 package bio.terra.rbs.service.resource.flight;
 
+import static bio.terra.rbs.service.resource.FlightMapKeys.RESOURCE_READY;
+
 import bio.terra.rbs.common.ResourceId;
 import bio.terra.rbs.db.*;
 import bio.terra.rbs.generated.model.CloudResourceUid;
@@ -27,12 +29,15 @@ public class FinishResourceCreationStep implements Step {
     rbsDao.updateResourceAsReady(
         ResourceId.retrieve(flightContext.getWorkingMap()),
         workingMap.get(FlightMapKeys.CLOUD_RESOURCE_UID, CloudResourceUid.class));
+
+    // Having a boolean value in working map to indicate the resource is already marked as READY.
+    // This can prevent a READY resource got rollback.
+    workingMap.put(RESOURCE_READY, true);
     return StepResult.getStepResultSuccess();
   }
 
   @Override
   public StepResult undoStep(FlightContext flightContext) {
-    // TODO(PF-127): Fail the flight if resource is already handed out.
     return StepResult.getStepResultSuccess();
   }
 }

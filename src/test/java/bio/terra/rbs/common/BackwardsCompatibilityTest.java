@@ -14,8 +14,8 @@ import org.junit.jupiter.api.Test;
 public class BackwardsCompatibilityTest extends BaseUnitTest {
 
   /**
-   * Change detection test for existing {@link ResourceType} enum values. More
-   * values should be added as the enum expands.
+   * Change detection test for existing {@link ResourceType} enum values. More values should be
+   * added as the enum expands.
    */
   @Test
   public void resourceType() {
@@ -26,8 +26,8 @@ public class BackwardsCompatibilityTest extends BaseUnitTest {
   }
 
   /**
-   * Change detection test for existing {@link PoolStatus} enum values. More
-   * values should be added as the enum expands.
+   * Change detection test for existing {@link PoolStatus} enum values. More values should be added
+   * as the enum expands.
    */
   @Test
   public void poolStatus() {
@@ -39,8 +39,8 @@ public class BackwardsCompatibilityTest extends BaseUnitTest {
   }
 
   /**
-   * Change detection test for existing {@link ResourceState} enum values. More
-   * values should be added as the enum expands.
+   * Change detection test for existing {@link ResourceState} enum values. More values should be
+   * added as the enum expands.
    */
   @Test
   public void resourceState() {
