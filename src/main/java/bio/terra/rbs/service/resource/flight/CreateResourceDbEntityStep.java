@@ -44,7 +44,7 @@ public class CreateResourceDbEntityStep implements Step {
     FlightMap workingMap = flightContext.getWorkingMap();
     // Don't do anything if resource is READY.
     if (workingMap.get(RESOURCE_READY, Boolean.class) != null
-        && workingMap.get(RESOURCE_READY, Boolean.class) != null) {
+        && workingMap.get(RESOURCE_READY, Boolean.class)) {
       return StepResult.getStepResultSuccess();
     }
     // Just delete the resource entity if creation not succeed. There is no need to keep this
