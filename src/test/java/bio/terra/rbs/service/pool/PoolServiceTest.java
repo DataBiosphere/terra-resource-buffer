@@ -50,7 +50,7 @@ public class PoolServiceTest extends BaseUnitTest {
                 .resourceConfigName(RESOURCE_CONFIG_NAME),
             newResourceConfig());
 
-    poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig), transactionStatus);
+    poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig));
     List<Pool> pools = rbsDao.retrievePools();
 
     assertEquals(1, pools.size());
@@ -72,7 +72,7 @@ public class PoolServiceTest extends BaseUnitTest {
                 .resourceConfigName(RESOURCE_CONFIG_NAME),
             newResourceConfig());
 
-    poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig), transactionStatus);
+    poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig));
     List<Pool> pools = rbsDao.retrievePools();
 
     assertEquals(1, pools.size());
@@ -82,7 +82,7 @@ public class PoolServiceTest extends BaseUnitTest {
     assertEquals(PoolStatus.ACTIVE, createdPool.status());
     assertEquals(parsedPoolConfig.resourceConfig(), createdPool.resourceConfig());
 
-    poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig), transactionStatus);
+    poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig));
     assertThat(rbsDao.retrievePools(), Matchers.containsInAnyOrder(pools.toArray()));
   }
 
@@ -94,7 +94,7 @@ public class PoolServiceTest extends BaseUnitTest {
         new PoolConfig().poolId(poolId.toString()).size(1).resourceConfigName(RESOURCE_CONFIG_NAME);
     PoolWithResourceConfig parsedPoolConfig =
         PoolWithResourceConfig.create(poolConfig, newResourceConfig());
-    poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig), transactionStatus);
+    poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig));
 
     // Sets ResourceConfig's GCP project id prefix to newer value.
     PoolWithResourceConfig updatedPoolConfig =
@@ -103,7 +103,7 @@ public class PoolServiceTest extends BaseUnitTest {
 
     assertThrows(
         RuntimeException.class,
-        () -> poolService.updateFromConfig(ImmutableList.of(updatedPoolConfig), transactionStatus));
+        () -> poolService.updateFromConfig(ImmutableList.of(updatedPoolConfig)));
     assertThat(
         rbsDao.retrievePools().stream().map(Pool::resourceConfig).collect(Collectors.toList()),
         Matchers.containsInAnyOrder(parsedPoolConfig.resourceConfig()));
@@ -121,7 +121,7 @@ public class PoolServiceTest extends BaseUnitTest {
                 .resourceConfigName(RESOURCE_CONFIG_NAME),
             newResourceConfig());
 
-    poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig), transactionStatus);
+    poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig));
     rbsDao.deactivatePools(ImmutableList.of(poolId));
     List<Pool> pools = rbsDao.retrievePools();
 
@@ -130,7 +130,7 @@ public class PoolServiceTest extends BaseUnitTest {
 
     assertThrows(
         RuntimeException.class,
-        () -> poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig), transactionStatus));
+        () -> poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig)));
   }
 
   @Test
@@ -144,14 +144,14 @@ public class PoolServiceTest extends BaseUnitTest {
                 .resourceConfigName(RESOURCE_CONFIG_NAME),
             newResourceConfig());
 
-    poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig), transactionStatus);
+    poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig));
     List<Pool> pools = rbsDao.retrievePools();
 
     Pool createdPool = pools.get(0);
     assertEquals(poolId, createdPool.id());
     assertEquals(PoolStatus.ACTIVE, createdPool.status());
 
-    poolService.updateFromConfig(ImmutableList.of(), transactionStatus);
+    poolService.updateFromConfig(ImmutableList.of());
 
     Pool resizedPool = rbsDao.retrievePools().get(0);
     assertEquals(poolId, resizedPool.id());
@@ -170,7 +170,7 @@ public class PoolServiceTest extends BaseUnitTest {
                 .resourceConfigName(RESOURCE_CONFIG_NAME),
             newResourceConfig());
 
-    poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig), transactionStatus);
+    poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig));
     List<Pool> pools = rbsDao.retrievePools();
 
     Pool createdPool = pools.get(0);
@@ -185,7 +185,7 @@ public class PoolServiceTest extends BaseUnitTest {
                 .resourceConfigName(RESOURCE_CONFIG_NAME),
             newResourceConfig());
 
-    poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig), transactionStatus);
+    poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig));
     assertEquals(rbsDao.retrievePools().get(0), createdPool.toBuilder().size(size + 10).build());
   }
 }
