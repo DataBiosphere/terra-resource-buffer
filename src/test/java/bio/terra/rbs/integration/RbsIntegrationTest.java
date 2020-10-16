@@ -37,7 +37,7 @@ public class RbsIntegrationTest extends BaseIntegrationTest {
     // The pool id in config file.
     PoolId poolId = PoolId.create("ws_test_v1");
     List<PoolWithResourceConfig> config = loadPoolConfig("test/config");
-    poolService.updateFromConfig(config, null);
+    poolService.updateFromConfig(config);
 
     List<Resource> resources = pollUntilResourcesMatch(rbsDao, poolId, ResourceState.READY, 2);
     resources.forEach(

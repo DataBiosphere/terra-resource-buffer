@@ -9,8 +9,9 @@ import bio.terra.rbs.common.*;
 import bio.terra.rbs.db.*;
 import bio.terra.rbs.generated.model.GcpProjectConfig;
 import bio.terra.rbs.generated.model.ResourceConfig;
-import bio.terra.rbs.service.resource.FlightFactory;
 import bio.terra.rbs.service.resource.FlightManager;
+import bio.terra.rbs.service.resource.FlightMapKeys;
+import bio.terra.rbs.service.resource.FlightSubmissionFactory;
 import bio.terra.rbs.service.resource.flight.*;
 import bio.terra.rbs.service.stairway.StairwayComponent;
 import bio.terra.stairway.*;
@@ -35,16 +36,14 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   @Autowired StairwayComponent stairwayComponent;
   @Autowired CloudResourceManagerCow rmCow;
 
-  FlightFactory flightFactory = new TestingFlightFactory();
-
   @Test
   public void testCreateGoogleProject_errorDuringProjectCreation() throws Exception {
     // Verify flight is able to successfully rollback when project fails to create and doesn't
     // exist.
-    TestingFlightFactory.setFlightClassToUse(ErrorCreateProjectFlight.class);
     LatchStep.startNewLatch();
-
-    FlightManager manager = new FlightManager(flightFactory, stairwayComponent);
+    FlightManager manager =
+        new FlightManager(
+            new StubSubmissionFlightFactory(ErrorCreateProjectFlight.class), stairwayComponent);
     Pool pool = preparePool();
 
     rbsDao.createPools(ImmutableList.of(pool));
@@ -65,8 +64,10 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   @Test
   public void errorCreateProject_noRollbackAfterResourceReady() throws Exception {
     // Verify project and db entity won't get deleted if resource id READY, even the flight fails.
-    TestingFlightFactory.setFlightClassToUse(ErrorAfterCreateResourceFlight.class);
-    FlightManager manager = new FlightManager(flightFactory, stairwayComponent);
+    FlightManager manager =
+        new FlightManager(
+            new StubSubmissionFlightFactory(ErrorAfterCreateResourceFlight.class),
+            stairwayComponent);
 
     Pool pool = preparePool();
     rbsDao.createPools(ImmutableList.of(pool));
@@ -144,22 +145,25 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
         .creation(Instant.now())
         .build();
   }
-  /** A {@link FlightFactory} used in test. */
-  public static class TestingFlightFactory implements FlightFactory {
-    public static Class<? extends Flight> flightClass;
+  /** A {@link FlightSubmissionFactory} used in test. */
+  public static class StubSubmissionFlightFactory implements FlightSubmissionFactory {
+    public final Class<? extends Flight> flightClass;
 
-    public static void setFlightClassToUse(Class<? extends Flight> clazz) {
-      flightClass = clazz;
+    public StubSubmissionFlightFactory(Class<? extends Flight> flightClass) {
+      this.flightClass = flightClass;
     }
 
     @Override
-    public Class<? extends Flight> getCreationFlightClass(ResourceType type) {
-      return flightClass;
+    public FlightSubmission getCreationFlightSubmission(Pool pool) {
+      FlightMap flightMap = new FlightMap();
+      pool.id().store(flightMap);
+      flightMap.put(FlightMapKeys.RESOURCE_CONFIG, pool.resourceConfig());
+      return FlightSubmission.create(flightClass, flightMap);
     }
 
     @Override
-    public Class<? extends Flight> getDeletionFlightClass(ResourceType type) {
-      return flightClass;
+    public FlightSubmission getDeletionFlightSubmission(Resource resource, ResourceType type) {
+      return FlightSubmission.create(flightClass, new FlightMap());
     }
   }
 

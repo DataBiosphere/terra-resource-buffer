@@ -4,8 +4,6 @@ import bio.terra.rbs.common.Pool;
 import bio.terra.rbs.common.Resource;
 import bio.terra.rbs.common.ResourceType;
 import bio.terra.rbs.service.stairway.StairwayComponent;
-import bio.terra.stairway.Flight;
-import bio.terra.stairway.FlightMap;
 import bio.terra.stairway.Stairway;
 import bio.terra.stairway.exception.DatabaseOperationException;
 import bio.terra.stairway.exception.StairwayExecutionException;
@@ -20,33 +18,34 @@ import org.springframework.stereotype.Component;
 public class FlightManager {
   private Logger logger = LoggerFactory.getLogger(FlightManager.class);
 
-  private final FlightFactory flightFactory;
+  private final FlightSubmissionFactory flightSubmissionFactory;
   private final Stairway stairway;
 
   @Autowired
-  public FlightManager(FlightFactory flightFactory, StairwayComponent stairwayComponent) {
-    this.flightFactory = flightFactory;
+  public FlightManager(
+      FlightSubmissionFactory flightSubmissionFactory, StairwayComponent stairwayComponent) {
+    this.flightSubmissionFactory = flightSubmissionFactory;
     this.stairway = stairwayComponent.get();
   }
 
   /** Submit Stairway Flight to create resource. */
   public Optional<String> submitCreationFlight(Pool pool) {
-    FlightMap flightMap = new FlightMap();
-    pool.id().store(flightMap);
-    flightMap.put(FlightMapKeys.RESOURCE_CONFIG, pool.resourceConfig());
-    return submitToStairway(flightFactory.getCreationFlightClass(pool.resourceType()), flightMap);
+    return submitToStairway(flightSubmissionFactory.getCreationFlightSubmission(pool));
   }
 
   /** Submit Stairway Flight to delete resource. */
   public Optional<String> submitDeletionFlight(Resource resource, ResourceType resourceType) {
     // TODO: Add input into FlightMap
-    return submitToStairway(flightFactory.getDeletionFlightClass(resourceType), new FlightMap());
+    return submitToStairway(
+        flightSubmissionFactory.getDeletionFlightSubmission(resource, resourceType));
   }
 
-  private Optional<String> submitToStairway(Class<? extends Flight> clazz, FlightMap flightMap) {
+  private Optional<String> submitToStairway(
+      FlightSubmissionFactory.FlightSubmission flightSubmission) {
     String flightId = stairway.createFlightId();
     try {
-      stairway.submitToQueue(flightId, clazz, flightMap);
+      stairway.submitToQueue(
+          flightId, flightSubmission.clazz(), flightSubmission.inputParameters());
       return Optional.of(flightId);
     } catch (DatabaseOperationException | StairwayExecutionException | InterruptedException e) {
       logger.error("Error submitting flight id: {}", flightId, e);
