@@ -36,16 +36,14 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   @Autowired StairwayComponent stairwayComponent;
   @Autowired CloudResourceManagerCow rmCow;
 
-  FlightSubmissionFactory flightSubmissionFactory = new TestingSubmissionFlightFactory();
-
   @Test
   public void testCreateGoogleProject_errorDuringProjectCreation() throws Exception {
     // Verify flight is able to successfully rollback when project fails to create and doesn't
     // exist.
-    TestingSubmissionFlightFactory.setFlightClassToUse(ErrorCreateProjectFlight.class);
     LatchStep.startNewLatch();
-
-    FlightManager manager = new FlightManager(flightSubmissionFactory, stairwayComponent);
+    FlightManager manager =
+        new FlightManager(
+            new StubSubmissionFlightFactory(ErrorCreateProjectFlight.class), stairwayComponent);
     Pool pool = preparePool();
 
     rbsDao.createPools(ImmutableList.of(pool));
@@ -66,8 +64,10 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   @Test
   public void errorCreateProject_noRollbackAfterResourceReady() throws Exception {
     // Verify project and db entity won't get deleted if resource id READY, even the flight fails.
-    TestingSubmissionFlightFactory.setFlightClassToUse(ErrorAfterCreateResourceFlight.class);
-    FlightManager manager = new FlightManager(flightSubmissionFactory, stairwayComponent);
+    FlightManager manager =
+        new FlightManager(
+            new StubSubmissionFlightFactory(ErrorAfterCreateResourceFlight.class),
+            stairwayComponent);
 
     Pool pool = preparePool();
     rbsDao.createPools(ImmutableList.of(pool));
@@ -146,11 +146,11 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
         .build();
   }
   /** A {@link FlightSubmissionFactory} used in test. */
-  public static class TestingSubmissionFlightFactory implements FlightSubmissionFactory {
-    public static Class<? extends Flight> flightClass;
+  public static class StubSubmissionFlightFactory implements FlightSubmissionFactory {
+    public final Class<? extends Flight> flightClass;
 
-    public static void setFlightClassToUse(Class<? extends Flight> clazz) {
-      flightClass = clazz;
+    public StubSubmissionFlightFactory(Class<? extends Flight> flightClass) {
+      this.flightClass = flightClass;
     }
 
     @Override

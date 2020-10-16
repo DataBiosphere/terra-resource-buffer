@@ -8,17 +8,16 @@ import bio.terra.rbs.service.resource.flight.GoogleProjectDeletionFlight;
 import bio.terra.stairway.Flight;
 import bio.terra.stairway.FlightMap;
 import com.google.common.collect.ImmutableMap;
-import java.util.Map;
 import org.springframework.stereotype.Component;
 
 @Component
 public class FlightSubmissionFactoryImpl implements FlightSubmissionFactory {
   /** Supported resource creation flight map. */
-  Map<ResourceType, Class<? extends Flight>> CREATION_FLIGHT_MAP =
+  private static final ImmutableMap<ResourceType, Class<? extends Flight>> CREATION_FLIGHT_MAP =
       ImmutableMap.of(ResourceType.GOOGLE_PROJECT, GoogleProjectCreationFlight.class);
 
   /** Supported resource deletion flight map. */
-  Map<ResourceType, Class<? extends Flight>> DELETION_FLIGHT_MAP =
+  private static final ImmutableMap<ResourceType, Class<? extends Flight>> DELETION_FLIGHT_MAP =
       ImmutableMap.of(ResourceType.GOOGLE_PROJECT, GoogleProjectDeletionFlight.class);
 
   @Override

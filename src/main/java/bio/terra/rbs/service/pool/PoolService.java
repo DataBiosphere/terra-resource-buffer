@@ -32,7 +32,7 @@ public class PoolService {
 
   @Autowired
   public PoolService(
-      PoolConfiguration poolConfiguration, RbsDao rbsDao) {
+      PoolConfiguration poolConfiguration, RbsDao rbsDao, TransactionTemplate transactionTemplate) {
     this.poolConfiguration = poolConfiguration;
     this.rbsDao = rbsDao;
     this.transactionTemplate = transactionTemplate;
