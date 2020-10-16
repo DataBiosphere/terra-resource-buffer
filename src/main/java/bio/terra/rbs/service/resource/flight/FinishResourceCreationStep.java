@@ -1,14 +1,9 @@
 package bio.terra.rbs.service.resource.flight;
 
-import static bio.terra.rbs.service.resource.FlightMapKeys.RESOURCE_READY;
 import static bio.terra.rbs.service.resource.flight.StepUtils.markResourceReady;
 
-import bio.terra.rbs.common.ResourceId;
 import bio.terra.rbs.db.*;
-import bio.terra.rbs.generated.model.CloudResourceUid;
-import bio.terra.rbs.service.resource.FlightMapKeys;
 import bio.terra.stairway.FlightContext;
-import bio.terra.stairway.FlightMap;
 import bio.terra.stairway.Step;
 import bio.terra.stairway.StepResult;
 

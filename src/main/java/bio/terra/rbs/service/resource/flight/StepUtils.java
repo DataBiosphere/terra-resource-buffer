@@ -37,8 +37,8 @@ public class StepUtils {
   public static void markResourceReady(RbsDao rbsDao, FlightContext flightContext) {
     FlightMap workingMap = flightContext.getWorkingMap();
     rbsDao.updateResourceAsReady(
-            ResourceId.retrieve(flightContext.getWorkingMap()),
-            workingMap.get(FlightMapKeys.CLOUD_RESOURCE_UID, CloudResourceUid.class));
+        ResourceId.retrieve(flightContext.getWorkingMap()),
+        workingMap.get(FlightMapKeys.CLOUD_RESOURCE_UID, CloudResourceUid.class));
     workingMap.put(RESOURCE_READY, true);
   }
   /** Check resource is already marked as READY. This can prevent a READY resource got rollback. */
