@@ -1,0 +1,37 @@
+package bio.terra.rbs.service.resource.flight;
+
+import static bio.terra.rbs.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
+
+import bio.terra.cloudres.google.billing.CloudBillingClientCow;
+import bio.terra.rbs.generated.model.GcpProjectConfig;
+import bio.terra.stairway.FlightContext;
+import bio.terra.stairway.Step;
+import bio.terra.stairway.StepResult;
+import com.google.cloud.billing.v1.ProjectBillingInfo;
+
+/** Creates the basic GCP project. */
+public class SetBillingInfoStep implements Step {
+  private final CloudBillingClientCow billingCow;
+  private final GcpProjectConfig gcpProjectConfig;
+
+  public SetBillingInfoStep(CloudBillingClientCow billingCow, GcpProjectConfig gcpProjectConfig) {
+    this.billingCow = billingCow;
+    this.gcpProjectConfig = gcpProjectConfig;
+  }
+
+  @Override
+  public StepResult doStep(FlightContext flightContext) {
+    String projectId = flightContext.getWorkingMap().get(GOOGLE_PROJECT_ID, String.class);
+    ProjectBillingInfo setBilling =
+        ProjectBillingInfo.newBuilder()
+            .setBillingAccountName(gcpProjectConfig.getBillingAccount())
+            .build();
+    billingCow.updateProjectBillingInfo("projects/" + projectId, setBilling);
+    return StepResult.getStepResultSuccess();
+  }
+
+  @Override
+  public StepResult undoStep(FlightContext flightContext) {
+    return StepResult.getStepResultSuccess();
+  }
+}
