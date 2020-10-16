@@ -4,7 +4,6 @@ import static bio.terra.rbs.integration.IntegrationUtils.pollUntilResourcesMatch
 import static bio.terra.rbs.service.pool.PoolConfigLoader.loadPoolConfig;
 import static org.junit.jupiter.api.Assertions.*;
 
-import bio.terra.cloudres.google.billing.CloudBillingClientCow;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.rbs.common.BaseIntegrationTest;
 import bio.terra.rbs.common.PoolId;
@@ -27,7 +26,6 @@ import org.springframework.test.context.ActiveProfiles;
 @AutoConfigureMockMvc
 public class RbsIntegrationTest extends BaseIntegrationTest {
   @Autowired CloudResourceManagerCow rmCow;
-  @Autowired CloudBillingClientCow billingCow;
 
   @Autowired RbsDao rbsDao;
   @Autowired PoolService poolService;
@@ -68,11 +66,6 @@ public class RbsIntegrationTest extends BaseIntegrationTest {
       throws Exception {
     Project project =
         rmCow.projects().get(resourceUid.getGoogleProjectUid().getProjectId()).execute();
-    assertEquals(
-        gcpProjectConfig.getBillingAccount(),
-        billingCow
-            .getProjectBillingInfo("projects/" + project.getProjectId())
-            .getBillingAccountName());
     assertEquals("ACTIVE", project.getLifecycleState());
   }
 }
