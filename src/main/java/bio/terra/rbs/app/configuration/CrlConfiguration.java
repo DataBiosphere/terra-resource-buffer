@@ -105,8 +105,7 @@ public class CrlConfiguration {
   /** The CRL {@link CloudBillingClientCow} which wrappers Google Cloud Resource Manager API. */
   @Bean
   @Lazy
-  public CloudBillingClientCow cloudBillingClientCow()
-      throws IOException {
+  public CloudBillingClientCow cloudBillingClientCow() throws IOException {
     return new CloudBillingClientCow(clientConfig(), GoogleCredentials.getApplicationDefault());
   }
 

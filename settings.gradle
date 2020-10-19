@@ -1,1 +1,2 @@
 rootProject.name = 'terra-rbs'
+include 'terra-rbs-client'
