@@ -71,30 +71,30 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     // exist.
     LatchStep.startNewLatch();
     FlightManager manager =
-            new FlightManager(
-                    new StubSubmissionFlightFactory(ErrorCreateProjectFlight.class), stairwayComponent);
+        new FlightManager(
+            new StubSubmissionFlightFactory(ErrorCreateProjectFlight.class), stairwayComponent);
     Pool pool = preparePool(newBasicGcpConfig());
 
     String flightId = manager.submitCreationFlight(pool).get();
     // Resource is created in db
     Resource resource =
-            pollUntilResourcesMatch(rbsDao, pool.id(), ResourceState.CREATING, 1).get(0);
+        pollUntilResourcesMatch(rbsDao, pool.id(), ResourceState.CREATING, 1).get(0);
 
     LatchStep.releaseLatch();
     blockUntilFlightComplete(flightId);
     // Resource is deleted.
     assertFalse(rbsDao.retrieveResource(resource.id()).isPresent());
     assertEquals(
-            FlightStatus.ERROR, stairwayComponent.get().getFlightState(flightId).getFlightStatus());
+        FlightStatus.ERROR, stairwayComponent.get().getFlightState(flightId).getFlightStatus());
   }
 
   @Test
   public void errorCreateProject_noRollbackAfterResourceReady() throws Exception {
     // Verify project and db entity won't get deleted if resource id READY, even the flight fails.
     FlightManager manager =
-            new FlightManager(
-                    new StubSubmissionFlightFactory(ErrorAfterCreateResourceFlight.class),
-                    stairwayComponent);
+        new FlightManager(
+            new StubSubmissionFlightFactory(ErrorAfterCreateResourceFlight.class),
+            stairwayComponent);
 
     Pool pool = preparePool(newBasicGcpConfig());
     String flightId = manager.submitCreationFlight(pool).get();
@@ -102,14 +102,14 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
     Resource resource = rbsDao.retrieveResources(ResourceState.READY, 1).get(0);
     assertEquals(
-            "ACTIVE",
-            rmCow
-                    .projects()
-                    .get(resource.cloudResourceUid().getGoogleProjectUid().getProjectId())
-                    .execute()
-                    .getLifecycleState());
+        "ACTIVE",
+        rmCow
+            .projects()
+            .get(resource.cloudResourceUid().getGoogleProjectUid().getProjectId())
+            .execute()
+            .getLifecycleState());
     assertEquals(
-            FlightStatus.ERROR, stairwayComponent.get().getFlightState(flightId).getFlightStatus());
+        FlightStatus.ERROR, stairwayComponent.get().getFlightState(flightId).getFlightStatus());
   }
 
   /** A {@link Flight} that will fail to create Google Project. */
@@ -118,9 +118,9 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
       super(inputParameters, applicationContext);
       RbsDao rbsDao = ((ApplicationContext) applicationContext).getBean(RbsDao.class);
       CloudResourceManagerCow rmCow =
-              ((ApplicationContext) applicationContext).getBean(CloudResourceManagerCow.class);
+          ((ApplicationContext) applicationContext).getBean(CloudResourceManagerCow.class);
       GcpProjectConfig gcpProjectConfig =
-              inputParameters.get(RESOURCE_CONFIG, ResourceConfig.class).getGcpProjectConfig();
+          inputParameters.get(RESOURCE_CONFIG, ResourceConfig.class).getGcpProjectConfig();
       addStep(new GenerateResourceIdStep());
       addStep(new CreateResourceDbEntityStep(rbsDao));
       addStep(new LatchStep());
@@ -139,7 +139,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   }
 
   private void blockUntilFlightComplete(String flightId)
-          throws InterruptedException, DatabaseOperationException {
+      throws InterruptedException, DatabaseOperationException {
     Duration maxWait = Duration.ofSeconds(10);
     Duration waited = Duration.ZERO;
     while (waited.compareTo(maxWait) < 0) {
@@ -157,15 +157,15 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   private Pool preparePool(GcpProjectConfig gcpProjectConfig) {
     PoolId poolId = PoolId.create("poolId");
     Pool pool =
-            Pool.builder()
-                    .id(poolId)
-                    .resourceType(ResourceType.GOOGLE_PROJECT)
-                    .size(1)
-                    .resourceConfig(
-                            new ResourceConfig().configName("configName").gcpProjectConfig(gcpProjectConfig))
-                    .status(PoolStatus.ACTIVE)
-                    .creation(Instant.now())
-                    .build();
+        Pool.builder()
+            .id(poolId)
+            .resourceType(ResourceType.GOOGLE_PROJECT)
+            .size(1)
+            .resourceConfig(
+                new ResourceConfig().configName("configName").gcpProjectConfig(gcpProjectConfig))
+            .status(PoolStatus.ACTIVE)
+            .creation(Instant.now())
+            .build();
     rbsDao.createPools(ImmutableList.of(pool));
     assertTrue(rbsDao.retrieveResources(ResourceState.CREATING, 1).isEmpty());
     assertTrue(rbsDao.retrieveResources(ResourceState.READY, 1).isEmpty());
@@ -181,20 +181,20 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     Resource resource = rbsDao.retrieveResources(ResourceState.READY, 1).get(0);
     assertEquals(pool.id(), resource.poolId());
     Project project =
-            rmCow
-                    .projects()
-                    .get(resource.cloudResourceUid().getGoogleProjectUid().getProjectId())
-                    .execute();
+        rmCow
+            .projects()
+            .get(resource.cloudResourceUid().getGoogleProjectUid().getProjectId())
+            .execute();
     assertEquals("ACTIVE", project.getLifecycleState());
     return project;
   }
 
   private void assertBillingIs(Project project, String billingAccount) {
     assertEquals(
-            "billingAccounts/" + billingAccount,
-            billingCow
-                    .getProjectBillingInfo("projects/" + project.getProjectId())
-                    .getBillingAccountName());
+        "billingAccounts/" + billingAccount,
+        billingCow
+            .getProjectBillingInfo("projects/" + project.getProjectId())
+            .getBillingAccountName());
   }
 
   /** A {@link FlightSubmissionFactory} used in test. */
@@ -222,7 +222,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   /** Dummy {@link CreateProjectStep} which fails in doStep but still runs undoStep. */
   public static class ErrorCreateProjectStep extends CreateProjectStep {
     public ErrorCreateProjectStep(
-            CloudResourceManagerCow rmCow, GcpProjectConfig gcpProjectConfig) {
+        CloudResourceManagerCow rmCow, GcpProjectConfig gcpProjectConfig) {
       super(rmCow, gcpProjectConfig);
     }
 
