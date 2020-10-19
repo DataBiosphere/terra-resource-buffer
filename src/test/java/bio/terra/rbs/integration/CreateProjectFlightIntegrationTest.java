@@ -1,11 +1,15 @@
 package bio.terra.rbs.integration;
 
 import static bio.terra.rbs.integration.IntegrationUtils.pollUntilResourcesMatch;
+import static bio.terra.rbs.integration.IntegrationUtils.serviceName;
 import static bio.terra.rbs.service.resource.FlightMapKeys.RESOURCE_CONFIG;
+import static bio.terra.rbs.service.resource.flight.StepUtils.projectIdToName;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 import bio.terra.cloudres.google.billing.CloudBillingClientCow;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
+import bio.terra.cloudres.google.serviceusage.ServiceUsageCow;
 import bio.terra.rbs.common.*;
 import bio.terra.rbs.db.*;
 import bio.terra.rbs.generated.model.GcpProjectConfig;
@@ -19,10 +23,15 @@ import bio.terra.rbs.service.stairway.StairwayComponent;
 import bio.terra.stairway.*;
 import bio.terra.stairway.exception.DatabaseOperationException;
 import com.google.api.services.cloudresourcemanager.model.Project;
+import com.google.api.services.serviceusage.v1.model.GoogleApiServiceusageV1Service;
 import com.google.common.collect.ImmutableList;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -37,10 +46,16 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   /** The billing account to use in test. */
   private static final String BILLING_ACCOUNT_NAME = "01A82E-CA8A14-367457";
 
+  private static final List<String> ENABLED_SERVICES =
+      Arrays.asList(
+          "bigquery.googleapis.com", "compute.googleapis.com", "cloudbilling.googleapis.com");
+  private static final String ENABLED_FILTER = "state:ENABLED";
+
   @Autowired RbsDao rbsDao;
   @Autowired StairwayComponent stairwayComponent;
   @Autowired CloudResourceManagerCow rmCow;
   @Autowired CloudBillingClientCow billingCow;
+  @Autowired ServiceUsageCow serviceUsageCow;
   @Autowired FlightSubmissionFactoryImpl flightSubmissionFactoryImpl;
 
   @Test
@@ -63,6 +78,21 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     blockUntilFlightComplete(flightId);
     Project project = assertProjectExists(pool);
     assertBillingIs(project, pool.resourceConfig().getGcpProjectConfig().getBillingAccount());
+  }
+
+  @Test
+  public void testCreateGoogleProject_withEnableService() throws Exception {
+    // Basic GCP project with billing setup and api enabled.
+    FlightManager manager = new FlightManager(flightSubmissionFactoryImpl, stairwayComponent);
+    Pool pool =
+        preparePool(
+            newBasicGcpConfig().billingAccount(BILLING_ACCOUNT_NAME).enabledApis(ENABLED_SERVICES));
+
+    String flightId = manager.submitCreationFlight(pool).get();
+    blockUntilFlightComplete(flightId);
+    Project project = assertProjectExists(pool);
+    assertBillingIs(project, pool.resourceConfig().getGcpProjectConfig().getBillingAccount());
+    assertEnableApisContains(project, pool.resourceConfig().getGcpProjectConfig().getEnabledApis());
   }
 
   @Test
@@ -193,8 +223,22 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertEquals(
         "billingAccounts/" + billingAccount,
         billingCow
-            .getProjectBillingInfo("projects/" + project.getProjectId())
+            .getProjectBillingInfo(projectIdToName(project.getProjectId()))
             .getBillingAccountName());
+  }
+
+  private void assertEnableApisContains(Project project, List<String> enabledApis)
+      throws Exception {
+    List<String> serviceNames =
+        enabledApis.stream()
+            .map(apiName -> serviceName(project, apiName))
+            .collect(Collectors.toList());
+    assertThat(
+        serviceUsageCow.services().list(projectIdToName(project.getProjectId()))
+            .setFilter(ENABLED_FILTER).execute().getServices().stream()
+            .map(GoogleApiServiceusageV1Service::getName)
+            .collect(Collectors.toList()),
+        Matchers.containsInAnyOrder(serviceNames));
   }
 
   /** A {@link FlightSubmissionFactory} used in test. */

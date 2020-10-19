@@ -4,6 +4,8 @@ import bio.terra.rbs.common.PoolId;
 import bio.terra.rbs.common.Resource;
 import bio.terra.rbs.common.ResourceState;
 import bio.terra.rbs.db.RbsDao;
+import com.google.api.services.cloudresourcemanager.model.Project;
+import com.google.api.services.serviceusage.v1.model.GoogleApiServiceusageV1Service;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -29,5 +31,13 @@ public class IntegrationUtils {
       ++numPolls;
     }
     throw new InterruptedException("Polling exceeded maxNumPolls");
+  }
+
+  /**
+   * Create a string matching the service name on {@link GoogleApiServiceusageV1Service#getName()},
+   * e.g. projects/123/services/serviceusage.googleapis.com.
+   */
+  public static String serviceName(Project project, String apiId) {
+    return String.format("projects/%d/services/%s", project.getProjectNumber(), apiId);
   }
 }

@@ -47,4 +47,9 @@ public class StepUtils {
     return workingMap.get(RESOURCE_READY, Boolean.class) != null
         && workingMap.get(RESOURCE_READY, Boolean.class);
   }
+
+  /** Converts project id to name. */
+  public static String projectIdToName(String projectId) {
+    return "projects/" + projectId;
+  }
 }
