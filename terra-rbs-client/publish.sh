@@ -10,4 +10,4 @@ export ARTIFACTORY_USERNAME=$(docker run -e VAULT_TOKEN=$VAULT_TOKEN ${DSDE_TOOL
 export ARTIFACTORY_PASSWORD=$(docker run -e VAULT_TOKEN=$VAULT_TOKEN ${DSDE_TOOLBOX_DOCKER_IMAGE} \
  vault read -field password ${ARTIFACTORY_ACCOUNT_PATH})
 ./gradlew test
-./gradlew artifactoryPublish
+./gradlew clean artifactoryPublish
