@@ -5,8 +5,7 @@ gcpProjectConfig:
   projectIDPrefix: "aou-rw-test"
   # RBS Testing
   parentFolderId: "637867149294"
-  # TODO: Fill this
-  billingAccount: null
+  billingAccount: "01A82E-CA8A14-367457"
   enabledApis:
     - "bigquery-json.googleapis.com"
     - "compute.googleapis.com"

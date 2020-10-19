@@ -3,6 +3,7 @@ package bio.terra.rbs.app.configuration;
 import bio.terra.cloudres.common.ClientConfig;
 import bio.terra.cloudres.common.cleanup.CleanupConfig;
 import bio.terra.cloudres.google.api.services.common.Defaults;
+import bio.terra.cloudres.google.billing.CloudBillingClientCow;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpRequestInitializer;
@@ -99,6 +100,13 @@ public class CrlConfiguration {
                         GoogleCredentials.getApplicationDefault()
                             .createScoped(CloudResourceManagerScopes.all()))))
             .setApplicationName(CLIENT_NAME));
+  }
+
+  /** The CRL {@link CloudBillingClientCow} which wrappers Google Cloud Resource Manager API. */
+  @Bean
+  @Lazy
+  public CloudBillingClientCow cloudBillingClientCow() throws IOException {
+    return new CloudBillingClientCow(clientConfig(), GoogleCredentials.getApplicationDefault());
   }
 
   private static ServiceAccountCredentials getGoogleCredentialsOrDie(String serviceAccountPath) {

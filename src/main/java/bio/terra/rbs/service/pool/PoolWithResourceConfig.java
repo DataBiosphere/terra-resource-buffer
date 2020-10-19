@@ -6,10 +6,10 @@ import com.google.auto.value.AutoValue;
 
 /** Represents a {@link PoolConfig} with corresponding {@link ResourceConfig}. */
 @AutoValue
-abstract class PoolWithResourceConfig {
-  abstract PoolConfig poolConfig();
+public abstract class PoolWithResourceConfig {
+  public abstract PoolConfig poolConfig();
 
-  abstract ResourceConfig resourceConfig();
+  public abstract ResourceConfig resourceConfig();
 
   static PoolWithResourceConfig create(PoolConfig poolConfig, ResourceConfig resourceConfig) {
     return new AutoValue_PoolWithResourceConfig(poolConfig, resourceConfig);
