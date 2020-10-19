@@ -238,7 +238,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
             .setFilter(ENABLED_FILTER).execute().getServices().stream()
             .map(GoogleApiServiceusageV1Service::getName)
             .collect(Collectors.toList()),
-        Matchers.containsInAnyOrder(serviceNames));
+        Matchers.hasItems(serviceNames.toArray()));
   }
 
   /** A {@link FlightSubmissionFactory} used in test. */
