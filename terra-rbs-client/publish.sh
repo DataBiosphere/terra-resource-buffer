@@ -1,4 +1,5 @@
 #!/bin/bash
+# Copied from Terra Janitor repo
 # Publish Terra RBS Client Package:
 VAULT_TOKEN=${1:-$(cat $HOME/.vault-token)}
 DSDE_TOOLBOX_DOCKER_IMAGE=broadinstitute/dsde-toolbox:consul-0.20.0
