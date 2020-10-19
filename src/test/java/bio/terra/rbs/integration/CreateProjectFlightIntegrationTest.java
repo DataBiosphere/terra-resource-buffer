@@ -50,7 +50,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
     String flightId = manager.submitCreationFlight(pool).get();
     blockUntilFlightComplete(flightId);
-    assertProjectCreated(pool);
+    assertProjectExists(pool);
   }
 
   @Test
@@ -61,7 +61,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
     String flightId = manager.submitCreationFlight(pool).get();
     blockUntilFlightComplete(flightId);
-    assertProjectCreated(pool);
+    Project project = assertProjectExists(pool);
+    assertBillingIs(project, pool.resourceConfig().getGcpProjectConfig().getBillingAccount());
   }
 
   @Test
@@ -96,9 +97,6 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
             stairwayComponent);
 
     Pool pool = preparePool(newBasicGcpConfig());
-    rbsDao.createPools(ImmutableList.of(pool));
-    assertTrue(rbsDao.retrieveResources(ResourceState.CREATING, 1).isEmpty());
-    assertTrue(rbsDao.retrieveResources(ResourceState.READY, 1).isEmpty());
     String flightId = manager.submitCreationFlight(pool).get();
     blockUntilFlightComplete(flightId);
 
@@ -176,13 +174,10 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
   /** Create a Basic {@link ResourceConfig}. */
   private static GcpProjectConfig newBasicGcpConfig() {
-    return new GcpProjectConfig()
-        .projectIDPrefix("prefix")
-        .parentFolderId(FOLDER_ID)
-        .billingAccount(BILLING_ACCOUNT_NAME);
+    return new GcpProjectConfig().projectIDPrefix("prefix").parentFolderId(FOLDER_ID);
   }
 
-  private void assertProjectCreated(Pool pool) throws Exception {
+  private Project assertProjectExists(Pool pool) throws Exception {
     Resource resource = rbsDao.retrieveResources(ResourceState.READY, 1).get(0);
     assertEquals(pool.id(), resource.poolId());
     Project project =
@@ -191,13 +186,15 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
             .get(resource.cloudResourceUid().getGoogleProjectUid().getProjectId())
             .execute();
     assertEquals("ACTIVE", project.getLifecycleState());
-    if (pool.resourceConfig().getGcpProjectConfig().getBillingAccount() != null) {
-      assertEquals(
-          pool.resourceConfig().getGcpProjectConfig().getBillingAccount(),
-          billingCow
-              .getProjectBillingInfo("projects/" + project.getProjectId())
-              .getBillingAccountName());
-    }
+    return project;
+  }
+
+  private void assertBillingIs(Project project, String billingAccount) {
+    assertEquals(
+        "billingAccounts/" + billingAccount,
+        billingCow
+            .getProjectBillingInfo("projects/" + project.getProjectId())
+            .getBillingAccountName());
   }
 
   /** A {@link FlightSubmissionFactory} used in test. */

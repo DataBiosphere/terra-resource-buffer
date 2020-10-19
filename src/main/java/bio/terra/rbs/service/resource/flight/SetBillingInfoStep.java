@@ -22,14 +22,14 @@ public class SetBillingInfoStep implements Step {
   @Override
   public StepResult doStep(FlightContext flightContext) {
     // Skip if billing account is not set.
-    if (gcpProjectConfig.getBillingAccount() != null
-        && !gcpProjectConfig.getBillingAccount().isEmpty()) {
+    if (gcpProjectConfig.getBillingAccount() == null
+        || gcpProjectConfig.getBillingAccount().isEmpty()) {
       return StepResult.getStepResultSuccess();
     }
     String projectId = flightContext.getWorkingMap().get(GOOGLE_PROJECT_ID, String.class);
     ProjectBillingInfo setBilling =
         ProjectBillingInfo.newBuilder()
-            .setBillingAccountName(gcpProjectConfig.getBillingAccount())
+            .setBillingAccountName("billingAccounts/" + gcpProjectConfig.getBillingAccount())
             .build();
     billingCow.updateProjectBillingInfo("projects/" + projectId, setBilling);
     return StepResult.getStepResultSuccess();
