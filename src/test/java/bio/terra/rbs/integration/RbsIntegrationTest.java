@@ -4,7 +4,6 @@ import static bio.terra.rbs.integration.IntegrationUtils.pollUntilResourcesMatch
 import static bio.terra.rbs.service.pool.PoolConfigLoader.loadPoolConfig;
 import static org.junit.jupiter.api.Assertions.*;
 
-import bio.terra.cloudres.google.billing.CloudBillingClientCow;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.rbs.common.BaseIntegrationTest;
 import bio.terra.rbs.common.PoolId;
@@ -21,58 +20,54 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
 @ActiveProfiles({"test", "integration", "integration-enable-scheduler"})
 @AutoConfigureMockMvc
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class RbsIntegrationTest extends BaseIntegrationTest {
-  @Autowired CloudResourceManagerCow rmCow;
-  @Autowired CloudBillingClientCow billingCow;
+    @Autowired CloudResourceManagerCow rmCow;
 
-  @Autowired RbsDao rbsDao;
-  @Autowired PoolService poolService;
+    @Autowired RbsDao rbsDao;
+    @Autowired PoolService poolService;
 
-  @Test
-  public void testCreateGoogleProject() throws Exception {
-    // The pool id in config file.
-    PoolId poolId = PoolId.create("ws_test_v1");
-    List<PoolWithResourceConfig> config = loadPoolConfig("test/config");
-    poolService.updateFromConfig(config);
+    @Test
+    public void testCreateGoogleProject() throws Exception {
+        // The pool id in config file.
+        PoolId poolId = PoolId.create("ws_test_v1");
+        List<PoolWithResourceConfig> config = loadPoolConfig("test/config");
+        poolService.updateFromConfig(config);
 
-    List<Resource> resources = pollUntilResourcesMatch(rbsDao, poolId, ResourceState.READY, 2);
-    resources.forEach(
-        resource -> {
-          try {
-            assertProjectMatch(
-                resource.cloudResourceUid(), config.get(0).resourceConfig().getGcpProjectConfig());
-          } catch (Exception e) {
-            fail("Error occurs when verifying GCP project creation", e);
-          }
-        });
+        List<Resource> resources = pollUntilResourcesMatch(rbsDao, poolId, ResourceState.READY, 2);
+        resources.forEach(
+                resource -> {
+                    try {
+                        assertProjectMatch(
+                                resource.cloudResourceUid(), config.get(0).resourceConfig().getGcpProjectConfig());
+                    } catch (Exception e) {
+                        fail("Error occurs when verifying GCP project creation", e);
+                    }
+                });
 
-    // Upgrade the size from 2 to 5. Expect 3 more resources will be created.
-    rbsDao.updatePoolsSize(ImmutableMap.of(poolId, 5));
-    resources = pollUntilResourcesMatch(rbsDao, poolId, ResourceState.READY, 5);
-    resources.forEach(
-        resource -> {
-          try {
-            assertProjectMatch(
-                resource.cloudResourceUid(), config.get(0).resourceConfig().getGcpProjectConfig());
-          } catch (Exception e) {
-            fail("Error occurs when verifying GCP project creation", e);
-          }
-        });
-  }
+        // Upgrade the size from 2 to 5. Expect 3 more resources will be created.
+        rbsDao.updatePoolsSize(ImmutableMap.of(poolId, 5));
+        resources = pollUntilResourcesMatch(rbsDao, poolId, ResourceState.READY, 5);
+        resources.forEach(
+                resource -> {
+                    try {
+                        assertProjectMatch(
+                                resource.cloudResourceUid(), config.get(0).resourceConfig().getGcpProjectConfig());
+                    } catch (Exception e) {
+                        fail("Error occurs when verifying GCP project creation", e);
+                    }
+                });
+    }
 
-  private void assertProjectMatch(CloudResourceUid resourceUid, GcpProjectConfig gcpProjectConfig)
-      throws Exception {
-    Project project =
-        rmCow.projects().get(resourceUid.getGoogleProjectUid().getProjectId()).execute();
-    assertEquals(
-        gcpProjectConfig.getBillingAccount(),
-        billingCow
-            .getProjectBillingInfo("projects/" + project.getProjectId())
-            .getBillingAccountName());
-    assertEquals("ACTIVE", project.getLifecycleState());
-  }
+    private void assertProjectMatch(CloudResourceUid resourceUid, GcpProjectConfig gcpProjectConfig)
+            throws Exception {
+        Project project =
+                rmCow.projects().get(resourceUid.getGoogleProjectUid().getProjectId()).execute();
+        assertEquals("ACTIVE", project.getLifecycleState());
+    }
 }
