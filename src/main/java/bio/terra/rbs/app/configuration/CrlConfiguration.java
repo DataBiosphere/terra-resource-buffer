@@ -103,14 +103,14 @@ public class CrlConfiguration {
             .setApplicationName(CLIENT_NAME));
   }
 
-  /** The CRL {@link CloudBillingClientCow} which wrappers Google Cloud Resource Manager API. */
+  /** The CRL {@link CloudBillingClientCow} which wrappers Google Billing API. */
   @Bean
   @Lazy
   public CloudBillingClientCow cloudBillingClientCow() throws IOException {
     return new CloudBillingClientCow(clientConfig(), GoogleCredentials.getApplicationDefault());
   }
 
-  /** The CRL {@link CloudBillingClientCow} which wrappers Google Cloud Resource Manager API. */
+  /** The CRL {@link ServiceUsageCow} which wrappers Google Cloud ServiceUsage API. */
   @Bean
   @Lazy
   public ServiceUsageCow serviceUsageCow() throws GeneralSecurityException, IOException {
