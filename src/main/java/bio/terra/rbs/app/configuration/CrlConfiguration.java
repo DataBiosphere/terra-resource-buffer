@@ -5,6 +5,7 @@ import bio.terra.cloudres.common.cleanup.CleanupConfig;
 import bio.terra.cloudres.google.api.services.common.Defaults;
 import bio.terra.cloudres.google.billing.CloudBillingClientCow;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
+import bio.terra.cloudres.google.serviceusage.ServiceUsageCow;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.services.cloudresourcemanager.CloudResourceManager;
@@ -102,11 +103,18 @@ public class CrlConfiguration {
             .setApplicationName(CLIENT_NAME));
   }
 
-  /** The CRL {@link CloudBillingClientCow} which wrappers Google Cloud Resource Manager API. */
+  /** The CRL {@link CloudBillingClientCow} which wrappers Google Billing API. */
   @Bean
   @Lazy
   public CloudBillingClientCow cloudBillingClientCow() throws IOException {
     return new CloudBillingClientCow(clientConfig(), GoogleCredentials.getApplicationDefault());
+  }
+
+  /** The CRL {@link ServiceUsageCow} which wrappers Google Cloud ServiceUsage API. */
+  @Bean
+  @Lazy
+  public ServiceUsageCow serviceUsageCow() throws GeneralSecurityException, IOException {
+    return ServiceUsageCow.create(clientConfig(), GoogleCredentials.getApplicationDefault());
   }
 
   private static ServiceAccountCredentials getGoogleCredentialsOrDie(String serviceAccountPath) {

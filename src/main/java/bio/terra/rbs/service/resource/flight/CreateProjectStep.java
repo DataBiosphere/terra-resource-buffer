@@ -1,8 +1,8 @@
 package bio.terra.rbs.service.resource.flight;
 
 import static bio.terra.rbs.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
+import static bio.terra.rbs.service.resource.flight.GoogleUtils.pollUntilSuccess;
 import static bio.terra.rbs.service.resource.flight.StepUtils.isResourceReady;
-import static bio.terra.rbs.service.resource.flight.StepUtils.pollUntilSuccess;
 
 import bio.terra.cloudres.google.api.services.common.OperationCow;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;

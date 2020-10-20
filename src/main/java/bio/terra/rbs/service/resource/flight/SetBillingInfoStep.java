@@ -1,6 +1,7 @@
 package bio.terra.rbs.service.resource.flight;
 
 import static bio.terra.rbs.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
+import static bio.terra.rbs.service.resource.flight.GoogleUtils.projectIdToName;
 
 import bio.terra.cloudres.google.billing.CloudBillingClientCow;
 import bio.terra.rbs.generated.model.GcpProjectConfig;
@@ -31,7 +32,7 @@ public class SetBillingInfoStep implements Step {
         ProjectBillingInfo.newBuilder()
             .setBillingAccountName("billingAccounts/" + gcpProjectConfig.getBillingAccount())
             .build();
-    billingCow.updateProjectBillingInfo("projects/" + projectId, setBilling);
+    billingCow.updateProjectBillingInfo(projectIdToName(projectId), setBilling);
     return StepResult.getStepResultSuccess();
   }
 
