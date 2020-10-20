@@ -53,4 +53,8 @@ components:
           type: array
           items:
             type: string
+        enableHightSecurityNetwork:
+          description: |-
+            Whether to create Virtual Private Cloud, this will create a Network, SubNets, and Firewall
+          type: boolean
       type: object
