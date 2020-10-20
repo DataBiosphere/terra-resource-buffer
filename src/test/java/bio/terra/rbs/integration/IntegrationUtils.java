@@ -20,7 +20,7 @@ public class IntegrationUtils {
     while (numPolls < MAX_POLL_NUM) {
       TimeUnit.MILLISECONDS.sleep(PERIOD.toMillis());
       List<Resource> resources =
-          rbsDao.retrieveResources(state, 10).stream()
+          rbsDao.retrieveResources(poolId, state, 10).stream()
               .filter(r -> r.poolId().equals(poolId))
               .collect(Collectors.toList());
       if (resources.size() == expectedResourceNum) {
