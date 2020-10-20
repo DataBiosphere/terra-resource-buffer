@@ -24,12 +24,12 @@ import bio.terra.stairway.*;
 import bio.terra.stairway.exception.DatabaseOperationException;
 import com.google.api.services.cloudresourcemanager.model.Binding;
 import com.google.api.services.cloudresourcemanager.model.GetIamPolicyRequest;
-import com.google.api.services.cloudresourcemanager.model.Policy;
 import com.google.api.services.cloudresourcemanager.model.Project;
 import com.google.api.services.serviceusage.v1.model.GoogleApiServiceusageV1Service;
 import com.google.common.collect.ImmutableList;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -48,25 +48,6 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   private static final String FOLDER_ID = "637867149294";
   /** The billing account to use in test. */
   private static final String BILLING_ACCOUNT_NAME = "01A82E-CA8A14-367457";
-
-  private static final List<String> ENABLED_SERVICES =
-      Arrays.asList(
-          "bigquery.googleapis.com", "compute.googleapis.com", "cloudbilling.googleapis.com");
-
-  private static final String ENABLED_FILTER = "state:ENABLED";
-
-  /**
-   * The groups used to test IAM policy sets up on a group. It doesn't matter what the users are for
-   * the purpose of this test. They just need to exist for Google. Currently, those groups are
-   * manually created, for Broad development, they are created via BITs service portal.
-   */
-  private static final String TEST_GROUP_NAME = "terra-rbs-test@broadinstitute.org";
-
-  private static final String TEST_GROUP_VIEWER_NAME = "terra-rbs-viewer-test@broadinstitute.org";
-  private static final List<IamBinding> IAM_BINDINGS =
-      Arrays.asList(
-          new IamBinding().role("roles/editor").addMembersItem("group:" + TEST_GROUP_NAME),
-          new IamBinding().role("roles/viewer").addMembersItem("group:" + TEST_GROUP_VIEWER_NAME));
 
   @Autowired RbsDao rbsDao;
   @Autowired StairwayComponent stairwayComponent;
@@ -99,11 +80,15 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
   @Test
   public void testCreateGoogleProject_withEnableService() throws Exception {
+    List<String> enabledServices =
+        Arrays.asList(
+            "bigquery.googleapis.com", "compute.googleapis.com", "cloudbilling.googleapis.com");
+
     // Basic GCP project with billing setup and api enabled.
     FlightManager manager = new FlightManager(flightSubmissionFactoryImpl, stairwayComponent);
     Pool pool =
         preparePool(
-            newBasicGcpConfig().billingAccount(BILLING_ACCOUNT_NAME).enabledApis(ENABLED_SERVICES));
+            newBasicGcpConfig().billingAccount(BILLING_ACCOUNT_NAME).enabledApis(enabledServices));
 
     String flightId = manager.submitCreationFlight(pool).get();
     blockUntilFlightComplete(flightId);
@@ -113,14 +98,26 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
   @Test
   public void testCreateGoogleProject_witIamBindings() throws Exception {
+    // The groups used to test IAM policy sets up on a group. It doesn't matter what the users are
+    // for
+    // the purpose of this test. They just need to exist for Google. These groups were manually
+    // created for Broad
+    // development via the BITs service portal.
+    String testGroupName = "terra-rbs-test@broadinstitute.org";
+    String testGroupViewerName = "terra-rbs-viewer-test@broadinstitute.org";
+    List<IamBinding> iamBindings =
+        Arrays.asList(
+            new IamBinding().role("roles/editor").addMembersItem("group:" + testGroupName),
+            new IamBinding().role("roles/viewer").addMembersItem("group:" + testGroupViewerName));
+
     // Basic GCP project with IAM Bindings
     FlightManager manager = new FlightManager(flightSubmissionFactoryImpl, stairwayComponent);
-    Pool pool = preparePool(newBasicGcpConfig().iamBindings(IAM_BINDINGS));
+    Pool pool = preparePool(newBasicGcpConfig().iamBindings(iamBindings));
 
     String flightId = manager.submitCreationFlight(pool).get();
     blockUntilFlightComplete(flightId);
     Project project = assertProjectExists(pool);
-    assertIamBindingsContains(project, IAM_BINDINGS);
+    assertIamBindingsContains(project, iamBindings);
   }
 
   @Test
@@ -263,7 +260,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
             .collect(Collectors.toList());
     assertThat(
         serviceUsageCow.services().list(projectIdToName(project.getProjectId()))
-            .setFilter(ENABLED_FILTER).execute().getServices().stream()
+            .setFilter("state:ENABLED").execute().getServices().stream()
             .map(GoogleApiServiceusageV1Service::getName)
             .collect(Collectors.toList()),
         Matchers.hasItems(serviceNames.toArray()));
@@ -271,16 +268,20 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
   private void assertIamBindingsContains(Project project, List<IamBinding> iamBindings)
       throws Exception {
-    Policy policy =
-        rmCow.projects().getIamPolicy(project.getProjectId(), new GetIamPolicyRequest()).execute();
-
     List<Binding> bindings =
         iamBindings.stream()
             .map(
                 iamBinding ->
                     new Binding().setRole(iamBinding.getRole()).setMembers(iamBinding.getMembers()))
             .collect(Collectors.toList());
-    Matchers.hasItems(bindings.toArray());
+    assertThat(
+        new ArrayList<>(
+            rmCow
+                .projects()
+                .getIamPolicy(project.getProjectId(), new GetIamPolicyRequest())
+                .execute()
+                .getBindings()),
+        Matchers.hasItems(bindings.toArray()));
   }
 
   /** A {@link FlightSubmissionFactory} used in test. */
