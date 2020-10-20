@@ -1,9 +1,8 @@
 package bio.terra.rbs.integration;
 
 import static bio.terra.rbs.integration.IntegrationUtils.pollUntilResourcesMatch;
-import static bio.terra.rbs.integration.IntegrationUtils.serviceName;
 import static bio.terra.rbs.service.resource.FlightMapKeys.RESOURCE_CONFIG;
-import static bio.terra.rbs.service.resource.flight.StepUtils.projectIdToName;
+import static bio.terra.rbs.service.resource.flight.GoogleUtils.projectIdToName;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -91,7 +90,6 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     String flightId = manager.submitCreationFlight(pool).get();
     blockUntilFlightComplete(flightId);
     Project project = assertProjectExists(pool);
-    assertBillingIs(project, pool.resourceConfig().getGcpProjectConfig().getBillingAccount());
     assertEnableApisContains(project, pool.resourceConfig().getGcpProjectConfig().getEnabledApis());
   }
 
@@ -274,5 +272,13 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     public StepResult doStep(FlightContext flightContext) {
       return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY);
     }
+  }
+
+  /**
+   * Create a string matching the service name on {@link GoogleApiServiceusageV1Service#getName()},
+   * e.g. projects/123/services/serviceusage.googleapis.com.
+   */
+  private static String serviceName(Project project, String apiId) {
+    return String.format("projects/%d/services/%s", project.getProjectNumber(), apiId);
   }
 }

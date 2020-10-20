@@ -1,7 +1,7 @@
 package bio.terra.rbs.service.resource.flight;
 
 import static bio.terra.rbs.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
-import static bio.terra.rbs.service.resource.flight.StepUtils.projectIdToName;
+import static bio.terra.rbs.service.resource.flight.GoogleUtils.projectIdToName;
 
 import bio.terra.cloudres.google.billing.CloudBillingClientCow;
 import bio.terra.rbs.generated.model.GcpProjectConfig;
