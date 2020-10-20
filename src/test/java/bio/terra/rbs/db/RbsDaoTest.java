@@ -174,7 +174,7 @@ public class RbsDaoTest extends BaseUnitTest {
     rbsDao.createResource(ready2);
     rbsDao.createResource(ready3);
 
-    List<Resource> resources = rbsDao.retrieveResources(ResourceState.READY, 2);
+    List<Resource> resources = rbsDao.retrieveResources(pool.id(), ResourceState.READY, 2);
     assertEquals(2, resources.size());
     assertThat(ImmutableList.of(ready1, ready2, ready3), Matchers.hasItems(resources.toArray()));
   }

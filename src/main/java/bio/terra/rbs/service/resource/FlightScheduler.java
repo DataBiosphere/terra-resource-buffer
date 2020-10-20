@@ -126,7 +126,8 @@ public class FlightScheduler {
         pool.id(),
         flightToSchedule);
 
-    List<Resource> resources = rbsDao.retrieveResources(ResourceState.READY, flightToSchedule);
+    List<Resource> resources =
+        rbsDao.retrieveResources(pool.id(), ResourceState.READY, flightToSchedule);
     int successSubmitNum = 0;
     for (Resource resource : resources) {
       boolean submissionSuccessful =
