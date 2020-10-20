@@ -60,7 +60,6 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
    * Terr. For Broad development, this is created via BITs service portal.
    */
   private static final String TEST_GROUP_NAME = "terra-rbs-test@broadinstitute.org";
-
   private static final String TEST_GROUP_VIEWER_NAME = "terra-rbs-viewer-test@broadinstitute.org";
   private static final List<IamBinding> IAM_BINDINGS =
       Arrays.asList(
