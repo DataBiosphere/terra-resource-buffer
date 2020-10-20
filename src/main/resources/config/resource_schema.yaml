@@ -53,4 +53,22 @@ components:
           type: array
           items:
             type: string
+        iamBindings:
+          description: |-
+            List of APIs to enable
+          type: array
+          items:
+            $ref: '#/components/schemas/IamBinding'
+      type: object
+    IamBinding:
+      description: Associates `members` with a `role`.
+      properties:
+        members:
+          description: "GCP identities, see https://cloud.google.com/resource-manager/reference/rest/Shared.Types/Binding"
+          items:
+            type: string
+          type: array
+        role:
+          description: Role that is assigned to `members`. For example, `roles/viewer`, `roles/editor`, or `roles/owner`.
+          type: string
       type: object
