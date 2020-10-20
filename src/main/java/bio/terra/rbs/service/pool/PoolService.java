@@ -3,11 +3,9 @@ package bio.terra.rbs.service.pool;
 import static bio.terra.rbs.service.pool.PoolConfigLoader.loadPoolConfig;
 
 import bio.terra.rbs.app.configuration.PoolConfiguration;
-import bio.terra.rbs.common.Pool;
-import bio.terra.rbs.common.PoolId;
-import bio.terra.rbs.common.PoolStatus;
-import bio.terra.rbs.common.ResourceConfigVisitor;
+import bio.terra.rbs.common.*;
 import bio.terra.rbs.db.*;
+import bio.terra.rbs.generated.model.ResourceInfo;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -45,6 +43,11 @@ public class PoolService {
       parsedPoolConfigs = loadPoolConfig(poolConfiguration.getConfigPath());
       updateFromConfig(parsedPoolConfigs);
     }
+  }
+
+  /** Handout resource to client by given {@link PoolId} and {@link RequestHandoutId}. */
+  public ResourceInfo handoutResource(PoolId poolId, RequestHandoutId requestHandoutId) {
+    rbsDao.re
   }
 
   @VisibleForTesting
