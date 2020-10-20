@@ -53,4 +53,23 @@ components:
           type: array
           items:
             type: string
+        iamBindings:
+          description: |-
+            List of GCP IAM bindings
+          type: array
+          items:
+            $ref: '#/components/schemas/IamBinding'
+      type: object
+    IamBinding:
+      description: Associates `members` with a `role`.
+      properties:
+        members:
+          description: "GCP identities, see https://cloud.google.com/resource-manager/reference/rest/Shared.Types/Binding"
+          items:
+            type: string
+          type: array
+          example: ["group:foo-group@googlegroup.com", "serviceAccount:bar-sa@test.iam.gserviceaccount.com"]
+        role:
+          description: Role that is assigned to `members`. For example, `roles/viewer`, `roles/editor`, or `roles/owner`.
+          type: string
       type: object
