@@ -56,8 +56,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   private static final String ENABLED_FILTER = "state:ENABLED";
 
   /**
-   * The groups used to test IAM policy sets up on a group, which is the most common use cases in
-   * Terr. For Broad development, this is created via BITs service portal.
+   * The groups used to test IAM policy sets up on a group. Groups are manually created, and for Broad development,
+   * they are created via BITs service portal.
    */
   private static final String TEST_GROUP_NAME = "terra-rbs-test@broadinstitute.org";
   private static final String TEST_GROUP_VIEWER_NAME = "terra-rbs-viewer-test@broadinstitute.org";
