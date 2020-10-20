@@ -53,8 +53,32 @@ components:
           type: array
           items:
             type: string
+        iamBindings:
+          description: |-
+            List of GCP IAM bindings
+          type: array
+          items:
+            $ref: '#/components/schemas/IamBinding'
         enableHightSecurityNetwork:
           description: |-
-            Whether to create Virtual Private Cloud, this will create a Network, SubNets, and Firewall
+            Whether to create Virtual Private Cloud. If enabled, it will create network, subNets, and firewall rules, enable flow logs on the network.
           type: boolean
+        privateIpGoogleAccess:
+          description: |-
+            Whether to config private Google access, it will create custom route on the network, enable privateIpGoogleAccess
+            on all subnets, create private DNS zones.
+          type: boolean
+      type: object
+    IamBinding:
+      description: Associates `members` with a `role`.
+      properties:
+        members:
+          description: "GCP identities, see https://cloud.google.com/resource-manager/reference/rest/Shared.Types/Binding"
+          items:
+            type: string
+          type: array
+          example: ["group:foo-group@googlegroup.com", "serviceAccount:bar-sa@test.iam.gserviceaccount.com"]
+        role:
+          description: Role that is assigned to `members`. For example, `roles/viewer`, `roles/editor`, or `roles/owner`.
+          type: string
       type: object
