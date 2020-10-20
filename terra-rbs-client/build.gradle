@@ -40,15 +40,14 @@ swaggerSources {
             library = "jersey2"
             outputDir = file("${openapiClientTargetDir}")
             rawOptions = [
-                    "--api-package", "${this.group}.generated.controller",
-                    "--model-package", "${this.group}.generated.model",
+                    "--api-package", "${this.group}.rbs.generated.controller",
+                    "--model-package", "${this.group}.rbs.generated.model",
                     "--group-id", "${this.group}",
                     "--artifact-id", "terra-rbs-client",
                     "--artifact-version", "${this.version}",
                     "-D", "apiTests=false," +
                             "apiDocs=false," +
                             "dateLibrary=java8," +
-                            "interfaceOnly=true," +
                             "modelTests=false," +
                             "modelDocs=false" +
                             "useTags=true"
