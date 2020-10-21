@@ -80,8 +80,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
     List<IamBinding> iamBindings =
         Arrays.asList(
-            new IamBinding().role("roles/owner").addMembersItem("group:" + testGroupName),
-            new IamBinding().role("roles/editor").addMembersItem("group:" + testGroupViewerName));
+            new IamBinding().role("roles/editor").addMembersItem("group:" + testGroupName),
+            new IamBinding().role("roles/viewer").addMembersItem("group:" + testGroupViewerName));
 
     // Basic GCP project with IAM Bindings
     FlightManager manager = new FlightManager(flightSubmissionFactoryImpl, stairwayComponent);
@@ -246,7 +246,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   private void assertIamBindingsContains(Project project, List<IamBinding> iamBindings)
       throws Exception {
     // By default we enable some services, and some GCP automatically creates SA accounts and grant
-    // permission
+    // permission.
     // e.g.,"serviceAccount:{projectId}-compute@developer.gserviceaccount.com" has editor role.
     // So we need iterate all bindings and verify they contain the members & roles we expect.
 
