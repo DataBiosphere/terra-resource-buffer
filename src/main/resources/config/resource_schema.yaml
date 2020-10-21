@@ -59,16 +59,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/IamBinding'
-        enableHightSecurityNetwork:
-          description: |-
-            Whether to create Virtual Private Cloud. If enabled, it will create network, subNets, and firewall rules, enable flow logs on the network.
-          type: boolean
-        privateIpGoogleAccess:
-          description: |-
-            Whether to config private Google access, it will create custom route on the network, enable privateIpGoogleAccess
-            on all subnets, create private DNS zones.
-          type: boolean
+        network:
+          $ref: '#/components/schemas/Network'
       type: object
+
     IamBinding:
       description: Associates `members` with a `role`.
       properties:
@@ -81,4 +75,13 @@ components:
         role:
           description: Role that is assigned to `members`. For example, `roles/viewer`, `roles/editor`, or `roles/owner`.
           type: string
+      type: object
+
+    Network:
+      description: Network setup for the project.
+      properties:
+        enableNetworkMonitoring:
+          description: |-
+            IF enabled, turn on flow logs, enable provate google access.
+          type: boolean
       type: object

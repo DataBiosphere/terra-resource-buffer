@@ -155,7 +155,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     String flightId = manager.submitCreationFlight(pool).get();
     blockUntilFlightComplete(flightId);
 
-    Resource resource = rbsDao.retrieveResources(ResourceState.READY, 1).get(0);
+    Resource resource = rbsDao.retrieveResources(pool.id(), ResourceState.READY, 1).get(0);
     assertEquals(
         "ACTIVE",
         rmCow
@@ -222,8 +222,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
             .creation(Instant.now())
             .build();
     rbsDao.createPools(ImmutableList.of(pool));
-    assertTrue(rbsDao.retrieveResources(ResourceState.CREATING, 1).isEmpty());
-    assertTrue(rbsDao.retrieveResources(ResourceState.READY, 1).isEmpty());
+    assertTrue(rbsDao.retrieveResources(pool.id(), ResourceState.CREATING, 1).isEmpty());
+    assertTrue(rbsDao.retrieveResources(pool.id(), ResourceState.READY, 1).isEmpty());
     return pool;
   }
 
@@ -233,7 +233,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   }
 
   private Project assertProjectExists(Pool pool) throws Exception {
-    Resource resource = rbsDao.retrieveResources(ResourceState.READY, 1).get(0);
+    Resource resource = rbsDao.retrieveResources(pool.id(), ResourceState.READY, 1).get(0);
     assertEquals(pool.id(), resource.poolId());
     Project project =
         rmCow

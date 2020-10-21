@@ -159,15 +159,18 @@ public class RbsDao {
 
   /** Retrieve resources match the {@link ResourceState}. */
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
-  public List<Resource> retrieveResources(ResourceState state, int limit) {
+  public List<Resource> retrieveResources(PoolId poolId, ResourceState state, int limit) {
     String sql =
         "select id, pool_id, creation, handout_time, state, request_handout_id, cloud_resource_uid "
             + "FROM resource "
-            + "WHERE state = :state "
+            + "WHERE state = :state AND pool_id = :pool_id "
             + "LIMIT :limit";
 
     MapSqlParameterSource params =
-        new MapSqlParameterSource().addValue("state", state.toString()).addValue("limit", limit);
+        new MapSqlParameterSource()
+            .addValue("state", state.toString())
+            .addValue("pool_id", poolId.id())
+            .addValue("limit", limit);
 
     return jdbcTemplate.query(sql, params, RESOURCE_ROW_MAPPER);
   }
