@@ -24,7 +24,51 @@ paths:
           description: Service is broken
           $ref: '#/components/responses/StatusResponse'
 
+  '/api/pool/v1/{poolId}/resource':
+    parameters:
+      - $ref: '#/components/parameters/PoolId'
+    get:
+      summary: Get a resource from pool.
+      operationId: handoutResource
+      tags:
+        - rbs
+      parameters:
+        - $ref: '#/components/parameters/HandoutRequestId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceInfo'
+        '404':
+          description: No resource available in this pool.
+        '500':
+          description: Get request error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorReport'
 components:
+  parameters:
+    PoolId:
+      name: poolId
+      in: path
+      description: |-
+        Unique identity of a pool
+      required: true
+      schema:
+        type: string
+
+    HandoutRequestId:
+      name: handoutRequestId
+      in: query
+      description: |-
+        The identity present by client when asking for a resource. Using the same handoutRequestId in the same pool would ge the same resource back.
+      required: true
+      schema:
+        type: string
+
   schemas:
     ErrorReport:
       type: object
@@ -124,5 +168,3 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/SystemStatus'
-
-
