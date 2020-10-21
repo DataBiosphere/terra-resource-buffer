@@ -12,6 +12,7 @@ import bio.terra.stairway.StepResult;
 import bio.terra.stairway.StepStatus;
 import bio.terra.stairway.exception.RetryException;
 import com.google.api.services.compute.model.Network;
+import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.time.Duration;
 import org.slf4j.Logger;
@@ -19,7 +20,8 @@ import org.slf4j.LoggerFactory;
 
 /** Craetes Network project */
 public class CreateNetworkStep implements Step {
-  private static final String NETWORK_NAME = "network";
+  /** All project will use the same network name. */
+  @VisibleForTesting public static final String NETWORK_NAME = "network";
 
   private final Logger logger = LoggerFactory.getLogger(CreateNetworkStep.class);
   private final CloudComputeCow computeCow;
