@@ -24,19 +24,18 @@ paths:
           description: Service is broken
           $ref: '#/components/responses/StatusResponse'
 
-  '/api/pool/v1/{poolId}/resource':
+  '/api/pool/v1/{poolId}/resource/{handoutrequestId}':
     parameters:
       - $ref: '#/components/parameters/PoolId'
-    get:
-      summary: Get a resource from pool.
+      - $ref: '#/components/parameters/HandoutRequestId'
+    put:
+      summary: Get a resource from pool, each handoutrequestId is assigned to the resource no more than once. Using the same handoutrequestId will get the same ResourceInfo
       operationId: handoutResource
       tags:
         - rbs
-      parameters:
-        - $ref: '#/components/parameters/HandoutRequestId'
       responses:
         '200':
-          description: OK
+          description: OK, using the same handoutrequestId will also get 200 back with the same ResourceInfo.
           content:
             application/json:
               schema:
