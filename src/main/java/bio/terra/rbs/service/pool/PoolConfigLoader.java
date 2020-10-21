@@ -36,6 +36,7 @@ public class PoolConfigLoader {
   public static List<PoolWithResourceConfig> loadPoolConfig(String folderName) {
     PoolConfigs poolConfigs = parsePools(folderName);
     Map<String, ResourceConfig> resourceConfigNameMap = parseResourceConfig(folderName);
+    validateResourceConfig(new ArrayList<>(resourceConfigNameMap.values()));
     return combineParsedConfig(poolConfigs, resourceConfigNameMap);
   }
 
@@ -106,5 +107,13 @@ public class PoolConfigLoader {
               poolConfig, resourceConfigNameMap.get(poolConfig.getResourceConfigName())));
     }
     return result;
+  }
+
+  /** Validates {@link ResourceConfig}. */
+  private static void validateResourceConfig(List<ResourceConfig> resourceConfigs) {
+    for (ResourceConfig config : resourceConfigs) {
+      ResourceConfigValidator validator = ResourceConfigValidatorFactory.getValidator(config);
+      validator.validate(config);
+    }
   }
 }
