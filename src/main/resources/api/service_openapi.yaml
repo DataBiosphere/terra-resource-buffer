@@ -29,7 +29,7 @@ paths:
       - $ref: '#/components/parameters/PoolId'
       - $ref: '#/components/parameters/HandoutRequestId'
     put:
-      summary: Get a resource from pool, each handoutrequestId is assigned to the resource no more than once. Using the same handoutrequestId will get the same ResourceInfo
+      summary: Get a resource from pool and update the resource state, each handoutrequestId is assigned to the resource no more than once. Using the same handoutrequestId will get the same ResourceInfo
       operationId: handoutResource
       tags:
         - rbs
