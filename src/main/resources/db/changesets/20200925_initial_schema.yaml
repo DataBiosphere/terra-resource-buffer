@@ -90,7 +90,7 @@ databaseChangeLog:
                   unique: false
             - column:
                 name: request_handout_id
-                type: text
+                type: uuid
                 constraints:
                   nullable: true
                   unique: false
