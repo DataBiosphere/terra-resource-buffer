@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import bio.terra.cloudres.google.billing.CloudBillingClientCow;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
+import bio.terra.cloudres.google.compute.CloudComputeCow;
 import bio.terra.cloudres.google.serviceusage.ServiceUsageCow;
 import bio.terra.rbs.common.*;
 import bio.terra.rbs.db.*;
@@ -51,6 +52,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
   @Autowired RbsDao rbsDao;
   @Autowired StairwayComponent stairwayComponent;
+  @Autowired CloudComputeCow computeCow;
   @Autowired CloudResourceManagerCow rmCow;
   @Autowired CloudBillingClientCow billingCow;
   @Autowired ServiceUsageCow serviceUsageCow;
@@ -118,6 +120,22 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     blockUntilFlightComplete(flightId);
     Project project = assertProjectExists(pool);
     assertIamBindingsContains(project, iamBindings);
+  }
+
+  @Test
+  public void testCreateGoogleProject_withNetwork() throws Exception {
+    List<String> enabledServices = Arrays.asList("compute.googleapis.com");
+
+    // Basic GCP project with billing setup and api enabled.
+    FlightManager manager = new FlightManager(flightSubmissionFactoryImpl, stairwayComponent);
+    Pool pool =
+        preparePool(
+            newBasicGcpConfig().billingAccount(BILLING_ACCOUNT_NAME).enabledApis(enabledServices));
+
+    String flightId = manager.submitCreationFlight(pool).get();
+    blockUntilFlightComplete(flightId);
+    Project project = assertProjectExists(pool);
+    assertEnableApisContains(project, pool.resourceConfig().getGcpProjectConfig().getEnabledApis());
   }
 
   @Test
