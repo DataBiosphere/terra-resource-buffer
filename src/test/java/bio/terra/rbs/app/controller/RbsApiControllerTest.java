@@ -31,8 +31,7 @@ public class RbsApiControllerTest {
   @Test
   public void handoutResource_ok() throws Exception {
     this.mvc
-        .perform(
-            put("/api/pool/v1/poolId/resource/handoutRequestId"))
+        .perform(put("/api/pool/v1/poolId/resource/handoutRequestId"))
         .andExpect(status().isOk());
   }
 }
