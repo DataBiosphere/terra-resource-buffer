@@ -1,7 +1,6 @@
 package bio.terra.rbs.app.controller;
 
 import bio.terra.rbs.common.exception.ErrorReportException;
-import bio.terra.rbs.common.exception.NotFoundException;
 import bio.terra.rbs.generated.model.ErrorReport;
 import java.util.List;
 import org.slf4j.Logger;
@@ -46,11 +45,6 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ErrorReport> catchallHandler(Exception ex) {
     logger.error("Exception caught by catchall hander", ex);
     return buildErrorReport(ex, HttpStatus.INTERNAL_SERVER_ERROR, null);
-  }
-
-  @ExceptionHandler(NotFoundException.class)
-  public ResponseEntity<ErrorReport> notFoundHandler(Exception ex) {
-    return buildErrorReport(ex, HttpStatus.NOT_FOUND, null);
   }
 
   private ResponseEntity<ErrorReport> buildErrorReport(
