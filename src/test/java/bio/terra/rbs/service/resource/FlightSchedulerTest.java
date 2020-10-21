@@ -116,7 +116,7 @@ public class FlightSchedulerTest extends BaseUnitTest {
             ImmutableMultiset.of(ResourceState.READY, ResourceState.READY, ResourceState.CREATING));
 
     rbsDao.deactivatePools(ImmutableList.of(pool.id()));
-    List<Resource> resources = rbsDao.retrieveResources(ResourceState.READY, 2);
+    List<Resource> resources = rbsDao.retrieveResources(pool.id(), ResourceState.READY, 2);
     initializeScheduler();
     Thread.sleep(4000);
 
@@ -129,10 +129,12 @@ public class FlightSchedulerTest extends BaseUnitTest {
   @Test
   public void scheduleDeactivationFlights_poolSizeReduced() throws Exception {
     // Pool size 1, should deactivate 2 resources(only READY resources).
-    newPoolWithResourceCount(
-        1, ImmutableMultiset.of(ResourceState.READY, ResourceState.READY, ResourceState.CREATING));
+    Pool pool =
+        newPoolWithResourceCount(
+            1,
+            ImmutableMultiset.of(ResourceState.READY, ResourceState.READY, ResourceState.CREATING));
 
-    List<Resource> resources = rbsDao.retrieveResources(ResourceState.READY, 2);
+    List<Resource> resources = rbsDao.retrieveResources(pool.id(), ResourceState.READY, 2);
     initializeScheduler();
     Thread.sleep(4000);
 
@@ -176,7 +178,7 @@ public class FlightSchedulerTest extends BaseUnitTest {
                 ResourceState.CREATING));
 
     rbsDao.deactivatePools(ImmutableList.of(pool.id()));
-    List<Resource> resources = rbsDao.retrieveResources(ResourceState.READY, 2);
+    List<Resource> resources = rbsDao.retrieveResources(pool.id(), ResourceState.READY, 2);
 
     PrimaryConfiguration primaryConfiguration = newPrimaryConfiguration();
     primaryConfiguration.setResourceDeletionPerPoolLimit(3);

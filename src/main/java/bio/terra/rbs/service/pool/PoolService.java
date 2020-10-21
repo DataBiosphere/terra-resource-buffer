@@ -4,6 +4,8 @@ import static bio.terra.rbs.service.pool.PoolConfigLoader.loadPoolConfig;
 
 import bio.terra.rbs.app.configuration.PoolConfiguration;
 import bio.terra.rbs.common.*;
+import bio.terra.rbs.common.exception.InternalServerErrorException;
+import bio.terra.rbs.common.exception.NotFoundException;
 import bio.terra.rbs.db.*;
 import bio.terra.rbs.generated.model.ResourceInfo;
 import com.google.common.annotations.VisibleForTesting;
@@ -47,7 +49,30 @@ public class PoolService {
 
   /** Handout resource to client by given {@link PoolId} and {@link RequestHandoutId}. */
   public ResourceInfo handoutResource(PoolId poolId, RequestHandoutId requestHandoutId) {
-    rbsDao.re
+    Optional<Resource> existingResource = rbsDao.retrieveResource(poolId, requestHandoutId);
+    if (existingResource.isPresent()) {
+      if (existingResource.get().state().equals(ResourceState.HANDED_OUT)) {
+        return resourceToResourceInfo(existingResource.get(), requestHandoutId);
+      } else {
+        // Should never happens.
+        throw new InternalServerErrorException(
+            String.format(
+                "Unexpected handed out resource state found in pool: id: %s, requestHandoutId: %s",
+                poolId, requestHandoutId));
+      }
+    } else {
+      List<Resource> resources = rbsDao.retrieveResources(poolId, ResourceState.READY, 1);
+      if (resources.size() == 0) {
+        throw new NotFoundException(
+            String.format(
+                "No resource is ready to use at this moment for pool: %s. Please try later",
+                poolId));
+      } else {
+        Resource selectedResource = resources.get(0);
+        rbsDao.updateResourceAsHandout(selectedResource.id(), requestHandoutId);
+        return resourceToResourceInfo(selectedResource, requestHandoutId);
+      }
+    }
   }
 
   @VisibleForTesting
@@ -138,5 +163,18 @@ public class PoolService {
 
   private void updatePoolSize(Map<PoolId, Integer> poolSizes) {
     rbsDao.updatePoolsSize(poolSizes);
+  }
+
+  private static ResourceInfo resourceToResourceInfo(
+      Resource resource, RequestHandoutId requestHandoutId) {
+    if (resource.cloudResourceUid() == null) {
+      // Should never happen.
+      throw new InternalServerErrorException(
+          String.format("Invalid resource. Id: %s", resource.id()));
+    }
+    return new ResourceInfo()
+        .poolId(resource.poolId().id())
+        .cloudResourceUid(resource.cloudResourceUid())
+        .requestHandoutId(requestHandoutId.id());
   }
 }
