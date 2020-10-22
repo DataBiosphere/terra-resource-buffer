@@ -217,7 +217,7 @@ public class RbsDao {
   public boolean updateResourceAsHandedOut(ResourceId id, RequestHandoutId requestHandoutId) {
     String sql =
         "UPDATE resource SET state = :state, request_handout_id = :request_handout_id, handout_time = :handout_time"
-            + " WHERE id = :id AND request_handout_id = null";
+            + " WHERE id = :id AND request_handout_id IS null";
 
     MapSqlParameterSource params =
         new MapSqlParameterSource()
