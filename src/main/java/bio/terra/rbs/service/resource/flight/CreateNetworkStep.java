@@ -37,10 +37,12 @@ public class CreateNetworkStep implements Step {
   public StepResult doStep(FlightContext flightContext) throws RetryException {
     String projectId = flightContext.getWorkingMap().get(GOOGLE_PROJECT_ID, String.class);
     try {
-      // Skip this steps if network already exists. This may happen when previous step's polling times out, while
+      // Skip this steps if network already exists. This may happen when previous step's polling
+      // times out, while
       // network is created before next retry.
       computeCow.networks().get(projectId, NETWORK_NAME).execute();
-      logger.info("Network already exists for project %s: {}. Skipping CreateNetworkStep", projectId);
+      logger.info(
+          "Network already exists for project %s: {}. Skipping CreateNetworkStep", projectId);
       return StepResult.getStepResultSuccess();
     } catch (IOException e) {
       if (e instanceof GoogleJsonResponseException
