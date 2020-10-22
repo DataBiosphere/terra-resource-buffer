@@ -2,6 +2,7 @@ package bio.terra.rbs.service.resource.flight;
 
 import bio.terra.cloudres.google.api.services.common.OperationCow;
 import bio.terra.cloudres.google.api.services.common.OperationUtils;
+import bio.terra.rbs.generated.model.GcpProjectConfig;
 import bio.terra.stairway.exception.RetryException;
 import java.io.IOException;
 import java.time.Duration;
@@ -29,4 +30,11 @@ public class GoogleUtils {
   public static String projectIdToName(String projectId) {
     return "projects/" + projectId;
   }
+
+  /** Checks if network monitoring is enabled from config. */
+  public static boolean enableNetworkMonitoring(GcpProjectConfig gcpProjectConfig) {
+  return gcpProjectConfig.getNetwork() != null && gcpProjectConfig.getNetwork().isEnableNetworkMonitoring() != null && gcpProjectConfig.getNetwork().isEnableNetworkMonitoring();
+
+}
+
 }
