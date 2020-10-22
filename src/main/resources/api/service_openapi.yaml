@@ -26,7 +26,7 @@ paths:
 
   '/api/pool/v1/{poolId}/resource/{handoutRequestId}':
     put:
-      summary: Get a resource from pool and update the resource state, each handoutrequestId is assigned to the resource no more than once. Using the same handoutrequestId will get the same ResourceInfo
+      summary: Get a resource from pool and update the resource state, each handoutRequestId is assigned to the resource no more than once. Using the same handoutRequestId will get the same ResourceInfo
       operationId: handoutResource
       parameters:
         - $ref: '#/components/parameters/PoolId'
@@ -35,7 +35,7 @@ paths:
         - rbs
       responses:
         '200':
-          description: OK, using the same handoutrequestId will also get 200 back with the same ResourceInfo.
+          description: OK, using the same handoutRequestId will also get 200 back with the same ResourceInfo.
           content:
             application/json:
               schema:
@@ -63,7 +63,8 @@ components:
       name: handoutRequestId
       in: path
       description: |-
-        The identity present by client when asking for a resource. Using the same handoutRequestId in the same pool would ge the same resource back.
+        The unique identifier presented by the client for a resource request.
+        Using the same handoutRequestId in the same pool would ge the same resource back.
       required: true
       schema:
         type: string
