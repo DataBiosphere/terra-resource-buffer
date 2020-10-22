@@ -3,7 +3,6 @@ package bio.terra.rbs.service.pool;
 import bio.terra.rbs.common.ResourceConfigVisitor;
 import bio.terra.rbs.common.ResourceType;
 import bio.terra.rbs.generated.model.ResourceConfig;
-import org.springframework.stereotype.Component;
 
 /** Factory to return {ResourceConfigValidator} by {@link ResourceConfig}. */
 public class ResourceConfigValidatorFactory {

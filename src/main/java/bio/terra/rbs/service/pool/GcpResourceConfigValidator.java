@@ -7,12 +7,14 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 
 /**
- * Validates GCP resource config. Because RBS creates customized network for all projects, this requires:
+ * Validates GCP resource config. Because RBS creates customized network for all projects, this
+ * requires:
+ *
  * <ul>
- *     <li> Billing account is present.
- *     <li> compute.googleapis.com need to be enabled.
+ *   <li>Billing account is present.
+ *   <li>compute.googleapis.com need to be enabled.
  * </ul>
- * */
+ */
 public class GcpResourceConfigValidator implements ResourceConfigValidator {
   /** List of services required to be enabled. */
   private static final List<String> REQUIRED_SERVICES = ImmutableList.of("compute.googleapis.com");
