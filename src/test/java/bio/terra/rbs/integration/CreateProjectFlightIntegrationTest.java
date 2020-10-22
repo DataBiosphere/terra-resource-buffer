@@ -250,10 +250,11 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
   private void assertIamBindingsContains(Project project, List<IamBinding> iamBindings)
       throws Exception {
-    // By default we enable some services, and some GCP automatically creates SA accounts and grant
-    // permission.
+    // By default we enable some services, which causes GCP to automatically create Service Accounts
+    // and grant them permissions on the project.
     // e.g.,"serviceAccount:{projectId}-compute@developer.gserviceaccount.com" has editor role.
-    // So we need iterate all bindings and verify they contain the members & roles we expect.
+    // So we need to iterate through all bindings and verify they at least contain the members &
+    // roles we expect.
 
     Map<String, List<String>> allBindings =
         rmCow.projects().getIamPolicy(project.getProjectId(), new GetIamPolicyRequest()).execute()
