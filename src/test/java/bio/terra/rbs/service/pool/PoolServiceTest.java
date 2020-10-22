@@ -4,7 +4,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 import bio.terra.rbs.common.*;
-import bio.terra.rbs.common.exception.BadRequestException;
 import bio.terra.rbs.common.exception.NotFoundException;
 import bio.terra.rbs.db.*;
 import bio.terra.rbs.generated.model.*;
@@ -215,17 +214,6 @@ public class PoolServiceTest extends BaseUnitTest {
     // Use the same requestHandoutId, expect to get the same resource back.
     ResourceInfo secondResourceInfo = poolService.handoutResource(poolId, requestHandoutId);
     assertEquals(resourceInfo, secondResourceInfo);
-  }
-
-  @Test
-  public void handoutResource_deactivatedPool() throws Exception {
-    PoolId poolId = PoolId.create("poolId");
-    RequestHandoutId requestHandoutId = RequestHandoutId.create("handoutId");
-    newReadyPool(poolId, 1);
-    rbsDao.deactivatePools(ImmutableList.of(poolId));
-
-    assertThrows(
-        BadRequestException.class, () -> poolService.handoutResource(poolId, requestHandoutId));
   }
 
   @Test

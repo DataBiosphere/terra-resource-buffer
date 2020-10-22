@@ -68,8 +68,6 @@ public class RbsDaoTest extends BaseUnitTest {
 
     List<Pool> pools = rbsDao.retrievePools();
     assertThat(pools, Matchers.containsInAnyOrder(pool1, pool2));
-    assertEquals(pool1, rbsDao.retrievePool(pool1.id()).get());
-    assertEquals(pool2, rbsDao.retrievePool(pool2.id()).get());
   }
 
   @Test
