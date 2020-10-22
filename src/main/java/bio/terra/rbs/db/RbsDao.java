@@ -80,6 +80,19 @@ public class RbsDao {
     return jdbcTemplate.query(sql, POOL_ROW_MAPPER);
   }
 
+  /** Retrieves a pool with id. */
+  @Transactional(propagation = Propagation.SUPPORTS)
+  public Optional<Pool> retrievePool(PoolId poolId) {
+    String sql =
+        "select p.id, p.resource_config, p.resource_type, p.creation, p.size, p.status "
+            + "FROM pool p "
+            + "WHERE id = :id";
+    MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", poolId.id());
+
+    return Optional.ofNullable(
+        DataAccessUtils.singleResult(jdbcTemplate.query(sql, params, POOL_ROW_MAPPER)));
+  }
+
   /** Retrieves all pools and resource count for each state. */
   @Transactional(propagation = Propagation.SUPPORTS)
   public List<PoolAndResourceStates> retrievePoolAndResourceStates() {

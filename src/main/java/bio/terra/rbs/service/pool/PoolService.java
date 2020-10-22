@@ -4,6 +4,7 @@ import static bio.terra.rbs.service.pool.PoolConfigLoader.loadPoolConfig;
 
 import bio.terra.rbs.app.configuration.PoolConfiguration;
 import bio.terra.rbs.common.*;
+import bio.terra.rbs.common.exception.BadRequestException;
 import bio.terra.rbs.common.exception.InternalServerErrorException;
 import bio.terra.rbs.common.exception.NotFoundException;
 import bio.terra.rbs.db.*;
@@ -59,7 +60,10 @@ public class PoolService {
   private Resource handoutResourceTransactionally(
       PoolId poolId, RequestHandoutId requestHandoutId, TransactionStatus unused) {
     Optional<Resource> existingResource = rbsDao.retrieveResource(poolId, requestHandoutId);
-    // TODO(PF-131): Return BAD_REQUEST if Pool is DEACTIVATED.
+    Optional<Pool> pool = rbsDao.retrievePool(poolId);
+    if (!pool.isPresent() || !pool.get().status().equals(PoolStatus.ACTIVE)) {
+      throw new BadRequestException(String.format("Invalid pool id: %s.", poolId));
+    }
     if (existingResource.isPresent()) {
       if (existingResource.get().state().equals(ResourceState.HANDED_OUT)) {
         return existingResource.get();
