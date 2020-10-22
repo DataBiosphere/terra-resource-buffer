@@ -80,7 +80,7 @@ public class RbsApiControllerTest {
   }
 
   @Test
-  public void handoutResource_noPool() throws Exception {
+  public void handoutResource_noResource() throws Exception {
     PoolId poolId = PoolId.create("poolId");
     rbsDao.createPools(
         ImmutableList.of(
