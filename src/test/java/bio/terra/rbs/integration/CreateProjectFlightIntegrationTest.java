@@ -32,6 +32,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.hamcrest.Matchers;
@@ -58,53 +59,25 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
   @Test
   public void testCreateGoogleProject_basicCreation() throws Exception {
+    // Basic GCP project with billing setup.
     FlightManager manager = new FlightManager(flightSubmissionFactoryImpl, stairwayComponent);
     Pool pool = preparePool(newBasicGcpConfig());
 
     String flightId = manager.submitCreationFlight(pool).get();
     blockUntilFlightComplete(flightId);
-    assertProjectExists(pool);
-  }
-
-  @Test
-  public void testCreateGoogleProject_withBillingAccount() throws Exception {
-    // Basic GCP project with billing setup.
-    FlightManager manager = new FlightManager(flightSubmissionFactoryImpl, stairwayComponent);
-    Pool pool = preparePool(newBasicGcpConfig().billingAccount(BILLING_ACCOUNT_NAME));
-
-    String flightId = manager.submitCreationFlight(pool).get();
-    blockUntilFlightComplete(flightId);
     Project project = assertProjectExists(pool);
     assertBillingIs(project, pool.resourceConfig().getGcpProjectConfig().getBillingAccount());
-  }
-
-  @Test
-  public void testCreateGoogleProject_withEnableService() throws Exception {
-    List<String> enabledServices =
-        Arrays.asList(
-            "bigquery.googleapis.com", "compute.googleapis.com", "cloudbilling.googleapis.com");
-
-    // Basic GCP project with billing setup and api enabled.
-    FlightManager manager = new FlightManager(flightSubmissionFactoryImpl, stairwayComponent);
-    Pool pool =
-        preparePool(
-            newBasicGcpConfig().billingAccount(BILLING_ACCOUNT_NAME).enabledApis(enabledServices));
-
-    String flightId = manager.submitCreationFlight(pool).get();
-    blockUntilFlightComplete(flightId);
-    Project project = assertProjectExists(pool);
     assertEnableApisContains(project, pool.resourceConfig().getGcpProjectConfig().getEnabledApis());
   }
 
   @Test
   public void testCreateGoogleProject_witIamBindings() throws Exception {
     // The groups used to test IAM policy sets up on a group. It doesn't matter what the users are
-    // for
-    // the purpose of this test. They just need to exist for Google. These groups were manually
-    // created for Broad
-    // development via the BITs service portal.
+    // for the purpose of this test. They just need to exist for Google.
+    // These groups were manually created for Broad development via the BITs service portal.
     String testGroupName = "terra-rbs-test@broadinstitute.org";
     String testGroupViewerName = "terra-rbs-viewer-test@broadinstitute.org";
+
     List<IamBinding> iamBindings =
         Arrays.asList(
             new IamBinding().role("roles/editor").addMembersItem("group:" + testGroupName),
@@ -229,7 +202,11 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
   /** Create a Basic {@link ResourceConfig}. */
   private static GcpProjectConfig newBasicGcpConfig() {
-    return new GcpProjectConfig().projectIDPrefix("prefix").parentFolderId(FOLDER_ID);
+    return new GcpProjectConfig()
+        .projectIDPrefix("prefix")
+        .parentFolderId(FOLDER_ID)
+        .billingAccount(BILLING_ACCOUNT_NAME)
+        .addEnabledApisItem("compute.googleapis.com");
   }
 
   private Project assertProjectExists(Pool pool) throws Exception {
@@ -268,20 +245,22 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
   private void assertIamBindingsContains(Project project, List<IamBinding> iamBindings)
       throws Exception {
-    List<Binding> bindings =
-        iamBindings.stream()
-            .map(
-                iamBinding ->
-                    new Binding().setRole(iamBinding.getRole()).setMembers(iamBinding.getMembers()))
-            .collect(Collectors.toList());
-    assertThat(
-        new ArrayList<>(
-            rmCow
-                .projects()
-                .getIamPolicy(project.getProjectId(), new GetIamPolicyRequest())
-                .execute()
-                .getBindings()),
-        Matchers.hasItems(bindings.toArray()));
+    // By default we enable some services, which causes GCP to automatically create Service Accounts
+    // and grant them permissions on the project.
+    // e.g.,"serviceAccount:{projectId}-compute@developer.gserviceaccount.com" has editor role.
+    // So we need to iterate through all bindings and verify they at least contain the members &
+    // roles we expect.
+
+    Map<String, List<String>> allBindings =
+        rmCow.projects().getIamPolicy(project.getProjectId(), new GetIamPolicyRequest()).execute()
+            .getBindings().stream()
+            .collect(Collectors.toMap(Binding::getRole, Binding::getMembers));
+
+    for (IamBinding iamBinding : iamBindings) {
+      assertThat(
+          new ArrayList<>(allBindings.get(iamBinding.getRole())),
+          Matchers.hasItems(iamBinding.getMembers().toArray()));
+    }
   }
 
   /** A {@link FlightSubmissionFactory} used in test. */

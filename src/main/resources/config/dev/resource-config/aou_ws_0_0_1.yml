@@ -6,7 +6,7 @@ gcpProjectConfig:
   # TODO: Fill this
   parentFolderId: null
   # TODO: Fill this
-  billingAccount: null
+  billingAccount: "01A82E-CA8A14-367457"
   enabledApis:
     - "bigquery-json.googleapis.com"
     - "compute.googleapis.com"
