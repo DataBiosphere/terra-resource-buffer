@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /** Service to handle pool operations. */
@@ -49,10 +50,20 @@ public class PoolService {
 
   /** Handout resource to client by given {@link PoolId} and {@link RequestHandoutId}. */
   public ResourceInfo handoutResource(PoolId poolId, RequestHandoutId requestHandoutId) {
+    return transactionTemplate.execute(
+        status -> retrieveHandedOutResourceOrHandoutNewResource(poolId, requestHandoutId, status));
+  }
+
+  /**
+   * Retrieves resource with the requestHandoutId. Uses this if exists, pick a resource to handout
+   * if doesn't exist.
+   */
+  private ResourceInfo retrieveHandedOutResourceOrHandoutNewResource(
+      PoolId poolId, RequestHandoutId requestHandoutId, TransactionStatus unused) {
     Optional<Resource> existingResource = rbsDao.retrieveResource(poolId, requestHandoutId);
     if (existingResource.isPresent()) {
       if (existingResource.get().state().equals(ResourceState.HANDED_OUT)) {
-        return resourceToResourceInfo(existingResource.get(), requestHandoutId);
+        return createResourceInfo(existingResource.get(), requestHandoutId);
       } else {
         // Should never happens.
         throw new InternalServerErrorException(
@@ -69,8 +80,12 @@ public class PoolService {
                 poolId));
       } else {
         Resource selectedResource = resources.get(0);
-        rbsDao.updateResourceAsHandout(selectedResource.id(), requestHandoutId);
-        return resourceToResourceInfo(selectedResource, requestHandoutId);
+        if (!rbsDao.updateResourceAsHandedOut(selectedResource.id(), requestHandoutId)) {
+          throw new InternalServerErrorException(
+              "Error occurs when updating resource to handed out.");
+        }
+        ;
+        return createResourceInfo(selectedResource, requestHandoutId);
       }
     }
   }
@@ -165,7 +180,8 @@ public class PoolService {
     rbsDao.updatePoolsSize(poolSizes);
   }
 
-  private static ResourceInfo resourceToResourceInfo(
+  /** Creates {@link ResourceInfo} from given {@link Resource}. */
+  private static ResourceInfo createResourceInfo(
       Resource resource, RequestHandoutId requestHandoutId) {
     if (resource.cloudResourceUid() == null) {
       // Should never happen.

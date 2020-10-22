@@ -158,8 +158,8 @@ public class RbsDao {
   }
 
   /**
-   * Retrieve resource by pool_id and request_handout_id. There should be only one matched resource
-   * for a request_handout_id in one pool.
+   * Retrieve resource by pool_id and request_handout_id. There should be at most one matched
+   * resource for a request_handout_id in one pool.
    */
   @Transactional(propagation = Propagation.SUPPORTS)
   public Optional<Resource> retrieveResource(PoolId poolId, RequestHandoutId requestHandoutId) {
@@ -214,10 +214,10 @@ public class RbsDao {
    * client.
    */
   @Transactional(propagation = Propagation.SUPPORTS)
-  public boolean updateResourceAsHandout(ResourceId id, RequestHandoutId requestHandoutId) {
+  public boolean updateResourceAsHandedOut(ResourceId id, RequestHandoutId requestHandoutId) {
     String sql =
         "UPDATE resource SET state = :state, request_handout_id = :request_handout_id, handout_time = :handout_time"
-            + " WHERE id = :id";
+            + " WHERE id = :id AND request_handout_id = null";
 
     MapSqlParameterSource params =
         new MapSqlParameterSource()
