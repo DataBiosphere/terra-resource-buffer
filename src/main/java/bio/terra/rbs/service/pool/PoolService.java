@@ -61,6 +61,7 @@ public class PoolService {
   private ResourceInfo retrieveHandedOutResourceOrHandoutNewResource(
       PoolId poolId, RequestHandoutId requestHandoutId, TransactionStatus unused) {
     Optional<Resource> existingResource = rbsDao.retrieveResource(poolId, requestHandoutId);
+    // TODO(PF-131): Return BAD_REQUEST if Pool is DEACTIVATED.
     if (existingResource.isPresent()) {
       if (existingResource.get().state().equals(ResourceState.HANDED_OUT)) {
         return createResourceInfo(existingResource.get(), requestHandoutId);
