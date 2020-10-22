@@ -14,6 +14,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
+import javax.annotation.CheckReturnValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
@@ -144,7 +145,7 @@ public class RbsDao {
   }
 
   /** Retrieve a resource by id. */
-  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+  @Transactional(propagation = Propagation.SUPPORTS)
   public Optional<Resource> retrieveResource(ResourceId resourceId) {
     String sql =
         "select id, pool_id, creation, handout_time, state, request_handout_id, cloud_resource_uid "
@@ -152,6 +153,26 @@ public class RbsDao {
             + "WHERE id = :id";
 
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", resourceId.id());
+
+    return Optional.ofNullable(
+        DataAccessUtils.singleResult(jdbcTemplate.query(sql, params, RESOURCE_ROW_MAPPER)));
+  }
+
+  /**
+   * Retrieve resource by pool_id and request_handout_id. There should be at most one matched
+   * resource for a request_handout_id in one pool.
+   */
+  @Transactional(propagation = Propagation.SUPPORTS)
+  public Optional<Resource> retrieveResource(PoolId poolId, RequestHandoutId requestHandoutId) {
+    String sql =
+        "select id, pool_id, creation, handout_time, state, request_handout_id, cloud_resource_uid "
+            + "FROM resource "
+            + "WHERE pool_id = :pool_id AND request_handout_id = :request_handout_id";
+
+    MapSqlParameterSource params =
+        new MapSqlParameterSource()
+            .addValue("pool_id", poolId.id())
+            .addValue("request_handout_id", requestHandoutId.id());
 
     return Optional.ofNullable(
         DataAccessUtils.singleResult(jdbcTemplate.query(sql, params, RESOURCE_ROW_MAPPER)));
@@ -176,6 +197,7 @@ public class RbsDao {
   }
 
   /** Updates resource state and resource uid after resource is created. */
+  @CheckReturnValue
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
   public boolean updateResourceAsReady(ResourceId id, CloudResourceUid resourceUid) {
     String sql =
@@ -185,6 +207,25 @@ public class RbsDao {
         new MapSqlParameterSource()
             .addValue("state", ResourceState.READY.toString())
             .addValue("cloud_resource_uid", serializeResourceUid(resourceUid))
+            .addValue("id", id.id());
+    return jdbcTemplate.update(sql, params) == 1;
+  }
+
+  /**
+   * Updates resource state, request_handout_id and handout_time before resource handed out to
+   * client.
+   */
+  @Transactional(propagation = Propagation.SUPPORTS)
+  public boolean updateResourceAsHandedOut(ResourceId id, RequestHandoutId requestHandoutId) {
+    String sql =
+        "UPDATE resource SET state = :state, request_handout_id = :request_handout_id, handout_time = :handout_time"
+            + " WHERE id = :id AND request_handout_id IS null";
+
+    MapSqlParameterSource params =
+        new MapSqlParameterSource()
+            .addValue("state", ResourceState.HANDED_OUT.toString())
+            .addValue("request_handout_id", requestHandoutId.id())
+            .addValue("handout_time", OffsetDateTime.now(ZoneOffset.UTC))
             .addValue("id", id.id());
     return jdbcTemplate.update(sql, params) == 1;
   }

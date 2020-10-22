@@ -3,11 +3,11 @@ package bio.terra.rbs.service.pool;
 import static bio.terra.rbs.service.pool.PoolConfigLoader.loadPoolConfig;
 
 import bio.terra.rbs.app.configuration.PoolConfiguration;
-import bio.terra.rbs.common.Pool;
-import bio.terra.rbs.common.PoolId;
-import bio.terra.rbs.common.PoolStatus;
-import bio.terra.rbs.common.ResourceConfigVisitor;
+import bio.terra.rbs.common.*;
+import bio.terra.rbs.common.exception.InternalServerErrorException;
+import bio.terra.rbs.common.exception.NotFoundException;
 import bio.terra.rbs.db.*;
+import bio.terra.rbs.generated.model.ResourceInfo;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /** Service to handle pool operations. */
@@ -44,6 +45,47 @@ public class PoolService {
       List<PoolWithResourceConfig> parsedPoolConfigs;
       parsedPoolConfigs = loadPoolConfig(poolConfiguration.getConfigPath());
       updateFromConfig(parsedPoolConfigs);
+    }
+  }
+
+  /** Handout resource to client by given {@link PoolId} and {@link RequestHandoutId}. */
+  public ResourceInfo handoutResource(PoolId poolId, RequestHandoutId requestHandoutId) {
+    return createResourceInfo(
+        transactionTemplate.execute(
+            status -> handoutResourceTransactionally(poolId, requestHandoutId, status)),
+        requestHandoutId);
+  }
+
+  private Resource handoutResourceTransactionally(
+      PoolId poolId, RequestHandoutId requestHandoutId, TransactionStatus unused) {
+    Optional<Resource> existingResource = rbsDao.retrieveResource(poolId, requestHandoutId);
+    // TODO(PF-131): Return BAD_REQUEST if Pool is DEACTIVATED.
+    if (existingResource.isPresent()) {
+      if (existingResource.get().state().equals(ResourceState.HANDED_OUT)) {
+        return existingResource.get();
+      } else {
+        // Should never happens.
+        throw new InternalServerErrorException(
+            String.format(
+                "Unexpected handed out resource state found in pool: id: %s, requestHandoutId: %s",
+                poolId, requestHandoutId));
+      }
+    } else {
+      List<Resource> resources = rbsDao.retrieveResources(poolId, ResourceState.READY, 1);
+      if (resources.size() == 0) {
+        throw new NotFoundException(
+            String.format(
+                "No resource is ready to use at this moment for pool: %s. Please try later",
+                poolId));
+      } else {
+        Resource selectedResource = resources.get(0);
+        if (!rbsDao.updateResourceAsHandedOut(selectedResource.id(), requestHandoutId)) {
+          throw new InternalServerErrorException(
+              "Error occurs when updating resource to handed out.");
+        }
+        ;
+        return selectedResource;
+      }
     }
   }
 
@@ -135,5 +177,19 @@ public class PoolService {
 
   private void updatePoolSize(Map<PoolId, Integer> poolSizes) {
     rbsDao.updatePoolsSize(poolSizes);
+  }
+
+  /** Creates {@link ResourceInfo} from given {@link Resource}. */
+  private static ResourceInfo createResourceInfo(
+      Resource resource, RequestHandoutId requestHandoutId) {
+    if (resource.cloudResourceUid() == null) {
+      // Should never happen.
+      throw new InternalServerErrorException(
+          String.format("Invalid resource. Id: %s", resource.id()));
+    }
+    return new ResourceInfo()
+        .poolId(resource.poolId().id())
+        .cloudResourceUid(resource.cloudResourceUid())
+        .requestHandoutId(requestHandoutId.id());
   }
 }
