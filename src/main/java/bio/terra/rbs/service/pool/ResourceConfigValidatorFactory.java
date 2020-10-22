@@ -6,7 +6,6 @@ import bio.terra.rbs.generated.model.ResourceConfig;
 import org.springframework.stereotype.Component;
 
 /** Factory to return {ResourceConfigValidator} by {@link ResourceConfig}. */
-@Component
 public class ResourceConfigValidatorFactory {
   public static ResourceConfigValidator getValidator(ResourceConfig resourceConfig) {
     ResourceType type =
@@ -14,7 +13,7 @@ public class ResourceConfigValidatorFactory {
     if (type.equals(ResourceType.GOOGLE_PROJECT)) {
       return new GcpResourceConfigValidator();
     } else {
-      return new DefaultResourceConfigValidator();
+      return new AlwaysPassValidator();
     }
   }
 }

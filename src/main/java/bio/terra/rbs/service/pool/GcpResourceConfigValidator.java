@@ -7,7 +7,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 
 /**
- * Validates GCP resource config. The current rules are:
+ * Validates GCP resource config. Because RBS creates customized network for all projects, this requires:
  * <ul>
  *     <li> Billing account is present.
  *     <li> compute.googleapis.com need to be enabled.
