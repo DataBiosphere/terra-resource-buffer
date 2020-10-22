@@ -10,6 +10,8 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.services.cloudresourcemanager.CloudResourceManager;
 import com.google.api.services.cloudresourcemanager.CloudResourceManagerScopes;
+import com.google.api.services.serviceusage.v1.ServiceUsage;
+import com.google.api.services.serviceusage.v1.ServiceUsageScopes;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
@@ -114,7 +116,14 @@ public class CrlConfiguration {
   @Bean
   @Lazy
   public ServiceUsageCow serviceUsageCow() throws GeneralSecurityException, IOException {
-    return ServiceUsageCow.create(clientConfig(), GoogleCredentials.getApplicationDefault());
+    return new ServiceUsageCow(clientConfig(), new ServiceUsage.Builder(
+            GoogleNetHttpTransport.newTrustedTransport(),
+            Defaults.jsonFactory(),
+            setHttpTimeout(
+                    new HttpCredentialsAdapter(
+                            GoogleCredentials.getApplicationDefault()
+                                    .createScoped(ServiceUsageScopes.all()))))
+            .setApplicationName(CLIENT_NAME));
   }
 
   private static ServiceAccountCredentials getGoogleCredentialsOrDie(String serviceAccountPath) {
@@ -127,7 +136,7 @@ public class CrlConfiguration {
     }
   }
 
-  /** Sets longer timeout because ResourceManager operation may take longer than default timeout. */
+  /** Sets longer timeout because Google APIs may take longer than default timeout. */
   private static HttpRequestInitializer setHttpTimeout(
       final HttpRequestInitializer requestInitializer) {
     return httpRequest -> {
