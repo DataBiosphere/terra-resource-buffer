@@ -122,6 +122,22 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   }
 
   @Test
+  public void testCreateGoogleProject_multipleNetworkCreation() throws Exception {
+    // Verify flight is able to finish successfully when network exists
+    FlightManager manager =
+        new FlightManager(
+            new StubSubmissionFlightFactory(MultiNetworkStepFlight.class), stairwayComponent);
+    Pool pool = preparePool(newBasicGcpConfig());
+
+    String flightId = manager.submitCreationFlight(pool).get();
+    blockUntilFlightComplete(flightId);
+    Project project = assertProjectExists(pool);
+    assertBillingIs(project, pool.resourceConfig().getGcpProjectConfig().getBillingAccount());
+    assertEnableApisContains(project, pool.resourceConfig().getGcpProjectConfig().getEnabledApis());
+    assertNetworkExists(project);
+  }
+
+  @Test
   public void errorCreateProject_noRollbackAfterResourceReady() throws Exception {
     // Verify project and db entity won't get deleted if resource id READY, even the flight fails.
     FlightManager manager =
@@ -159,6 +175,34 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
       addStep(new LatchStep());
       addStep(new GenerateProjectIdStep());
       addStep(new ErrorCreateProjectStep(rmCow, gcpProjectConfig));
+      addStep(new FinishResourceCreationStep(rbsDao));
+    }
+  }
+
+  /** A {@link Flight} that has multiple network creation steps. */
+  public static class MultiNetworkStepFlight extends Flight {
+    public MultiNetworkStepFlight(FlightMap inputParameters, Object applicationContext) {
+      super(inputParameters, applicationContext);
+      RbsDao rbsDao = ((ApplicationContext) applicationContext).getBean(RbsDao.class);
+      CloudResourceManagerCow rmCow =
+          ((ApplicationContext) applicationContext).getBean(CloudResourceManagerCow.class);
+      CloudBillingClientCow billingCow =
+          ((ApplicationContext) applicationContext).getBean(CloudBillingClientCow.class);
+      ServiceUsageCow serviceUsageCow =
+          ((ApplicationContext) applicationContext).getBean(ServiceUsageCow.class);
+      CloudComputeCow cloudComputeCow =
+          ((ApplicationContext) applicationContext).getBean(CloudComputeCow.class);
+      GcpProjectConfig gcpProjectConfig =
+          inputParameters.get(RESOURCE_CONFIG, ResourceConfig.class).getGcpProjectConfig();
+      addStep(new GenerateResourceIdStep());
+      addStep(new CreateResourceDbEntityStep(rbsDao));
+      addStep(new GenerateProjectIdStep());
+      addStep(new CreateProjectStep(rmCow, gcpProjectConfig));
+      addStep(new SetBillingInfoStep(billingCow, gcpProjectConfig));
+      addStep(new EnableServicesStep(serviceUsageCow, gcpProjectConfig));
+      addStep(new SetIamPolicyStep(rmCow, gcpProjectConfig));
+      addStep(new CreateNetworkStep(cloudComputeCow, gcpProjectConfig));
+      addStep(new CreateNetworkStep(cloudComputeCow, gcpProjectConfig));
       addStep(new FinishResourceCreationStep(rbsDao));
     }
   }
