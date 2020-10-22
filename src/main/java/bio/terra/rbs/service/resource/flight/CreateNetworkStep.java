@@ -18,7 +18,7 @@ import java.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Craetes Network project */
+/** Creates a VPC network within a GCP project created in a prior step. */
 public class CreateNetworkStep implements Step {
   /** All project will use the same network name. */
   @VisibleForTesting public static final String NETWORK_NAME = "network";
@@ -51,6 +51,7 @@ public class CreateNetworkStep implements Step {
 
   @Override
   public StepResult undoStep(FlightContext flightContext) {
+    // Flight undo will just need to delete the project on GCP.
     return StepResult.getStepResultSuccess();
   }
 }
