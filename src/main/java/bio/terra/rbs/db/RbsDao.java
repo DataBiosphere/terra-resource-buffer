@@ -14,6 +14,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
+import javax.annotation.CheckReturnValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
@@ -196,7 +197,8 @@ public class RbsDao {
   }
 
   /** Updates resource state and resource uid after resource is created. */
-  @Transactional(propagation = Propagation.SUPPORTS)
+  @CheckReturnValue
+  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
   public boolean updateResourceAsReady(ResourceId id, CloudResourceUid resourceUid) {
     String sql =
         "UPDATE resource SET state = :state, cloud_resource_uid = :cloud_resource_uid::jsonb WHERE id = :id";

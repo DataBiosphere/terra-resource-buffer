@@ -50,21 +50,19 @@ public class PoolService {
 
   /** Handout resource to client by given {@link PoolId} and {@link RequestHandoutId}. */
   public ResourceInfo handoutResource(PoolId poolId, RequestHandoutId requestHandoutId) {
-    return transactionTemplate.execute(
-        status -> retrieveHandedOutResourceOrHandoutNewResource(poolId, requestHandoutId, status));
+    return createResourceInfo(
+        transactionTemplate.execute(
+            status -> handoutResourceTransactionally(poolId, requestHandoutId, status)),
+        requestHandoutId);
   }
 
-  /**
-   * Retrieves resource with the requestHandoutId. Uses this if exists, pick a resource to handout
-   * if doesn't exist.
-   */
-  private ResourceInfo retrieveHandedOutResourceOrHandoutNewResource(
+  private Resource handoutResourceTransactionally(
       PoolId poolId, RequestHandoutId requestHandoutId, TransactionStatus unused) {
     Optional<Resource> existingResource = rbsDao.retrieveResource(poolId, requestHandoutId);
     // TODO(PF-131): Return BAD_REQUEST if Pool is DEACTIVATED.
     if (existingResource.isPresent()) {
       if (existingResource.get().state().equals(ResourceState.HANDED_OUT)) {
-        return createResourceInfo(existingResource.get(), requestHandoutId);
+        return existingResource.get();
       } else {
         // Should never happens.
         throw new InternalServerErrorException(
@@ -86,7 +84,7 @@ public class PoolService {
               "Error occurs when updating resource to handed out.");
         }
         ;
-        return createResourceInfo(selectedResource, requestHandoutId);
+        return selectedResource;
       }
     }
   }
