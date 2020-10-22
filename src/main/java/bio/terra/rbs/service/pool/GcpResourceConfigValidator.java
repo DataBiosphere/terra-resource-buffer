@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Validates GCP resource config. The current rules are:
  * <ul>
- *     <li> Billing account is required.
+ *     <li> Billing account is present.
  *     <li> compute.googleapis.com need to be enabled.
  * </ul>
  * */
