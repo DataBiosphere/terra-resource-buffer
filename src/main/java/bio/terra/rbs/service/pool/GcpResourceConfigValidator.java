@@ -6,7 +6,13 @@ import bio.terra.rbs.generated.model.ResourceConfig;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 
-/** Validates GCP resource configs */
+/**
+ * Validates GCP resource config. The current rules are:
+ * <ul>
+ *     <li> Billing account is required.
+ *     <li> compute.googleapis.com need to be enabled.
+ * </ul>
+ * */
 public class GcpResourceConfigValidator implements ResourceConfigValidator {
   /** List of services required to be enabled. */
   private static final List<String> REQUIRED_SERVICES = ImmutableList.of("compute.googleapis.com");
