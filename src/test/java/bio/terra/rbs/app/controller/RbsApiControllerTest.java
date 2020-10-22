@@ -1,7 +1,6 @@
 package bio.terra.rbs.app.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -65,12 +64,7 @@ public class RbsApiControllerTest {
 
     String response =
         this.mvc
-            .perform(
-                get(
-                    "/api/pool/v1/"
-                        + poolId.id()
-                        + "/resource/handoutRequestId/"
-                        + requestHandoutId.id()))
+            .perform(put("/api/pool/v1/" + poolId.id() + "/resource/" + requestHandoutId.id()))
             .andExpect(status().isOk())
             .andReturn()
             .getResponse()
