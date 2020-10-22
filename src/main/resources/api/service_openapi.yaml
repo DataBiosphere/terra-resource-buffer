@@ -24,19 +24,18 @@ paths:
           description: Service is broken
           $ref: '#/components/responses/StatusResponse'
 
-  '/api/pool/v1/{poolId}/resource':
-    parameters:
-      - $ref: '#/components/parameters/PoolId'
-    get:
-      summary: Get a resource from pool.
+  '/api/pool/v1/{poolId}/resource/{handoutRequestId}':
+    put:
+      summary: Get a resource from pool and update the resource state, each handoutRequestId is assigned to the resource no more than once. Using the same handoutRequestId will get the same ResourceInfo
       operationId: handoutResource
+      parameters:
+        - $ref: '#/components/parameters/PoolId'
+        - $ref: '#/components/parameters/HandoutRequestId'
       tags:
         - rbs
-      parameters:
-        - $ref: '#/components/parameters/HandoutRequestId'
       responses:
         '200':
-          description: OK
+          description: OK, using the same handoutRequestId will also get 200 back with the same ResourceInfo.
           content:
             application/json:
               schema:
@@ -62,9 +61,10 @@ components:
 
     HandoutRequestId:
       name: handoutRequestId
-      in: query
+      in: path
       description: |-
-        The identity present by client when asking for a resource. Using the same handoutRequestId in the same pool would ge the same resource back.
+        The unique identifier presented by the client for a resource request.
+        Using the same handoutRequestId in the same pool would ge the same resource back.
       required: true
       schema:
         type: string
@@ -168,5 +168,3 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/SystemStatus'
-
-

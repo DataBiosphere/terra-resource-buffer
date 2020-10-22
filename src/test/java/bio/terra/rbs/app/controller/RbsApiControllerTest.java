@@ -2,6 +2,7 @@ package bio.terra.rbs.app.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import bio.terra.rbs.app.Main;
@@ -65,8 +66,11 @@ public class RbsApiControllerTest {
     String response =
         this.mvc
             .perform(
-                get("/api/pool/v1/" + poolId.id() + "/resource")
-                    .queryParam("handoutRequestId", requestHandoutId.id()))
+                get(
+                    "/api/pool/v1/"
+                        + poolId.id()
+                        + "/resource/handoutRequestId/"
+                        + requestHandoutId.id()))
             .andExpect(status().isOk())
             .andReturn()
             .getResponse()
@@ -84,8 +88,7 @@ public class RbsApiControllerTest {
   @Test
   public void handoutResource_noResource() throws Exception {
     this.mvc
-        .perform(
-            get("/api/pool/v1/poolId/resource").queryParam("handoutRequestId", "handoutRequestId"))
+        .perform(put("/api/pool/v1/poolId/resource/handoutRequestId"))
         .andExpect(status().isNotFound());
   }
 }

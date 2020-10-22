@@ -59,7 +59,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/IamBinding'
+        network:
+          $ref: '#/components/schemas/Network'
       type: object
+
     IamBinding:
       description: Associates `members` with a `role`.
       properties:
@@ -72,4 +75,14 @@ components:
         role:
           description: Role that is assigned to `members`. For example, `roles/viewer`, `roles/editor`, or `roles/owner`.
           type: string
+      type: object
+
+    Network:
+      description: Network setup for the project.
+      properties:
+        enableNetworkMonitoring:
+          description: |-
+            Make network traffic is measured. If enabled, turn on flow logs, enable private google access.
+            See https://docs.google.com/document/d/1ccz2kzDL68CPofZ-b95ykQIudCgh7OCSFJ4Ym4Oz0r0/edit for more context.
+          type: boolean
       type: object
