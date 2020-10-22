@@ -144,7 +144,7 @@ public class RbsDao {
   }
 
   /** Retrieve a resource by id. */
-  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+  @Transactional(propagation = Propagation.SUPPORTS)
   public Optional<Resource> retrieveResource(ResourceId resourceId) {
     String sql =
         "select id, pool_id, creation, handout_time, state, request_handout_id, cloud_resource_uid "
@@ -161,7 +161,7 @@ public class RbsDao {
    * Retrieve resource by pool_id and request_handout_id. There should be only one matched resource
    * for a request_handout_id in one pool.
    */
-  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+  @Transactional(propagation = Propagation.SUPPORTS)
   public Optional<Resource> retrieveResource(PoolId poolId, RequestHandoutId requestHandoutId) {
     String sql =
         "select id, pool_id, creation, handout_time, state, request_handout_id, cloud_resource_uid "
