@@ -231,7 +231,7 @@ public class RbsDao {
   }
 
   /** Delete the resource match the {@link ResourceId}. */
-  @Transactional(propagation = Propagation.SUPPORTS)
+  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
   public boolean deleteResource(ResourceId id) {
     String sql = "DELETE FROM resource WHERE id = :id";
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", id.id());
