@@ -105,7 +105,7 @@ public class CreateSubnetsStep implements Step {
                     computeCow.subnetworks().insert(projectId, region, subnetwork).execute()));
       }
 
-      // Do a batch poll which supposed to be faster.
+      // Batch poll to make it faster
       for (OperationCow<?> operation : operationsToPoll) {
         pollUntilSuccess(operation, Duration.ofSeconds(5), Duration.ofMinutes(5));
       }
