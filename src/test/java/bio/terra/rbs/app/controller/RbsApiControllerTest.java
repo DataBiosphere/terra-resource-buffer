@@ -81,8 +81,27 @@ public class RbsApiControllerTest {
 
   @Test
   public void handoutResource_noResource() throws Exception {
+    PoolId poolId = PoolId.create("poolId");
+    rbsDao.createPools(
+        ImmutableList.of(
+            Pool.builder()
+                .creation(Instant.now())
+                .id(poolId)
+                .resourceType(ResourceType.GOOGLE_PROJECT)
+                .size(1)
+                .resourceConfig(new ResourceConfig().configName("resourceName"))
+                .status(PoolStatus.ACTIVE)
+                .build()));
+
     this.mvc
         .perform(put("/api/pool/v1/poolId/resource/handoutRequestId"))
         .andExpect(status().isNotFound());
+  }
+
+  @Test
+  public void handoutResource_invalidPoolId() throws Exception {
+    this.mvc
+        .perform(put("/api/pool/v1/poolId/resource/handoutRequestId"))
+        .andExpect(status().isBadRequest());
   }
 }
