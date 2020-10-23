@@ -33,8 +33,8 @@ public class GoogleUtils {
 
   /** Checks if network monitoring is enabled from config. */
   public static boolean enableNetworkMonitoring(GcpProjectConfig gcpProjectConfig) {
-  return gcpProjectConfig.getNetwork() != null && gcpProjectConfig.getNetwork().isEnableNetworkMonitoring() != null && gcpProjectConfig.getNetwork().isEnableNetworkMonitoring();
-
-}
-
+    return gcpProjectConfig.getNetwork() != null
+        && gcpProjectConfig.getNetwork().isEnableNetworkMonitoring() != null
+        && gcpProjectConfig.getNetwork().isEnableNetworkMonitoring();
+  }
 }

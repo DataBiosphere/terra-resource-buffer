@@ -11,6 +11,7 @@ import bio.terra.stairway.Step;
 import bio.terra.stairway.StepResult;
 import bio.terra.stairway.StepStatus;
 import bio.terra.stairway.exception.RetryException;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.compute.model.Network;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
@@ -18,7 +19,7 @@ import java.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Craetes Network project */
+/** Creates a VPC network within a GCP project created in a prior step. */
 public class CreateNetworkStep implements Step {
   /** All project will use the same network name. */
   @VisibleForTesting public static final String NETWORK_NAME = "network";
@@ -35,8 +36,23 @@ public class CreateNetworkStep implements Step {
   @Override
   public StepResult doStep(FlightContext flightContext) throws RetryException {
     String projectId = flightContext.getWorkingMap().get(GOOGLE_PROJECT_ID, String.class);
-    Network network = new Network().setName(NETWORK_NAME).setAutoCreateSubnetworks(false);
     try {
+      // Skip this steps if network already exists. This may happen when previous step's polling
+      // times out, while network is created before next retry.
+      computeCow.networks().get(projectId, NETWORK_NAME).execute();
+      logger.info(
+          "Network already exists for project %s: {}. Skipping CreateNetworkStep", projectId);
+      return StepResult.getStepResultSuccess();
+    } catch (IOException e) {
+      if (e instanceof GoogleJsonResponseException
+          && ((GoogleJsonResponseException) e).getStatusCode() == 404) {
+        // do something
+      } else {
+        return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY, e);
+      }
+    }
+    try {
+      Network network = new Network().setName(NETWORK_NAME).setAutoCreateSubnetworks(false);
       OperationCow<?> operation =
           computeCow
               .globalOperations()
@@ -51,6 +67,7 @@ public class CreateNetworkStep implements Step {
 
   @Override
   public StepResult undoStep(FlightContext flightContext) {
+    // Flight undo will just need to delete the project on GCP.
     return StepResult.getStepResultSuccess();
   }
 }

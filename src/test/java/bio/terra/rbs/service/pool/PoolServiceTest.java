@@ -1,15 +1,15 @@
 package bio.terra.rbs.service.pool;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 import bio.terra.rbs.common.*;
+import bio.terra.rbs.common.exception.BadRequestException;
+import bio.terra.rbs.common.exception.NotFoundException;
 import bio.terra.rbs.db.*;
-import bio.terra.rbs.generated.model.GcpProjectConfig;
-import bio.terra.rbs.generated.model.PoolConfig;
-import bio.terra.rbs.generated.model.ResourceConfig;
+import bio.terra.rbs.generated.model.*;
 import com.google.common.collect.ImmutableList;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.hamcrest.Matchers;
@@ -37,6 +37,11 @@ public class PoolServiceTest extends BaseUnitTest {
         new GcpProjectConfig()
             .projectIDPrefix("aou-rw-test")
             .enabledApis(ImmutableList.of("bigquery-json.googleapis.com")));
+  }
+
+  private static CloudResourceUid newProjectUid() {
+    return new CloudResourceUid()
+        .googleProjectUid(new GoogleProjectUid().projectId(UUID.randomUUID().toString()));
   }
 
   @Test
@@ -187,5 +192,75 @@ public class PoolServiceTest extends BaseUnitTest {
 
     poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig));
     assertEquals(rbsDao.retrievePools().get(0), createdPool.toBuilder().size(size + 10).build());
+  }
+
+  @Test
+  public void handoutResource_success() throws Exception {
+    PoolId poolId = PoolId.create("poolId");
+    RequestHandoutId requestHandoutId = RequestHandoutId.create("handoutId");
+    newReadyPool(poolId, 2);
+    List<CloudResourceUid> resourceUids =
+        rbsDao.retrieveResources(poolId, ResourceState.READY, 2).stream()
+            .map(Resource::cloudResourceUid)
+            .collect(Collectors.toList());
+    ResourceInfo resourceInfo = poolService.handoutResource(poolId, requestHandoutId);
+
+    assertEquals(poolId.id(), resourceInfo.getPoolId());
+    assertEquals(requestHandoutId.id(), resourceInfo.getRequestHandoutId());
+    // CloudResource may be either of the two resources.
+    assertTrue(
+        resourceInfo.getCloudResourceUid().equals(resourceUids.get(0))
+            || resourceInfo.getCloudResourceUid().equals(resourceUids.get(1)));
+
+    // Use the same requestHandoutId, expect to get the same resource back.
+    ResourceInfo secondResourceInfo = poolService.handoutResource(poolId, requestHandoutId);
+    assertEquals(resourceInfo, secondResourceInfo);
+  }
+
+  @Test
+  public void handoutResource_deactivatedPool() throws Exception {
+    PoolId poolId = PoolId.create("poolId");
+    RequestHandoutId requestHandoutId = RequestHandoutId.create("handoutId");
+    newReadyPool(poolId, 1);
+    rbsDao.deactivatePools(ImmutableList.of(poolId));
+
+    assertThrows(
+        BadRequestException.class, () -> poolService.handoutResource(poolId, requestHandoutId));
+  }
+
+  @Test
+  public void handoutResource_noReadyResource() throws Exception {
+    PoolId poolId = PoolId.create("poolId");
+    RequestHandoutId requestHandoutId = RequestHandoutId.create("handoutId");
+    newReadyPool(poolId, 0);
+
+    assertThrows(
+        NotFoundException.class, () -> poolService.handoutResource(poolId, requestHandoutId));
+  }
+
+  /** Creates a pool with resources with given size. */
+  private void newReadyPool(PoolId poolId, int poolSize) {
+    Pool pool =
+        Pool.builder()
+            .creation(Instant.now())
+            .id(poolId)
+            .resourceType(ResourceType.GOOGLE_PROJECT)
+            .size(poolSize)
+            .resourceConfig(new ResourceConfig().configName("resourceName"))
+            .status(PoolStatus.ACTIVE)
+            .build();
+    rbsDao.createPools(ImmutableList.of(pool));
+
+    for (int i = 0; i < poolSize; i++) {
+      ResourceId id = ResourceId.create(UUID.randomUUID());
+      rbsDao.createResource(
+          Resource.builder()
+              .id(id)
+              .poolId(poolId)
+              .creation(Instant.now())
+              .state(ResourceState.CREATING)
+              .build());
+      rbsDao.updateResourceAsReady(id, newProjectUid());
+    }
   }
 }

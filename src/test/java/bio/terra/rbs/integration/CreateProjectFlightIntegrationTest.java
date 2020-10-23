@@ -3,6 +3,7 @@ package bio.terra.rbs.integration;
 import static bio.terra.rbs.integration.IntegrationUtils.pollUntilResourcesMatch;
 import static bio.terra.rbs.service.resource.FlightMapKeys.RESOURCE_CONFIG;
 import static bio.terra.rbs.service.resource.flight.CreateNetworkStep.NETWORK_NAME;
+import static bio.terra.rbs.service.resource.flight.CreateSubnetsStep.*;
 import static bio.terra.rbs.service.resource.flight.GoogleUtils.projectIdToName;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,6 +29,7 @@ import com.google.api.services.cloudresourcemanager.model.Binding;
 import com.google.api.services.cloudresourcemanager.model.GetIamPolicyRequest;
 import com.google.api.services.cloudresourcemanager.model.Project;
 import com.google.api.services.compute.model.Network;
+import com.google.api.services.compute.model.Subnetwork;
 import com.google.api.services.serviceusage.v1.model.GoogleApiServiceusageV1Service;
 import com.google.common.collect.ImmutableList;
 import java.time.Duration;
@@ -73,6 +75,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertBillingIs(project, pool.resourceConfig().getGcpProjectConfig().getBillingAccount());
     assertEnableApisContains(project, pool.resourceConfig().getGcpProjectConfig().getEnabledApis());
     assertNetworkExists(project);
+    assertSubnetsExists(project, false);
   }
 
   @Test
@@ -99,6 +102,25 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   }
 
   @Test
+  public void testCreateGoogleProject_enableNetworkMonitoring() throws Exception {
+    // Basic GCP project with billing setup.
+    FlightManager manager = new FlightManager(flightSubmissionFactoryImpl, stairwayComponent);
+    Pool pool =
+        preparePool(
+            newBasicGcpConfig()
+                .network(
+                    new bio.terra.rbs.generated.model.Network().enableNetworkMonitoring(true)));
+
+    String flightId = manager.submitCreationFlight(pool).get();
+    blockUntilFlightComplete(flightId);
+    Project project = assertProjectExists(pool);
+    assertBillingIs(project, pool.resourceConfig().getGcpProjectConfig().getBillingAccount());
+    assertEnableApisContains(project, pool.resourceConfig().getGcpProjectConfig().getEnabledApis());
+    assertNetworkExists(project);
+    assertSubnetsExists(project, true);
+  }
+
+  @Test
   public void testCreateGoogleProject_errorDuringProjectCreation() throws Exception {
     // Verify flight is able to successfully rollback when project fails to create and doesn't
     // exist.
@@ -119,6 +141,39 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertFalse(rbsDao.retrieveResource(resource.id()).isPresent());
     assertEquals(
         FlightStatus.ERROR, stairwayComponent.get().getFlightState(flightId).getFlightStatus());
+  }
+
+  @Test
+  public void testCreateGoogleProject_multipleNetworkCreation() throws Exception {
+    // Verify flight is able to finish successfully when network exists
+    FlightManager manager =
+        new FlightManager(
+            new StubSubmissionFlightFactory(MultiNetworkStepFlight.class), stairwayComponent);
+    Pool pool = preparePool(newBasicGcpConfig());
+
+    String flightId = manager.submitCreationFlight(pool).get();
+    blockUntilFlightComplete(flightId);
+    Project project = assertProjectExists(pool);
+    assertBillingIs(project, pool.resourceConfig().getGcpProjectConfig().getBillingAccount());
+    assertEnableApisContains(project, pool.resourceConfig().getGcpProjectConfig().getEnabledApis());
+    assertNetworkExists(project);
+  }
+
+  @Test
+  public void testCreateGoogleProject_multipleSubnetsCreation() throws Exception {
+    // Verify flight is able to finish successfully when subnets exists
+    FlightManager manager =
+        new FlightManager(
+            new StubSubmissionFlightFactory(MultiSubnetsStepFlight.class), stairwayComponent);
+    Pool pool = preparePool(newBasicGcpConfig());
+
+    String flightId = manager.submitCreationFlight(pool).get();
+    blockUntilFlightComplete(flightId);
+    Project project = assertProjectExists(pool);
+    assertBillingIs(project, pool.resourceConfig().getGcpProjectConfig().getBillingAccount());
+    assertEnableApisContains(project, pool.resourceConfig().getGcpProjectConfig().getEnabledApis());
+    assertNetworkExists(project);
+    assertSubnetsExists(project, false);
   }
 
   @Test
@@ -159,6 +214,63 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
       addStep(new LatchStep());
       addStep(new GenerateProjectIdStep());
       addStep(new ErrorCreateProjectStep(rmCow, gcpProjectConfig));
+      addStep(new FinishResourceCreationStep(rbsDao));
+    }
+  }
+
+  /** A {@link Flight} that has multiple network creation steps. */
+  public static class MultiNetworkStepFlight extends Flight {
+    public MultiNetworkStepFlight(FlightMap inputParameters, Object applicationContext) {
+      super(inputParameters, applicationContext);
+      RbsDao rbsDao = ((ApplicationContext) applicationContext).getBean(RbsDao.class);
+      CloudResourceManagerCow rmCow =
+          ((ApplicationContext) applicationContext).getBean(CloudResourceManagerCow.class);
+      CloudBillingClientCow billingCow =
+          ((ApplicationContext) applicationContext).getBean(CloudBillingClientCow.class);
+      ServiceUsageCow serviceUsageCow =
+          ((ApplicationContext) applicationContext).getBean(ServiceUsageCow.class);
+      CloudComputeCow cloudComputeCow =
+          ((ApplicationContext) applicationContext).getBean(CloudComputeCow.class);
+      GcpProjectConfig gcpProjectConfig =
+          inputParameters.get(RESOURCE_CONFIG, ResourceConfig.class).getGcpProjectConfig();
+      addStep(new GenerateResourceIdStep());
+      addStep(new CreateResourceDbEntityStep(rbsDao));
+      addStep(new GenerateProjectIdStep());
+      addStep(new CreateProjectStep(rmCow, gcpProjectConfig));
+      addStep(new SetBillingInfoStep(billingCow, gcpProjectConfig));
+      addStep(new EnableServicesStep(serviceUsageCow, gcpProjectConfig));
+      addStep(new SetIamPolicyStep(rmCow, gcpProjectConfig));
+      addStep(new CreateNetworkStep(cloudComputeCow, gcpProjectConfig));
+      addStep(new CreateNetworkStep(cloudComputeCow, gcpProjectConfig));
+      addStep(new FinishResourceCreationStep(rbsDao));
+    }
+  }
+
+  /** A {@link Flight} that has multiple subnets creation steps. */
+  public static class MultiSubnetsStepFlight extends Flight {
+    public MultiSubnetsStepFlight(FlightMap inputParameters, Object applicationContext) {
+      super(inputParameters, applicationContext);
+      RbsDao rbsDao = ((ApplicationContext) applicationContext).getBean(RbsDao.class);
+      CloudResourceManagerCow rmCow =
+          ((ApplicationContext) applicationContext).getBean(CloudResourceManagerCow.class);
+      CloudBillingClientCow billingCow =
+          ((ApplicationContext) applicationContext).getBean(CloudBillingClientCow.class);
+      ServiceUsageCow serviceUsageCow =
+          ((ApplicationContext) applicationContext).getBean(ServiceUsageCow.class);
+      CloudComputeCow cloudComputeCow =
+          ((ApplicationContext) applicationContext).getBean(CloudComputeCow.class);
+      GcpProjectConfig gcpProjectConfig =
+          inputParameters.get(RESOURCE_CONFIG, ResourceConfig.class).getGcpProjectConfig();
+      addStep(new GenerateResourceIdStep());
+      addStep(new CreateResourceDbEntityStep(rbsDao));
+      addStep(new GenerateProjectIdStep());
+      addStep(new CreateProjectStep(rmCow, gcpProjectConfig));
+      addStep(new SetBillingInfoStep(billingCow, gcpProjectConfig));
+      addStep(new EnableServicesStep(serviceUsageCow, gcpProjectConfig));
+      addStep(new SetIamPolicyStep(rmCow, gcpProjectConfig));
+      addStep(new CreateNetworkStep(cloudComputeCow, gcpProjectConfig));
+      addStep(new CreateSubnetsStep(cloudComputeCow, gcpProjectConfig));
+      addStep(new CreateSubnetsStep(cloudComputeCow, gcpProjectConfig));
       addStep(new FinishResourceCreationStep(rbsDao));
     }
   }
@@ -271,6 +383,20 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   private void assertNetworkExists(Project project) throws Exception {
     Network network = computeCow.networks().get(project.getProjectId(), NETWORK_NAME).execute();
     assertFalse(network.getAutoCreateSubnetworks());
+  }
+
+  private void assertSubnetsExists(Project project, boolean networkMonitoringEnabled)
+      throws Exception {
+    Network network = computeCow.networks().get(project.getProjectId(), NETWORK_NAME).execute();
+    for (int i = 0; i < SUBNETS_REGIONS.size(); i++) {
+      String region = SUBNETS_REGIONS.get(i);
+      Subnetwork subnetwork =
+          computeCow.subnetworks().get(project.getProjectId(), region, SUBNETWORK_NAME).execute();
+      assertEquals(network.getSelfLink(), subnetwork.getNetwork());
+      assertEquals(generateIpRange(i), subnetwork.getIpCidrRange());
+      assertEquals(networkMonitoringEnabled, subnetwork.getEnableFlowLogs());
+      assertEquals(networkMonitoringEnabled, subnetwork.getPrivateIpGoogleAccess());
+    }
   }
 
   /** A {@link FlightSubmissionFactory} used in test. */
