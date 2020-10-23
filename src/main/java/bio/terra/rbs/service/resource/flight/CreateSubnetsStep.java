@@ -83,7 +83,7 @@ public class CreateSubnetsStep implements Step {
         } catch (IOException e) {
           if (e instanceof GoogleJsonResponseException
               && ((GoogleJsonResponseException) e).getStatusCode() == 404) {
-            // do something
+            // do nothing
           } else {
             return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY, e);
           }
