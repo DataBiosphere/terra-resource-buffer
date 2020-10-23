@@ -1,6 +1,7 @@
 package bio.terra.rbs.service.resource.flight;
 
 import static bio.terra.rbs.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
+import static bio.terra.rbs.service.resource.flight.GoogleUtils.cloudObjectExists;
 import static bio.terra.rbs.service.resource.flight.GoogleUtils.pollUntilSuccess;
 
 import bio.terra.cloudres.google.api.services.common.OperationCow;
@@ -11,7 +12,6 @@ import bio.terra.stairway.Step;
 import bio.terra.stairway.StepResult;
 import bio.terra.stairway.StepStatus;
 import bio.terra.stairway.exception.RetryException;
-import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.compute.model.Network;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
@@ -39,19 +39,12 @@ public class CreateNetworkStep implements Step {
     try {
       // Skip this steps if network already exists. This may happen when previous step's polling
       // times out, while network is created before next retry.
-      computeCow.networks().get(projectId, NETWORK_NAME).execute();
-      logger.info(
-          "Network already exists for project %s: {}. Skipping CreateNetworkStep", projectId);
-      return StepResult.getStepResultSuccess();
-    } catch (IOException e) {
-      if (e instanceof GoogleJsonResponseException
-          && ((GoogleJsonResponseException) e).getStatusCode() == 404) {
-        // do something
-      } else {
-        return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY, e);
+      if (cloudObjectExists(() -> computeCow.networks().get(projectId, NETWORK_NAME).execute())) {
+        logger.info(
+            "Network already exists for project %s: {}. Skipping CreateNetworkStep", projectId);
+        return StepResult.getStepResultSuccess();
       }
-    }
-    try {
+
       Network network = new Network().setName(NETWORK_NAME).setAutoCreateSubnetworks(false);
       OperationCow<?> operation =
           computeCow

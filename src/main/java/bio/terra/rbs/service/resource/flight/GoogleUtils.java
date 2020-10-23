@@ -4,6 +4,7 @@ import bio.terra.cloudres.google.api.services.common.OperationCow;
 import bio.terra.cloudres.google.api.services.common.OperationUtils;
 import bio.terra.rbs.generated.model.GcpProjectConfig;
 import bio.terra.stairway.exception.RetryException;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import java.io.IOException;
 import java.time.Duration;
 
@@ -32,9 +33,28 @@ public class GoogleUtils {
   }
 
   /** Checks if network monitoring is enabled from config. */
-  public static boolean enableNetworkMonitoring(GcpProjectConfig gcpProjectConfig) {
+  public static boolean checkEnableNetworkMonitoring(GcpProjectConfig gcpProjectConfig) {
     return gcpProjectConfig.getNetwork() != null
         && gcpProjectConfig.getNetwork().isEnableNetworkMonitoring() != null
         && gcpProjectConfig.getNetwork().isEnableNetworkMonitoring();
+  }
+
+  /** Checks if cloudObject already exists. */
+  public static boolean cloudObjectExists(CowExecute execute) throws IOException {
+    try {
+      execute.execute();
+      return true;
+    } catch (IOException e) {
+      if (e instanceof GoogleJsonResponseException
+          && ((GoogleJsonResponseException) e).getStatusCode() == 404) {
+        return false;
+      } else {
+        throw e;
+      }
+    }
+  }
+
+  public interface CowExecute {
+    void execute() throws IOException;
   }
 }

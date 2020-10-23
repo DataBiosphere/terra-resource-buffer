@@ -75,7 +75,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertBillingIs(project, pool.resourceConfig().getGcpProjectConfig().getBillingAccount());
     assertEnableApisContains(project, pool.resourceConfig().getGcpProjectConfig().getEnabledApis());
     assertNetworkExists(project);
-    assertSubnetsExists(project, false);
+    assertSubnetsExist(project, pool.resourceConfig().getGcpProjectConfig().getNetwork());
   }
 
   @Test
@@ -117,7 +117,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertBillingIs(project, pool.resourceConfig().getGcpProjectConfig().getBillingAccount());
     assertEnableApisContains(project, pool.resourceConfig().getGcpProjectConfig().getEnabledApis());
     assertNetworkExists(project);
-    assertSubnetsExists(project, true);
+    assertSubnetsExist(project, pool.resourceConfig().getGcpProjectConfig().getNetwork());
   }
 
   @Test
@@ -161,7 +161,10 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
   @Test
   public void testCreateGoogleProject_multipleSubnetsCreation() throws Exception {
-    // Verify flight is able to finish successfully when subnets exists
+    // Verify flight is able to finish successfully when subnets already exists/
+    // this scenario may arise when the step partially fails and ends up in a state where some
+    // subnets need to be
+    // recreated and some are getting created the first time.
     FlightManager manager =
         new FlightManager(
             new StubSubmissionFlightFactory(MultiSubnetsStepFlight.class), stairwayComponent);
@@ -173,7 +176,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertBillingIs(project, pool.resourceConfig().getGcpProjectConfig().getBillingAccount());
     assertEnableApisContains(project, pool.resourceConfig().getGcpProjectConfig().getEnabledApis());
     assertNetworkExists(project);
-    assertSubnetsExists(project, false);
+    assertSubnetsExist(project, pool.resourceConfig().getGcpProjectConfig().getNetwork());
   }
 
   @Test
@@ -246,7 +249,10 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     }
   }
 
-  /** A {@link Flight} that has multiple subnets creation steps. */
+  /**
+   * A {@link Flight} that has multiple subnets creation steps. So a flight will try to create all
+   * Subnets twice and still success.
+   */
   public static class MultiSubnetsStepFlight extends Flight {
     public MultiSubnetsStepFlight(FlightMap inputParameters, Object applicationContext) {
       super(inputParameters, applicationContext);
@@ -385,17 +391,17 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertFalse(network.getAutoCreateSubnetworks());
   }
 
-  private void assertSubnetsExists(Project project, boolean networkMonitoringEnabled)
-      throws Exception {
+  private void assertSubnetsExist(
+      Project project, bio.terra.rbs.generated.model.Network networkConfig) throws Exception {
     Network network = computeCow.networks().get(project.getProjectId(), NETWORK_NAME).execute();
-    for (int i = 0; i < SUBNETS_REGIONS.size(); i++) {
-      String region = SUBNETS_REGIONS.get(i);
+    for (String region : SUBNET_REGIONS) {
       Subnetwork subnetwork =
           computeCow.subnetworks().get(project.getProjectId(), region, SUBNETWORK_NAME).execute();
       assertEquals(network.getSelfLink(), subnetwork.getNetwork());
-      assertEquals(generateIpRange(i), subnetwork.getIpCidrRange());
-      assertEquals(networkMonitoringEnabled, subnetwork.getEnableFlowLogs());
-      assertEquals(networkMonitoringEnabled, subnetwork.getPrivateIpGoogleAccess());
+      assertEquals(REGION_TO_IP_RANGE.get(region), subnetwork.getIpCidrRange());
+      assertEquals(networkConfig.isEnableNetworkMonitoring(), subnetwork.getEnableFlowLogs());
+      assertEquals(
+          networkConfig.isEnableNetworkMonitoring(), subnetwork.getPrivateIpGoogleAccess());
     }
   }
 
