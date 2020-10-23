@@ -1,8 +1,8 @@
 package bio.terra.rbs.service.resource.flight;
 
 import static bio.terra.rbs.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
-import static bio.terra.rbs.service.resource.flight.CreateNetworkStep.NETWORK_NAME;
 import static bio.terra.rbs.service.resource.flight.GoogleUtils.*;
+import static bio.terra.rbs.service.resource.flight.GoogleUtils.NETWORK_NAME;
 
 import bio.terra.cloudres.google.api.services.common.OperationCow;
 import bio.terra.cloudres.google.compute.CloudComputeCow;

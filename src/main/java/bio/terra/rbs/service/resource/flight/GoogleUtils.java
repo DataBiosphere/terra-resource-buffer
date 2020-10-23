@@ -5,11 +5,15 @@ import bio.terra.cloudres.google.api.services.common.OperationUtils;
 import bio.terra.rbs.generated.model.GcpProjectConfig;
 import bio.terra.stairway.exception.RetryException;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.time.Duration;
 
 /** Utilities when use Google APIs. */
 public class GoogleUtils {
+  /** All project will use the same network name. */
+  @VisibleForTesting public static final String NETWORK_NAME = "network";
+
   /**
    * Poll until the Google Service API operation has completed. Throws any error or timeouts as a
    * {@link RetryException}.

@@ -13,7 +13,6 @@ import bio.terra.stairway.StepResult;
 import bio.terra.stairway.StepStatus;
 import bio.terra.stairway.exception.RetryException;
 import com.google.api.services.compute.model.Network;
-import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.time.Duration;
 import org.slf4j.Logger;
@@ -21,8 +20,6 @@ import org.slf4j.LoggerFactory;
 
 /** Creates a VPC network within a GCP project created in a prior step. */
 public class CreateNetworkStep implements Step {
-  /** All project will use the same network name. */
-  @VisibleForTesting public static final String NETWORK_NAME = "network";
 
   private final Logger logger = LoggerFactory.getLogger(CreateNetworkStep.class);
   private final CloudComputeCow computeCow;
@@ -39,13 +36,15 @@ public class CreateNetworkStep implements Step {
     try {
       // Skip this steps if network already exists. This may happen when previous step's polling
       // times out, while network is created before next retry.
-      if (cloudObjectExists(() -> computeCow.networks().get(projectId, NETWORK_NAME).execute())) {
+      if (cloudObjectExists(
+          () -> computeCow.networks().get(projectId, GoogleUtils.NETWORK_NAME).execute())) {
         logger.info(
             "Network already exists for project %s: {}. Skipping CreateNetworkStep", projectId);
         return StepResult.getStepResultSuccess();
       }
 
-      Network network = new Network().setName(NETWORK_NAME).setAutoCreateSubnetworks(false);
+      Network network =
+          new Network().setName(GoogleUtils.NETWORK_NAME).setAutoCreateSubnetworks(false);
       OperationCow<?> operation =
           computeCow
               .globalOperations()

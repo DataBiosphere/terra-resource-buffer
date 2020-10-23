@@ -2,8 +2,8 @@ package bio.terra.rbs.integration;
 
 import static bio.terra.rbs.integration.IntegrationUtils.pollUntilResourcesMatch;
 import static bio.terra.rbs.service.resource.FlightMapKeys.RESOURCE_CONFIG;
-import static bio.terra.rbs.service.resource.flight.CreateNetworkStep.NETWORK_NAME;
 import static bio.terra.rbs.service.resource.flight.CreateSubnetsStep.*;
+import static bio.terra.rbs.service.resource.flight.GoogleUtils.NETWORK_NAME;
 import static bio.terra.rbs.service.resource.flight.GoogleUtils.projectIdToName;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -394,14 +394,15 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   private void assertSubnetsExist(
       Project project, bio.terra.rbs.generated.model.Network networkConfig) throws Exception {
     Network network = computeCow.networks().get(project.getProjectId(), NETWORK_NAME).execute();
+    boolean networkMonitoringEnabled =
+        networkConfig != null && networkConfig.isEnableNetworkMonitoring();
     for (String region : SUBNET_REGIONS) {
       Subnetwork subnetwork =
           computeCow.subnetworks().get(project.getProjectId(), region, SUBNETWORK_NAME).execute();
       assertEquals(network.getSelfLink(), subnetwork.getNetwork());
       assertEquals(REGION_TO_IP_RANGE.get(region), subnetwork.getIpCidrRange());
-      assertEquals(networkConfig.isEnableNetworkMonitoring(), subnetwork.getEnableFlowLogs());
-      assertEquals(
-          networkConfig.isEnableNetworkMonitoring(), subnetwork.getPrivateIpGoogleAccess());
+      assertEquals(networkMonitoringEnabled, subnetwork.getEnableFlowLogs());
+      assertEquals(networkMonitoringEnabled, subnetwork.getPrivateIpGoogleAccess());
     }
   }
 
