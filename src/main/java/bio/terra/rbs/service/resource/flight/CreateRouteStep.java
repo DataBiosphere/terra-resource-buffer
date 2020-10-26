@@ -55,7 +55,7 @@ public class CreateRouteStep implements Step {
           getResource(() -> computeCow.networks().get(projectId, NETWORK_NAME).execute(), 404)
               .get();
 
-      if (resourceExists(() -> computeCow.routes().get(projectId, ROUTE_NAME), 404)) {
+      if (resourceExists(() -> computeCow.routes().get(projectId, ROUTE_NAME).execute(), 404)) {
         return StepResult.getStepResultSuccess();
       }
       Route route =
