@@ -15,11 +15,10 @@ import bio.terra.stairway.exception.RetryException;
 import com.google.api.services.compute.model.Network;
 import com.google.api.services.compute.model.Subnetwork;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -44,36 +43,38 @@ import org.slf4j.LoggerFactory;
  */
 public class CreateSubnetsStep implements Step {
   @VisibleForTesting public static final String SUBNETWORK_NAME = "subnetwork";
-  /** All current Google Compute Engine regions, value from: {@code gcloud compute regions list}. */
+  /**
+   * All current Google Compute Engine regions with the default Ip ranges listed (and manually
+   * copied) in: https://cloud.google.com/vpc/docs/vpc#ip-ranges.
+   */
   @VisibleForTesting
-  public static final List<String> SUBNET_REGIONS =
-      ImmutableList.of(
-          "asia-east1",
-          "asia-east2",
-          "asia-northeast1",
-          "asia-northeast2",
-          "asia-northeast3",
-          "asia-south1",
-          "asia-southeast1",
-          "asia-southeast2",
-          "australia-southeast1",
-          "europe-north1",
-          "europe-west1",
-          "europe-west2",
-          "europe-west3",
-          "europe-west4",
-          "europe-west6",
-          "northamerica-northeast1",
-          "southamerica-east1",
-          "us-central1",
-          "us-east1",
-          "us-east4",
-          "us-west1",
-          "us-west2",
-          "us-west3",
-          "us-west4");
-
-  public static final Map<String, String> REGION_TO_IP_RANGE = new HashMap<>();
+  public static final Map<String, String> REGION_TO_IP_RANGE =
+      ImmutableMap.<String, String>builder()
+          .put("asia-east1", "10.140.0.0/20")
+          .put("asia-east2", "10.170.0.0/20")
+          .put("asia-northeast1", "10.146.0.0/20")
+          .put("asia-northeast2", "10.174.0.0/20")
+          .put("asia-northeast3", "10.178.0.0/20")
+          .put("asia-south1", "10.160.0.0/20")
+          .put("asia-southeast1", "10.148.0.0/20")
+          .put("asia-southeast2", "10.184.0.0/20")
+          .put("australia-southeast1", "10.152.0.0/20")
+          .put("europe-north1", "10.166.0.0/20")
+          .put("europe-west1", "10.132.0.0/20")
+          .put("europe-west2", "10.154.0.0/20")
+          .put("europe-west3", "10.156.0.0/20")
+          .put("europe-west4", "10.164.0.0/20")
+          .put("europe-west6", "10.172.0.0/20")
+          .put("northamerica-northeast1", "10.162.0.0/20")
+          .put("southamerica-east1", "10.158.0.0/20")
+          .put("us-central1", "10.128.0.0/20")
+          .put("us-east1", "10.142.0.0/20")
+          .put("us-east4", "10.150.0.0/20")
+          .put("us-west1", "10.138.0.0/20")
+          .put("us-west2", "10.168.0.0/20")
+          .put("us-west3", "10.180.0.0/20")
+          .put("us-west4", "10.182.0.0/20")
+          .build();
 
   private final Logger logger = LoggerFactory.getLogger(CreateSubnetsStep.class);
   private final CloudComputeCow computeCow;
@@ -84,18 +85,6 @@ public class CreateSubnetsStep implements Step {
     this.gcpProjectConfig = gcpProjectConfig;
   }
 
-  /**
-   * Generates Ip ranges programmatically.
-   *
-   * @see <a
-   *     href="https://github.com/broadinstitute/gcp-dm-templates/blob/eeee90fa4619b273d07206a867b01914cdeb0a30/firecloud_project.py#L49">gcp-dm-templates</a>
-   */
-  static {
-    for (int i = 0; i < SUBNET_REGIONS.size(); i++) {
-      REGION_TO_IP_RANGE.put(SUBNET_REGIONS.get(i), "10." + (128 + 2 * i) + ".0.0/20");
-    }
-  }
-
   @Override
   public StepResult doStep(FlightContext flightContext) throws RetryException {
     String projectId = flightContext.getWorkingMap().get(GOOGLE_PROJECT_ID, String.class);
@@ -103,7 +92,8 @@ public class CreateSubnetsStep implements Step {
     List<OperationCow<?>> operationsToPoll = new ArrayList<>();
     try {
       Network network = computeCow.networks().get(projectId, NETWORK_NAME).execute();
-      for (String region : SUBNET_REGIONS) {
+      for (Map.Entry<String, String> entry : REGION_TO_IP_RANGE.entrySet()) {
+        String region = entry.getKey();
         if (cloudObjectExists(
             () -> computeCow.subnetworks().get(projectId, region, SUBNETWORK_NAME).execute())) {
           continue;
@@ -113,7 +103,7 @@ public class CreateSubnetsStep implements Step {
                 .setName(SUBNETWORK_NAME)
                 .setRegion(region)
                 .setNetwork(network.getSelfLink())
-                .setIpCidrRange(REGION_TO_IP_RANGE.get(region))
+                .setIpCidrRange(entry.getValue())
                 .setEnableFlowLogs(networkMonitoringEnabled)
                 .setPrivateIpGoogleAccess(networkMonitoringEnabled);
         operationsToPoll.add(

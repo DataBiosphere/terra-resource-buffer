@@ -222,30 +222,18 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   }
 
   /** A {@link Flight} that has multiple network creation steps. */
-  public static class MultiNetworkStepFlight extends Flight {
+  public static class MultiNetworkStepFlight extends GoogleProjectCreationFlight {
     public MultiNetworkStepFlight(FlightMap inputParameters, Object applicationContext) {
       super(inputParameters, applicationContext);
-      RbsDao rbsDao = ((ApplicationContext) applicationContext).getBean(RbsDao.class);
-      CloudResourceManagerCow rmCow =
-          ((ApplicationContext) applicationContext).getBean(CloudResourceManagerCow.class);
-      CloudBillingClientCow billingCow =
-          ((ApplicationContext) applicationContext).getBean(CloudBillingClientCow.class);
-      ServiceUsageCow serviceUsageCow =
-          ((ApplicationContext) applicationContext).getBean(ServiceUsageCow.class);
-      CloudComputeCow cloudComputeCow =
-          ((ApplicationContext) applicationContext).getBean(CloudComputeCow.class);
-      GcpProjectConfig gcpProjectConfig =
-          inputParameters.get(RESOURCE_CONFIG, ResourceConfig.class).getGcpProjectConfig();
-      addStep(new GenerateResourceIdStep());
-      addStep(new CreateResourceDbEntityStep(rbsDao));
-      addStep(new GenerateProjectIdStep());
-      addStep(new CreateProjectStep(rmCow, gcpProjectConfig));
-      addStep(new SetBillingInfoStep(billingCow, gcpProjectConfig));
-      addStep(new EnableServicesStep(serviceUsageCow, gcpProjectConfig));
-      addStep(new SetIamPolicyStep(rmCow, gcpProjectConfig));
-      addStep(new CreateNetworkStep(cloudComputeCow, gcpProjectConfig));
-      addStep(new CreateNetworkStep(cloudComputeCow, gcpProjectConfig));
-      addStep(new FinishResourceCreationStep(rbsDao));
+    }
+
+    @Override
+    protected void addStep(Step step) {
+      super.addStep(step);
+      if (step instanceof CreateNetworkStep) {
+        // Create a duplicate entry for any CreateNetworkStep in the original flight path.
+        super.addStep(step);
+      }
     }
   }
 
@@ -253,31 +241,19 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
    * A {@link Flight} that has multiple subnets creation steps. So a flight will try to create all
    * Subnets twice and still success.
    */
-  public static class MultiSubnetsStepFlight extends Flight {
+  public static class MultiSubnetsStepFlight extends GoogleProjectCreationFlight {
+
     public MultiSubnetsStepFlight(FlightMap inputParameters, Object applicationContext) {
       super(inputParameters, applicationContext);
-      RbsDao rbsDao = ((ApplicationContext) applicationContext).getBean(RbsDao.class);
-      CloudResourceManagerCow rmCow =
-          ((ApplicationContext) applicationContext).getBean(CloudResourceManagerCow.class);
-      CloudBillingClientCow billingCow =
-          ((ApplicationContext) applicationContext).getBean(CloudBillingClientCow.class);
-      ServiceUsageCow serviceUsageCow =
-          ((ApplicationContext) applicationContext).getBean(ServiceUsageCow.class);
-      CloudComputeCow cloudComputeCow =
-          ((ApplicationContext) applicationContext).getBean(CloudComputeCow.class);
-      GcpProjectConfig gcpProjectConfig =
-          inputParameters.get(RESOURCE_CONFIG, ResourceConfig.class).getGcpProjectConfig();
-      addStep(new GenerateResourceIdStep());
-      addStep(new CreateResourceDbEntityStep(rbsDao));
-      addStep(new GenerateProjectIdStep());
-      addStep(new CreateProjectStep(rmCow, gcpProjectConfig));
-      addStep(new SetBillingInfoStep(billingCow, gcpProjectConfig));
-      addStep(new EnableServicesStep(serviceUsageCow, gcpProjectConfig));
-      addStep(new SetIamPolicyStep(rmCow, gcpProjectConfig));
-      addStep(new CreateNetworkStep(cloudComputeCow, gcpProjectConfig));
-      addStep(new CreateSubnetsStep(cloudComputeCow, gcpProjectConfig));
-      addStep(new CreateSubnetsStep(cloudComputeCow, gcpProjectConfig));
-      addStep(new FinishResourceCreationStep(rbsDao));
+    }
+
+    @Override
+    protected void addStep(Step step) {
+      super.addStep(step);
+      if (step instanceof CreateSubnetsStep) {
+        // Create a duplicate entry for any CreateSubnetsStep in the original flight path.
+        super.addStep(step);
+      }
     }
   }
 
@@ -396,11 +372,12 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     Network network = computeCow.networks().get(project.getProjectId(), NETWORK_NAME).execute();
     boolean networkMonitoringEnabled =
         networkConfig != null && networkConfig.isEnableNetworkMonitoring();
-    for (String region : SUBNET_REGIONS) {
+    for (Map.Entry<String, String> entry : REGION_TO_IP_RANGE.entrySet()) {
+      String region = entry.getKey();
       Subnetwork subnetwork =
           computeCow.subnetworks().get(project.getProjectId(), region, SUBNETWORK_NAME).execute();
       assertEquals(network.getSelfLink(), subnetwork.getNetwork());
-      assertEquals(REGION_TO_IP_RANGE.get(region), subnetwork.getIpCidrRange());
+      assertEquals(entry.getValue(), subnetwork.getIpCidrRange());
       assertEquals(networkMonitoringEnabled, subnetwork.getEnableFlowLogs());
       assertEquals(networkMonitoringEnabled, subnetwork.getPrivateIpGoogleAccess());
     }
