@@ -243,6 +243,33 @@ public class RbsDao {
     return jdbcTemplate.update(sql, params) == 1;
   }
 
+  /** Updates resource state to DELETING. */
+  @CheckReturnValue
+  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+  public boolean updateResourceAsDeleting(ResourceId id) {
+    String sql = "UPDATE resource SET state = :state WHERE id = :id";
+
+    MapSqlParameterSource params =
+        new MapSqlParameterSource()
+            .addValue("state", ResourceState.DELETING.toString())
+            .addValue("id", id.id());
+    return jdbcTemplate.update(sql, params) == 1;
+  }
+
+  /** Updates resource state and deletion timestamp after resource is deleted. */
+  @CheckReturnValue
+  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+  public boolean updateResourceAsDeleted(ResourceId id) {
+    String sql = "UPDATE resource SET state = :state, deletion = :deletion WHERE id = :id";
+
+    MapSqlParameterSource params =
+        new MapSqlParameterSource()
+            .addValue("state", ResourceState.DELETED.toString())
+            .addValue("deletion", OffsetDateTime.now(ZoneOffset.UTC))
+            .addValue("id", id.id());
+    return jdbcTemplate.update(sql, params) == 1;
+  }
+
   /** Delete the resource match the {@link ResourceId}. */
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
   public boolean deleteResource(ResourceId id) {

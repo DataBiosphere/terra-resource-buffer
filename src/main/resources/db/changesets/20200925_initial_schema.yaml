@@ -82,6 +82,12 @@ databaseChangeLog:
                   nullable: true
                   unique: false
             - column:
+                name: deletion
+                type: timestamptz
+                constraints:
+                  nullable: true
+                  unique: false
+            - column:
                 name: state
                 type: text
                 remarks: resource state enum('CREATING', 'READY', 'HANDED_OUT', 'DELETING', 'DELETED')
