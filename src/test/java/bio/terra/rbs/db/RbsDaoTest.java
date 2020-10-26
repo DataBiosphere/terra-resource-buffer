@@ -36,27 +36,27 @@ public class RbsDaoTest extends BaseUnitTest {
 
   private static Pool newPool(PoolId poolId) {
     ResourceConfig resourceConfig =
-            new ResourceConfig()
-                    .configName("resourceName")
-                    .gcpProjectConfig(new GcpProjectConfig().projectIDPrefix("test"));
+        new ResourceConfig()
+            .configName("resourceName")
+            .gcpProjectConfig(new GcpProjectConfig().projectIDPrefix("test"));
 
     return Pool.builder()
-            .creation(Instant.now())
-            .id(poolId)
-            .resourceType(ResourceType.GOOGLE_PROJECT)
-            .size(1)
-            .resourceConfig(resourceConfig)
-            .status(PoolStatus.ACTIVE)
-            .build();
+        .creation(Instant.now())
+        .id(poolId)
+        .resourceType(ResourceType.GOOGLE_PROJECT)
+        .size(1)
+        .resourceConfig(resourceConfig)
+        .status(PoolStatus.ACTIVE)
+        .build();
   }
 
   private static Resource newResource(PoolId poolId, ResourceState state) {
     return Resource.builder()
-            .id(ResourceId.create(UUID.randomUUID()))
-            .poolId(poolId)
-            .creation(Instant.now())
-            .state(state)
-            .build();
+        .id(ResourceId.create(UUID.randomUUID()))
+        .poolId(poolId)
+        .creation(Instant.now())
+        .state(state)
+        .build();
   }
 
   @Test
@@ -116,19 +116,19 @@ public class RbsDaoTest extends BaseUnitTest {
     rbsDao.createResource(newResource(pool2.id(), ResourceState.HANDED_OUT));
 
     assertThat(
-            rbsDao.retrievePoolAndResourceStates(),
-            Matchers.containsInAnyOrder(
-                    PoolAndResourceStates.builder()
-                            .setPool(pool1)
-                            .setResourceStateCount(ResourceState.CREATING, 1)
-                            .setResourceStateCount(ResourceState.READY, 2)
-                            .build(),
-                    PoolAndResourceStates.builder()
-                            .setPool(pool2)
-                            .setResourceStateCount(ResourceState.READY, 1)
-                            .setResourceStateCount(ResourceState.HANDED_OUT, 1)
-                            .build(),
-                    PoolAndResourceStates.builder().setPool(pool3).build()));
+        rbsDao.retrievePoolAndResourceStates(),
+        Matchers.containsInAnyOrder(
+            PoolAndResourceStates.builder()
+                .setPool(pool1)
+                .setResourceStateCount(ResourceState.CREATING, 1)
+                .setResourceStateCount(ResourceState.READY, 2)
+                .build(),
+            PoolAndResourceStates.builder()
+                .setPool(pool2)
+                .setResourceStateCount(ResourceState.READY, 1)
+                .setResourceStateCount(ResourceState.HANDED_OUT, 1)
+                .build(),
+            PoolAndResourceStates.builder().setPool(pool3).build()));
   }
 
   @Test
@@ -152,7 +152,7 @@ public class RbsDaoTest extends BaseUnitTest {
     rbsDao.createPools(ImmutableList.of(pool));
     Resource resource = newResource(poolId, ResourceState.CREATING);
     CloudResourceUid resourceUid =
-            new CloudResourceUid().googleProjectUid(new GoogleProjectUid().projectId("p-123"));
+        new CloudResourceUid().googleProjectUid(new GoogleProjectUid().projectId("p-123"));
     rbsDao.createResource(resource);
 
     rbsDao.updateResourceAsReady(resource.id(), resourceUid);
