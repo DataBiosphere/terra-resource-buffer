@@ -63,6 +63,11 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   @Autowired ServiceUsageCow serviceUsageCow;
   @Autowired FlightSubmissionFactoryImpl flightSubmissionFactoryImpl;
 
+  enum NetworkMonitoring {
+    ENABLED,
+    DISABLED
+  }
+
   @Test
   public void testCreateGoogleProject_basicCreation() throws Exception {
     // Basic GCP project with billing setup.
@@ -75,7 +80,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertBillingIs(project, pool.resourceConfig().getGcpProjectConfig().getBillingAccount());
     assertEnableApisContains(project, pool.resourceConfig().getGcpProjectConfig().getEnabledApis());
     assertNetworkExists(project);
-    assertSubnetsExist(project, pool.resourceConfig().getGcpProjectConfig().getNetwork());
+    assertSubnetsExist(project, NetworkMonitoring.DISABLED);
   }
 
   @Test
@@ -117,7 +122,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertBillingIs(project, pool.resourceConfig().getGcpProjectConfig().getBillingAccount());
     assertEnableApisContains(project, pool.resourceConfig().getGcpProjectConfig().getEnabledApis());
     assertNetworkExists(project);
-    assertSubnetsExist(project, pool.resourceConfig().getGcpProjectConfig().getNetwork());
+    assertSubnetsExist(project, NetworkMonitoring.ENABLED);
   }
 
   @Test
@@ -176,7 +181,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertBillingIs(project, pool.resourceConfig().getGcpProjectConfig().getBillingAccount());
     assertEnableApisContains(project, pool.resourceConfig().getGcpProjectConfig().getEnabledApis());
     assertNetworkExists(project);
-    assertSubnetsExist(project, pool.resourceConfig().getGcpProjectConfig().getNetwork());
+    assertSubnetsExist(project, NetworkMonitoring.DISABLED);
   }
 
   @Test
@@ -367,19 +372,20 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertFalse(network.getAutoCreateSubnetworks());
   }
 
-  private void assertSubnetsExist(
-      Project project, bio.terra.rbs.generated.model.Network networkConfig) throws Exception {
+  private void assertSubnetsExist(Project project, NetworkMonitoring networkMonitoring)
+      throws Exception {
     Network network = computeCow.networks().get(project.getProjectId(), NETWORK_NAME).execute();
-    boolean networkMonitoringEnabled =
-        networkConfig != null && networkConfig.isEnableNetworkMonitoring();
     for (Map.Entry<String, String> entry : REGION_TO_IP_RANGE.entrySet()) {
       String region = entry.getKey();
       Subnetwork subnetwork =
           computeCow.subnetworks().get(project.getProjectId(), region, SUBNETWORK_NAME).execute();
       assertEquals(network.getSelfLink(), subnetwork.getNetwork());
       assertEquals(entry.getValue(), subnetwork.getIpCidrRange());
-      assertEquals(networkMonitoringEnabled, subnetwork.getEnableFlowLogs());
-      assertEquals(networkMonitoringEnabled, subnetwork.getPrivateIpGoogleAccess());
+      assertEquals(
+          networkMonitoring.equals(NetworkMonitoring.ENABLED), subnetwork.getEnableFlowLogs());
+      assertEquals(
+          networkMonitoring.equals(NetworkMonitoring.ENABLED),
+          subnetwork.getPrivateIpGoogleAccess());
     }
   }
 
