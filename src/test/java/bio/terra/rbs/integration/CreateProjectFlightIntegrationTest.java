@@ -2,7 +2,6 @@ package bio.terra.rbs.integration;
 
 import static bio.terra.rbs.integration.IntegrationUtils.pollUntilResourcesMatch;
 import static bio.terra.rbs.service.resource.FlightMapKeys.RESOURCE_CONFIG;
-import static bio.terra.rbs.service.resource.flight.CreateRouteStep.*;
 import static bio.terra.rbs.service.resource.flight.CreateSubnetsStep.*;
 import static bio.terra.rbs.service.resource.flight.GoogleUtils.NETWORK_NAME;
 import static bio.terra.rbs.service.resource.flight.GoogleUtils.projectIdToName;
@@ -30,7 +29,6 @@ import com.google.api.services.cloudresourcemanager.model.Binding;
 import com.google.api.services.cloudresourcemanager.model.GetIamPolicyRequest;
 import com.google.api.services.cloudresourcemanager.model.Project;
 import com.google.api.services.compute.model.Network;
-import com.google.api.services.compute.model.Route;
 import com.google.api.services.compute.model.Subnetwork;
 import com.google.api.services.serviceusage.v1.model.GoogleApiServiceusageV1Service;
 import com.google.common.collect.ImmutableList;
@@ -121,7 +119,6 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     Project project = assertProjectExists(pool);
     assertNetworkExists(project);
     assertSubnetsExist(project, NetworkMonitoring.ENABLED);
-    assertRouteExist(project);
   }
 
   @Test
@@ -257,22 +254,6 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     }
   }
 
-  /** A {@link Flight} that has multiple route creation steps. */
-  public static class MultiRouteStepFlight extends GoogleProjectCreationFlight {
-    public MultiRouteStepFlight(FlightMap inputParameters, Object applicationContext) {
-      super(inputParameters, applicationContext);
-    }
-
-    @Override
-    protected void addStep(Step step) {
-      super.addStep(step);
-      if (step instanceof CreateRouteStep) {
-        // Create a duplicate entry for any CreateRouteStep in the original flight path.
-        super.addStep(step);
-      }
-    }
-  }
-
   /** A {@link Flight} with extra error step after resource creation steps. */
   public static class ErrorAfterCreateResourceFlight extends GoogleProjectCreationFlight {
     public ErrorAfterCreateResourceFlight(FlightMap inputParameters, Object applicationContext) {
@@ -401,17 +382,6 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
         assertEquals(LOG_CONFIG, subnetwork.getLogConfig());
       }
     }
-  }
-
-  private void assertRouteExist(Project project) throws Exception {
-    String projectId = project.getProjectId();
-    Network network = computeCow.networks().get(project.getProjectId(), NETWORK_NAME).execute();
-    Route route = computeCow.routes().get(projectId, ROUTE_NAME).execute();
-    assertEquals(DESTINATION_RANGE, route.getDestRange());
-    assertEquals(
-        "https://www.googleapis.com/compute/v1/projects/" + projectId + DEFAULT_GATEWAY,
-        route.getNextHopGateway());
-    assertEquals(network.getSelfLink(), route.getNetwork());
   }
 
   /** A {@link FlightSubmissionFactory} used in test. */
