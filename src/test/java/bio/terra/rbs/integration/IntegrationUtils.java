@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 /** Utilities used in integration test. */
 public class IntegrationUtils {
   private static final Duration PERIOD = Duration.ofSeconds(10);
-  private static final int MAX_POLL_NUM = 20;
+  private static final int MAX_POLL_NUM = 40;
 
   public static List<Resource> pollUntilResourcesMatch(
       RbsDao rbsDao, PoolId poolId, ResourceState state, int expectedResourceNum) throws Exception {

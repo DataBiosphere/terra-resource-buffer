@@ -2,7 +2,8 @@ package bio.terra.rbs.integration;
 
 import static bio.terra.rbs.integration.IntegrationUtils.pollUntilResourcesMatch;
 import static bio.terra.rbs.service.resource.FlightMapKeys.RESOURCE_CONFIG;
-import static bio.terra.rbs.service.resource.flight.CreateNetworkStep.NETWORK_NAME;
+import static bio.terra.rbs.service.resource.flight.CreateSubnetsStep.*;
+import static bio.terra.rbs.service.resource.flight.GoogleUtils.NETWORK_NAME;
 import static bio.terra.rbs.service.resource.flight.GoogleUtils.projectIdToName;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,6 +29,7 @@ import com.google.api.services.cloudresourcemanager.model.Binding;
 import com.google.api.services.cloudresourcemanager.model.GetIamPolicyRequest;
 import com.google.api.services.cloudresourcemanager.model.Project;
 import com.google.api.services.compute.model.Network;
+import com.google.api.services.compute.model.Subnetwork;
 import com.google.api.services.serviceusage.v1.model.GoogleApiServiceusageV1Service;
 import com.google.common.collect.ImmutableList;
 import java.time.Duration;
@@ -61,9 +63,13 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   @Autowired ServiceUsageCow serviceUsageCow;
   @Autowired FlightSubmissionFactoryImpl flightSubmissionFactoryImpl;
 
+  enum NetworkMonitoring {
+    ENABLED,
+    DISABLED
+  }
+
   @Test
   public void testCreateGoogleProject_basicCreation() throws Exception {
-    // Basic GCP project with billing setup.
     FlightManager manager = new FlightManager(flightSubmissionFactoryImpl, stairwayComponent);
     Pool pool = preparePool(newBasicGcpConfig());
 
@@ -73,6 +79,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertBillingIs(project, pool.resourceConfig().getGcpProjectConfig().getBillingAccount());
     assertEnableApisContains(project, pool.resourceConfig().getGcpProjectConfig().getEnabledApis());
     assertNetworkExists(project);
+    assertSubnetsExist(project, NetworkMonitoring.DISABLED);
   }
 
   @Test
@@ -96,6 +103,22 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     blockUntilFlightComplete(flightId);
     Project project = assertProjectExists(pool);
     assertIamBindingsContains(project, iamBindings);
+  }
+
+  @Test
+  public void testCreateGoogleProject_enableNetworkMonitoring() throws Exception {
+    FlightManager manager = new FlightManager(flightSubmissionFactoryImpl, stairwayComponent);
+    Pool pool =
+        preparePool(
+            newBasicGcpConfig()
+                .network(
+                    new bio.terra.rbs.generated.model.Network().enableNetworkMonitoring(true)));
+
+    String flightId = manager.submitCreationFlight(pool).get();
+    blockUntilFlightComplete(flightId);
+    Project project = assertProjectExists(pool);
+    assertNetworkExists(project);
+    assertSubnetsExist(project, NetworkMonitoring.ENABLED);
   }
 
   @Test
@@ -132,9 +155,25 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     String flightId = manager.submitCreationFlight(pool).get();
     blockUntilFlightComplete(flightId);
     Project project = assertProjectExists(pool);
-    assertBillingIs(project, pool.resourceConfig().getGcpProjectConfig().getBillingAccount());
     assertEnableApisContains(project, pool.resourceConfig().getGcpProjectConfig().getEnabledApis());
     assertNetworkExists(project);
+  }
+
+  @Test
+  public void testCreateGoogleProject_multipleSubnetsCreation() throws Exception {
+    // Verify flight is able to finish successfully when subnets already exists/
+    // this scenario may arise when the step partially fails and ends up in a state where some
+    // subnets need to be recreated and some are getting created the first time.
+    FlightManager manager =
+        new FlightManager(
+            new StubSubmissionFlightFactory(MultiSubnetsStepFlight.class), stairwayComponent);
+    Pool pool = preparePool(newBasicGcpConfig());
+
+    String flightId = manager.submitCreationFlight(pool).get();
+    blockUntilFlightComplete(flightId);
+    Project project = assertProjectExists(pool);
+    assertNetworkExists(project);
+    assertSubnetsExist(project, NetworkMonitoring.DISABLED);
   }
 
   @Test
@@ -180,30 +219,38 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   }
 
   /** A {@link Flight} that has multiple network creation steps. */
-  public static class MultiNetworkStepFlight extends Flight {
+  public static class MultiNetworkStepFlight extends GoogleProjectCreationFlight {
     public MultiNetworkStepFlight(FlightMap inputParameters, Object applicationContext) {
       super(inputParameters, applicationContext);
-      RbsDao rbsDao = ((ApplicationContext) applicationContext).getBean(RbsDao.class);
-      CloudResourceManagerCow rmCow =
-          ((ApplicationContext) applicationContext).getBean(CloudResourceManagerCow.class);
-      CloudBillingClientCow billingCow =
-          ((ApplicationContext) applicationContext).getBean(CloudBillingClientCow.class);
-      ServiceUsageCow serviceUsageCow =
-          ((ApplicationContext) applicationContext).getBean(ServiceUsageCow.class);
-      CloudComputeCow cloudComputeCow =
-          ((ApplicationContext) applicationContext).getBean(CloudComputeCow.class);
-      GcpProjectConfig gcpProjectConfig =
-          inputParameters.get(RESOURCE_CONFIG, ResourceConfig.class).getGcpProjectConfig();
-      addStep(new GenerateResourceIdStep());
-      addStep(new CreateResourceDbEntityStep(rbsDao));
-      addStep(new GenerateProjectIdStep());
-      addStep(new CreateProjectStep(rmCow, gcpProjectConfig));
-      addStep(new SetBillingInfoStep(billingCow, gcpProjectConfig));
-      addStep(new EnableServicesStep(serviceUsageCow, gcpProjectConfig));
-      addStep(new SetIamPolicyStep(rmCow, gcpProjectConfig));
-      addStep(new CreateNetworkStep(cloudComputeCow, gcpProjectConfig));
-      addStep(new CreateNetworkStep(cloudComputeCow, gcpProjectConfig));
-      addStep(new FinishResourceCreationStep(rbsDao));
+    }
+
+    @Override
+    protected void addStep(Step step) {
+      super.addStep(step);
+      if (step instanceof CreateNetworkStep) {
+        // Create a duplicate entry for any CreateNetworkStep in the original flight path.
+        super.addStep(step);
+      }
+    }
+  }
+
+  /**
+   * A {@link Flight} that has multiple subnets creation steps. So a flight will try to create all
+   * Subnets twice and still success.
+   */
+  public static class MultiSubnetsStepFlight extends GoogleProjectCreationFlight {
+
+    public MultiSubnetsStepFlight(FlightMap inputParameters, Object applicationContext) {
+      super(inputParameters, applicationContext);
+    }
+
+    @Override
+    protected void addStep(Step step) {
+      super.addStep(step);
+      if (step instanceof CreateSubnetsStep) {
+        // Create a duplicate entry for any CreateSubnetsStep in the original flight path.
+        super.addStep(step);
+      }
     }
   }
 
@@ -315,6 +362,23 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   private void assertNetworkExists(Project project) throws Exception {
     Network network = computeCow.networks().get(project.getProjectId(), NETWORK_NAME).execute();
     assertFalse(network.getAutoCreateSubnetworks());
+  }
+
+  private void assertSubnetsExist(Project project, NetworkMonitoring networkMonitoring)
+      throws Exception {
+    Network network = computeCow.networks().get(project.getProjectId(), NETWORK_NAME).execute();
+    for (Map.Entry<String, String> entry : REGION_TO_IP_RANGE.entrySet()) {
+      String region = entry.getKey();
+      Subnetwork subnetwork =
+          computeCow.subnetworks().get(project.getProjectId(), region, SUBNETWORK_NAME).execute();
+      assertEquals(network.getSelfLink(), subnetwork.getNetwork());
+      assertEquals(entry.getValue(), subnetwork.getIpCidrRange());
+      assertEquals(
+          networkMonitoring.equals(NetworkMonitoring.ENABLED), subnetwork.getEnableFlowLogs());
+      assertEquals(
+          networkMonitoring.equals(NetworkMonitoring.ENABLED),
+          subnetwork.getPrivateIpGoogleAccess());
+    }
   }
 
   /** A {@link FlightSubmissionFactory} used in test. */
