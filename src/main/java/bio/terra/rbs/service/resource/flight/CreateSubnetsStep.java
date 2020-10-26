@@ -91,10 +91,11 @@ public class CreateSubnetsStep implements Step {
     boolean networkMonitoringEnabled = checkEnableNetworkMonitoring(gcpProjectConfig);
     List<OperationCow<?>> operationsToPoll = new ArrayList<>();
     try {
-      Network network = computeCow.networks().get(projectId, NETWORK_NAME).execute();
+      Network network =
+          getResource(() -> computeCow.networks().get(projectId, NETWORK_NAME).execute()).get();
       for (Map.Entry<String, String> entry : REGION_TO_IP_RANGE.entrySet()) {
         String region = entry.getKey();
-        if (cloudObjectExists(
+        if (resourceExists(
             () -> computeCow.subnetworks().get(projectId, region, SUBNETWORK_NAME).execute())) {
           continue;
         }
@@ -115,7 +116,7 @@ public class CreateSubnetsStep implements Step {
                     computeCow.subnetworks().insert(projectId, region, subnetwork).execute()));
       }
 
-      // Kicking off all the operations first then polling all operations.
+      // Kick off all the operations first then poll all operations
       for (OperationCow<?> operation : operationsToPoll) {
         pollUntilSuccess(operation, Duration.ofSeconds(5), Duration.ofMinutes(5));
       }
@@ -129,7 +130,7 @@ public class CreateSubnetsStep implements Step {
   @Override
   public StepResult undoStep(FlightContext flightContext) {
     // Flight undo will just need to delete the project on GCP at CreateProjectStep.
-    // doStep methods already checks Sunets exists or not. So no need to delete subnet.
+    // doStep methods already checks subnets exists or not. So no need to delete subnet.
     return StepResult.getStepResultSuccess();
   }
 }

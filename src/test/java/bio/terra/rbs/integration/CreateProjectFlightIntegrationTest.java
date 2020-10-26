@@ -70,7 +70,6 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
   @Test
   public void testCreateGoogleProject_basicCreation() throws Exception {
-    // Basic GCP project with billing setup.
     FlightManager manager = new FlightManager(flightSubmissionFactoryImpl, stairwayComponent);
     Pool pool = preparePool(newBasicGcpConfig());
 
@@ -108,7 +107,6 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
   @Test
   public void testCreateGoogleProject_enableNetworkMonitoring() throws Exception {
-    // Basic GCP project with billing setup.
     FlightManager manager = new FlightManager(flightSubmissionFactoryImpl, stairwayComponent);
     Pool pool =
         preparePool(
@@ -119,8 +117,6 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     String flightId = manager.submitCreationFlight(pool).get();
     blockUntilFlightComplete(flightId);
     Project project = assertProjectExists(pool);
-    assertBillingIs(project, pool.resourceConfig().getGcpProjectConfig().getBillingAccount());
-    assertEnableApisContains(project, pool.resourceConfig().getGcpProjectConfig().getEnabledApis());
     assertNetworkExists(project);
     assertSubnetsExist(project, NetworkMonitoring.ENABLED);
   }
@@ -159,7 +155,6 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     String flightId = manager.submitCreationFlight(pool).get();
     blockUntilFlightComplete(flightId);
     Project project = assertProjectExists(pool);
-    assertBillingIs(project, pool.resourceConfig().getGcpProjectConfig().getBillingAccount());
     assertEnableApisContains(project, pool.resourceConfig().getGcpProjectConfig().getEnabledApis());
     assertNetworkExists(project);
   }
@@ -168,8 +163,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   public void testCreateGoogleProject_multipleSubnetsCreation() throws Exception {
     // Verify flight is able to finish successfully when subnets already exists/
     // this scenario may arise when the step partially fails and ends up in a state where some
-    // subnets need to be
-    // recreated and some are getting created the first time.
+    // subnets need to be recreated and some are getting created the first time.
     FlightManager manager =
         new FlightManager(
             new StubSubmissionFlightFactory(MultiSubnetsStepFlight.class), stairwayComponent);
@@ -178,8 +172,6 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     String flightId = manager.submitCreationFlight(pool).get();
     blockUntilFlightComplete(flightId);
     Project project = assertProjectExists(pool);
-    assertBillingIs(project, pool.resourceConfig().getGcpProjectConfig().getBillingAccount());
-    assertEnableApisContains(project, pool.resourceConfig().getGcpProjectConfig().getEnabledApis());
     assertNetworkExists(project);
     assertSubnetsExist(project, NetworkMonitoring.DISABLED);
   }

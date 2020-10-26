@@ -8,6 +8,7 @@ import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Optional;
 
 /** Utilities when use Google APIs. */
 public class GoogleUtils {
@@ -43,22 +44,32 @@ public class GoogleUtils {
         && gcpProjectConfig.getNetwork().isEnableNetworkMonitoring();
   }
 
-  /** Checks if cloudObject already exists. */
-  public static boolean cloudObjectExists(CowExecute execute) throws IOException {
+  /**
+   * Checks if cloudObject already exists.
+   *
+   * <p>Many Google 'get' operations return a {@link GoogleJsonResponseException} 404. This function
+   * handles that exception case as false, while throwing any other exception.
+   */
+  public static <R> boolean resourceExists(CowExecute<R> execute) throws IOException {
+    return getResource(execute).isPresent();
+  }
+
+  public static <R> Optional<R> getResource(CowExecute<R> execute) throws IOException {
     try {
-      execute.execute();
-      return true;
+      return Optional.of(execute.execute());
     } catch (IOException e) {
       if (e instanceof GoogleJsonResponseException
           && ((GoogleJsonResponseException) e).getStatusCode() == 404) {
-        return false;
+        return Optional.empty();
       } else {
         throw e;
       }
     }
   }
 
-  public interface CowExecute {
-    void execute() throws IOException;
+  /** Wrappers how to process a CRL's Cow execution. */
+  @FunctionalInterface
+  public interface CowExecute<R> {
+    R execute() throws IOException;
   }
 }

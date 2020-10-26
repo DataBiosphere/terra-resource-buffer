@@ -1,8 +1,8 @@
 package bio.terra.rbs.service.resource.flight;
 
 import static bio.terra.rbs.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
-import static bio.terra.rbs.service.resource.flight.GoogleUtils.cloudObjectExists;
 import static bio.terra.rbs.service.resource.flight.GoogleUtils.pollUntilSuccess;
+import static bio.terra.rbs.service.resource.flight.GoogleUtils.resourceExists;
 
 import bio.terra.cloudres.google.api.services.common.OperationCow;
 import bio.terra.cloudres.google.compute.CloudComputeCow;
@@ -36,7 +36,7 @@ public class CreateNetworkStep implements Step {
     try {
       // Skip this steps if network already exists. This may happen when previous step's polling
       // times out, while network is created before next retry.
-      if (cloudObjectExists(
+      if (resourceExists(
           () -> computeCow.networks().get(projectId, GoogleUtils.NETWORK_NAME).execute())) {
         logger.info(
             "Network already exists for project %s: {}. Skipping CreateNetworkStep", projectId);
