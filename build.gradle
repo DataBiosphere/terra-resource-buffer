@@ -63,10 +63,10 @@ dependencies {
 
     implementation 'bio.terra:stairway:0.0.20'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'cloud-resource-schema', version: crlSchemaVersion
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-billing', version: '0.0.4-SNAPSHOT'
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-compute', version: '0.0.3-SNAPSHOT'
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-cloudresourcemanager', version: '0.0.8-SNAPSHOT'
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-serviceusage', version: '0.0.4-SNAPSHOT'
+    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-billing', version: '0.0.5-SNAPSHOT'
+    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-compute', version: '0.0.4-SNAPSHOT'
+    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-cloudresourcemanager', version: '0.0.9-SNAPSHOT'
+    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-serviceusage', version: '0.0.5-SNAPSHOT'
 
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
