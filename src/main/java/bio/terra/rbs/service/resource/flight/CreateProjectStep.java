@@ -1,6 +1,7 @@
 package bio.terra.rbs.service.resource.flight;
 
 import static bio.terra.rbs.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
+import static bio.terra.rbs.service.resource.flight.GoogleUtils.getResource;
 import static bio.terra.rbs.service.resource.flight.GoogleUtils.pollUntilSuccess;
 import static bio.terra.rbs.service.resource.flight.StepUtils.isResourceReady;
 
@@ -59,7 +60,10 @@ public class CreateProjectStep implements Step {
     }
     try {
       String projectId = flightContext.getWorkingMap().get(GOOGLE_PROJECT_ID, String.class);
-      Optional<Project> project = retrieveProject(projectId);
+      // Google returns 403 for projects we don't have access to and projects that don't exist.
+      // We assume in this case that the project does not exist, not that somebody else has
+      // created a project with the same random id.
+      Optional<Project> project = getResource(() -> rmCow.projects().get(projectId).execute(), 403);
       if (!project.isPresent()) {
         // The project does not exist.
         return StepResult.getStepResultSuccess();

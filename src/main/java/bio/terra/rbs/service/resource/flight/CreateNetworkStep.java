@@ -37,7 +37,7 @@ public class CreateNetworkStep implements Step {
       // Skip this steps if network already exists. This may happen when previous step's polling
       // times out, while network is created before next retry.
       if (resourceExists(
-          () -> computeCow.networks().get(projectId, GoogleUtils.NETWORK_NAME).execute())) {
+          () -> computeCow.networks().get(projectId, GoogleUtils.NETWORK_NAME).execute(), 404)) {
         logger.info(
             "Network already exists for project %s: {}. Skipping CreateNetworkStep", projectId);
         return StepResult.getStepResultSuccess();

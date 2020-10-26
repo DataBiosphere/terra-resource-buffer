@@ -50,16 +50,18 @@ public class GoogleUtils {
    * <p>Many Google 'get' operations return a {@link GoogleJsonResponseException} 404. This function
    * handles that exception case as false, while throwing any other exception.
    */
-  public static <R> boolean resourceExists(CowExecute<R> execute) throws IOException {
-    return getResource(execute).isPresent();
+  public static <R> boolean resourceExists(CloudExecute<R> execute, int acceptable)
+      throws IOException {
+    return getResource(execute, acceptable).isPresent();
   }
 
-  public static <R> Optional<R> getResource(CowExecute<R> execute) throws IOException {
+  /** See {@link this.resourceExists(CloudExecute<R>)}. */
+  public static <R> Optional<R> getResource(CloudExecute<R> execute, int acceptable)
+      throws IOException {
     try {
       return Optional.of(execute.execute());
-    } catch (IOException e) {
-      if (e instanceof GoogleJsonResponseException
-          && ((GoogleJsonResponseException) e).getStatusCode() == 404) {
+    } catch (GoogleJsonResponseException e) {
+      if (e.getStatusCode() == acceptable) {
         return Optional.empty();
       } else {
         throw e;
@@ -67,9 +69,12 @@ public class GoogleUtils {
     }
   }
 
-  /** Wrappers how to process a CRL's Cow execution. */
+  /**
+   * A Google cloud operation that's expected to throw a IOException. See {@link
+   * GoogleUtils#resourceExists}.
+   */
   @FunctionalInterface
-  public interface CowExecute<R> {
+  public interface CloudExecute<R> {
     R execute() throws IOException;
   }
 }

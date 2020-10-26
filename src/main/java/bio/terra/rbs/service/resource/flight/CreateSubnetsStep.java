@@ -92,11 +92,13 @@ public class CreateSubnetsStep implements Step {
     List<OperationCow<?>> operationsToPoll = new ArrayList<>();
     try {
       Network network =
-          getResource(() -> computeCow.networks().get(projectId, NETWORK_NAME).execute()).get();
+          getResource(() -> computeCow.networks().get(projectId, NETWORK_NAME).execute(), 404)
+              .get();
       for (Map.Entry<String, String> entry : REGION_TO_IP_RANGE.entrySet()) {
         String region = entry.getKey();
         if (resourceExists(
-            () -> computeCow.subnetworks().get(projectId, region, SUBNETWORK_NAME).execute())) {
+            () -> computeCow.subnetworks().get(projectId, region, SUBNETWORK_NAME).execute(),
+            404)) {
           continue;
         }
         Subnetwork subnetwork =
