@@ -208,7 +208,7 @@ public class RbsDaoTest extends BaseUnitTest {
   }
 
   @Test
-  public void updateResourceAsDelete() {
+  public void updateResourceAsDeleted() {
     Pool pool = newPool(PoolId.create("poolId"));
     Resource resource = newResource(pool.id(), ResourceState.DELETING);
     rbsDao.createPools(ImmutableList.of(pool));
