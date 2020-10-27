@@ -46,18 +46,19 @@ public class CreateRouteStep implements Step {
 
   @Override
   public StepResult doStep(FlightContext flightContext) throws RetryException {
-    if (!checkEnableNetworkMonitoring(gcpProjectConfig)) {
+    if (!isNetworkMonitoringEnabled(gcpProjectConfig)) {
       return StepResult.getStepResultSuccess();
     }
     String projectId = flightContext.getWorkingMap().get(GOOGLE_PROJECT_ID, String.class);
     try {
-      Network network =
-          getResource(() -> computeCow.networks().get(projectId, NETWORK_NAME).execute(), 404)
-              .get();
-
       if (resourceExists(() -> computeCow.routes().get(projectId, ROUTE_NAME).execute(), 404)) {
         return StepResult.getStepResultSuccess();
       }
+      // Network is already created and checked in previous step so here won't be empty.
+      // If we got NPE, that means something went wrong with GCP, fine to just throw NPE here.
+      Network network =
+          getResource(() -> computeCow.networks().get(projectId, NETWORK_NAME).execute(), 404)
+              .get();
       Route route =
           new Route()
               .setName(ROUTE_NAME)

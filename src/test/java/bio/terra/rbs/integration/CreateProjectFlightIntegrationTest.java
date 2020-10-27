@@ -26,6 +26,7 @@ import bio.terra.rbs.service.resource.flight.*;
 import bio.terra.rbs.service.stairway.StairwayComponent;
 import bio.terra.stairway.*;
 import bio.terra.stairway.exception.DatabaseOperationException;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.cloudresourcemanager.model.Binding;
 import com.google.api.services.cloudresourcemanager.model.GetIamPolicyRequest;
 import com.google.api.services.cloudresourcemanager.model.Project;
@@ -82,6 +83,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertEnableApisContains(project, pool.resourceConfig().getGcpProjectConfig().getEnabledApis());
     assertNetworkExists(project);
     assertSubnetsExist(project, NetworkMonitoring.DISABLED);
+    assertRouteNotExists(project);
   }
 
   @Test
@@ -121,7 +123,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     Project project = assertProjectExists(pool);
     assertNetworkExists(project);
     assertSubnetsExist(project, NetworkMonitoring.ENABLED);
-    assertRouteExist(project);
+    assertRouteExists(project);
   }
 
   @Test
@@ -400,7 +402,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     }
   }
 
-  private void assertRouteExist(Project project) throws Exception {
+  private void assertRouteExists(Project project) throws Exception {
     String projectId = project.getProjectId();
     Network network = computeCow.networks().get(project.getProjectId(), NETWORK_NAME).execute();
     Route route = computeCow.routes().get(projectId, ROUTE_NAME).execute();
@@ -409,6 +411,15 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
         "https://www.googleapis.com/compute/v1/projects/" + projectId + DEFAULT_GATEWAY,
         route.getNextHopGateway());
     assertEquals(network.getSelfLink(), route.getNetwork());
+  }
+
+  private void assertRouteNotExists(Project project) throws Exception {
+    String projectId = project.getProjectId();
+    GoogleJsonResponseException e =
+        assertThrows(
+            GoogleJsonResponseException.class,
+            () -> computeCow.routes().get(projectId, ROUTE_NAME).execute());
+    assertEquals(404, e.getStatusCode());
   }
 
   /** A {@link FlightSubmissionFactory} used in test. */

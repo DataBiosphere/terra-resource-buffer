@@ -88,7 +88,7 @@ public class CreateSubnetsStep implements Step {
   @Override
   public StepResult doStep(FlightContext flightContext) throws RetryException {
     String projectId = flightContext.getWorkingMap().get(GOOGLE_PROJECT_ID, String.class);
-    boolean networkMonitoringEnabled = checkEnableNetworkMonitoring(gcpProjectConfig);
+    boolean networkMonitoringEnabled = isNetworkMonitoringEnabled(gcpProjectConfig);
     List<OperationCow<?>> operationsToPoll = new ArrayList<>();
     try {
       Network network =
