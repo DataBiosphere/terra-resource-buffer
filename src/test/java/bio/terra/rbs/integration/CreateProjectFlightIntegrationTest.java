@@ -378,6 +378,9 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
       assertEquals(
           networkMonitoring.equals(NetworkMonitoring.ENABLED),
           subnetwork.getPrivateIpGoogleAccess());
+      if (networkMonitoring.equals(NetworkMonitoring.ENABLED)) {
+        assertEquals(LOG_CONFIG, subnetwork.getLogConfig());
+      }
     }
   }
 
