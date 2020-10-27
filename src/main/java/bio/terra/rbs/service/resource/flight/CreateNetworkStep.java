@@ -32,6 +32,7 @@ public class CreateNetworkStep implements Step {
 
   @Override
   public StepResult doStep(FlightContext flightContext) throws RetryException {
+    System.out.println("~~~~~~~~111111111");
     String projectId = flightContext.getWorkingMap().get(GOOGLE_PROJECT_ID, String.class);
     try {
       // Skip this steps if network already exists. This may happen when previous step's polling

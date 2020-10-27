@@ -154,7 +154,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     // Verify flight is able to finish successfully when network exists
     FlightManager manager =
         new FlightManager(
-            new StubSubmissionFlightFactory(MultiNetworkStepFlight.class), stairwayComponent);
+            new StubSubmissionFlightFactory(MultiInstanceStepFlight.class), stairwayComponent);
+    MultiInstanceStepFlight.setStepClass(CreateNetworkStep.class);
     Pool pool = preparePool(newBasicGcpConfig());
 
     String flightId = manager.submitCreationFlight(pool).get();
@@ -171,7 +172,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     // subnets need to be recreated and some are getting created the first time.
     FlightManager manager =
         new FlightManager(
-            new StubSubmissionFlightFactory(MultiSubnetsStepFlight.class), stairwayComponent);
+            new StubSubmissionFlightFactory(MultiInstanceStepFlight.class), stairwayComponent);
+    MultiInstanceStepFlight.setStepClass(CreateSubnetsStep.class);
     Pool pool = preparePool(newBasicGcpConfig());
 
     String flightId = manager.submitCreationFlight(pool).get();
@@ -179,6 +181,25 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     Project project = assertProjectExists(pool);
     assertNetworkExists(project);
     assertSubnetsExist(project, NetworkMonitoring.DISABLED);
+  }
+
+  @Test
+  public void testCreateGoogleProject_multipleRouteCreation() throws Exception {
+    // Verify flight is able to finish successfully when route already exists.
+    FlightManager manager =
+        new FlightManager(
+            new StubSubmissionFlightFactory(MultiInstanceStepFlight.class), stairwayComponent);
+    MultiInstanceStepFlight.setStepClass(CreateRouteStep.class);
+    Pool pool =
+        preparePool(
+            newBasicGcpConfig()
+                .network(
+                    new bio.terra.rbs.generated.model.Network().enableNetworkMonitoring(true)));
+
+    String flightId = manager.submitCreationFlight(pool).get();
+    blockUntilFlightComplete(flightId);
+    Project project = assertProjectExists(pool);
+    assertRouteExists(project);
   }
 
   @Test
@@ -223,53 +244,21 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     }
   }
 
-  /** A {@link Flight} that has multiple network creation steps. */
-  public static class MultiNetworkStepFlight extends GoogleProjectCreationFlight {
-    public MultiNetworkStepFlight(FlightMap inputParameters, Object applicationContext) {
+  public static class MultiInstanceStepFlight extends GoogleProjectCreationFlight {
+    private static Class<? extends Step> multiStepClazz;
+
+    public MultiInstanceStepFlight(FlightMap inputParameters, Object applicationContext) {
       super(inputParameters, applicationContext);
+    }
+
+    public static void setStepClass(Class<? extends Step> clazz) {
+      multiStepClazz = clazz;
     }
 
     @Override
     protected void addStep(Step step) {
       super.addStep(step);
-      if (step instanceof CreateNetworkStep) {
-        // Create a duplicate entry for any CreateNetworkStep in the original flight path.
-        super.addStep(step);
-      }
-    }
-  }
-
-  /**
-   * A {@link Flight} that has multiple subnets creation steps. So a flight will try to create all
-   * Subnets twice and still success.
-   */
-  public static class MultiSubnetsStepFlight extends GoogleProjectCreationFlight {
-
-    public MultiSubnetsStepFlight(FlightMap inputParameters, Object applicationContext) {
-      super(inputParameters, applicationContext);
-    }
-
-    @Override
-    protected void addStep(Step step) {
-      super.addStep(step);
-      if (step instanceof CreateSubnetsStep) {
-        // Create a duplicate entry for any CreateSubnetsStep in the original flight path.
-        super.addStep(step);
-      }
-    }
-  }
-
-  /** A {@link Flight} that has multiple route creation steps. */
-  public static class MultiRouteStepFlight extends GoogleProjectCreationFlight {
-    public MultiRouteStepFlight(FlightMap inputParameters, Object applicationContext) {
-      super(inputParameters, applicationContext);
-    }
-
-    @Override
-    protected void addStep(Step step) {
-      super.addStep(step);
-      if (step instanceof CreateRouteStep) {
-        // Create a duplicate entry for any CreateRouteStep in the original flight path.
+      if (multiStepClazz.isInstance(step)) {
         super.addStep(step);
       }
     }
