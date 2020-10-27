@@ -2,7 +2,6 @@ package bio.terra.rbs.integration;
 
 import static bio.terra.rbs.integration.IntegrationUtils.pollUntilResourcesMatch;
 import static bio.terra.rbs.service.resource.FlightMapKeys.RESOURCE_CONFIG;
-import static bio.terra.rbs.service.resource.flight.CreateRouteStep.*;
 import static bio.terra.rbs.service.resource.flight.CreateSubnetsStep.*;
 import static bio.terra.rbs.service.resource.flight.GoogleUtils.NETWORK_NAME;
 import static bio.terra.rbs.service.resource.flight.GoogleUtils.projectIdToName;
@@ -30,7 +29,6 @@ import com.google.api.services.cloudresourcemanager.model.Binding;
 import com.google.api.services.cloudresourcemanager.model.GetIamPolicyRequest;
 import com.google.api.services.cloudresourcemanager.model.Project;
 import com.google.api.services.compute.model.Network;
-import com.google.api.services.compute.model.Route;
 import com.google.api.services.compute.model.Subnetwork;
 import com.google.api.services.serviceusage.v1.model.GoogleApiServiceusageV1Service;
 import com.google.common.collect.ImmutableList;
@@ -93,9 +91,9 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     String testGroupViewerName = "terra-rbs-viewer-test@broadinstitute.org";
 
     List<IamBinding> iamBindings =
-        Arrays.asList(
-            new IamBinding().role("roles/editor").addMembersItem("group:" + testGroupName),
-            new IamBinding().role("roles/viewer").addMembersItem("group:" + testGroupViewerName));
+            Arrays.asList(
+                    new IamBinding().role("roles/editor").addMembersItem("group:" + testGroupName),
+                    new IamBinding().role("roles/viewer").addMembersItem("group:" + testGroupViewerName));
 
     // Basic GCP project with IAM Bindings
     FlightManager manager = new FlightManager(flightSubmissionFactoryImpl, stairwayComponent);
@@ -111,17 +109,16 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   public void testCreateGoogleProject_enableNetworkMonitoring() throws Exception {
     FlightManager manager = new FlightManager(flightSubmissionFactoryImpl, stairwayComponent);
     Pool pool =
-        preparePool(
-            newBasicGcpConfig()
-                .network(
-                    new bio.terra.rbs.generated.model.Network().enableNetworkMonitoring(true)));
+            preparePool(
+                    newBasicGcpConfig()
+                            .network(
+                                    new bio.terra.rbs.generated.model.Network().enableNetworkMonitoring(true)));
 
     String flightId = manager.submitCreationFlight(pool).get();
     blockUntilFlightComplete(flightId);
     Project project = assertProjectExists(pool);
     assertNetworkExists(project);
     assertSubnetsExist(project, NetworkMonitoring.ENABLED);
-    assertRouteExist(project);
   }
 
   @Test
@@ -130,29 +127,29 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     // exist.
     LatchStep.startNewLatch();
     FlightManager manager =
-        new FlightManager(
-            new StubSubmissionFlightFactory(ErrorCreateProjectFlight.class), stairwayComponent);
+            new FlightManager(
+                    new StubSubmissionFlightFactory(ErrorCreateProjectFlight.class), stairwayComponent);
     Pool pool = preparePool(newBasicGcpConfig());
 
     String flightId = manager.submitCreationFlight(pool).get();
     // Resource is created in db
     Resource resource =
-        pollUntilResourcesMatch(rbsDao, pool.id(), ResourceState.CREATING, 1).get(0);
+            pollUntilResourcesMatch(rbsDao, pool.id(), ResourceState.CREATING, 1).get(0);
 
     LatchStep.releaseLatch();
     blockUntilFlightComplete(flightId);
     // Resource is deleted.
     assertFalse(rbsDao.retrieveResource(resource.id()).isPresent());
     assertEquals(
-        FlightStatus.ERROR, stairwayComponent.get().getFlightState(flightId).getFlightStatus());
+            FlightStatus.ERROR, stairwayComponent.get().getFlightState(flightId).getFlightStatus());
   }
 
   @Test
   public void testCreateGoogleProject_multipleNetworkCreation() throws Exception {
     // Verify flight is able to finish successfully when network exists
     FlightManager manager =
-        new FlightManager(
-            new StubSubmissionFlightFactory(MultiNetworkStepFlight.class), stairwayComponent);
+            new FlightManager(
+                    new StubSubmissionFlightFactory(MultiNetworkStepFlight.class), stairwayComponent);
     Pool pool = preparePool(newBasicGcpConfig());
 
     String flightId = manager.submitCreationFlight(pool).get();
@@ -168,8 +165,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     // this scenario may arise when the step partially fails and ends up in a state where some
     // subnets need to be recreated and some are getting created the first time.
     FlightManager manager =
-        new FlightManager(
-            new StubSubmissionFlightFactory(MultiSubnetsStepFlight.class), stairwayComponent);
+            new FlightManager(
+                    new StubSubmissionFlightFactory(MultiSubnetsStepFlight.class), stairwayComponent);
     Pool pool = preparePool(newBasicGcpConfig());
 
     String flightId = manager.submitCreationFlight(pool).get();
@@ -183,9 +180,9 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   public void errorCreateProject_noRollbackAfterResourceReady() throws Exception {
     // Verify project and db entity won't get deleted if resource id READY, even the flight fails.
     FlightManager manager =
-        new FlightManager(
-            new StubSubmissionFlightFactory(ErrorAfterCreateResourceFlight.class),
-            stairwayComponent);
+            new FlightManager(
+                    new StubSubmissionFlightFactory(ErrorAfterCreateResourceFlight.class),
+                    stairwayComponent);
 
     Pool pool = preparePool(newBasicGcpConfig());
     String flightId = manager.submitCreationFlight(pool).get();
@@ -193,14 +190,14 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
     Resource resource = rbsDao.retrieveResources(pool.id(), ResourceState.READY, 1).get(0);
     assertEquals(
-        "ACTIVE",
-        rmCow
-            .projects()
-            .get(resource.cloudResourceUid().getGoogleProjectUid().getProjectId())
-            .execute()
-            .getLifecycleState());
+            "ACTIVE",
+            rmCow
+                    .projects()
+                    .get(resource.cloudResourceUid().getGoogleProjectUid().getProjectId())
+                    .execute()
+                    .getLifecycleState());
     assertEquals(
-        FlightStatus.ERROR, stairwayComponent.get().getFlightState(flightId).getFlightStatus());
+            FlightStatus.ERROR, stairwayComponent.get().getFlightState(flightId).getFlightStatus());
   }
 
   /** A {@link Flight} that will fail to create Google Project. */
@@ -209,9 +206,9 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
       super(inputParameters, applicationContext);
       RbsDao rbsDao = ((ApplicationContext) applicationContext).getBean(RbsDao.class);
       CloudResourceManagerCow rmCow =
-          ((ApplicationContext) applicationContext).getBean(CloudResourceManagerCow.class);
+              ((ApplicationContext) applicationContext).getBean(CloudResourceManagerCow.class);
       GcpProjectConfig gcpProjectConfig =
-          inputParameters.get(RESOURCE_CONFIG, ResourceConfig.class).getGcpProjectConfig();
+              inputParameters.get(RESOURCE_CONFIG, ResourceConfig.class).getGcpProjectConfig();
       addStep(new GenerateResourceIdStep());
       addStep(new CreateResourceDbEntityStep(rbsDao));
       addStep(new LatchStep());
@@ -257,22 +254,6 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     }
   }
 
-  /** A {@link Flight} that has multiple route creation steps. */
-  public static class MultiRouteStepFlight extends GoogleProjectCreationFlight {
-    public MultiRouteStepFlight(FlightMap inputParameters, Object applicationContext) {
-      super(inputParameters, applicationContext);
-    }
-
-    @Override
-    protected void addStep(Step step) {
-      super.addStep(step);
-      if (step instanceof CreateRouteStep) {
-        // Create a duplicate entry for any CreateRouteStep in the original flight path.
-        super.addStep(step);
-      }
-    }
-  }
-
   /** A {@link Flight} with extra error step after resource creation steps. */
   public static class ErrorAfterCreateResourceFlight extends GoogleProjectCreationFlight {
     public ErrorAfterCreateResourceFlight(FlightMap inputParameters, Object applicationContext) {
@@ -282,7 +263,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   }
 
   private void blockUntilFlightComplete(String flightId)
-      throws InterruptedException, DatabaseOperationException {
+          throws InterruptedException, DatabaseOperationException {
     Duration maxWait = Duration.ofSeconds(10);
     Duration waited = Duration.ZERO;
     while (waited.compareTo(maxWait) < 0) {
@@ -300,15 +281,15 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   private Pool preparePool(GcpProjectConfig gcpProjectConfig) {
     PoolId poolId = PoolId.create("poolId");
     Pool pool =
-        Pool.builder()
-            .id(poolId)
-            .resourceType(ResourceType.GOOGLE_PROJECT)
-            .size(1)
-            .resourceConfig(
-                new ResourceConfig().configName("configName").gcpProjectConfig(gcpProjectConfig))
-            .status(PoolStatus.ACTIVE)
-            .creation(Instant.now())
-            .build();
+            Pool.builder()
+                    .id(poolId)
+                    .resourceType(ResourceType.GOOGLE_PROJECT)
+                    .size(1)
+                    .resourceConfig(
+                            new ResourceConfig().configName("configName").gcpProjectConfig(gcpProjectConfig))
+                    .status(PoolStatus.ACTIVE)
+                    .creation(Instant.now())
+                    .build();
     rbsDao.createPools(ImmutableList.of(pool));
     assertTrue(rbsDao.retrieveResources(pool.id(), ResourceState.CREATING, 1).isEmpty());
     assertTrue(rbsDao.retrieveResources(pool.id(), ResourceState.READY, 1).isEmpty());
@@ -318,48 +299,48 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   /** Create a Basic {@link ResourceConfig}. */
   private static GcpProjectConfig newBasicGcpConfig() {
     return new GcpProjectConfig()
-        .projectIDPrefix("prefix")
-        .parentFolderId(FOLDER_ID)
-        .billingAccount(BILLING_ACCOUNT_NAME)
-        .addEnabledApisItem("compute.googleapis.com");
+            .projectIDPrefix("prefix")
+            .parentFolderId(FOLDER_ID)
+            .billingAccount(BILLING_ACCOUNT_NAME)
+            .addEnabledApisItem("compute.googleapis.com");
   }
 
   private Project assertProjectExists(Pool pool) throws Exception {
     Resource resource = rbsDao.retrieveResources(pool.id(), ResourceState.READY, 1).get(0);
     assertEquals(pool.id(), resource.poolId());
     Project project =
-        rmCow
-            .projects()
-            .get(resource.cloudResourceUid().getGoogleProjectUid().getProjectId())
-            .execute();
+            rmCow
+                    .projects()
+                    .get(resource.cloudResourceUid().getGoogleProjectUid().getProjectId())
+                    .execute();
     assertEquals("ACTIVE", project.getLifecycleState());
     return project;
   }
 
   private void assertBillingIs(Project project, String billingAccount) {
     assertEquals(
-        "billingAccounts/" + billingAccount,
-        billingCow
-            .getProjectBillingInfo(projectIdToName(project.getProjectId()))
-            .getBillingAccountName());
+            "billingAccounts/" + billingAccount,
+            billingCow
+                    .getProjectBillingInfo(projectIdToName(project.getProjectId()))
+                    .getBillingAccountName());
   }
 
   private void assertEnableApisContains(Project project, List<String> enabledApis)
-      throws Exception {
+          throws Exception {
     List<String> serviceNames =
-        enabledApis.stream()
-            .map(apiName -> serviceName(project, apiName))
-            .collect(Collectors.toList());
+            enabledApis.stream()
+                    .map(apiName -> serviceName(project, apiName))
+                    .collect(Collectors.toList());
     assertThat(
-        serviceUsageCow.services().list(projectIdToName(project.getProjectId()))
-            .setFilter("state:ENABLED").execute().getServices().stream()
-            .map(GoogleApiServiceusageV1Service::getName)
-            .collect(Collectors.toList()),
-        Matchers.hasItems(serviceNames.toArray()));
+            serviceUsageCow.services().list(projectIdToName(project.getProjectId()))
+                    .setFilter("state:ENABLED").execute().getServices().stream()
+                    .map(GoogleApiServiceusageV1Service::getName)
+                    .collect(Collectors.toList()),
+            Matchers.hasItems(serviceNames.toArray()));
   }
 
   private void assertIamBindingsContains(Project project, List<IamBinding> iamBindings)
-      throws Exception {
+          throws Exception {
     // By default we enable some services, which causes GCP to automatically create Service Accounts
     // and grant them permissions on the project.
     // e.g.,"serviceAccount:{projectId}-compute@developer.gserviceaccount.com" has editor role.
@@ -367,14 +348,14 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     // roles we expect.
 
     Map<String, List<String>> allBindings =
-        rmCow.projects().getIamPolicy(project.getProjectId(), new GetIamPolicyRequest()).execute()
-            .getBindings().stream()
-            .collect(Collectors.toMap(Binding::getRole, Binding::getMembers));
+            rmCow.projects().getIamPolicy(project.getProjectId(), new GetIamPolicyRequest()).execute()
+                    .getBindings().stream()
+                    .collect(Collectors.toMap(Binding::getRole, Binding::getMembers));
 
     for (IamBinding iamBinding : iamBindings) {
       assertThat(
-          new ArrayList<>(allBindings.get(iamBinding.getRole())),
-          Matchers.hasItems(iamBinding.getMembers().toArray()));
+              new ArrayList<>(allBindings.get(iamBinding.getRole())),
+              Matchers.hasItems(iamBinding.getMembers().toArray()));
     }
   }
 
@@ -384,31 +365,23 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   }
 
   private void assertSubnetsExist(Project project, NetworkMonitoring networkMonitoring)
-      throws Exception {
+          throws Exception {
     Network network = computeCow.networks().get(project.getProjectId(), NETWORK_NAME).execute();
     for (Map.Entry<String, String> entry : REGION_TO_IP_RANGE.entrySet()) {
       String region = entry.getKey();
       Subnetwork subnetwork =
-          computeCow.subnetworks().get(project.getProjectId(), region, SUBNETWORK_NAME).execute();
+              computeCow.subnetworks().get(project.getProjectId(), region, SUBNETWORK_NAME).execute();
       assertEquals(network.getSelfLink(), subnetwork.getNetwork());
       assertEquals(entry.getValue(), subnetwork.getIpCidrRange());
       assertEquals(
-          networkMonitoring.equals(NetworkMonitoring.ENABLED), subnetwork.getEnableFlowLogs());
+              networkMonitoring.equals(NetworkMonitoring.ENABLED), subnetwork.getEnableFlowLogs());
       assertEquals(
-          networkMonitoring.equals(NetworkMonitoring.ENABLED),
-          subnetwork.getPrivateIpGoogleAccess());
+              networkMonitoring.equals(NetworkMonitoring.ENABLED),
+              subnetwork.getPrivateIpGoogleAccess());
+      if (networkMonitoring.equals(NetworkMonitoring.ENABLED)) {
+        assertEquals(LOG_CONFIG, subnetwork.getLogConfig());
+      }
     }
-  }
-
-  private void assertRouteExist(Project project) throws Exception {
-    String projectId = project.getProjectId();
-    Network network = computeCow.networks().get(project.getProjectId(), NETWORK_NAME).execute();
-    Route route = computeCow.routes().get(projectId, ROUTE_NAME).execute();
-    assertEquals(DESTINATION_RANGE, route.getDestRange());
-    assertEquals(
-        "https://www.googleapis.com/compute/v1/projects/" + projectId + DEFAULT_GATEWAY,
-        route.getNextHopGateway());
-    assertEquals(network.getSelfLink(), route.getNetwork());
   }
 
   /** A {@link FlightSubmissionFactory} used in test. */
@@ -436,7 +409,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   /** Dummy {@link CreateProjectStep} which fails in doStep but still runs undoStep. */
   public static class ErrorCreateProjectStep extends CreateProjectStep {
     public ErrorCreateProjectStep(
-        CloudResourceManagerCow rmCow, GcpProjectConfig gcpProjectConfig) {
+            CloudResourceManagerCow rmCow, GcpProjectConfig gcpProjectConfig) {
       super(rmCow, gcpProjectConfig);
     }
 

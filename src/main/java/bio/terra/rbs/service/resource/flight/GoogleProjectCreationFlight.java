@@ -39,7 +39,6 @@ public class GoogleProjectCreationFlight extends Flight {
     addStep(new EnableServicesStep(serviceUsageCow, gcpProjectConfig));
     addStep(new SetIamPolicyStep(rmCow, gcpProjectConfig));
     addStep(new CreateNetworkStep(cloudComputeCow, gcpProjectConfig));
-    addStep(new CreateRouteStep(cloudComputeCow, gcpProjectConfig));
     addStep(new CreateSubnetsStep(cloudComputeCow, gcpProjectConfig));
     addStep(new FinishResourceCreationStep(rbsDao));
     // TODO(PF-144): GCP VPC setup
