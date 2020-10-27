@@ -14,6 +14,7 @@ import bio.terra.stairway.StepStatus;
 import bio.terra.stairway.exception.RetryException;
 import com.google.api.services.compute.model.Network;
 import com.google.api.services.compute.model.Subnetwork;
+import com.google.api.services.compute.model.SubnetworkLogConfig;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
@@ -76,6 +77,22 @@ public class CreateSubnetsStep implements Step {
           .put("us-west4", "10.182.0.0/20")
           .build();
 
+  /**
+   * If flow logs are enabled, we want to adjust the default config in two ways:
+   *
+   * <ul>
+   *   <li>Increase the sampling ratio (defaults to 0.5) so we sample all traffic.
+   *   <li>Reduce the aggregation interval to 30 seconds (default is 5secs) to save on storage
+   * </ul>
+   */
+  @VisibleForTesting
+  public static final SubnetworkLogConfig LOG_CONFIG =
+      new SubnetworkLogConfig()
+          .setAggregationInterval("INTERVAL_30_SEC")
+          .setEnable(true)
+          .setFlowSampling((float) 1.0)
+          .setMetadata("INCLUDE_ALL_METADATA");
+
   private final Logger logger = LoggerFactory.getLogger(CreateSubnetsStep.class);
   private final CloudComputeCow computeCow;
   private final GcpProjectConfig gcpProjectConfig;
@@ -109,6 +126,10 @@ public class CreateSubnetsStep implements Step {
                 .setIpCidrRange(entry.getValue())
                 .setEnableFlowLogs(networkMonitoringEnabled)
                 .setPrivateIpGoogleAccess(networkMonitoringEnabled);
+        if (networkMonitoringEnabled) {
+          subnetwork.setLogConfig(LOG_CONFIG);
+        }
+
         operationsToPoll.add(
             computeCow
                 .regionalOperations()

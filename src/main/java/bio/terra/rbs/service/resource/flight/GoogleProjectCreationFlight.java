@@ -42,6 +42,5 @@ public class GoogleProjectCreationFlight extends Flight {
     addStep(new CreateRouteStep(cloudComputeCow, gcpProjectConfig));
     addStep(new CreateSubnetsStep(cloudComputeCow, gcpProjectConfig));
     addStep(new FinishResourceCreationStep(rbsDao));
-    // TODO(PF-144): GCP VPC setup
   }
 }
