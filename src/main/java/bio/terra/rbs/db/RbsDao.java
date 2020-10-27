@@ -244,7 +244,6 @@ public class RbsDao {
   }
 
   /** Updates resource state to DELETING. */
-  @CheckReturnValue
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
   public boolean updateResourceAsDeleting(ResourceId id) {
     String sql = "UPDATE resource SET state = :state WHERE id = :id";
@@ -257,7 +256,6 @@ public class RbsDao {
   }
 
   /** Updates resource state and deletion timestamp after resource is deleted. */
-  @CheckReturnValue
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
   public boolean updateResourceAsDeleted(ResourceId id) {
     String sql = "UPDATE resource SET state = :state, deletion = :deletion WHERE id = :id";
