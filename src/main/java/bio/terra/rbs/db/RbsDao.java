@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
@@ -161,7 +162,7 @@ public class RbsDao {
   @Transactional(propagation = Propagation.SUPPORTS)
   public Optional<Resource> retrieveResource(ResourceId resourceId) {
     String sql =
-        "select id, pool_id, creation, handout_time, state, request_handout_id, cloud_resource_uid "
+        "select id, pool_id, creation, handout_time, state, request_handout_id, cloud_resource_uid, deletion "
             + "FROM resource "
             + "WHERE id = :id";
 
@@ -178,7 +179,7 @@ public class RbsDao {
   @Transactional(propagation = Propagation.SUPPORTS)
   public Optional<Resource> retrieveResource(PoolId poolId, RequestHandoutId requestHandoutId) {
     String sql =
-        "select id, pool_id, creation, handout_time, state, request_handout_id, cloud_resource_uid "
+        "select id, pool_id, creation, handout_time, state, request_handout_id, cloud_resource_uid, deletion "
             + "FROM resource "
             + "WHERE pool_id = :pool_id AND request_handout_id = :request_handout_id";
 
@@ -195,7 +196,7 @@ public class RbsDao {
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
   public List<Resource> retrieveResources(PoolId poolId, ResourceState state, int limit) {
     String sql =
-        "select id, pool_id, creation, handout_time, state, request_handout_id, cloud_resource_uid "
+        "select id, pool_id, creation, handout_time, state, request_handout_id, cloud_resource_uid, deletion "
             + "FROM resource "
             + "WHERE state = :state AND pool_id = :pool_id "
             + "LIMIT :limit";
@@ -243,6 +244,31 @@ public class RbsDao {
     return jdbcTemplate.update(sql, params) == 1;
   }
 
+  /** Updates resource state to DELETING. */
+  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+  public boolean updateResourceAsDeleting(ResourceId id) {
+    String sql = "UPDATE resource SET state = :state WHERE id = :id";
+
+    MapSqlParameterSource params =
+        new MapSqlParameterSource()
+            .addValue("state", ResourceState.DELETING.toString())
+            .addValue("id", id.id());
+    return jdbcTemplate.update(sql, params) == 1;
+  }
+
+  /** Updates resource state and deletion timestamp after resource is deleted. */
+  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+  public boolean updateResourceAsDeleted(ResourceId id, Instant deletedTime) {
+    String sql = "UPDATE resource SET state = :state, deletion = :deletion WHERE id = :id";
+
+    MapSqlParameterSource params =
+        new MapSqlParameterSource()
+            .addValue("state", ResourceState.DELETED.toString())
+            .addValue("deletion", OffsetDateTime.ofInstant(deletedTime, ZoneOffset.UTC))
+            .addValue("id", id.id());
+    return jdbcTemplate.update(sql, params) == 1;
+  }
+
   /** Delete the resource match the {@link ResourceId}. */
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
   public boolean deleteResource(ResourceId id) {
@@ -282,6 +308,10 @@ public class RbsDao {
                   rs.getString("handout_time") == null
                       ? null
                       : rs.getObject("handout_time", OffsetDateTime.class).toInstant())
+              .deletion(
+                  rs.getString("deletion") == null
+                      ? null
+                      : rs.getObject("deletion", OffsetDateTime.class).toInstant())
               .build();
 
   /**

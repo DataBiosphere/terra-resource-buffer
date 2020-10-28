@@ -195,4 +195,29 @@ public class RbsDaoTest extends BaseUnitTest {
     assertEquals(1, resources.size());
     assertEquals(requestHandoutId, resources.get(0).requestHandoutId());
   }
+
+  @Test
+  public void updateResourceAsDeleting() {
+    Pool pool = newPool(PoolId.create("poolId"));
+    Resource resource = newResource(pool.id(), ResourceState.READY);
+    rbsDao.createPools(ImmutableList.of(pool));
+    rbsDao.createResource(resource);
+
+    rbsDao.updateResourceAsDeleting(resource.id());
+    assertEquals(ResourceState.DELETING, rbsDao.retrieveResource(resource.id()).get().state());
+  }
+
+  @Test
+  public void updateResourceAsDeleted() {
+    Pool pool = newPool(PoolId.create("poolId"));
+    Resource resource = newResource(pool.id(), ResourceState.DELETING);
+    rbsDao.createPools(ImmutableList.of(pool));
+    rbsDao.createResource(resource);
+
+    Instant now = Instant.now();
+    rbsDao.updateResourceAsDeleted(resource.id(), now);
+    resource = rbsDao.retrieveResource(resource.id()).get();
+    assertEquals(now, resource.deletion());
+    assertEquals(ResourceState.DELETED, resource.state());
+  }
 }
