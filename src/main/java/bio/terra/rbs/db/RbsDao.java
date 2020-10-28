@@ -179,7 +179,7 @@ public class RbsDao {
   @Transactional(propagation = Propagation.SUPPORTS)
   public Optional<Resource> retrieveResource(PoolId poolId, RequestHandoutId requestHandoutId) {
     String sql =
-        "select id, pool_id, creation, handout_time, state, request_handout_id, cloud_resource_uid "
+        "select id, pool_id, creation, handout_time, state, request_handout_id, cloud_resource_uid, deletion "
             + "FROM resource "
             + "WHERE pool_id = :pool_id AND request_handout_id = :request_handout_id";
 
@@ -196,7 +196,7 @@ public class RbsDao {
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
   public List<Resource> retrieveResources(PoolId poolId, ResourceState state, int limit) {
     String sql =
-        "select id, pool_id, creation, handout_time, state, request_handout_id, cloud_resource_uid "
+        "select id, pool_id, creation, handout_time, state, request_handout_id, cloud_resource_uid, deletion "
             + "FROM resource "
             + "WHERE state = :state AND pool_id = :pool_id "
             + "LIMIT :limit";
