@@ -2,6 +2,7 @@ package bio.terra.rbs.integration;
 
 import static bio.terra.rbs.integration.IntegrationUtils.pollUntilResourcesMatch;
 import static bio.terra.rbs.service.resource.FlightMapKeys.RESOURCE_CONFIG;
+import static bio.terra.rbs.service.resource.flight.CreateRouteStep.*;
 import static bio.terra.rbs.service.resource.flight.CreateSubnetsStep.*;
 import static bio.terra.rbs.service.resource.flight.GoogleUtils.NETWORK_NAME;
 import static bio.terra.rbs.service.resource.flight.GoogleUtils.projectIdToName;
@@ -25,10 +26,12 @@ import bio.terra.rbs.service.resource.flight.*;
 import bio.terra.rbs.service.stairway.StairwayComponent;
 import bio.terra.stairway.*;
 import bio.terra.stairway.exception.DatabaseOperationException;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.cloudresourcemanager.model.Binding;
 import com.google.api.services.cloudresourcemanager.model.GetIamPolicyRequest;
 import com.google.api.services.cloudresourcemanager.model.Project;
 import com.google.api.services.compute.model.Network;
+import com.google.api.services.compute.model.Route;
 import com.google.api.services.compute.model.Subnetwork;
 import com.google.api.services.serviceusage.v1.model.GoogleApiServiceusageV1Service;
 import com.google.common.collect.ImmutableList;
@@ -80,6 +83,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertEnableApisContains(project, pool.resourceConfig().getGcpProjectConfig().getEnabledApis());
     assertNetworkExists(project);
     assertSubnetsExist(project, NetworkMonitoring.DISABLED);
+    assertRouteNotExists(project);
   }
 
   @Test
@@ -119,6 +123,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     Project project = assertProjectExists(pool);
     assertNetworkExists(project);
     assertSubnetsExist(project, NetworkMonitoring.ENABLED);
+    assertRouteExists(project);
   }
 
   @Test
@@ -149,7 +154,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     // Verify flight is able to finish successfully when network exists
     FlightManager manager =
         new FlightManager(
-            new StubSubmissionFlightFactory(MultiNetworkStepFlight.class), stairwayComponent);
+            new StubSubmissionFlightFactory(MultiInstanceStepFlight.class), stairwayComponent);
+    MultiInstanceStepFlight.setStepClass(CreateNetworkStep.class);
     Pool pool = preparePool(newBasicGcpConfig());
 
     String flightId = manager.submitCreationFlight(pool).get();
@@ -166,7 +172,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     // subnets need to be recreated and some are getting created the first time.
     FlightManager manager =
         new FlightManager(
-            new StubSubmissionFlightFactory(MultiSubnetsStepFlight.class), stairwayComponent);
+            new StubSubmissionFlightFactory(MultiInstanceStepFlight.class), stairwayComponent);
+    MultiInstanceStepFlight.setStepClass(CreateSubnetsStep.class);
     Pool pool = preparePool(newBasicGcpConfig());
 
     String flightId = manager.submitCreationFlight(pool).get();
@@ -174,6 +181,25 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     Project project = assertProjectExists(pool);
     assertNetworkExists(project);
     assertSubnetsExist(project, NetworkMonitoring.DISABLED);
+  }
+
+  @Test
+  public void testCreateGoogleProject_multipleRouteCreation() throws Exception {
+    // Verify flight is able to finish successfully when route already exists.
+    FlightManager manager =
+        new FlightManager(
+            new StubSubmissionFlightFactory(MultiInstanceStepFlight.class), stairwayComponent);
+    MultiInstanceStepFlight.setStepClass(CreateRouteStep.class);
+    Pool pool =
+        preparePool(
+            newBasicGcpConfig()
+                .network(
+                    new bio.terra.rbs.generated.model.Network().enableNetworkMonitoring(true)));
+
+    String flightId = manager.submitCreationFlight(pool).get();
+    blockUntilFlightComplete(flightId);
+    Project project = assertProjectExists(pool);
+    assertRouteExists(project);
   }
 
   @Test
@@ -218,37 +244,21 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     }
   }
 
-  /** A {@link Flight} that has multiple network creation steps. */
-  public static class MultiNetworkStepFlight extends GoogleProjectCreationFlight {
-    public MultiNetworkStepFlight(FlightMap inputParameters, Object applicationContext) {
+  public static class MultiInstanceStepFlight extends GoogleProjectCreationFlight {
+    private static Class<? extends Step> multiStepClazz;
+
+    public MultiInstanceStepFlight(FlightMap inputParameters, Object applicationContext) {
       super(inputParameters, applicationContext);
+    }
+
+    public static void setStepClass(Class<? extends Step> clazz) {
+      multiStepClazz = clazz;
     }
 
     @Override
     protected void addStep(Step step) {
       super.addStep(step);
-      if (step instanceof CreateNetworkStep) {
-        // Create a duplicate entry for any CreateNetworkStep in the original flight path.
-        super.addStep(step);
-      }
-    }
-  }
-
-  /**
-   * A {@link Flight} that has multiple subnets creation steps. So a flight will try to create all
-   * Subnets twice and still success.
-   */
-  public static class MultiSubnetsStepFlight extends GoogleProjectCreationFlight {
-
-    public MultiSubnetsStepFlight(FlightMap inputParameters, Object applicationContext) {
-      super(inputParameters, applicationContext);
-    }
-
-    @Override
-    protected void addStep(Step step) {
-      super.addStep(step);
-      if (step instanceof CreateSubnetsStep) {
-        // Create a duplicate entry for any CreateSubnetsStep in the original flight path.
+      if (multiStepClazz.isInstance(step)) {
         super.addStep(step);
       }
     }
@@ -382,6 +392,26 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
         assertEquals(LOG_CONFIG, subnetwork.getLogConfig());
       }
     }
+  }
+
+  private void assertRouteExists(Project project) throws Exception {
+    String projectId = project.getProjectId();
+    Network network = computeCow.networks().get(project.getProjectId(), NETWORK_NAME).execute();
+    Route route = computeCow.routes().get(projectId, ROUTE_NAME).execute();
+    assertEquals(DESTINATION_RANGE, route.getDestRange());
+    assertEquals(
+        "https://www.googleapis.com/compute/v1/projects/" + projectId + DEFAULT_GATEWAY,
+        route.getNextHopGateway());
+    assertEquals(network.getSelfLink(), route.getNetwork());
+  }
+
+  private void assertRouteNotExists(Project project) throws Exception {
+    String projectId = project.getProjectId();
+    GoogleJsonResponseException e =
+        assertThrows(
+            GoogleJsonResponseException.class,
+            () -> computeCow.routes().get(projectId, ROUTE_NAME).execute());
+    assertEquals(404, e.getStatusCode());
   }
 
   /** A {@link FlightSubmissionFactory} used in test. */
