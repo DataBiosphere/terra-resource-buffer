@@ -42,6 +42,10 @@ public abstract class Resource {
   @Nullable
   public abstract Instant handoutTime();
 
+  /** The time when RBS is deleted. It is set when the resource is deleted. */
+  @Nullable
+  public abstract Instant deletion();
+
   public static Builder builder() {
     return new AutoValue_Resource.Builder();
   }
@@ -63,6 +67,8 @@ public abstract class Resource {
     public abstract Builder creation(Instant creation);
 
     public abstract Builder handoutTime(Instant handoutTime);
+
+    public abstract Builder deletion(Instant deletion);
 
     public abstract Resource build();
   }

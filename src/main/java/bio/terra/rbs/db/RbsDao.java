@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
@@ -161,7 +162,7 @@ public class RbsDao {
   @Transactional(propagation = Propagation.SUPPORTS)
   public Optional<Resource> retrieveResource(ResourceId resourceId) {
     String sql =
-        "select id, pool_id, creation, handout_time, state, request_handout_id, cloud_resource_uid "
+        "select id, pool_id, creation, handout_time, state, request_handout_id, cloud_resource_uid, deletion "
             + "FROM resource "
             + "WHERE id = :id";
 
@@ -257,13 +258,13 @@ public class RbsDao {
 
   /** Updates resource state and deletion timestamp after resource is deleted. */
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
-  public boolean updateResourceAsDeleted(ResourceId id) {
+  public boolean updateResourceAsDeleted(ResourceId id, Instant deletedTime) {
     String sql = "UPDATE resource SET state = :state, deletion = :deletion WHERE id = :id";
 
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("state", ResourceState.DELETED.toString())
-            .addValue("deletion", OffsetDateTime.now(ZoneOffset.UTC))
+            .addValue("deletion", OffsetDateTime.ofInstant(deletedTime, ZoneOffset.UTC))
             .addValue("id", id.id());
     return jdbcTemplate.update(sql, params) == 1;
   }
@@ -307,6 +308,10 @@ public class RbsDao {
                   rs.getString("handout_time") == null
                       ? null
                       : rs.getObject("handout_time", OffsetDateTime.class).toInstant())
+              .deletion(
+                  rs.getString("deletion") == null
+                      ? null
+                      : rs.getObject("deletion", OffsetDateTime.class).toInstant())
               .build();
 
   /**
