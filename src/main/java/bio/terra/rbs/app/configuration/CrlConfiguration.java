@@ -6,6 +6,7 @@ import bio.terra.cloudres.google.api.services.common.Defaults;
 import bio.terra.cloudres.google.billing.CloudBillingClientCow;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.cloudres.google.compute.CloudComputeCow;
+import bio.terra.cloudres.google.dns.DnsCow;
 import bio.terra.cloudres.google.serviceusage.ServiceUsageCow;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpRequestInitializer;
@@ -13,6 +14,7 @@ import com.google.api.services.cloudresourcemanager.CloudResourceManager;
 import com.google.api.services.cloudresourcemanager.CloudResourceManagerScopes;
 import com.google.api.services.compute.Compute;
 import com.google.api.services.compute.ComputeScopes;
+import com.google.api.services.dns.Dns;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
@@ -127,6 +129,22 @@ public class CrlConfiguration {
     return new CloudComputeCow(
         clientConfig(),
         new Compute.Builder(
+                GoogleNetHttpTransport.newTrustedTransport(),
+                Defaults.jsonFactory(),
+                setHttpTimeout(
+                    new HttpCredentialsAdapter(
+                        GoogleCredentials.getApplicationDefault()
+                            .createScoped(ComputeScopes.all()))))
+            .setApplicationName(CLIENT_NAME));
+  }
+
+  /** The CRL {@link DnsCow} which wrappers Google Compute API. */
+  @Bean
+  @Lazy
+  public DnsCow dnsCow() throws IOException, GeneralSecurityException {
+    return new DnsCow(
+        clientConfig(),
+        new Dns.Builder(
                 GoogleNetHttpTransport.newTrustedTransport(),
                 Defaults.jsonFactory(),
                 setHttpTimeout(

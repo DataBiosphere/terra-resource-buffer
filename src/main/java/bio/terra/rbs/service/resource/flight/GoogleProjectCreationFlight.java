@@ -5,6 +5,7 @@ import static bio.terra.rbs.service.resource.FlightMapKeys.RESOURCE_CONFIG;
 import bio.terra.cloudres.google.billing.CloudBillingClientCow;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.cloudres.google.compute.CloudComputeCow;
+import bio.terra.cloudres.google.dns.DnsCow;
 import bio.terra.cloudres.google.serviceusage.ServiceUsageCow;
 import bio.terra.rbs.db.RbsDao;
 import bio.terra.rbs.generated.model.GcpProjectConfig;
@@ -27,6 +28,7 @@ public class GoogleProjectCreationFlight extends Flight {
         ((ApplicationContext) applicationContext).getBean(ServiceUsageCow.class);
     CloudComputeCow cloudComputeCow =
         ((ApplicationContext) applicationContext).getBean(CloudComputeCow.class);
+    DnsCow dnsCow = ((ApplicationContext) applicationContext).getBean(DnsCow.class);
     GcpProjectConfig gcpProjectConfig =
         inputParameters.get(RESOURCE_CONFIG, ResourceConfig.class).getGcpProjectConfig();
     RetryRuleFixedInterval retryRule =
@@ -41,6 +43,8 @@ public class GoogleProjectCreationFlight extends Flight {
     addStep(new CreateNetworkStep(cloudComputeCow, gcpProjectConfig));
     addStep(new CreateRouteStep(cloudComputeCow, gcpProjectConfig));
     addStep(new CreateSubnetsStep(cloudComputeCow, gcpProjectConfig));
+    addStep(new CreateDnsZoneStep(cloudComputeCow, dnsCow, gcpProjectConfig));
+    addStep(new CreateResourceRecordSetStep(dnsCow, gcpProjectConfig));
     addStep(new FinishResourceCreationStep(rbsDao));
   }
 }
