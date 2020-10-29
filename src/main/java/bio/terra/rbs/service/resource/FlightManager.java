@@ -35,7 +35,6 @@ public class FlightManager {
 
   /** Submit Stairway Flight to delete resource. */
   public Optional<String> submitDeletionFlight(Resource resource, ResourceType resourceType) {
-    // TODO: Add input into FlightMap
     return submitToStairway(
         flightSubmissionFactory.getDeletionFlightSubmission(resource, resourceType));
   }

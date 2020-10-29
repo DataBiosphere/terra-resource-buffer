@@ -1,8 +1,7 @@
 package bio.terra.rbs.service.resource.flight;
 
 import static bio.terra.rbs.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
-import static bio.terra.rbs.service.resource.flight.GoogleUtils.getResource;
-import static bio.terra.rbs.service.resource.flight.GoogleUtils.pollUntilSuccess;
+import static bio.terra.rbs.service.resource.flight.GoogleUtils.*;
 import static bio.terra.rbs.service.resource.flight.StepUtils.isResourceReady;
 
 import bio.terra.cloudres.google.api.services.common.OperationCow;
@@ -10,7 +9,6 @@ import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.rbs.generated.model.GcpProjectConfig;
 import bio.terra.stairway.*;
 import bio.terra.stairway.exception.RetryException;
-import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.cloudresourcemanager.model.Project;
 import com.google.api.services.cloudresourcemanager.model.ResourceId;
 import java.io.IOException;
@@ -35,7 +33,7 @@ public class CreateProjectStep implements Step {
     String projectId = flightContext.getWorkingMap().get(GOOGLE_PROJECT_ID, String.class);
     try {
       // If the project id us used. Fail the flight and let Stairway rollback the flight.
-      if (retrieveProject(projectId).isPresent()) {
+      if (retrieveProject(rmCow, projectId).isPresent()) {
         return new StepResult(StepStatus.STEP_RESULT_FAILURE_FATAL);
       }
       Project project =
@@ -79,19 +77,5 @@ public class CreateProjectStep implements Step {
       return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY, e);
     }
     return StepResult.getStepResultSuccess();
-  }
-
-  private Optional<Project> retrieveProject(String projectId) throws IOException {
-    try {
-      return Optional.of(rmCow.projects().get(projectId).execute());
-    } catch (GoogleJsonResponseException e) {
-      if (e.getStatusCode() == 403) {
-        // Google returns 403 for projects we don't have access to and projects that don't exist.
-        // We assume in this case that the project does not exist, not that somebody else has
-        // created a project with the same random id.
-        return Optional.empty();
-      }
-      throw e;
-    }
   }
 }
