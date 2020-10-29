@@ -217,10 +217,10 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
             new StubSubmissionFlightFactory(MultiInstanceStepFlight.class), stairwayComponent);
     MultiInstanceStepFlight.setStepClass(CreateDnsZoneStep.class);
     Pool pool =
-            preparePool(
-                    newBasicGcpConfig()
-                            .network(
-                                    new bio.terra.rbs.generated.model.Network().enableNetworkMonitoring(true)));
+        preparePool(
+            newBasicGcpConfig()
+                .network(
+                    new bio.terra.rbs.generated.model.Network().enableNetworkMonitoring(true)));
 
     String flightId = manager.submitCreationFlight(pool).get();
     blockUntilFlightComplete(flightId);
@@ -236,10 +236,10 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
             new StubSubmissionFlightFactory(MultiInstanceStepFlight.class), stairwayComponent);
     MultiInstanceStepFlight.setStepClass(CreateResourceRecordSetStep.class);
     Pool pool =
-            preparePool(
-                    newBasicGcpConfig()
-                            .network(
-                                    new bio.terra.rbs.generated.model.Network().enableNetworkMonitoring(true)));
+        preparePool(
+            newBasicGcpConfig()
+                .network(
+                    new bio.terra.rbs.generated.model.Network().enableNetworkMonitoring(true)));
 
     String flightId = manager.submitCreationFlight(pool).get();
     blockUntilFlightComplete(flightId);
