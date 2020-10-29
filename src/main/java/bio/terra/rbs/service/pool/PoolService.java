@@ -8,9 +8,12 @@ import bio.terra.rbs.common.exception.BadRequestException;
 import bio.terra.rbs.common.exception.InternalServerErrorException;
 import bio.terra.rbs.common.exception.NotFoundException;
 import bio.terra.rbs.db.*;
+import bio.terra.rbs.generated.model.PoolConfig;
+import bio.terra.rbs.generated.model.PoolInfo;
 import bio.terra.rbs.generated.model.ResourceInfo;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multiset;
 import com.google.common.collect.Sets;
 import java.time.Instant;
 import java.util.*;
@@ -55,6 +58,28 @@ public class PoolService {
         transactionTemplate.execute(
             status -> handoutResourceTransactionally(poolId, requestHandoutId, status)),
         requestHandoutId);
+  }
+
+  /** Gets pool information by given {@link PoolId}. */
+  public PoolInfo getPoolInfo(PoolId poolId) {
+    Optional<PoolAndResourceStates> poolAndResourceStates =
+        rbsDao.retrievePoolAndResourceStatesById(poolId);
+    if (!poolAndResourceStates.isPresent()) {
+      throw new NotFoundException(String.format("Pool %s not found", poolId));
+    }
+    Pool pool = poolAndResourceStates.get().pool();
+    Multiset<ResourceState> resourceStates = poolAndResourceStates.get().resourceStates();
+    return new PoolInfo()
+        .poolConfig(
+            new PoolConfig()
+                .poolId(poolId.toString())
+                .size(pool.size())
+                .resourceConfigName(pool.resourceConfig().getConfigName()))
+        .status(bio.terra.rbs.generated.model.PoolStatus.valueOf(pool.status().toString()))
+        .creatingCount(resourceStates.count(ResourceState.CREATING))
+        .readyCount(resourceStates.count(ResourceState.READY))
+        .deletedCount(resourceStates.count(ResourceState.DELETED))
+        .handedoutCount(resourceStates.count(ResourceState.HANDED_OUT));
   }
 
   private Resource handoutResourceTransactionally(

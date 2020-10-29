@@ -115,20 +115,25 @@ public class RbsDaoTest extends BaseUnitTest {
     rbsDao.createResource(newResource(pool2.id(), ResourceState.READY));
     rbsDao.createResource(newResource(pool2.id(), ResourceState.HANDED_OUT));
 
+    PoolAndResourceStates pool1State =
+        PoolAndResourceStates.builder()
+            .setPool(pool1)
+            .setResourceStateCount(ResourceState.CREATING, 1)
+            .setResourceStateCount(ResourceState.READY, 2)
+            .build();
+
     assertThat(
         rbsDao.retrievePoolAndResourceStates(),
         Matchers.containsInAnyOrder(
-            PoolAndResourceStates.builder()
-                .setPool(pool1)
-                .setResourceStateCount(ResourceState.CREATING, 1)
-                .setResourceStateCount(ResourceState.READY, 2)
-                .build(),
+            pool1State,
             PoolAndResourceStates.builder()
                 .setPool(pool2)
                 .setResourceStateCount(ResourceState.READY, 1)
                 .setResourceStateCount(ResourceState.HANDED_OUT, 1)
                 .build(),
             PoolAndResourceStates.builder().setPool(pool3).build()));
+
+    assertEquals(pool1State, rbsDao.retrievePoolAndResourceStatesById(pool1.id()).get());
   }
 
   @Test

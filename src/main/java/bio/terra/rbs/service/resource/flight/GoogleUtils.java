@@ -55,7 +55,7 @@ public class GoogleUtils {
     return getResource(execute, acceptable).isPresent();
   }
 
-  /** See {@link this.resourceExists(CloudExecute<R>)}. */
+  /** See {@link GoogleUtils#resourceExists(CloudExecute, int)}. */
   public static <R> Optional<R> getResource(CloudExecute<R> execute, int acceptable)
       throws IOException {
     try {

@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 import bio.terra.rbs.common.*;
+import bio.terra.rbs.common.PoolStatus;
 import bio.terra.rbs.common.exception.BadRequestException;
 import bio.terra.rbs.common.exception.NotFoundException;
 import bio.terra.rbs.db.*;
