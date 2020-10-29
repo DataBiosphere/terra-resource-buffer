@@ -34,7 +34,8 @@ public class InitialResourceDeletionStep implements Step {
     // Revert resource state back to READY to let RBS scheduling service pick it up again.
     // Currently we don't have FATAL state to prevent a bad state resource get into here again and
     // again. We rely on alerting + scripts to prevent this. At this moment, the deletion logic is
-    // simple and it should work for most cases unless GCP outrage happens in which case there is nothing we can do.
+    // simple and it should work for most cases unless GCP outrage happens in which case there is
+    // nothing we can do.
     if (rbsDao.updateResourceAsReady(
         ResourceId.retrieve(inputMap),
         inputMap.get(FlightMapKeys.CLOUD_RESOURCE_UID, CloudResourceUid.class))) {
