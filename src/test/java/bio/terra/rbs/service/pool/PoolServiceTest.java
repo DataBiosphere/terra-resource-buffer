@@ -262,7 +262,6 @@ public class PoolServiceTest extends BaseUnitTest {
   @Test
   public void getPoolInfo_notFound() throws Exception {
     PoolId poolId = PoolId.create("poolId");
-    newReadyPool(poolId, 0);
     assertThrows(NotFoundException.class, () -> poolService.getPoolInfo(poolId));
   }
 
