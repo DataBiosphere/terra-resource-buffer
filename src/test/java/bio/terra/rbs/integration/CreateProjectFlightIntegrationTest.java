@@ -2,16 +2,19 @@ package bio.terra.rbs.integration;
 
 import static bio.terra.rbs.integration.IntegrationUtils.pollUntilResourcesMatch;
 import static bio.terra.rbs.service.resource.FlightMapKeys.RESOURCE_CONFIG;
+import static bio.terra.rbs.service.resource.flight.CreateDnsZoneStep.MANAGED_ZONE_TEMPLATE;
+import static bio.terra.rbs.service.resource.flight.CreateResourceRecordSetStep.A_RECORD;
+import static bio.terra.rbs.service.resource.flight.CreateResourceRecordSetStep.CNAME_RECORD;
 import static bio.terra.rbs.service.resource.flight.CreateRouteStep.*;
 import static bio.terra.rbs.service.resource.flight.CreateSubnetsStep.*;
-import static bio.terra.rbs.service.resource.flight.GoogleUtils.NETWORK_NAME;
-import static bio.terra.rbs.service.resource.flight.GoogleUtils.projectIdToName;
+import static bio.terra.rbs.service.resource.flight.GoogleUtils.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 import bio.terra.cloudres.google.billing.CloudBillingClientCow;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.cloudres.google.compute.CloudComputeCow;
+import bio.terra.cloudres.google.dns.DnsCow;
 import bio.terra.cloudres.google.serviceusage.ServiceUsageCow;
 import bio.terra.rbs.common.*;
 import bio.terra.rbs.db.*;
@@ -26,13 +29,14 @@ import bio.terra.rbs.service.resource.flight.*;
 import bio.terra.rbs.service.stairway.StairwayComponent;
 import bio.terra.stairway.*;
 import bio.terra.stairway.exception.DatabaseOperationException;
-import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.cloudresourcemanager.model.Binding;
 import com.google.api.services.cloudresourcemanager.model.GetIamPolicyRequest;
 import com.google.api.services.cloudresourcemanager.model.Project;
 import com.google.api.services.compute.model.Network;
 import com.google.api.services.compute.model.Route;
 import com.google.api.services.compute.model.Subnetwork;
+import com.google.api.services.dns.model.ManagedZone;
+import com.google.api.services.dns.model.ResourceRecordSet;
 import com.google.api.services.serviceusage.v1.model.GoogleApiServiceusageV1Service;
 import com.google.common.collect.ImmutableList;
 import java.time.Duration;
@@ -63,6 +67,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   @Autowired CloudComputeCow computeCow;
   @Autowired CloudResourceManagerCow rmCow;
   @Autowired CloudBillingClientCow billingCow;
+  @Autowired DnsCow dnsCow;
   @Autowired ServiceUsageCow serviceUsageCow;
   @Autowired FlightSubmissionFactoryImpl flightSubmissionFactoryImpl;
 
@@ -84,6 +89,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertNetworkExists(project);
     assertSubnetsExist(project, NetworkMonitoring.DISABLED);
     assertRouteNotExists(project);
+    assertDnsNotExists(project);
   }
 
   @Test
@@ -124,6 +130,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertNetworkExists(project);
     assertSubnetsExist(project, NetworkMonitoring.ENABLED);
     assertRouteExists(project);
+    assertDnsExists(project);
   }
 
   @Test
@@ -200,6 +207,44 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     blockUntilFlightComplete(flightId);
     Project project = assertProjectExists(pool);
     assertRouteExists(project);
+  }
+
+  @Test
+  public void testCreateGoogleProject_multipleDnsCreation() throws Exception {
+    // Verify flight is able to finish successfully when DNS exists
+    FlightManager manager =
+        new FlightManager(
+            new StubSubmissionFlightFactory(MultiInstanceStepFlight.class), stairwayComponent);
+    MultiInstanceStepFlight.setStepClass(CreateDnsZoneStep.class);
+    Pool pool =
+        preparePool(
+            newBasicGcpConfig()
+                .network(
+                    new bio.terra.rbs.generated.model.Network().enableNetworkMonitoring(true)));
+
+    String flightId = manager.submitCreationFlight(pool).get();
+    blockUntilFlightComplete(flightId);
+    Project project = assertProjectExists(pool);
+    assertDnsExists(project);
+  }
+
+  @Test
+  public void testCreateGoogleProject_multipleResourceRecordSetCreation() throws Exception {
+    // Verify flight is able to finish successfully when ResourceRecordSet exists
+    FlightManager manager =
+        new FlightManager(
+            new StubSubmissionFlightFactory(MultiInstanceStepFlight.class), stairwayComponent);
+    MultiInstanceStepFlight.setStepClass(CreateResourceRecordSetStep.class);
+    Pool pool =
+        preparePool(
+            newBasicGcpConfig()
+                .network(
+                    new bio.terra.rbs.generated.model.Network().enableNetworkMonitoring(true)));
+
+    String flightId = manager.submitCreationFlight(pool).get();
+    blockUntilFlightComplete(flightId);
+    Project project = assertProjectExists(pool);
+    assertDnsExists(project);
   }
 
   @Test
@@ -312,7 +357,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
         .projectIDPrefix("prefix")
         .parentFolderId(FOLDER_ID)
         .billingAccount(BILLING_ACCOUNT_NAME)
-        .addEnabledApisItem("compute.googleapis.com");
+        .addEnabledApisItem("compute.googleapis.com")
+        .addEnabledApisItem("dns.googleapis.com");
   }
 
   private Project assertProjectExists(Pool pool) throws Exception {
@@ -406,12 +452,40 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   }
 
   private void assertRouteNotExists(Project project) throws Exception {
+    assertFalse(
+        resourceExists(
+            () -> computeCow.routes().get(project.getProjectId(), ROUTE_NAME).execute(), 404));
+  }
+
+  private void assertDnsExists(Project project) throws Exception {
     String projectId = project.getProjectId();
-    GoogleJsonResponseException e =
-        assertThrows(
-            GoogleJsonResponseException.class,
-            () -> computeCow.routes().get(projectId, ROUTE_NAME).execute());
-    assertEquals(404, e.getStatusCode());
+
+    ManagedZone managedZone = dnsCow.managedZones().get(projectId, MANAGED_ZONE_NAME).execute();
+    Map<String, ResourceRecordSet> resourceRecordSets =
+        dnsCow.resourceRecordSets().list(project.getProjectId(), MANAGED_ZONE_NAME).execute()
+            .getRrsets().stream()
+            .collect(Collectors.toMap(ResourceRecordSet::getType, r -> r));
+    ResourceRecordSet aRecordSet = resourceRecordSets.get(A_RECORD.getType());
+    ResourceRecordSet cnameRecordSet = resourceRecordSets.get(CNAME_RECORD.getType());
+
+    assertEquals(MANAGED_ZONE_TEMPLATE.getName(), managedZone.getName());
+    assertEquals(MANAGED_ZONE_TEMPLATE.getVisibility(), managedZone.getVisibility());
+    assertEquals(MANAGED_ZONE_TEMPLATE.getDescription(), managedZone.getDescription());
+    assertResourceRecordSetMatch(A_RECORD, aRecordSet);
+    assertResourceRecordSetMatch(CNAME_RECORD, cnameRecordSet);
+  }
+
+  private void assertDnsNotExists(Project project) throws Exception {
+    assertFalse(
+        resourceExists(
+            () -> dnsCow.managedZones().get(project.getProjectId(), MANAGED_ZONE_NAME).execute(),
+            404));
+  }
+
+  private void assertResourceRecordSetMatch(ResourceRecordSet expected, ResourceRecordSet actual) {
+    assertEquals(expected.getName(), actual.getName());
+    assertEquals(expected.getRrdatas(), actual.getRrdatas());
+    assertEquals(expected.getTtl(), actual.getTtl());
   }
 
   /** A {@link FlightSubmissionFactory} used in test. */

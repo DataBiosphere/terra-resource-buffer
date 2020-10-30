@@ -15,6 +15,10 @@ public class GoogleUtils {
   /** All project will use the same network name. */
   @VisibleForTesting public static final String NETWORK_NAME = "network";
 
+  /** The private DNS zone name. */
+  @VisibleForTesting
+  public static final String MANAGED_ZONE_NAME = "private-google-access-dns-zone";
+
   /**
    * Poll until the Google Service API operation has completed. Throws any error or timeouts as a
    * {@link RetryException}.
