@@ -39,6 +39,24 @@ public class BackwardsCompatibilityTest extends BaseUnitTest {
   }
 
   /**
+   * Change detection test for existing {@link PoolStatus} with {@link
+   * bio.terra.rbs.generated.model.PoolStatus}. We make API and internal use status(also DB) keep in
+   * sync
+   */
+  @Test
+  public void poolStatusDbWithApi() {
+    // Make sure we won't forget to modify this test when we add/remove enums.
+    assertEquals(2, PoolStatus.values().length);
+    assertEquals(2, bio.terra.rbs.generated.model.PoolStatus.values().length);
+
+    assertEquals(
+        PoolStatus.ACTIVE.toString(), bio.terra.rbs.generated.model.PoolStatus.ACTIVE.toString());
+    assertEquals(
+        PoolStatus.DEACTIVATED.toString(),
+        bio.terra.rbs.generated.model.PoolStatus.DEACTIVATED.toString());
+  }
+
+  /**
    * Change detection test for existing {@link ResourceState} enum values. More values should be
    * added as the enum expands.
    */

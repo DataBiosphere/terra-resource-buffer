@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 import bio.terra.rbs.common.*;
+import bio.terra.rbs.common.PoolStatus;
 import bio.terra.rbs.common.exception.BadRequestException;
 import bio.terra.rbs.common.exception.NotFoundException;
 import bio.terra.rbs.db.*;
@@ -236,6 +237,33 @@ public class PoolServiceTest extends BaseUnitTest {
 
     assertThrows(
         NotFoundException.class, () -> poolService.handoutResource(poolId, requestHandoutId));
+  }
+
+  @Test
+  public void getPoolInfo_success() throws Exception {
+    PoolId poolId = PoolId.create("poolId");
+    newReadyPool(poolId, 2);
+
+    assertEquals(
+        new PoolInfo()
+            .poolConfig(
+                new PoolConfig()
+                    .size(2)
+                    .poolId(poolId.toString())
+                    .resourceConfigName("resourceName"))
+            .status(bio.terra.rbs.generated.model.PoolStatus.ACTIVE)
+            .putResourceStateCountItem(ResourceState.READY.name(), 2)
+            .putResourceStateCountItem(ResourceState.CREATING.name(), 0)
+            .putResourceStateCountItem(ResourceState.DELETED.name(), 0)
+            .putResourceStateCountItem(ResourceState.HANDED_OUT.name(), 0),
+        poolService.getPoolInfo(poolId));
+  }
+
+  @Test
+  public void getPoolInfo_notFound() throws Exception {
+    PoolId poolId = PoolId.create("poolId");
+    newReadyPool(poolId, 0);
+    assertThrows(NotFoundException.class, () -> poolService.getPoolInfo(poolId));
   }
 
   /** Creates a pool with resources with given size. */

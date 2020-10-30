@@ -48,6 +48,31 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorReport'
+
+  '/api/pool/v1/{poolId}':
+    get:
+      summary: Get the pool info, including resource count in each state, and pool config.
+      operationId: getPoolInfo
+      parameters:
+        - $ref: '#/components/parameters/PoolId'
+      tags:
+        - rbs
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PoolInfo'
+        '404':
+          description: No resource available in this pool.
+        '500':
+          description: Get request error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorReport'
+
 components:
   parameters:
     PoolId:
@@ -153,6 +178,32 @@ components:
         cloudResourceUid:
           $ref: '../../../../build/crlSchema/cloud_resources_uid.yaml#/components/schemas/CloudResourceUid'
       type: object
+
+    PoolInfo:
+      description: |-
+        Information represents a pool in RBS
+      required:
+        - poolId
+        - status
+      properties:
+        poolConfig:
+          $ref: '#/components/schemas/PoolConfig'
+        status:
+          $ref: '#/components/schemas/PoolStatus'
+        resourceStateCount:
+          description: |
+            Number of resources in each state
+          type: object
+          additionalProperties:
+            type: integer
+      type: object
+
+    PoolStatus:
+      type: string
+      description: Possible pool status.
+      enum:
+        - ACTIVE
+        - DEACTIVATED
 
   responses:
     ErrorResponse:
