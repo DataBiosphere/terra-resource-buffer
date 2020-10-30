@@ -239,6 +239,33 @@ public class PoolServiceTest extends BaseUnitTest {
         NotFoundException.class, () -> poolService.handoutResource(poolId, requestHandoutId));
   }
 
+  @Test
+  public void getPoolInfo_success() throws Exception {
+    PoolId poolId = PoolId.create("poolId");
+    newReadyPool(poolId, 2);
+
+    assertEquals(
+        new PoolInfo()
+            .poolConfig(
+                new PoolConfig()
+                    .size(2)
+                    .poolId(poolId.toString())
+                    .resourceConfigName("resourceName"))
+            .status(bio.terra.rbs.generated.model.PoolStatus.ACTIVE)
+            .putResourceStateCountItem(ResourceState.READY.name(), 2)
+            .putResourceStateCountItem(ResourceState.CREATING.name(), 0)
+            .putResourceStateCountItem(ResourceState.DELETED.name(), 0)
+            .putResourceStateCountItem(ResourceState.HANDED_OUT.name(), 0),
+        poolService.getPoolInfo(poolId));
+  }
+
+  @Test
+  public void getPoolInfo_notFound() throws Exception {
+    PoolId poolId = PoolId.create("poolId");
+    newReadyPool(poolId, 0);
+    assertThrows(NotFoundException.class, () -> poolService.getPoolInfo(poolId));
+  }
+
   /** Creates a pool with resources with given size. */
   private void newReadyPool(PoolId poolId, int poolSize) {
     Pool pool =

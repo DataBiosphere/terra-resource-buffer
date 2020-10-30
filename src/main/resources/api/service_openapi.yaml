@@ -190,22 +190,12 @@ components:
           $ref: '#/components/schemas/PoolConfig'
         status:
           $ref: '#/components/schemas/PoolStatus'
-        creatingCount:
+        resourceStateCount:
           description: |
-            Number of resources being created
-          type: integer
-        handedoutCount:
-          description: |
-            Number of resources already handed out
-          type: integer
-        readyCount:
-          description: |
-            Number of resource ready for handing out.
-          type: integer
-        deletedCount:
-          description: |
-            Number of resource ready already deleted.
-          type: integer
+            Number of resources in each state
+          type: object
+          additionalProperties:
+            type: integer
       type: object
 
     PoolStatus:

@@ -76,10 +76,14 @@ public class PoolService {
                 .size(pool.size())
                 .resourceConfigName(pool.resourceConfig().getConfigName()))
         .status(bio.terra.rbs.generated.model.PoolStatus.valueOf(pool.status().toString()))
-        .creatingCount(resourceStates.count(ResourceState.CREATING))
-        .readyCount(resourceStates.count(ResourceState.READY))
-        .deletedCount(resourceStates.count(ResourceState.DELETED))
-        .handedoutCount(resourceStates.count(ResourceState.HANDED_OUT));
+        .putResourceStateCountItem(
+            ResourceState.CREATING.name(), resourceStates.count(ResourceState.CREATING))
+        .putResourceStateCountItem(
+            ResourceState.READY.name(), resourceStates.count(ResourceState.READY))
+        .putResourceStateCountItem(
+            ResourceState.DELETED.name(), resourceStates.count(ResourceState.DELETED))
+        .putResourceStateCountItem(
+            ResourceState.HANDED_OUT.name(), resourceStates.count(ResourceState.HANDED_OUT));
   }
 
   private Resource handoutResourceTransactionally(

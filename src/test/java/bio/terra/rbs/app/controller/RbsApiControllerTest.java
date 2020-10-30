@@ -152,10 +152,10 @@ public class RbsApiControllerTest {
     PoolInfo poolInfo = objectMapper.readValue(response, PoolInfo.class);
     assertEquals(
         new PoolInfo()
-            .readyCount(1)
-            .creatingCount(1)
-            .deletedCount(0)
-            .handedoutCount(0)
+            .putResourceStateCountItem(ResourceState.READY.name(), 1)
+            .putResourceStateCountItem(ResourceState.CREATING.name(), 1)
+            .putResourceStateCountItem(ResourceState.DELETED.name(), 0)
+            .putResourceStateCountItem(ResourceState.HANDED_OUT.name(), 0)
             .status(bio.terra.rbs.generated.model.PoolStatus.ACTIVE)
             .poolConfig(
                 new PoolConfig()
