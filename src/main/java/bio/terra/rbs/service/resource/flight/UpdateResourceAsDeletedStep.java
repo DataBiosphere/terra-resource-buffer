@@ -8,10 +8,10 @@ import bio.terra.stairway.StepResult;
 import java.time.Instant;
 
 /** The step after resource is successfully deleted, it updates resource state to DELETED. */
-public class FinishResourceDeletionStep implements Step {
+public class UpdateResourceAsDeletedStep implements Step {
   private final RbsDao rbsDao;
 
-  public FinishResourceDeletionStep(RbsDao rbsDao) {
+  public UpdateResourceAsDeletedStep(RbsDao rbsDao) {
     this.rbsDao = rbsDao;
   }
 

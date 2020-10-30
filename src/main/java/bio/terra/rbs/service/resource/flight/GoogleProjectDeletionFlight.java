@@ -18,6 +18,6 @@ public class GoogleProjectDeletionFlight extends Flight {
         ((ApplicationContext) applicationContext).getBean(CloudResourceManagerCow.class);
     addStep(new InitialResourceDeletionStep(rbsDao), retryRule);
     addStep(new DeleteProjectStep(rmCow), retryRule);
-    addStep(new FinishResourceDeletionStep(rbsDao), retryRule);
+    addStep(new UpdateResourceAsDeletedStep(rbsDao), retryRule);
   }
 }

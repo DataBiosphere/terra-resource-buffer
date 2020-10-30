@@ -87,6 +87,12 @@ public class GoogleUtils {
     }
   }
 
+  /** Checks if project is being deleted. */
+  public static boolean isProjectDeleting(Project project) {
+     return project.getLifecycleState().equals("DELETE_REQUESTED")
+            || project.getLifecycleState().equals("DELETE_IN_PROGRESS");
+  }
+
   /**
    * A Google cloud operation that's expected to throw a IOException. See {@link
    * GoogleUtils#resourceExists}.

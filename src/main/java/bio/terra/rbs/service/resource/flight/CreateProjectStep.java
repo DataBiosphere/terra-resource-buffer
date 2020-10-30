@@ -66,8 +66,7 @@ public class CreateProjectStep implements Step {
         // The project does not exist.
         return StepResult.getStepResultSuccess();
       }
-      if (project.get().getLifecycleState().equals("DELETE_REQUESTED")
-          || project.get().getLifecycleState().equals("DELETE_IN_PROGRESS")) {
+      if (isProjectDeleting(project.get())) {
         // The project is already being deleted.
         return StepResult.getStepResultSuccess();
       }

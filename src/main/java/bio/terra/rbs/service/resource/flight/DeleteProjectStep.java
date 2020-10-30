@@ -36,9 +36,8 @@ public class DeleteProjectStep implements Step {
     try {
       Optional<Project> project = retrieveProject(rmCow, projectId);
       if (!project.isPresent()
-          || project.get().getLifecycleState().equals("DELETE_REQUESTED")
-          || project.get().getLifecycleState().equals("DELETE_IN_PROGRESS")) {
-        // Skip is project does not exist, is deleted or being deleted. We know that the project is
+          || isProjectDeleting(project.get())) {
+        // Skip if project does not exist, or is being deleted. We know that the project is
         // created by RBS hence RBS should have owner permission. So we assume 403 in this case
         // means that the project does not exist.
         logger.info("Project id: {} is deleted or being deleted", projectId);
@@ -54,7 +53,7 @@ public class DeleteProjectStep implements Step {
 
   @Override
   public StepResult undoStep(FlightContext flightContext) {
-    // Noting to revert.
-    return StepResult.getStepResultSuccess();
+    // We can't undo deleting a project
+    return new StepResult(StepStatus.STEP_RESULT_FAILURE_FATAL);
   }
 }
