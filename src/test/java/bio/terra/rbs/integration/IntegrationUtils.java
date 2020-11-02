@@ -52,6 +52,8 @@ public class IntegrationUtils {
     Duration waited = Duration.ZERO;
     while (waited.compareTo(maxWait) < 0) {
       if (!stairwayComponent.get().getFlightState(flightId).isActive()) {
+        System.out.println("~~~~~~~~~~~~~~getResultMap");
+        System.out.println("stairwayComponent.get().getFlightState(flightId).getResultMap()");
         return;
       }
       Duration poll = Duration.ofMillis(100);

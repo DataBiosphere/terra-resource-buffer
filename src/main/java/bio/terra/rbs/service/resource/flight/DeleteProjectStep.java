@@ -35,8 +35,7 @@ public class DeleteProjectStep implements Step {
             .getProjectId();
     try {
       Optional<Project> project = retrieveProject(rmCow, projectId);
-      if (!project.isPresent()
-          || isProjectDeleting(project.get())) {
+      if (!project.isPresent() || isProjectDeleting(project.get())) {
         // Skip if project does not exist, or is being deleted. We know that the project is
         // created by RBS hence RBS should have owner permission. So we assume 403 in this case
         // means that the project does not exist.

@@ -46,6 +46,7 @@ public class DeleteProjectFlightIntegrationTest extends BaseIntegrationTest {
     String deleteFlightId =
         manager.submitDeletionFlight(resource, ResourceType.GOOGLE_PROJECT).get();
     blockUntilFlightComplete(stairwayComponent, deleteFlightId);
+
     assertProjectDeleting(project.getProjectId());
   }
 
