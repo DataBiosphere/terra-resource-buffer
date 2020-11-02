@@ -22,15 +22,15 @@ public class FlightSubmissionFactoryImpl implements FlightSubmissionFactory {
 
   @Override
   public FlightSubmission getCreationFlightSubmission(Pool pool) {
-    FlightMap flightMap = new FlightMap();
-    pool.id().store(flightMap);
-    flightMap.put(FlightMapKeys.RESOURCE_CONFIG, pool.resourceConfig());
     if (!CREATION_FLIGHT_MAP.containsKey(pool.resourceType())) {
       throw new UnsupportedOperationException(
           String.format(
               "Creation for ResourceType: %s is not supported, PoolId: %s",
               pool.toString(), pool.id()));
     }
+    FlightMap flightMap = new FlightMap();
+    pool.id().store(flightMap);
+    flightMap.put(FlightMapKeys.RESOURCE_CONFIG, pool.resourceConfig());
     return FlightSubmission.create(CREATION_FLIGHT_MAP.get(pool.resourceType()), flightMap);
   }
 
@@ -40,6 +40,9 @@ public class FlightSubmissionFactoryImpl implements FlightSubmissionFactory {
       throw new UnsupportedOperationException(
           String.format("Deletion for ResourceType: %s is not supported", type.toString()));
     }
-    return FlightSubmission.create(DELETION_FLIGHT_MAP.get(type), new FlightMap());
+    FlightMap flightMap = new FlightMap();
+    resource.id().store(flightMap);
+    flightMap.put(FlightMapKeys.CLOUD_RESOURCE_UID, resource.cloudResourceUid());
+    return FlightSubmission.create(DELETION_FLIGHT_MAP.get(type), flightMap);
   }
 }
