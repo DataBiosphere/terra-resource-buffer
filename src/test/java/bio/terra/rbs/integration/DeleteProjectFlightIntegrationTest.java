@@ -31,12 +31,7 @@ public class DeleteProjectFlightIntegrationTest extends BaseIntegrationTest {
   @Test
   public void testDeleteGoogleProject_success() throws Exception {
     FlightManager manager = new FlightManager(flightSubmissionFactoryImpl, stairwayComponent);
-    Pool pool =
-        preparePool(
-            rbsDao,
-            newBasicGcpConfig()
-                .network(
-                    new bio.terra.rbs.generated.model.Network().enableNetworkMonitoring(true)));
+    Pool pool = preparePool(rbsDao, newFullGcpConfig());
 
     String createFlightId = manager.submitCreationFlight(pool).get();
     FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, createFlightId).get();

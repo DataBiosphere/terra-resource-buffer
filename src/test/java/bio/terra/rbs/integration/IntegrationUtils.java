@@ -92,6 +92,12 @@ public class IntegrationUtils {
         .addEnabledApisItem("dns.googleapis.com");
   }
 
+  /** Create a {@link GcpProjectConfig} with everything enabled. */
+  public static GcpProjectConfig newFullGcpConfig() {
+    return newBasicGcpConfig()
+        .network(new bio.terra.rbs.generated.model.Network().enableNetworkMonitoring(true));
+  }
+
   /** A {@link FlightSubmissionFactory} used in test. */
   public static class StubSubmissionFlightFactory implements FlightSubmissionFactory {
     public final Class<? extends Flight> flightClass;

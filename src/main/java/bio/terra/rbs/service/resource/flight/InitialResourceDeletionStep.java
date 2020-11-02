@@ -24,7 +24,7 @@ public class InitialResourceDeletionStep implements Step {
       rbsDao.updateResourceAsDeleting(resourceId);
     } else if (!resource.isPresent() || !resource.get().state().equals(ResourceState.DELETING)) {
       // Fail the flight if resource is not found or resource state is not DELETING(DELETED,
-      // CREATING, HANDED_OUT).
+      // CREATING, HANDED_OUT, etc.).
       return new StepResult(StepStatus.STEP_RESULT_FAILURE_FATAL);
     }
     return StepResult.getStepResultSuccess();
@@ -32,7 +32,9 @@ public class InitialResourceDeletionStep implements Step {
 
   @Override
   public StepResult undoStep(FlightContext flightContext) {
-    // We can not undo a deletion
+    // Rolling back resource state READY requires more complicated workflow but we think this is
+    // rare and unnecessary.
+    // We would just fail the flight.
     return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY);
   }
 }
