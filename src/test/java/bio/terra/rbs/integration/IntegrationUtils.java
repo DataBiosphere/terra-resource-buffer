@@ -16,6 +16,7 @@ import com.google.common.collect.ImmutableList;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -46,15 +47,14 @@ public class IntegrationUtils {
     throw new InterruptedException("Polling exceeded maxNumPolls");
   }
 
-  public static void blockUntilFlightComplete(StairwayComponent stairwayComponent, String flightId)
+  public static Optional<FlightMap> blockUntilFlightComplete(
+      StairwayComponent stairwayComponent, String flightId)
       throws InterruptedException, DatabaseOperationException {
     Duration maxWait = Duration.ofSeconds(10);
     Duration waited = Duration.ZERO;
     while (waited.compareTo(maxWait) < 0) {
       if (!stairwayComponent.get().getFlightState(flightId).isActive()) {
-        System.out.println("~~~~~~~~~~~~~~getResultMap");
-        System.out.println("stairwayComponent.get().getFlightState(flightId).getResultMap()");
-        return;
+        return stairwayComponent.get().getFlightState(flightId).getResultMap();
       }
       Duration poll = Duration.ofMillis(100);
       waited.plus(Duration.ofMillis(poll.toMillis()));
@@ -88,7 +88,8 @@ public class IntegrationUtils {
         .projectIDPrefix("prefix")
         .parentFolderId(FOLDER_ID)
         .billingAccount(BILLING_ACCOUNT_NAME)
-        .addEnabledApisItem("compute.googleapis.com");
+        .addEnabledApisItem("compute.googleapis.com")
+        .addEnabledApisItem("dns.googleapis.com");
   }
 
   /** A {@link FlightSubmissionFactory} used in test. */

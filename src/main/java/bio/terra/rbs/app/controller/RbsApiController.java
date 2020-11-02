@@ -4,6 +4,7 @@ import bio.terra.rbs.app.configuration.RbsJdbcConfiguration;
 import bio.terra.rbs.common.PoolId;
 import bio.terra.rbs.common.RequestHandoutId;
 import bio.terra.rbs.generated.controller.RbsApi;
+import bio.terra.rbs.generated.model.PoolInfo;
 import bio.terra.rbs.generated.model.ResourceInfo;
 import bio.terra.rbs.service.pool.PoolService;
 import bio.terra.rbs.service.stairway.StairwayComponent;
@@ -38,6 +39,11 @@ public class RbsApiController implements RbsApi {
         poolService.handoutResource(
             PoolId.create(poolId), RequestHandoutId.create(handoutRequestId)),
         HttpStatus.OK);
+  }
+
+  @Override
+  public ResponseEntity<PoolInfo> getPoolInfo(String poolId) {
+    return new ResponseEntity<>(poolService.getPoolInfo(PoolId.create(poolId)), HttpStatus.OK);
   }
 
   /** Required if using Swagger-CodeGen, but actually we don't need this. */

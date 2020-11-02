@@ -39,8 +39,9 @@ public class DeleteProjectFlightIntegrationTest extends BaseIntegrationTest {
                     new bio.terra.rbs.generated.model.Network().enableNetworkMonitoring(true)));
 
     String createFlightId = manager.submitCreationFlight(pool).get();
-    blockUntilFlightComplete(stairwayComponent, createFlightId);
-    Project project = assertProjectExists(pool);
+    FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, createFlightId).get();
+    ResourceId resourceId = ResourceId.retrieve(resultMap);
+    Project project = assertProjectExists(resourceId);
     Resource resource = rbsDao.retrieveResources(pool.id(), ResourceState.READY, 1).get(0);
 
     String deleteFlightId =
@@ -51,19 +52,13 @@ public class DeleteProjectFlightIntegrationTest extends BaseIntegrationTest {
   }
 
   @Test
-  public void testDeleteGoogleProject_rollbackResourceStateIfHasError() throws Exception {
+  public void testDeleteGoogleProject_fatalIfHasError() throws Exception {
     FlightManager manager = new FlightManager(flightSubmissionFactoryImpl, stairwayComponent);
-    Pool pool =
-        preparePool(
-            rbsDao,
-            newBasicGcpConfig()
-                .network(
-                    new bio.terra.rbs.generated.model.Network().enableNetworkMonitoring(true)));
+    Pool pool = preparePool(rbsDao, newBasicGcpConfig());
 
     String createFlightId = manager.submitCreationFlight(pool).get();
-    blockUntilFlightComplete(stairwayComponent, createFlightId);
-    Project project = assertProjectExists(pool);
-    Resource resource = rbsDao.retrieveResources(pool.id(), ResourceState.READY, 1).get(0);
+    FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, createFlightId).get();
+    Resource resource = rbsDao.retrieveResource(ResourceId.retrieve(resultMap)).get();
 
     // An errors occurs after resource deleted. Expect project is deleted, but we resource state is
     // READY.
@@ -74,18 +69,13 @@ public class DeleteProjectFlightIntegrationTest extends BaseIntegrationTest {
     String deleteFlightId =
         errorManager.submitDeletionFlight(resource, ResourceType.GOOGLE_PROJECT).get();
     blockUntilFlightComplete(stairwayComponent, deleteFlightId);
-    assertProjectDeleting(project.getProjectId());
-    assertEquals(ResourceState.READY, rbsDao.retrieveResource(resource.id()).get().state());
-
-    // Now try to submit the flight again, expect flight success and resource state is DELETED.
-    deleteFlightId = manager.submitDeletionFlight(resource, ResourceType.GOOGLE_PROJECT).get();
-    blockUntilFlightComplete(stairwayComponent, deleteFlightId);
-    assertEquals(ResourceState.DELETED, rbsDao.retrieveResource(resource.id()).get().state());
+    assertEquals(
+        FlightStatus.FATAL,
+        stairwayComponent.get().getFlightState(deleteFlightId).getFlightStatus());
   }
 
-  private Project assertProjectExists(Pool pool) throws Exception {
-    Resource resource = rbsDao.retrieveResources(pool.id(), ResourceState.READY, 1).get(0);
-    assertEquals(pool.id(), resource.poolId());
+  private Project assertProjectExists(ResourceId resourceId) throws Exception {
+    Resource resource = rbsDao.retrieveResource(resourceId).get();
     Project project =
         rmCow
             .projects()

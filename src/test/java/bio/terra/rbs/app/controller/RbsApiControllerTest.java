@@ -1,11 +1,13 @@
 package bio.terra.rbs.app.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import bio.terra.rbs.app.Main;
 import bio.terra.rbs.common.*;
+import bio.terra.rbs.common.PoolStatus;
 import bio.terra.rbs.db.RbsDao;
 import bio.terra.rbs.generated.model.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -103,5 +105,68 @@ public class RbsApiControllerTest {
     this.mvc
         .perform(put("/api/pool/v1/poolId/resource/handoutRequestId"))
         .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  public void getPoolInfo_ok() throws Exception {
+    PoolId poolId = PoolId.create("poolId");
+    rbsDao.createPools(
+        ImmutableList.of(
+            Pool.builder()
+                .creation(Instant.now())
+                .id(poolId)
+                .resourceType(ResourceType.GOOGLE_PROJECT)
+                .size(2)
+                .resourceConfig(new ResourceConfig().configName("resourceName"))
+                .status(PoolStatus.ACTIVE)
+                .build()));
+    ResourceId resourceId1 = ResourceId.create(UUID.randomUUID());
+    ResourceId resourceId2 = ResourceId.create(UUID.randomUUID());
+
+    rbsDao.createResource(
+        Resource.builder()
+            .id(resourceId1)
+            .poolId(poolId)
+            .creation(Instant.now())
+            .state(ResourceState.CREATING)
+            .build());
+    rbsDao.createResource(
+        Resource.builder()
+            .id(resourceId2)
+            .poolId(poolId)
+            .creation(Instant.now())
+            .state(ResourceState.CREATING)
+            .build());
+    rbsDao.updateResourceAsReady(
+        resourceId1,
+        new CloudResourceUid().googleProjectUid(new GoogleProjectUid().projectId("projectId")));
+
+    String response =
+        this.mvc
+            .perform(get("/api/pool/v1/" + poolId.id()))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+
+    PoolInfo poolInfo = objectMapper.readValue(response, PoolInfo.class);
+    assertEquals(
+        new PoolInfo()
+            .putResourceStateCountItem(ResourceState.READY.name(), 1)
+            .putResourceStateCountItem(ResourceState.CREATING.name(), 1)
+            .putResourceStateCountItem(ResourceState.DELETED.name(), 0)
+            .putResourceStateCountItem(ResourceState.HANDED_OUT.name(), 0)
+            .status(bio.terra.rbs.generated.model.PoolStatus.ACTIVE)
+            .poolConfig(
+                new PoolConfig()
+                    .poolId(poolId.toString())
+                    .size(2)
+                    .resourceConfigName("resourceName")),
+        poolInfo);
+  }
+
+  @Test
+  public void getPoolInfo() throws Exception {
+    this.mvc.perform(get("/api/pool/v1/poolId")).andExpect(status().isNotFound());
   }
 }

@@ -107,6 +107,23 @@ public class RbsDao {
     return jdbcTemplate.query(sql, new PoolAndResourceStatesExtractor());
   }
 
+  /** Retrieves one pool's and resource count for each state. */
+  @Transactional(propagation = Propagation.SUPPORTS)
+  public Optional<PoolAndResourceStates> retrievePoolAndResourceStatesById(PoolId poolId) {
+    String sql =
+        "select count(*) as resource_count, r.state, "
+            + "p.id, p.resource_config, p.resource_type, p.creation, p.size, p.status "
+            + "FROM pool p "
+            + "LEFT JOIN resource r on r.pool_id = p.id "
+            + "WHERE p.id = :id "
+            + "GROUP BY p.id, r.state";
+    MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", poolId.id());
+
+    return Optional.ofNullable(
+        DataAccessUtils.singleResult(
+            jdbcTemplate.query(sql, params, new PoolAndResourceStatesExtractor())));
+  }
+
   /** Updates list of pools' status to DEACTIVATED. */
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
   public void deactivatePools(List<PoolId> poolIds) {

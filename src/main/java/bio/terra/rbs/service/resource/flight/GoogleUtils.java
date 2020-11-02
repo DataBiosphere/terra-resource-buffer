@@ -17,6 +17,10 @@ public class GoogleUtils {
   /** All project will use the same network name. */
   @VisibleForTesting public static final String NETWORK_NAME = "network";
 
+  /** The private DNS zone name. */
+  @VisibleForTesting
+  public static final String MANAGED_ZONE_NAME = "private-google-access-dns-zone";
+
   /**
    * Poll until the Google Service API operation has completed. Throws any error or timeouts as a
    * {@link RetryException}.
@@ -73,7 +77,7 @@ public class GoogleUtils {
     return getResource(execute, acceptable).isPresent();
   }
 
-  /** See {@link this.resourceExists(CloudExecute<R>)}. */
+  /** See {@link GoogleUtils#resourceExists(CloudExecute, int)}. */
   public static <R> Optional<R> getResource(CloudExecute<R> execute, int acceptable)
       throws IOException {
     try {
