@@ -50,11 +50,6 @@ import org.springframework.test.annotation.DirtiesContext;
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
-  /** The folder to create project within in test. */
-  private static final String FOLDER_ID = "637867149294";
-  /** The billing account to use in test. */
-  private static final String BILLING_ACCOUNT_NAME = "01A82E-CA8A14-367457";
-
   @Autowired RbsDao rbsDao;
   @Autowired StairwayComponent stairwayComponent;
   @Autowired CloudComputeCow computeCow;
