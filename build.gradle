@@ -32,7 +32,7 @@ repositories {
 }
 
 // The version of CRL schema library
-def crlSchemaVersion = "0.0.2-SNAPSHOT"
+def crlSchemaVersion = "0.1.0"
 
 dependencies {
     implementation group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
@@ -63,11 +63,11 @@ dependencies {
 
     implementation 'bio.terra:stairway:0.0.20'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'cloud-resource-schema', version: crlSchemaVersion
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-billing', version: '0.0.6-SNAPSHOT'
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-compute', version: '0.0.5-SNAPSHOT'
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-cloudresourcemanager', version: '0.0.10-SNAPSHOT'
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-serviceusage', version: '0.0.6-SNAPSHOT'
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-dns', version: '0.0.4-SNAPSHOT'
+    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-billing', version: '0.1.0'
+    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-compute', version: '0.1.0'
+    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-cloudresourcemanager', version: '0.1.0'
+    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-serviceusage', version: '0.1.0'
+    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-dns', version: '0.1.0'
 
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
