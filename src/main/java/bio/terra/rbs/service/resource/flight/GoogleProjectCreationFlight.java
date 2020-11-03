@@ -42,6 +42,7 @@ public class GoogleProjectCreationFlight extends Flight {
     addStep(new SetIamPolicyStep(rmCow, gcpProjectConfig));
     addStep(new CreateNetworkStep(cloudComputeCow, gcpProjectConfig));
     addStep(new CreateRouteStep(cloudComputeCow, gcpProjectConfig));
+    addStep(new CreateFirewallRuleStep(cloudComputeCow));
     addStep(new CreateSubnetsStep(cloudComputeCow, gcpProjectConfig));
     addStep(new CreateDnsZoneStep(cloudComputeCow, dnsCow, gcpProjectConfig));
     addStep(new CreateResourceRecordSetStep(dnsCow, gcpProjectConfig));
