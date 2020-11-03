@@ -411,7 +411,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertEquals(expected.getDescription(), actual.getDescription());
     assertEquals(expected.getDirection(), actual.getDirection());
     assertEquals(expected.getPriority(), actual.getPriority());
-    assertEquals(expected.getNetwork(), actual.getSelfLink());
+    assertEquals(expected.getNetwork(), actual.getNetwork());
   }
 
   private void assertSubnetsExist(Project project, NetworkMonitoring networkMonitoring)
