@@ -3,6 +3,7 @@ package bio.terra.rbs.integration;
 import static bio.terra.rbs.integration.IntegrationUtils.*;
 import static bio.terra.rbs.service.resource.FlightMapKeys.RESOURCE_CONFIG;
 import static bio.terra.rbs.service.resource.flight.CreateDnsZoneStep.MANAGED_ZONE_TEMPLATE;
+import static bio.terra.rbs.service.resource.flight.CreateFirewallRuleStep.*;
 import static bio.terra.rbs.service.resource.flight.CreateResourceRecordSetStep.A_RECORD;
 import static bio.terra.rbs.service.resource.flight.CreateResourceRecordSetStep.CNAME_RECORD;
 import static bio.terra.rbs.service.resource.flight.CreateRouteStep.*;
@@ -29,6 +30,7 @@ import bio.terra.stairway.*;
 import com.google.api.services.cloudresourcemanager.model.Binding;
 import com.google.api.services.cloudresourcemanager.model.GetIamPolicyRequest;
 import com.google.api.services.cloudresourcemanager.model.Project;
+import com.google.api.services.compute.model.Firewall;
 import com.google.api.services.compute.model.Network;
 import com.google.api.services.compute.model.Route;
 import com.google.api.services.compute.model.Subnetwork;
@@ -80,6 +82,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertBillingIs(project, pool.resourceConfig().getGcpProjectConfig().getBillingAccount());
     assertEnableApisContains(project, pool.resourceConfig().getGcpProjectConfig().getEnabledApis());
     assertNetworkExists(project);
+    assertFirewallRulesExist(project);
     assertSubnetsExist(project, NetworkMonitoring.DISABLED);
     assertRouteNotExists(project);
     assertDnsNotExists(project);
@@ -245,6 +248,26 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   }
 
   @Test
+  public void testCreateGoogleProject_multipleFirewallRuleCreation() throws Exception {
+    // Verify flight is able to finish successfully when firewall rule exists
+    FlightManager manager =
+            new FlightManager(
+                    new StubSubmissionFlightFactory(MultiInstanceStepFlight.class), stairwayComponent);
+    MultiInstanceStepFlight.setStepClass(CreateFirewallRuleStep.class);
+    Pool pool =
+            preparePool(
+                    rbsDao,
+                    newBasicGcpConfig()
+                            .network(
+                                    new bio.terra.rbs.generated.model.Network().enableNetworkMonitoring(true)));
+
+    String flightId = manager.submitCreationFlight(pool).get();
+    FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, flightId).get();
+    Project project = assertProjectExists(ResourceId.retrieve(resultMap));
+    assertFirewallRulesExist(project);
+  }
+
+  @Test
   public void errorCreateProject_noRollbackAfterResourceReady() throws Exception {
     // Verify project and db entity won't get deleted if resource id READY, even the flight fails.
     FlightManager manager =
@@ -370,6 +393,25 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   private void assertNetworkExists(Project project) throws Exception {
     Network network = computeCow.networks().get(project.getProjectId(), NETWORK_NAME).execute();
     assertFalse(network.getAutoCreateSubnetworks());
+  }
+
+  private void assertFirewallRulesExist(Project project) throws Exception {
+    String projectId = project.getProjectId();
+    Network network = computeCow.networks().get(project.getProjectId(), NETWORK_NAME).execute();
+    Firewall allowInternal =
+        computeCow.firewalls().get(projectId, ALLOW_INTERNAL.getName()).execute();
+    Firewall leonardoSsl = computeCow.firewalls().get(projectId, LEONARDO_SSL.getName()).execute();
+
+    assertFirewallRuleMatch(ALLOW_INTERNAL.setNetwork(network.getSelfLink()), allowInternal);
+    assertFirewallRuleMatch(LEONARDO_SSL.setNetwork(network.getSelfLink()), leonardoSsl);
+  }
+
+  private void assertFirewallRuleMatch(Firewall expected, Firewall actual) {
+    assertEquals(expected.getAllowed(), actual.getAllowed());
+    assertEquals(expected.getDescription(), actual.getDescription());
+    assertEquals(expected.getDirection(), actual.getDirection());
+    assertEquals(expected.getPriority(), actual.getPriority());
+    assertEquals(expected.getNetwork(), actual.getSelfLink());
   }
 
   private void assertSubnetsExist(Project project, NetworkMonitoring networkMonitoring)
