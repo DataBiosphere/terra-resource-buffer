@@ -26,6 +26,9 @@ repositories {
     maven {
         url 'https://broadinstitute.jfrog.io/broadinstitute/libs-release/'
     }
+    maven {
+        url 'https://broadinstitute.jfrog.io/broadinstitute/libs-snapshot-local/'
+    }
 }
 
 // The version of CRL schema library

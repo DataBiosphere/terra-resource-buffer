@@ -246,13 +246,10 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   public void testCreateGoogleProject_multipleFirewallRuleCreation() throws Exception {
     // Verify flight is able to finish successfully when firewall rule exists
     FlightManager manager =
-            new FlightManager(
-                    new StubSubmissionFlightFactory(MultiInstanceStepFlight.class), stairwayComponent);
+        new FlightManager(
+            new StubSubmissionFlightFactory(MultiInstanceStepFlight.class), stairwayComponent);
     MultiInstanceStepFlight.setStepClass(CreateFirewallRuleStep.class);
-    Pool pool =
-            preparePool(
-                    rbsDao,
-                    newBasicGcpConfig());
+    Pool pool = preparePool(rbsDao, newBasicGcpConfig());
 
     String flightId = manager.submitCreationFlight(pool).get();
     FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, flightId).get();
