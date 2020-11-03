@@ -16,10 +16,11 @@ import java.util.List;
 /** Helper class for metrics in tests. */
 public class MetricsTestUtil {
   /** Creates the resource state count view tag values for an ACTIVE pool */
-  public static List<TagValue> getResourceCountTags(PoolId poolId, ResourceState state) {
+  public static List<TagValue> getResourceCountTags(
+      PoolId poolId, ResourceState state, PoolStatus poolStatus) {
     return ImmutableList.of(
         TagValue.create(poolId.id()),
-        TagValue.create(PoolStatus.ACTIVE.toString()),
+        TagValue.create(poolStatus.toString()),
         TagValue.create(state.toString()));
   }
 

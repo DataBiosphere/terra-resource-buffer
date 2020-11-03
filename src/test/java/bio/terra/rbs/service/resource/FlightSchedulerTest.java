@@ -198,16 +198,17 @@ public class FlightSchedulerTest extends BaseUnitTest {
 
   @Test
   public void testRecordResourceState() throws Exception {
-    // activatePool has 1 READY, 1 creating.
+    // activatePool has 2 READY, 1 creating.
     Pool activatePool =
-        newPoolWithResourceCount(
-            10,
-            ImmutableMultiset.of(ResourceState.READY, ResourceState.READY, ResourceState.CREATING));
-    // deactivatedPool has 2 READY resources.
-    Pool deactivatedPool =
         newPoolWithResourceCount(
             5,
             ImmutableMultiset.of(ResourceState.READY, ResourceState.READY, ResourceState.CREATING));
+    // deactivatedPool has 1 READY and 2 CREATING resources.
+    Pool deactivatedPool =
+        newPoolWithResourceCount(
+            5,
+            ImmutableMultiset.of(
+                ResourceState.READY, ResourceState.CREATING, ResourceState.CREATING));
     rbsDao.deactivatePools(ImmutableList.of(deactivatedPool.id()));
 
     initializeScheduler();
@@ -215,19 +216,23 @@ public class FlightSchedulerTest extends BaseUnitTest {
 
     MetricsTestUtil.assertLongValueLongIs(
         RESOURCE_STATE_COUNT_VIEW.getName(),
-        getResourceCountTags(activatePool.id(), ResourceState.READY),
-        1);
-    MetricsTestUtil.assertLongValueLongIs(
-        RESOURCE_STATE_COUNT_VIEW.getName(),
-        getResourceCountTags(activatePool.id(), ResourceState.CREATING),
-        1);
-    MetricsTestUtil.assertLongValueLongIs(
-        RESOURCE_STATE_COUNT_VIEW.getName(),
-        getResourceCountTags(deactivatedPool.id(), ResourceState.READY),
+        getResourceCountTags(activatePool.id(), ResourceState.READY, PoolStatus.ACTIVE),
         2);
-    // activate pool ratio is 1/10. Deactivated pool is not recorded.
+    MetricsTestUtil.assertLongValueLongIs(
+        RESOURCE_STATE_COUNT_VIEW.getName(),
+        getResourceCountTags(activatePool.id(), ResourceState.CREATING, PoolStatus.ACTIVE),
+        1);
+    MetricsTestUtil.assertLongValueLongIs(
+        RESOURCE_STATE_COUNT_VIEW.getName(),
+        getResourceCountTags(deactivatedPool.id(), ResourceState.READY, PoolStatus.DEACTIVATED),
+        1);
+    MetricsTestUtil.assertLongValueLongIs(
+        RESOURCE_STATE_COUNT_VIEW.getName(),
+        getResourceCountTags(deactivatedPool.id(), ResourceState.CREATING, PoolStatus.DEACTIVATED),
+        2);
+    // activate pool ratio is 2/5. Deactivated pool is not recorded.
     assertLastValueDoubleIs(
-        READY_RESOURCE_RATIO_VIEW.getName(), getReadyResourceRatioTags(activatePool.id()), 0.10);
+        READY_RESOURCE_RATIO_VIEW.getName(), getReadyResourceRatioTags(activatePool.id()), 0.40);
     assertLastValueDoubleIs(
         READY_RESOURCE_RATIO_VIEW.getName(), getReadyResourceRatioTags(deactivatedPool.id()), 0);
   }

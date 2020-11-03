@@ -36,14 +36,16 @@ public class MetricsHelperTest extends BaseUnitTest {
     sleepForSpansExport();
 
     assertLongValueLongIs(
-        RESOURCE_STATE_COUNT_VIEW.getName(), getResourceCountTags(poolId, ResourceState.READY), 2);
+        RESOURCE_STATE_COUNT_VIEW.getName(),
+        getResourceCountTags(poolId, ResourceState.READY, PoolStatus.ACTIVE),
+        2);
     assertLongValueLongIs(
         RESOURCE_STATE_COUNT_VIEW.getName(),
-        getResourceCountTags(poolId, ResourceState.HANDED_OUT),
+        getResourceCountTags(poolId, ResourceState.HANDED_OUT, PoolStatus.ACTIVE),
         1);
     assertLongValueLongIs(
         RESOURCE_STATE_COUNT_VIEW.getName(),
-        getResourceCountTags(poolId, ResourceState.DELETED),
+        getResourceCountTags(poolId, ResourceState.DELETED, PoolStatus.ACTIVE),
         0);
     // 2 ready out of size 10
     assertLastValueDoubleIs(
