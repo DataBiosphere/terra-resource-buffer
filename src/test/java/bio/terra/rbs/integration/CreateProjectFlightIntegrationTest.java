@@ -146,7 +146,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
         pollUntilResourcesMatch(rbsDao, pool.id(), ResourceState.CREATING, 1).get(0);
 
     LatchStep.releaseLatch();
-    FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, flightId).get();
+    blockUntilFlightComplete(stairwayComponent, flightId).get();
     // Resource is deleted.
     assertFalse(rbsDao.retrieveResource(resource.id()).isPresent());
     assertEquals(
@@ -257,9 +257,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     Pool pool =
             preparePool(
                     rbsDao,
-                    newBasicGcpConfig()
-                            .network(
-                                    new bio.terra.rbs.generated.model.Network().enableNetworkMonitoring(true)));
+                    newBasicGcpConfig());
 
     String flightId = manager.submitCreationFlight(pool).get();
     FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, flightId).get();
