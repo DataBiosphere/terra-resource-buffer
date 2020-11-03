@@ -28,19 +28,6 @@ public class MetricsTestUtil {
     return ImmutableList.of(TagValue.create(poolId.id()));
   }
 
-  /**
-   * Helper method to get current stats before test.
-   *
-   * <p>The clear stats in opencensus is not public, so we have to keep track of each stats and
-   * verify the increment.
-   */
-  public static long getCurrentCount(View.Name viewName, List<TagValue> tags) {
-    AggregationData.LastValueDataLong currentCount =
-        (AggregationData.LastValueDataLong)
-            (MetricsHelper.viewManager.getView(viewName).getAggregationMap().get(tags));
-    return currentCount == null ? 0 : currentCount.getLastValue();
-  }
-
   /** Asserts value matches the long value with given {@link TagValue} */
   public static void assertLongValueLongIs(View.Name viewName, List<TagValue> tags, long value) {
     if (value == 0) {

@@ -45,7 +45,7 @@ public class MetricsHelperTest extends BaseUnitTest {
         RESOURCE_STATE_COUNT_VIEW.getName(),
         getResourceCountTags(poolId, ResourceState.DELETED),
         0);
-    // 2 ready of size 10
+    // 2 ready out of size 10
     assertLastValueDoubleIs(
         READY_RESOURCE_RATIO_VIEW.getName(), getReadyResourceRatioTags(poolId), 0.20);
   }
