@@ -1,5 +1,7 @@
 package bio.terra.rbs.service.resource;
 
+import static bio.terra.rbs.common.MetricsHelper.recordResourceStateCount;
+
 import bio.terra.rbs.app.configuration.PrimaryConfiguration;
 import bio.terra.rbs.common.*;
 import bio.terra.rbs.db.*;
@@ -75,6 +77,7 @@ public class FlightScheduler {
     logger.info("Beginning scheduling flights.");
     List<PoolAndResourceStates> poolAndResourceStatesList = rbsDao.retrievePoolAndResourceStates();
     for (PoolAndResourceStates poolAndResources : poolAndResourceStatesList) {
+      recordResourceStateCount(poolAndResources);
       if (poolAndResources.pool().status().equals(PoolStatus.ACTIVE)) {
         int size = poolAndResources.pool().size();
         int readyAndCreatingCount =

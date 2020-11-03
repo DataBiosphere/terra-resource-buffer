@@ -1,9 +1,13 @@
 package bio.terra.rbs.service.resource;
 
+import static bio.terra.rbs.common.MetricsHelper.READY_RESOURCE_RATIO_VIEW;
+import static bio.terra.rbs.common.MetricsHelper.RESOURCE_STATE_COUNT_VIEW;
+import static bio.terra.rbs.common.testing.MetricsTestUtil.*;
 import static org.mockito.Mockito.*;
 
 import bio.terra.rbs.app.configuration.PrimaryConfiguration;
 import bio.terra.rbs.common.*;
+import bio.terra.rbs.common.testing.MetricsTestUtil;
 import bio.terra.rbs.db.*;
 import bio.terra.rbs.generated.model.ResourceConfig;
 import bio.terra.rbs.service.stairway.StairwayComponent;
@@ -190,5 +194,43 @@ public class FlightSchedulerTest extends BaseUnitTest {
         resource ->
             verify(flightManager).submitDeletionFlight(resource, ResourceType.GOOGLE_PROJECT));
     verify(flightManager, never()).submitCreationFlight(any(Pool.class));
+  }
+
+  @Test
+  public void testRecordResourceState() throws Exception {
+    // activatePool has 1 READY, 1 creating.
+    Pool activatePool =
+        newPoolWithResourceCount(
+            10,
+            ImmutableMultiset.of(ResourceState.READY, ResourceState.READY, ResourceState.CREATING));
+
+    // deactivatedPool has 2 READY resources.
+    Pool deactivatedPool =
+        newPoolWithResourceCount(
+            5,
+            ImmutableMultiset.of(ResourceState.READY, ResourceState.READY, ResourceState.CREATING));
+
+    rbsDao.deactivatePools(ImmutableList.of(deactivatedPool.id()));
+
+    initializeScheduler();
+    sleepForSpansExport();
+
+    MetricsTestUtil.assertLongValueLongIs(
+        RESOURCE_STATE_COUNT_VIEW.getName(),
+        getResourceCountTags(activatePool.id(), ResourceState.READY),
+        1);
+    MetricsTestUtil.assertLongValueLongIs(
+        RESOURCE_STATE_COUNT_VIEW.getName(),
+        getResourceCountTags(activatePool.id(), ResourceState.CREATING),
+        1);
+    MetricsTestUtil.assertLongValueLongIs(
+        RESOURCE_STATE_COUNT_VIEW.getName(),
+        getResourceCountTags(deactivatedPool.id(), ResourceState.READY),
+        2);
+    // activate pool ratio is 1/10. Deactivated pool is not recorded.
+    assertLastValueDoubleIs(
+        READY_RESOURCE_RATIO_VIEW.getName(), getReadyResourceRatioTags(activatePool.id()), 0.10);
+    assertLastValueDoubleIs(
+        READY_RESOURCE_RATIO_VIEW.getName(), getReadyResourceRatioTags(deactivatedPool.id()), 0);
   }
 }
