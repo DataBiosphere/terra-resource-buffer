@@ -203,13 +203,11 @@ public class FlightSchedulerTest extends BaseUnitTest {
         newPoolWithResourceCount(
             10,
             ImmutableMultiset.of(ResourceState.READY, ResourceState.READY, ResourceState.CREATING));
-
     // deactivatedPool has 2 READY resources.
     Pool deactivatedPool =
         newPoolWithResourceCount(
             5,
             ImmutableMultiset.of(ResourceState.READY, ResourceState.READY, ResourceState.CREATING));
-
     rbsDao.deactivatePools(ImmutableList.of(deactivatedPool.id()));
 
     initializeScheduler();
