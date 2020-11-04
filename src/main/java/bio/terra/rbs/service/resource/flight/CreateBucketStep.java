@@ -50,50 +50,12 @@ public class CreateBucketStep implements Step {
             BucketInfo.LifecycleRule.LifecycleCondition.newBuilder().setAge(180).build());
     Acl acl = Acl.newBuilder().setEntity().build()
     storageCow.create(BucketInfo.newBuilder(bucketName).setLifecycleRules(ImmutableList.of(rule)).build());
-    try {
-      // If the project id us used. Fail the flight and let Stairway rollback the flight.
-      if (retrieveProject(rmCow, projectId).isPresent()) {
-        return new StepResult(StepStatus.STEP_RESULT_FAILURE_FATAL);
-      }
-      Project project =
-          new Project()
-              .setProjectId(projectId)
-              .setParent(
-                  new ResourceId().setType("folder").setId(gcpProjectConfig.getParentFolderId()));
-      OperationCow<?> operation =
-          rmCow.operations().operationCow(rmCow.projects().create(project).execute());
-      pollUntilSuccess(operation, Duration.ofSeconds(10), Duration.ofMinutes(5));
-    } catch (IOException | InterruptedException e) {
-      logger.info("Error when creating GCP project", e);
-      return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY, e);
-    }
     return StepResult.getStepResultSuccess();
   }
 
   @Override
   public StepResult undoStep(FlightContext flightContext) {
-    if (isResourceReady(flightContext)) {
-      return StepResult.getStepResultSuccess();
-    }
-    try {
-      String projectId = flightContext.getWorkingMap().get(GOOGLE_PROJECT_ID, String.class);
-      // Google returns 403 for projects we don't have access to and projects that don't exist.
-      // We assume in this case that the project does not exist, not that somebody else has
-      // created a project with the same random id.
-      Optional<Project> project = getResource(() -> rmCow.projects().get(projectId).execute(), 403);
-      if (!project.isPresent()) {
-        // The project does not exist.
-        return StepResult.getStepResultSuccess();
-      }
-      if (isProjectDeleting(project.get())) {
-        // The project is already being deleted.
-        return StepResult.getStepResultSuccess();
-      }
-      rmCow.projects().delete(projectId).execute();
-    } catch (IOException e) {
-      logger.info("Error when deleting GCP project", e);
-      return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY, e);
-    }
+    // Flight undo will just need to delete the project on GCP.
     return StepResult.getStepResultSuccess();
   }
 }
