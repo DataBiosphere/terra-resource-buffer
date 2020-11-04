@@ -102,11 +102,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     Pool pool = preparePool(rbsDao, newBasicGcpConfig().iamBindings(iamBindings));
 
     String flightId = manager.submitCreationFlight(pool).get();
-    System.out.println("~~~~~~start");
-    Stopwatch stopwatch = Stopwatch.createStarted();
     FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, flightId).get();
-    System.out.println("~~~~~~stop");
-    System.out.println(stopwatch.stop().elapsed().toMinutes());
 
     Project project = assertProjectExists(ResourceId.retrieve(resultMap));
     assertIamBindingsContains(project, iamBindings);
