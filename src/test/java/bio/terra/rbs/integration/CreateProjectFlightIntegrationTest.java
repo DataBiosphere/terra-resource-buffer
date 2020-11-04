@@ -37,6 +37,7 @@ import com.google.api.services.compute.model.Subnetwork;
 import com.google.api.services.dns.model.ManagedZone;
 import com.google.api.services.dns.model.ResourceRecordSet;
 import com.google.api.services.serviceusage.v1.model.GoogleApiServiceusageV1Service;
+import com.google.common.base.Stopwatch;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -50,7 +51,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.annotation.DirtiesContext;
 
 @AutoConfigureMockMvc
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   @Autowired RbsDao rbsDao;
   @Autowired StairwayComponent stairwayComponent;
@@ -102,6 +103,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
     String flightId = manager.submitCreationFlight(pool).get();
     FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, flightId).get();
+
     Project project = assertProjectExists(ResourceId.retrieve(resultMap));
     assertIamBindingsContains(project, iamBindings);
   }

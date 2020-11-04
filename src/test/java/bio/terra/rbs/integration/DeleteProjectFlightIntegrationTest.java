@@ -21,7 +21,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.test.annotation.DirtiesContext;
 
 @AutoConfigureMockMvc
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class DeleteProjectFlightIntegrationTest extends BaseIntegrationTest {
   @Autowired RbsDao rbsDao;
   @Autowired StairwayComponent stairwayComponent;
