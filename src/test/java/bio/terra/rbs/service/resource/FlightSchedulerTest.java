@@ -234,6 +234,6 @@ public class FlightSchedulerTest extends BaseUnitTest {
     assertLastValueDoubleIs(
         READY_RESOURCE_RATIO_VIEW.getName(), getReadyResourceRatioTags(activatePool.id()), 0.40);
     assertLastValueDoubleIs(
-        READY_RESOURCE_RATIO_VIEW.getName(), getReadyResourceRatioTags(deactivatedPool.id()), 0);
+        READY_RESOURCE_RATIO_VIEW.getName(), getReadyResourceRatioTags(deactivatedPool.id()), 1);
   }
 }
