@@ -18,7 +18,7 @@ import org.springframework.test.annotation.DirtiesContext;
  * https://github.com/DataBiosphere/terra-resource-janitor/blob/master/src/test/java/bio/terra/janitor/service/cleanup/flight/LatchStepTest.java
  */
 @AutoConfigureMockMvc
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class LatchStepTest extends BaseUnitTest {
   @Autowired StairwayComponent stairwayComponent;
 
