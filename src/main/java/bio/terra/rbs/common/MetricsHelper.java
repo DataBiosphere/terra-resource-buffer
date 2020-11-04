@@ -66,7 +66,7 @@ public class MetricsHelper {
 
   /**
    * Records the latest count of {@link PoolAndResourceStates} and ready resource count to pool size
-   * ratio for ACTIVATE pools. For deactivated pool, the ratio would be 1.
+   * ratio.
    */
   public static void recordResourceStateCount(PoolAndResourceStates poolAndResourceStates) {
     Multiset<ResourceState> resourceStates = poolAndResourceStates.resourceStates();
@@ -95,13 +95,18 @@ public class MetricsHelper {
             .build();
     STATS_RECORDER
         .newMeasureMap()
-        .put(
-            READY_RESOURCE_RADIO,
-            (poolAndResourceStates.pool().status().equals(PoolStatus.ACTIVE)
-                ? resourceStates.count(ResourceState.READY)
-                    * 1.0
-                    / poolAndResourceStates.pool().size()
-                : 1))
+        .put(READY_RESOURCE_RADIO, getReadyResourceRatio(poolAndResourceStates))
         .record(tctx);
+  }
+
+  /**
+   * Gets the ready resource count to pool size ratio. For deactivated pools, the ratio would be 1.
+   */
+  private static double getReadyResourceRatio(PoolAndResourceStates poolAndResourceStates) {
+    return (poolAndResourceStates.pool().status().equals(PoolStatus.ACTIVE)
+        ? poolAndResourceStates.resourceStates().count(ResourceState.READY)
+            * 1.0
+            / poolAndResourceStates.pool().size()
+        : 1);
   }
 }
