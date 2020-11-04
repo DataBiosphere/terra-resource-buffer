@@ -1,7 +1,6 @@
 package bio.terra.rbs.common.testing;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 import bio.terra.cloudres.util.MetricsHelper;
 import bio.terra.rbs.common.PoolId;
@@ -31,25 +30,17 @@ public class MetricsTestUtil {
 
   /** Asserts value matches the long value with given {@link TagValue} */
   public static void assertLongValueLongIs(View.Name viewName, List<TagValue> tags, long value) {
-    if (value == 0) {
-      assertNull(MetricsHelper.viewManager.getView(viewName).getAggregationMap().get(tags));
-    } else {
-      assertEquals(
-          AggregationData.LastValueDataLong.create(value),
-          MetricsHelper.viewManager.getView(viewName).getAggregationMap().get(tags));
-    }
+    assertEquals(
+        AggregationData.LastValueDataLong.create(value),
+        MetricsHelper.viewManager.getView(viewName).getAggregationMap().get(tags));
   }
 
   /** Asserts value matches the double value with given {@link TagValue} */
   public static void assertLastValueDoubleIs(
       View.Name viewName, List<TagValue> tags, double value) {
-    if (value == 0) {
-      assertNull(MetricsHelper.viewManager.getView(viewName).getAggregationMap().get(tags));
-    } else {
-      assertEquals(
-          AggregationData.LastValueDataDouble.create(value),
-          MetricsHelper.viewManager.getView(viewName).getAggregationMap().get(tags));
-    }
+    assertEquals(
+        AggregationData.LastValueDataDouble.create(value),
+        MetricsHelper.viewManager.getView(viewName).getAggregationMap().get(tags));
   }
 
   /**

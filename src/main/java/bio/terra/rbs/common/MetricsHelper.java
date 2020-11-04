@@ -66,17 +66,16 @@ public class MetricsHelper {
 
   /**
    * Records the latest count of {@link PoolAndResourceStates} and ready resource count to pool size
-   * ratio for ACTIVATE pools.
+   * ratio for ACTIVATE pools. For deactivated pool, the ratio would be 1.
    */
   public static void recordResourceStateCount(PoolAndResourceStates poolAndResourceStates) {
     Multiset<ResourceState> resourceStates = poolAndResourceStates.resourceStates();
     resourceStates.entrySet();
-    for (Multiset.Entry<ResourceState> resourceStateEntry : resourceStates.entrySet()) {
+    for (ResourceState state : ResourceState.values()) {
       TagContext tctx =
           TAGGER
               .emptyBuilder()
-              .putLocal(
-                  RESOURCE_STATE_KEY, TagValue.create(resourceStateEntry.getElement().toString()))
+              .putLocal(RESOURCE_STATE_KEY, TagValue.create(state.toString()))
               .putLocal(POOL_ID_KEY, TagValue.create(poolAndResourceStates.pool().id().id()))
               .putLocal(
                   POOL_STATUS_KEY,
@@ -85,28 +84,24 @@ public class MetricsHelper {
 
       STATS_RECORDER
           .newMeasureMap()
-          .put(RESOURCE_STATE_COUNT, resourceStateEntry.getCount())
+          .put(RESOURCE_STATE_COUNT, resourceStates.count(state))
           .record(tctx);
     }
 
-    if (poolAndResourceStates.pool().status().equals(PoolStatus.ACTIVE)) {
-      TagContext tctx =
-          TAGGER
-              .emptyBuilder()
-              .putLocal(POOL_ID_KEY, TagValue.create(poolAndResourceStates.pool().id().id()))
-              .build();
-      STATS_RECORDER
-          .newMeasureMap()
-          .put(
-              READY_RESOURCE_RADIO,
-              (double)
-                      Math.round(
-                          resourceStates.count(ResourceState.READY)
-                              * 1.0
-                              / poolAndResourceStates.pool().size()
-                              * 100)
-                  / 100)
-          .record(tctx);
-    }
+    TagContext tctx =
+        TAGGER
+            .emptyBuilder()
+            .putLocal(POOL_ID_KEY, TagValue.create(poolAndResourceStates.pool().id().id()))
+            .build();
+    STATS_RECORDER
+        .newMeasureMap()
+        .put(
+            READY_RESOURCE_RADIO,
+            (poolAndResourceStates.pool().status().equals(PoolStatus.ACTIVE)
+                ? resourceStates.count(ResourceState.READY)
+                    * 1.0
+                    / poolAndResourceStates.pool().size()
+                : 1))
+        .record(tctx);
   }
 }
