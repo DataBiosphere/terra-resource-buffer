@@ -39,7 +39,6 @@ import com.google.api.services.dns.model.ResourceRecordSet;
 import com.google.api.services.serviceusage.v1.model.GoogleApiServiceusageV1Service;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -120,8 +119,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   public void testCreateGoogleProject_multipleSteps() throws Exception {
     // Verify flight is able to finish with multiple same steps exists.
     FlightManager manager =
-            new FlightManager(
-                    new StubSubmissionFlightFactory(MultiInstanceStepFlight.class), stairwayComponent);
+        new FlightManager(
+            new StubSubmissionFlightFactory(MultiInstanceStepFlight.class), stairwayComponent);
     Pool pool = preparePool(rbsDao, newFullGcpConfig());
 
     String flightId = manager.submitCreationFlight(pool).get();
@@ -199,10 +198,18 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     }
   }
 
+  /**
+   * A sub-flight class of {@link GoogleProjectCreationFlight} which inserts some steps twice.
+   *
+   * <p>This class can verify those duplicated steps still succeed in "retry after succeed" cases,
+   * e.g., when creating Network, polling operation result timeout, but Network is created when the
+   * step is retried.
+   */
   public static class MultiInstanceStepFlight extends GoogleProjectCreationFlight {
     /**
-     * Duplication check is to avoid the scenario that "Step is retried while previously one succeeded". If that's
-     * not the scenario, not need to have the multiple step check.
+     * Steps that doesn't need to handle "retry after succeed" scenario.
+     * CreateResourceDbEntityStep doesn't have long wait operations; CreateProjectStep is safer and better to just
+     * fail the flight if project id is already in use.
      */
     private static final List<Class<? extends Step>> SKIP_DUP_CHECK_STEP_CLAZZ =
         ImmutableList.of(CreateResourceDbEntityStep.class, CreateProjectStep.class);
@@ -210,7 +217,6 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     public MultiInstanceStepFlight(FlightMap inputParameters, Object applicationContext) {
       super(inputParameters, applicationContext);
     }
-
 
     @Override
     protected void addStep(Step step) {
