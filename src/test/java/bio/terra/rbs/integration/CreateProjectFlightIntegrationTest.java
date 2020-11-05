@@ -56,7 +56,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.annotation.DirtiesContext;
 
 @AutoConfigureMockMvc
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   @Autowired RbsDao rbsDao;
   @Autowired StairwayComponent stairwayComponent;
@@ -110,6 +110,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
     String flightId = manager.submitCreationFlight(pool).get();
     FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, flightId).get();
+
     Project project = assertProjectExists(ResourceId.retrieve(resultMap));
     assertIamBindingsContains(project, iamBindings);
   }

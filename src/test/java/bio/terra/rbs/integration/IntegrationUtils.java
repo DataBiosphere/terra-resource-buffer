@@ -27,8 +27,8 @@ public class IntegrationUtils {
   /** The billing account to use in test. */
   public static final String BILLING_ACCOUNT_NAME = "01A82E-CA8A14-367457";
 
-  private static final Duration PERIOD = Duration.ofSeconds(10);
-  private static final int MAX_POLL_NUM = 40;
+  private static final Duration PERIOD = Duration.ofSeconds(4);
+  private static final int MAX_POLL_NUM = 100;
 
   public static List<Resource> pollUntilResourcesMatch(
       RbsDao rbsDao, PoolId poolId, ResourceState state, int expectedResourceNum) throws Exception {
@@ -50,14 +50,14 @@ public class IntegrationUtils {
   public static Optional<FlightMap> blockUntilFlightComplete(
       StairwayComponent stairwayComponent, String flightId)
       throws InterruptedException, DatabaseOperationException {
-    Duration maxWait = Duration.ofSeconds(10);
+    Duration maxWait = Duration.ofSeconds(500);
     Duration waited = Duration.ZERO;
     while (waited.compareTo(maxWait) < 0) {
       if (!stairwayComponent.get().getFlightState(flightId).isActive()) {
         return stairwayComponent.get().getFlightState(flightId).getResultMap();
       }
-      Duration poll = Duration.ofMillis(100);
-      waited.plus(Duration.ofMillis(poll.toMillis()));
+      Duration poll = Duration.ofMillis(4000);
+      waited = waited.plus(Duration.ofMillis(poll.toMillis()));
       TimeUnit.MILLISECONDS.sleep(poll.toMillis());
     }
     throw new InterruptedException("Flight did not complete in time.");
