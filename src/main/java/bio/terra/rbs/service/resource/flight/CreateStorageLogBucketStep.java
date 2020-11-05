@@ -16,9 +16,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Creates the storage log bucket where logs will be written to.
- *
- * <p>See <a href="https://cloud.google.com/storage/docs/access-logs">Storage logs introduction</a>
+ * Creates the storage log bucket where workspace bucket logs will be written to. Rawls creates
+ * workspace buckets and enable logging to use this bucket as written location. We are not sure what
+ * we will do in McTerra. Leave it as it, but eventually, this might be a CWB specific config, or
+ * workspace bucket + storage log bucket is the general bundle for all workspaces.
  */
 public class CreateStorageLogBucketStep implements Step {
   private final Logger logger = LoggerFactory.getLogger(CreateStorageLogBucketStep.class);

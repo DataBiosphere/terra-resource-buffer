@@ -43,8 +43,8 @@ import com.google.api.services.dns.model.ResourceRecordSet;
 import com.google.api.services.serviceusage.v1.model.GoogleApiServiceusageV1Service;
 import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.StorageOptions;
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -93,26 +93,15 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
   @Test
   public void testCreateGoogleProject_witIamBindings() throws Exception {
-    // The groups used to test IAM policy sets up on a group. It doesn't matter what the users are
-    // for the purpose of this test. They just need to exist for Google.
-    // These groups were manually created for Broad development via the BITs service portal.
-    String testGroupName = "terra-rbs-test@broadinstitute.org";
-    String testGroupViewerName = "terra-rbs-viewer-test@broadinstitute.org";
-
-    List<IamBinding> iamBindings =
-        Arrays.asList(
-            new IamBinding().role("roles/editor").addMembersItem("group:" + testGroupName),
-            new IamBinding().role("roles/viewer").addMembersItem("group:" + testGroupViewerName));
-
     // Basic GCP project with IAM Bindings
     FlightManager manager = new FlightManager(flightSubmissionFactoryImpl, stairwayComponent);
-    Pool pool = preparePool(rbsDao, newBasicGcpConfig().iamBindings(iamBindings));
+    Pool pool = preparePool(rbsDao, newBasicGcpConfig().iamBindings(IAM_BINDINGS));
 
     String flightId = manager.submitCreationFlight(pool).get();
     FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, flightId).get();
 
     Project project = assertProjectExists(ResourceId.retrieve(resultMap));
-    assertIamBindingsContains(project, iamBindings);
+    assertIamBindingsContains(project, IAM_BINDINGS);
   }
 
   @Test
@@ -128,6 +117,24 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     String flightId = manager.submitCreationFlight(pool).get();
     FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, flightId).get();
     Project project = assertProjectExists(ResourceId.retrieve(resultMap));
+    assertNetworkExists(project);
+    assertSubnetsExist(project, NetworkMonitoring.ENABLED);
+    assertRouteExists(project);
+    assertDnsExists(project);
+  }
+
+  @Test
+  public void testCreateGoogleProject_multipleSteps() throws Exception {
+    // Verify flight is able to finish with multiple same steps exists.
+    FlightManager manager =
+        new FlightManager(
+            new StubSubmissionFlightFactory(MultiInstanceStepFlight.class), stairwayComponent);
+    Pool pool = preparePool(rbsDao, newFullGcpConfig());
+
+    String flightId = manager.submitCreationFlight(pool).get();
+    FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, flightId).get();
+    Project project = assertProjectExists(ResourceId.retrieve(resultMap));
+    assertIamBindingsContains(project, IAM_BINDINGS);
     assertNetworkExists(project);
     assertSubnetsExist(project, NetworkMonitoring.ENABLED);
     assertRouteExists(project);
@@ -155,134 +162,6 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertFalse(rbsDao.retrieveResource(resource.id()).isPresent());
     assertEquals(
         FlightStatus.ERROR, stairwayComponent.get().getFlightState(flightId).getFlightStatus());
-  }
-
-  @Test
-  public void testCreateGoogleProject_multipleNetworkCreation() throws Exception {
-    // Verify flight is able to finish successfully when network exists
-    FlightManager manager =
-        new FlightManager(
-            new StubSubmissionFlightFactory(MultiInstanceStepFlight.class), stairwayComponent);
-    MultiInstanceStepFlight.setStepClass(CreateNetworkStep.class);
-    Pool pool = preparePool(rbsDao, newBasicGcpConfig());
-
-    String flightId = manager.submitCreationFlight(pool).get();
-    FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, flightId).get();
-    Project project = assertProjectExists(ResourceId.retrieve(resultMap));
-    assertEnableApisContains(project, pool.resourceConfig().getGcpProjectConfig().getEnabledApis());
-    assertNetworkExists(project);
-  }
-
-  @Test
-  public void testCreateGoogleProject_multipleSubnetsCreation() throws Exception {
-    // Verify flight is able to finish successfully when subnets already exists/
-    // this scenario may arise when the step partially fails and ends up in a state where some
-    // subnets need to be recreated and some are getting created the first time.
-    FlightManager manager =
-        new FlightManager(
-            new StubSubmissionFlightFactory(MultiInstanceStepFlight.class), stairwayComponent);
-    MultiInstanceStepFlight.setStepClass(CreateSubnetsStep.class);
-    Pool pool = preparePool(rbsDao, newBasicGcpConfig());
-
-    String flightId = manager.submitCreationFlight(pool).get();
-    FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, flightId).get();
-    Project project = assertProjectExists(ResourceId.retrieve(resultMap));
-    assertNetworkExists(project);
-    assertSubnetsExist(project, NetworkMonitoring.DISABLED);
-  }
-
-  @Test
-  public void testCreateGoogleProject_multipleRouteCreation() throws Exception {
-    // Verify flight is able to finish successfully when route already exists.
-    FlightManager manager =
-        new FlightManager(
-            new StubSubmissionFlightFactory(MultiInstanceStepFlight.class), stairwayComponent);
-    MultiInstanceStepFlight.setStepClass(CreateRouteStep.class);
-    Pool pool =
-        preparePool(
-            rbsDao,
-            newBasicGcpConfig()
-                .network(
-                    new bio.terra.rbs.generated.model.Network().enableNetworkMonitoring(true)));
-
-    String flightId = manager.submitCreationFlight(pool).get();
-    FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, flightId).get();
-    Project project = assertProjectExists(ResourceId.retrieve(resultMap));
-    assertRouteExists(project);
-  }
-
-  @Test
-  public void testCreateGoogleProject_multipleDnsCreation() throws Exception {
-    // Verify flight is able to finish successfully when DNS exists
-    FlightManager manager =
-        new FlightManager(
-            new StubSubmissionFlightFactory(MultiInstanceStepFlight.class), stairwayComponent);
-    MultiInstanceStepFlight.setStepClass(CreateDnsZoneStep.class);
-    Pool pool =
-        preparePool(
-            rbsDao,
-            newBasicGcpConfig()
-                .network(
-                    new bio.terra.rbs.generated.model.Network().enableNetworkMonitoring(true)));
-
-    String flightId = manager.submitCreationFlight(pool).get();
-    FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, flightId).get();
-    Project project = assertProjectExists(ResourceId.retrieve(resultMap));
-    assertDnsExists(project);
-  }
-
-  @Test
-  public void testCreateGoogleProject_multipleResourceRecordSetCreation() throws Exception {
-    // Verify flight is able to finish successfully when ResourceRecordSet exists
-    FlightManager manager =
-        new FlightManager(
-            new StubSubmissionFlightFactory(MultiInstanceStepFlight.class), stairwayComponent);
-    MultiInstanceStepFlight.setStepClass(CreateResourceRecordSetStep.class);
-    Pool pool =
-        preparePool(
-            rbsDao,
-            newBasicGcpConfig()
-                .network(
-                    new bio.terra.rbs.generated.model.Network().enableNetworkMonitoring(true)));
-
-    String flightId = manager.submitCreationFlight(pool).get();
-    FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, flightId).get();
-    Project project = assertProjectExists(ResourceId.retrieve(resultMap));
-    assertDnsExists(project);
-  }
-
-  @Test
-  public void testCreateGoogleProject_multipleFirewallRuleCreation() throws Exception {
-    // Verify flight is able to finish successfully when firewall rule exists
-    FlightManager manager =
-        new FlightManager(
-            new StubSubmissionFlightFactory(MultiInstanceStepFlight.class), stairwayComponent);
-    MultiInstanceStepFlight.setStepClass(CreateFirewallRuleStep.class);
-    Pool pool = preparePool(rbsDao, newBasicGcpConfig());
-
-    String flightId = manager.submitCreationFlight(pool).get();
-    FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, flightId).get();
-    Project project = assertProjectExists(ResourceId.retrieve(resultMap));
-    assertFirewallRulesExist(project);
-  }
-
-  @Test
-  public void testCreateGoogleProject_multipleBucketCreation() throws Exception {
-    FlightManager manager =
-        new FlightManager(
-            new StubSubmissionFlightFactory(MultiInstanceStepFlight.class), stairwayComponent);
-    MultiInstanceStepFlight.setStepClass(CreateStorageLogBucketStep.class);
-    Pool pool =
-        preparePool(
-            rbsDao,
-            newBasicGcpConfig()
-                .network(
-                    new bio.terra.rbs.generated.model.Network().enableNetworkMonitoring(true)));
-
-    String flightId = manager.submitCreationFlight(pool).get();
-    FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, flightId).get();
-    Project project = assertProjectExists(ResourceId.retrieve(resultMap));
-    assertLogStorageBucketExists(project);
   }
 
   @Test
@@ -327,21 +206,36 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     }
   }
 
+  /**
+   * A sub-flight class of {@link GoogleProjectCreationFlight} which inserts some steps twice.
+   *
+   * <p>This class can verify those duplicated steps still succeed in "retry after succeed" cases,
+   * e.g., when creating Network, polling operation result timeout, but Network is created when the
+   * step is retried.
+   */
   public static class MultiInstanceStepFlight extends GoogleProjectCreationFlight {
-    private static Class<? extends Step> multiStepClazz;
+    /**
+     * Steps that doesn't need to handle "retry after succeed" scenario, if duplicates happens, the
+     * flight will fail instead of success. Those steps are:
+     *
+     * <ul>
+     *   <li>CreateResourceDbEntityStep: No long waiting operations inside, it's will not trigger
+     *       "retry after succeed" cases.
+     *   <li>CreateProjectStep: We want to fail the flight to avoid project id collision.
+     * </ul>
+     */
+    private static final List<Class<? extends Step>> SKIP_DUP_CHECK_STEP_CLAZZ =
+        ImmutableList.of(CreateResourceDbEntityStep.class, CreateProjectStep.class);
 
     public MultiInstanceStepFlight(FlightMap inputParameters, Object applicationContext) {
       super(inputParameters, applicationContext);
     }
 
-    public static void setStepClass(Class<? extends Step> clazz) {
-      multiStepClazz = clazz;
-    }
-
     @Override
     protected void addStep(Step step) {
       super.addStep(step);
-      if (multiStepClazz.isInstance(step)) {
+
+      if (!SKIP_DUP_CHECK_STEP_CLAZZ.stream().anyMatch(clazz -> clazz.isInstance(step))) {
         super.addStep(step);
       }
     }
