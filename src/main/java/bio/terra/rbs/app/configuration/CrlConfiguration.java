@@ -19,11 +19,10 @@ import com.google.api.services.dns.Dns;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
+import com.google.cloud.storage.StorageOptions;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.time.Duration;
-
-import com.google.cloud.storage.StorageOptions;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -161,9 +160,7 @@ public class CrlConfiguration {
   @Bean
   @Lazy
   public StorageCow storageCow() throws IOException, GeneralSecurityException {
-    return new StorageCow(
-            clientConfig(),
-            StorageOptions.getDefaultInstance());
+    return new StorageCow(clientConfig(), StorageOptions.getDefaultInstance());
   }
 
   private static ServiceAccountCredentials getGoogleCredentialsOrDie(String serviceAccountPath) {

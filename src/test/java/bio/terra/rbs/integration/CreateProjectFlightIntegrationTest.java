@@ -2,6 +2,8 @@ package bio.terra.rbs.integration;
 
 import static bio.terra.rbs.integration.IntegrationUtils.*;
 import static bio.terra.rbs.service.resource.FlightMapKeys.RESOURCE_CONFIG;
+import static bio.terra.rbs.service.resource.flight.CreateBucketStep.STORAGE_LOGS_LIFECYCLE_RULE;
+import static bio.terra.rbs.service.resource.flight.CreateBucketStep.STORAGE_LOGS_WRITE_ACL;
 import static bio.terra.rbs.service.resource.flight.CreateDnsZoneStep.MANAGED_ZONE_TEMPLATE;
 import static bio.terra.rbs.service.resource.flight.CreateFirewallRuleStep.*;
 import static bio.terra.rbs.service.resource.flight.CreateResourceRecordSetStep.A_RECORD;
@@ -12,11 +14,13 @@ import static bio.terra.rbs.service.resource.flight.GoogleUtils.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
+import bio.terra.cloudres.common.ClientConfig;
 import bio.terra.cloudres.google.billing.CloudBillingClientCow;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.cloudres.google.compute.CloudComputeCow;
 import bio.terra.cloudres.google.dns.DnsCow;
 import bio.terra.cloudres.google.serviceusage.ServiceUsageCow;
+import bio.terra.cloudres.google.storage.StorageCow;
 import bio.terra.rbs.common.*;
 import bio.terra.rbs.db.*;
 import bio.terra.rbs.generated.model.GcpProjectConfig;
@@ -37,6 +41,8 @@ import com.google.api.services.compute.model.Subnetwork;
 import com.google.api.services.dns.model.ManagedZone;
 import com.google.api.services.dns.model.ResourceRecordSet;
 import com.google.api.services.serviceusage.v1.model.GoogleApiServiceusageV1Service;
+import com.google.cloud.storage.BucketInfo;
+import com.google.cloud.storage.StorageOptions;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -60,6 +66,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   @Autowired DnsCow dnsCow;
   @Autowired ServiceUsageCow serviceUsageCow;
   @Autowired FlightSubmissionFactoryImpl flightSubmissionFactoryImpl;
+  @Autowired ClientConfig clientConfig;
 
   enum NetworkMonitoring {
     ENABLED,
@@ -76,6 +83,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     Project project = assertProjectExists(ResourceId.retrieve(resultMap));
     assertBillingIs(project, pool.resourceConfig().getGcpProjectConfig().getBillingAccount());
     assertEnableApisContains(project, pool.resourceConfig().getGcpProjectConfig().getEnabledApis());
+    assertBucketExists(project);
     assertNetworkExists(project);
     assertFirewallRulesExist(project);
     assertSubnetsExist(project, NetworkMonitoring.DISABLED);
@@ -258,6 +266,25 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   }
 
   @Test
+  public void testCreateGoogleProject_multipleBucketCreation() throws Exception {
+    FlightManager manager =
+        new FlightManager(
+            new StubSubmissionFlightFactory(MultiInstanceStepFlight.class), stairwayComponent);
+    MultiInstanceStepFlight.setStepClass(CreateBucketStep.class);
+    Pool pool =
+        preparePool(
+            rbsDao,
+            newBasicGcpConfig()
+                .network(
+                    new bio.terra.rbs.generated.model.Network().enableNetworkMonitoring(true)));
+
+    String flightId = manager.submitCreationFlight(pool).get();
+    FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, flightId).get();
+    Project project = assertProjectExists(ResourceId.retrieve(resultMap));
+    assertBucketExists(project);
+  }
+
+  @Test
   public void errorCreateProject_noRollbackAfterResourceReady() throws Exception {
     // Verify project and db entity won't get deleted if resource id READY, even the flight fails.
     FlightManager manager =
@@ -378,6 +405,17 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
           new ArrayList<>(allBindings.get(iamBinding.getRole())),
           Matchers.hasItems(iamBinding.getMembers().toArray()));
     }
+  }
+
+  private void assertBucketExists(Project project) throws Exception {
+    String projectId = project.getProjectId();
+    StorageCow storageCow =
+        new StorageCow(clientConfig, StorageOptions.newBuilder().setProjectId(projectId).build());
+    String bucketName = "storage-logs-" + projectId;
+    BucketInfo bucketInfo = storageCow.get(bucketName).getBucketInfo();
+    assertEquals(bucketInfo.getAcl().get(0).getEntity(), STORAGE_LOGS_WRITE_ACL.getEntity());
+    assertEquals(bucketInfo.getAcl().get(0).getRole(), STORAGE_LOGS_WRITE_ACL.getRole());
+    assertThat(bucketInfo.getLifecycleRules(), Matchers.contains(STORAGE_LOGS_LIFECYCLE_RULE));
   }
 
   private void assertNetworkExists(Project project) throws Exception {

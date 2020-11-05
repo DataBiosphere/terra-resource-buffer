@@ -89,7 +89,8 @@ public class IntegrationUtils {
         .parentFolderId(FOLDER_ID)
         .billingAccount(BILLING_ACCOUNT_NAME)
         .addEnabledApisItem("compute.googleapis.com")
-        .addEnabledApisItem("dns.googleapis.com");
+        .addEnabledApisItem("dns.googleapis.com")
+        .addEnabledApisItem("storage-component.googleapis.com");
   }
 
   /** Create a {@link GcpProjectConfig} with everything enabled. */
