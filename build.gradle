@@ -1,25 +1,49 @@
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+plugins {
+    id 'idea'
+    id 'java'
 
-buildscript {
-    repositories {
-        mavenCentral()
+    id 'com.diffplug.gradle.spotless' version '3.27.2'
+    id 'com.github.ben-manes.versions' version '0.33.0'
+    id 'com.google.cloud.tools.jib' version '2.5.0'
+    id 'de.undercouch.download' version '4.0.0'
+    id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+    id 'org.hidetake.swagger.generator' version '2.18.2'
+    id 'org.springframework.boot' version '2.3.1.RELEASE'
+}
+
+
+allprojects {
+    group = 'bio.terra'
+    version = System.getenv('SERVICE_VERSION') != null ? System.getenv('SERVICE_VERSION') : '0.0.1-SNAPSHOT'
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    ext {
+        artifactGroup = "${group}.rbs"
+        swaggerOutputDir = "${buildDir}/generated"
+        resourceDir = "${rootDir}/src/main/resources"
+    }
+
+    // specifying versions for dependencies, not adding the dependencies themselves (yet)
+    apply plugin: "io.spring.dependency-management"
+    dependencyManagement {
+        imports {
+            mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
+        }
+        dependencies {
+            dependency group: "io.swagger.core.v3", name: "swagger-annotations", version: "2.1.5"
+            dependency group: "io.swagger.codegen.v3", name: "swagger-codegen-cli", version: "3.0.22"
+
+            dependency group: 'bio.terra.cloud-resource-lib', name: 'cloud-resource-schema', version: "0.1.0"
+        }
+    }
+
+    apply plugin: "idea"
+    idea {
+        module {
+            generatedSourceDirs = [file("${swaggerOutputDir}/src/main/java")]
+            downloadJavadoc = true
+        }
     }
 }
-
-plugins {
-    id 'java'
-    id 'idea'
-    id 'com.google.cloud.tools.jib' version '2.6.0'
-    id 'com.diffplug.gradle.spotless' version '3.27.2'
-    id 'de.undercouch.download' version '4.0.0'
-    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
-    id 'org.springframework.boot' version '2.3.1.RELEASE'
-    id 'org.hidetake.swagger.generator' version '2.18.2'
-}
-
-group = 'bio.terra'
-version = System.getenv('SERVICE_VERSION') != null ? System.getenv('SERVICE_VERSION') : '0.0.1-SNAPSHOT'
-sourceCompatibility = '1.8'
 
 repositories {
     mavenCentral()
@@ -31,52 +55,54 @@ repositories {
     }
 }
 
-// The version of CRL schema library
-def crlSchemaVersion = "0.1.0"
-
 dependencies {
-    implementation group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jdbc'
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
-    implementation group: 'org.webjars', name: 'swagger-ui', version: '3.25.4' // if updating, change path in ApiResourceConfig.java
-    implementation group: 'org.apache.commons', name: 'commons-dbcp2', version: '2.7.0'
-    implementation group: 'org.apache.commons', name: 'commons-pool2', version: '2.8.0'
-    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.10'
-    implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.12'
-    implementation group: 'org.liquibase' , name: 'liquibase-core', version: '3.10.0'
-    implementation 'org.springframework.boot:spring-boot-starter'
-    implementation 'org.springframework:spring-jdbc:5.1.9.RELEASE'
-
-    implementation 'com.google.guava:guava:29.0-jre'
-
-    implementation "com.google.auto.value:auto-value-annotations:1.7.3"
-    annotationProcessor "com.google.auto.value:auto-value:1.7.3"
-
-    // -- Swagger CodeGen dependencies --
-    swaggerCodegen 'io.swagger.codegen.v3:swagger-codegen-cli:3.0.20'
-    implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.1.4'
-    // TODO: this version of swagger-annotations is old, but the code gen is still relying on it
-    // There is an open bug tracking the fix: https://github.com/OpenAPITools/openapi-generator/issues/4245
-    implementation 'io.swagger:swagger-annotations:1.6.0'
-    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.11.2'
-    implementation group: 'com.fasterxml.jackson.module', name: 'jackson-module-jaxb-annotations', version: '2.11.2'
-
-    implementation 'bio.terra:stairway:0.0.20'
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'cloud-resource-schema', version: crlSchemaVersion
+    // Terra deps
+    implementation group: 'bio.terra', name: 'stairway', version: '0.0.20'
+    implementation group: 'bio.terra.cloud-resource-lib', name: 'cloud-resource-schema'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-billing', version: '0.1.0'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-compute', version: '0.1.0'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-cloudresourcemanager', version: '0.1.0'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-serviceusage', version: '0.1.0'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-dns', version: '0.1.0'
 
+    // Versioned direct deps
+    implementation group: 'com.google.auto.value', name: 'auto-value-annotations', version: '1.7.3'
+    implementation group: 'com.google.guava', name: 'guava', version: '29.0-jre'
+    implementation group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
+    implementation group: 'org.liquibase' , name: 'liquibase-core', version: '3.10.0'
+    implementation group: 'org.webjars', name: 'webjars-locator-core', version: '0.46'
+    runtimeOnly group: 'org.postgresql', name: 'postgresql', version: '42.2.12'
+
+    // Deps whose versions are controlled by Spring
+    implementation group: 'org.apache.commons', name: 'commons-dbcp2'
+    implementation group: 'org.apache.commons', name: 'commons-lang3'
+    implementation group: 'org.apache.commons', name: 'commons-pool2'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jdbc'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
+
+    // Swagger deps
+    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.11.2'
+    implementation group: 'com.fasterxml.jackson.module', name: 'jackson-module-jaxb-annotations', version: '2.11.2'
+    implementation group: 'io.swagger.core.v3', name: 'swagger-annotations'
+    runtimeOnly group: 'org.webjars.npm', name: 'swagger-ui-dist', version: '3.35.2'
+    swaggerCodegen group: 'io.swagger.codegen.v3', name: 'swagger-codegen-cli'
+
+    // Test deps
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
+
+    annotationProcessor group: 'com.google.auto.value', name: 'auto-value', version: '1.7.3'
+    annotationProcessor group: 'org.springframework.boot', name: 'spring-boot-configuration-processor'
 }
 
-// Exclude the Spring logger, so everything will use SLF4J
-configurations.all {
-    exclude group: "commons-logging", module: "commons-logging"
+// for scans
+if (hasProperty('buildScan')) {
+    buildScan {
+        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+        termsOfServiceAgree = 'yes'
+    }
 }
 
 java {
@@ -129,43 +155,38 @@ tasks.jibBuildTar.dependsOn extractProfilerAgent
 spotless {
     java {
         googleJavaFormat()
+        targetExclude "${buildDir}/**"
     }
 }
 
 
-// OpenAPI Server Generation
-// - define dependencies to include the generated code
-def openApiServerSourceDir = "${projectDir}/src/main/resources/api"
-def openApiResourceSourceDir = "${projectDir}/src/main/resources/config"
-def openApiTargetDir = "${buildDir}/generated"
-def cloudResourceSchemaTargetDor = "${buildDir}/crlSchema"
-
+// CRL schema extraction
 configurations {
     cloudResourceSchema { transitive = false }
 }
 dependencies {
-    cloudResourceSchema group: 'bio.terra.cloud-resource-lib', name: 'cloud-resource-schema', version: crlSchemaVersion
+    cloudResourceSchema group: 'bio.terra.cloud-resource-lib', name: 'cloud-resource-schema'
 }
 task unzipCloudResourceSchema(type: Copy) {
     from zipTree(configurations.cloudResourceSchema.singleFile).matching {
         include 'cloud_resources_uid.yaml'
     }
-    into cloudResourceSchemaTargetDor
+    into "${buildDir}/crlSchema"
 }
 
-
+// OpenAPI/Swagger Server Generation
 swaggerSources {
     server {
-        inputFile = file("${openApiServerSourceDir}/service_openapi.yaml")
+        inputFile = file("${resourceDir}/api/service_openapi.yaml")
         code {
             language = "spring"
-            outputDir = file("${openApiTargetDir}")
+            library = "spring-boot"
+            outputDir = file("${swaggerOutputDir}")
             components = ["models", "apis"]
             wipeOutputDir = false
             rawOptions = [
-                    "--api-package", "${this.group}.rbs.generated.controller",
-                    "--model-package", "${this.group}.rbs.generated.model",
-                    "--library", "spring-boot",
+                    "--api-package", "${artifactGroup}.generated.controller",
+                    "--model-package", "${artifactGroup}.generated.model",
                     "-D", "interfaceOnly=true," +
                             "useTags=true," +
                             "dateLibrary=java8"
@@ -174,15 +195,15 @@ swaggerSources {
     }
 
     resource {
-        inputFile = file("${openApiResourceSourceDir}/resource_schema.yaml")
+        inputFile = file("${resourceDir}/config/resource_schema.yaml")
         code {
             language = "spring"
-            outputDir = file("${openApiTargetDir}")
+            library = "spring-boot"
+            outputDir = file("${swaggerOutputDir}")
             components = ["models"]
             wipeOutputDir = false
             rawOptions = [
-                    "--model-package", "${this.group}.rbs.generated.model",
-                    "--library", "spring-boot",
+                    "--model-package", "${artifactGroup}.generated.model",
                     "-D", "interfaceOnly=true," +
                             "useTags=true," +
                             "dateLibrary=java8"
@@ -191,27 +212,7 @@ swaggerSources {
     }
 }
 
-// Note The Open API schema depends on an external library - cloud-resource-schema, so need to unzip it first.
-swaggerSources.server.code.dependsOn tasks.unzipCloudResourceSchema
-
-// Note: Spotless deletes the classes OpenApi generates.
-// The order needs to be spotlessApply -> openApiGenerate -> build/test/run
-swaggerSources.server.code.dependsOn swaggerSources.resource.code, tasks.spotlessApply
-compileJava.dependsOn swaggerSources.server.code, swaggerSources.resource.code, tasks.spotlessApply
-ideaModule.dependsOn swaggerSources.server.code
-sourceSets {
-    main {
-        java {
-            srcDir "${openApiTargetDir}/src/main/java"
-        }
-    }
-    test {
-        // Allow unit tests to directly load config files.
-        resources {
-            srcDir "config/"
-        }
-    }
-}
+// Testing config
 
 // This is the path to the default Google service account for the rbs service to run as.
 def googleCredentialsFile = "${projectDir}/src/test/resources/rendered/sa-account.json"
@@ -223,7 +224,7 @@ tasks.withType(Test) {
     testLogging {
         events = ["passed", "failed", "skipped"]
         // Causes the correct line to be reported on an exception.
-        exceptionFormat = TestExceptionFormat.FULL
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
         reports {
             // Write XML file (used by CircleCI, Jenkins, etc) to build/test-results/*
             junitXml.enabled = true
@@ -234,9 +235,7 @@ tasks.withType(Test) {
 }
 
 test {
-    useJUnitPlatform {
-        includeTags 'unit', 'integration'
-    }
+    useJUnitPlatform()
 }
 
 task unitTest(type: Test) {
@@ -253,3 +252,9 @@ task integrationTest(type: Test) {
     // resources.
     outputs.upToDateWhen { false }
 }
+
+// Note The Open API schema depends on an external library - cloud-resource-schema, so need to unzip it first.
+swaggerSources.server.code.dependsOn tasks.unzipCloudResourceSchema
+compileJava.dependsOn swaggerSources.server.code, swaggerSources.resource.code, spotlessApply
+sourceSets.main.java.srcDir "${swaggerOutputDir}/src/main/java"
+sourceSets.test.resources.srcDir "config/" // Allow unit tests to directly load config files.

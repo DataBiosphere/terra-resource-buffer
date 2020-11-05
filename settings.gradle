@@ -1,2 +1,4 @@
 rootProject.name = 'terra-rbs'
 include 'terra-rbs-client'
+
+enableFeaturePreview('ONE_LOCKFILE_PER_PROJECT')
