@@ -12,7 +12,6 @@ import bio.terra.rbs.service.stairway.StairwayComponent;
 import bio.terra.stairway.Flight;
 import bio.terra.stairway.FlightMap;
 import bio.terra.stairway.exception.DatabaseOperationException;
-import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 import java.time.Duration;
 import java.time.Instant;
