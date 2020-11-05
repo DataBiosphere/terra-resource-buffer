@@ -43,7 +43,7 @@ public class GoogleProjectCreationFlight extends Flight {
     addStep(new SetBillingInfoStep(billingCow, gcpProjectConfig));
     addStep(new EnableServicesStep(serviceUsageCow, gcpProjectConfig));
     addStep(new SetIamPolicyStep(rmCow, gcpProjectConfig));
-    addStep(new CreateBucketStep(clientConfig, gcpProjectConfig));
+    addStep(new CreateStorageLogBucketStep(clientConfig, gcpProjectConfig));
     addStep(new CreateNetworkStep(cloudComputeCow, gcpProjectConfig));
     addStep(new CreateRouteStep(cloudComputeCow, gcpProjectConfig));
     addStep(new CreateFirewallRuleStep(cloudComputeCow));

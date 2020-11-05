@@ -2,13 +2,13 @@ package bio.terra.rbs.integration;
 
 import static bio.terra.rbs.integration.IntegrationUtils.*;
 import static bio.terra.rbs.service.resource.FlightMapKeys.RESOURCE_CONFIG;
-import static bio.terra.rbs.service.resource.flight.CreateBucketStep.STORAGE_LOGS_LIFECYCLE_RULE;
-import static bio.terra.rbs.service.resource.flight.CreateBucketStep.STORAGE_LOGS_WRITE_ACL;
 import static bio.terra.rbs.service.resource.flight.CreateDnsZoneStep.MANAGED_ZONE_TEMPLATE;
 import static bio.terra.rbs.service.resource.flight.CreateFirewallRuleStep.*;
 import static bio.terra.rbs.service.resource.flight.CreateResourceRecordSetStep.A_RECORD;
 import static bio.terra.rbs.service.resource.flight.CreateResourceRecordSetStep.CNAME_RECORD;
 import static bio.terra.rbs.service.resource.flight.CreateRouteStep.*;
+import static bio.terra.rbs.service.resource.flight.CreateStorageLogBucketStep.STORAGE_LOGS_LIFECYCLE_RULE;
+import static bio.terra.rbs.service.resource.flight.CreateStorageLogBucketStep.STORAGE_LOGS_WRITE_ACL;
 import static bio.terra.rbs.service.resource.flight.CreateSubnetsStep.*;
 import static bio.terra.rbs.service.resource.flight.GoogleUtils.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -83,7 +83,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     Project project = assertProjectExists(ResourceId.retrieve(resultMap));
     assertBillingIs(project, pool.resourceConfig().getGcpProjectConfig().getBillingAccount());
     assertEnableApisContains(project, pool.resourceConfig().getGcpProjectConfig().getEnabledApis());
-    assertBucketExists(project);
+    assertLogStorageBucketExists(project);
     assertNetworkExists(project);
     assertFirewallRulesExist(project);
     assertSubnetsExist(project, NetworkMonitoring.DISABLED);
@@ -271,7 +271,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     FlightManager manager =
         new FlightManager(
             new StubSubmissionFlightFactory(MultiInstanceStepFlight.class), stairwayComponent);
-    MultiInstanceStepFlight.setStepClass(CreateBucketStep.class);
+    MultiInstanceStepFlight.setStepClass(CreateStorageLogBucketStep.class);
     Pool pool =
         preparePool(
             rbsDao,
@@ -282,7 +282,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     String flightId = manager.submitCreationFlight(pool).get();
     FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, flightId).get();
     Project project = assertProjectExists(ResourceId.retrieve(resultMap));
-    assertBucketExists(project);
+    assertLogStorageBucketExists(project);
   }
 
   @Test
@@ -408,7 +408,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     }
   }
 
-  private void assertBucketExists(Project project) throws Exception {
+  private void assertLogStorageBucketExists(Project project) throws Exception {
     String projectId = project.getProjectId();
     StorageCow storageCow =
         new StorageCow(clientConfig, StorageOptions.newBuilder().setProjectId(projectId).build());

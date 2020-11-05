@@ -1,7 +1,6 @@
 package bio.terra.rbs.service.resource.flight;
 
 import static bio.terra.rbs.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
-import static bio.terra.rbs.service.resource.flight.GoogleUtils.*;
 
 import bio.terra.cloudres.common.ClientConfig;
 import bio.terra.cloudres.google.storage.StorageCow;
@@ -16,9 +15,13 @@ import com.google.common.collect.ImmutableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Creates the basic GCP project. */
-public class CreateBucketStep implements Step {
-  private final Logger logger = LoggerFactory.getLogger(CreateBucketStep.class);
+/**
+ * Creates the Storage log bucket for the project.
+ *
+ * <p>See <a href="https://cloud.google.com/storage/docs/access-logs">Storage logs introduction</a>
+ */
+public class CreateStorageLogBucketStep implements Step {
+  private final Logger logger = LoggerFactory.getLogger(CreateStorageLogBucketStep.class);
 
   /** Assigns Cloud Storage writer role for storage log bucket. */
   public static final Acl STORAGE_LOGS_WRITE_ACL =
@@ -33,7 +36,7 @@ public class CreateBucketStep implements Step {
   private final ClientConfig clientConfig;
   private final GcpProjectConfig gcpProjectConfig;
 
-  public CreateBucketStep(ClientConfig clientConfig, GcpProjectConfig gcpProjectConfig) {
+  public CreateStorageLogBucketStep(ClientConfig clientConfig, GcpProjectConfig gcpProjectConfig) {
     this.clientConfig = clientConfig;
     this.gcpProjectConfig = gcpProjectConfig;
   }
