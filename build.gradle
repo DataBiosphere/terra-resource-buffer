@@ -9,7 +9,7 @@ buildscript {
 plugins {
     id 'java'
     id 'idea'
-    id 'com.google.cloud.tools.jib' version '2.5.0'
+    id 'com.google.cloud.tools.jib' version '2.6.0'
     id 'com.diffplug.gradle.spotless' version '3.27.2'
     id 'de.undercouch.download' version '4.0.0'
     id 'io.spring.dependency-management' version '1.0.9.RELEASE'
@@ -82,6 +82,48 @@ configurations.all {
 java {
     withJavadocJar()
 }
+
+// Download and extract the Cloud Profiler Java Agent
+ext {
+    // where to place the Cloud Profiler agent in the container
+    cloudProfilerLocation = '/opt/cprof'
+
+    // location for jib extras, including the Java agent
+    jibExtraDirectory = "${buildDir}/jib-agents"
+}
+task downloadProfilerAgent(type: Download) {
+    // where to download the Cloud Profiler agent https://cloud.google.com/profiler/docs/profiling-java
+    src 'https://storage.googleapis.com/cloud-profiler/java/latest/profiler_java_agent.tar.gz'
+    dest "${buildDir}/cprof_java_agent_gce.tar.gz"
+}
+task extractProfilerAgent(dependsOn: downloadProfilerAgent, type: Copy) {
+    from tarTree(downloadProfilerAgent.dest)
+    into "${jibExtraDirectory}/${cloudProfilerLocation}"
+}
+
+jib {
+    from {
+        image = "openjdk:8-jdk-alpine"
+    }
+    extraDirectories {
+        paths = [file(jibExtraDirectory)]
+    }
+    container {
+        filesModificationTime = java.time.ZonedDateTime.now().toString() // to prevent ui caching
+        jvmFlags = [
+                '-agentpath:' + cloudProfilerLocation + '/profiler_java_agent.so=' +
+                        '-cprof_service=bio.terra.rbs' +
+                        ',-cprof_service_version=' + version +
+                        ',-cprof_enable_heap_sampling=true' +
+                        ',-logtostderr' +
+                        ',-minloglevel=1'
+        ]
+    }
+}
+
+tasks.jib.dependsOn extractProfilerAgent
+tasks.jibDockerBuild.dependsOn extractProfilerAgent
+tasks.jibBuildTar.dependsOn extractProfilerAgent
 
 // Linter
 spotless {
