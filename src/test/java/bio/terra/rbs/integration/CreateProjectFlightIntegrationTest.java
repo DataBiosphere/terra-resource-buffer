@@ -207,9 +207,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
    */
   public static class MultiInstanceStepFlight extends GoogleProjectCreationFlight {
     /**
-     * Steps that doesn't need to handle "retry after succeed" scenario.
-     * CreateResourceDbEntityStep doesn't have long wait operations; CreateProjectStep is safer and better to just
-     * fail the flight if project id is already in use.
+     * Steps that doesn't need to handle "retry after succeed" scenario, if duplicates happens, the flight will fail
+     * instead of success.
      */
     private static final List<Class<? extends Step>> SKIP_DUP_CHECK_STEP_CLAZZ =
         ImmutableList.of(CreateResourceDbEntityStep.class, CreateProjectStep.class);
