@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Creates the Storage log bucket for the project.
+ * Creates the storage log bucket where logs will be written to.
  *
  * <p>See <a href="https://cloud.google.com/storage/docs/access-logs">Storage logs introduction</a>
  */
