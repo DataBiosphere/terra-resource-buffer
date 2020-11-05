@@ -18,7 +18,7 @@ public class StepUtils {
     FlightMap workingMap = flightContext.getWorkingMap();
     ResourceId resourceId = ResourceId.retrieve(workingMap);
     if (rbsDao.retrieveResource(resourceId).get().state().equals(ResourceState.CREATING)) {
-      // Just in case the step retries even after DB is updated to READY.
+      // Just in case the step retries even after DB is updated to READY. That is a waste if we fail the flight.
       rbsDao.updateResourceAsReady(
           ResourceId.retrieve(flightContext.getWorkingMap()),
           workingMap.get(FlightMapKeys.CLOUD_RESOURCE_UID, CloudResourceUid.class));
