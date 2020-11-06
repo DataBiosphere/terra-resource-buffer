@@ -8,6 +8,7 @@ import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.cloudres.google.compute.CloudComputeCow;
 import bio.terra.cloudres.google.dns.DnsCow;
 import bio.terra.cloudres.google.serviceusage.ServiceUsageCow;
+import bio.terra.cloudres.google.storage.StorageCow;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.services.cloudresourcemanager.CloudResourceManager;
@@ -18,6 +19,7 @@ import com.google.api.services.dns.Dns;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
+import com.google.cloud.storage.StorageOptions;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.time.Duration;
@@ -152,6 +154,13 @@ public class CrlConfiguration {
                         GoogleCredentials.getApplicationDefault()
                             .createScoped(ComputeScopes.all()))))
             .setApplicationName(CLIENT_NAME));
+  }
+
+  /** The CRL {@link StorageCow} which wrappers Google Compute API. */
+  @Bean
+  @Lazy
+  public StorageCow storageCow() throws IOException, GeneralSecurityException {
+    return new StorageCow(clientConfig(), StorageOptions.getDefaultInstance());
   }
 
   private static ServiceAccountCredentials getGoogleCredentialsOrDie(String serviceAccountPath) {

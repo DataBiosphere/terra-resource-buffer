@@ -7,16 +7,20 @@ import static bio.terra.rbs.service.resource.flight.CreateFirewallRuleStep.*;
 import static bio.terra.rbs.service.resource.flight.CreateResourceRecordSetStep.A_RECORD;
 import static bio.terra.rbs.service.resource.flight.CreateResourceRecordSetStep.CNAME_RECORD;
 import static bio.terra.rbs.service.resource.flight.CreateRouteStep.*;
+import static bio.terra.rbs.service.resource.flight.CreateStorageLogBucketStep.STORAGE_LOGS_LIFECYCLE_RULE;
+import static bio.terra.rbs.service.resource.flight.CreateStorageLogBucketStep.STORAGE_LOGS_WRITE_ACL;
 import static bio.terra.rbs.service.resource.flight.CreateSubnetsStep.*;
 import static bio.terra.rbs.service.resource.flight.GoogleUtils.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
+import bio.terra.cloudres.common.ClientConfig;
 import bio.terra.cloudres.google.billing.CloudBillingClientCow;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.cloudres.google.compute.CloudComputeCow;
 import bio.terra.cloudres.google.dns.DnsCow;
 import bio.terra.cloudres.google.serviceusage.ServiceUsageCow;
+import bio.terra.cloudres.google.storage.StorageCow;
 import bio.terra.rbs.common.*;
 import bio.terra.rbs.db.*;
 import bio.terra.rbs.generated.model.GcpProjectConfig;
@@ -37,6 +41,8 @@ import com.google.api.services.compute.model.Subnetwork;
 import com.google.api.services.dns.model.ManagedZone;
 import com.google.api.services.dns.model.ResourceRecordSet;
 import com.google.api.services.serviceusage.v1.model.GoogleApiServiceusageV1Service;
+import com.google.cloud.storage.BucketInfo;
+import com.google.cloud.storage.StorageOptions;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +66,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   @Autowired DnsCow dnsCow;
   @Autowired ServiceUsageCow serviceUsageCow;
   @Autowired FlightSubmissionFactoryImpl flightSubmissionFactoryImpl;
+  @Autowired ClientConfig clientConfig;
 
   enum NetworkMonitoring {
     ENABLED,
@@ -76,6 +83,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     Project project = assertProjectExists(ResourceId.retrieve(resultMap));
     assertBillingIs(project, pool.resourceConfig().getGcpProjectConfig().getBillingAccount());
     assertEnableApisContains(project, pool.resourceConfig().getGcpProjectConfig().getEnabledApis());
+    assertLogStorageBucketExists(project);
     assertNetworkExists(project);
     assertFirewallRulesExist(project);
     assertSubnetsExist(project, NetworkMonitoring.DISABLED);
@@ -207,12 +215,13 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
    */
   public static class MultiInstanceStepFlight extends GoogleProjectCreationFlight {
     /**
-     * Steps that doesn't need to handle "retry after succeed" scenario, if duplicates happens, the flight will fail
-     * instead of success. Those steps are:
+     * Steps that doesn't need to handle "retry after succeed" scenario, if duplicates happens, the
+     * flight will fail instead of success. Those steps are:
+     *
      * <ul>
-     *      <li>CreateResourceDbEntityStep: No long waiting operations inside, it's will not trigger "retry after
-     *      succeed" cases.
-     *      <li>CreateProjectStep: We want to fail the flight to avoid project id collision.
+     *   <li>CreateResourceDbEntityStep: No long waiting operations inside, it's will not trigger
+     *       "retry after succeed" cases.
+     *   <li>CreateProjectStep: We want to fail the flight to avoid project id collision.
      * </ul>
      */
     private static final List<Class<? extends Step>> SKIP_DUP_CHECK_STEP_CLAZZ =
@@ -291,6 +300,17 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
           new ArrayList<>(allBindings.get(iamBinding.getRole())),
           Matchers.hasItems(iamBinding.getMembers().toArray()));
     }
+  }
+
+  private void assertLogStorageBucketExists(Project project) throws Exception {
+    String projectId = project.getProjectId();
+    StorageCow storageCow =
+        new StorageCow(clientConfig, StorageOptions.newBuilder().setProjectId(projectId).build());
+    String bucketName = "storage-logs-" + projectId;
+    BucketInfo bucketInfo = storageCow.get(bucketName).getBucketInfo();
+    assertEquals(bucketInfo.getAcl().get(0).getEntity(), STORAGE_LOGS_WRITE_ACL.getEntity());
+    assertEquals(bucketInfo.getAcl().get(0).getRole(), STORAGE_LOGS_WRITE_ACL.getRole());
+    assertThat(bucketInfo.getLifecycleRules(), Matchers.contains(STORAGE_LOGS_LIFECYCLE_RULE));
   }
 
   private void assertNetworkExists(Project project) throws Exception {

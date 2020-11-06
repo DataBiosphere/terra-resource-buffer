@@ -17,7 +17,8 @@ import java.util.List;
  */
 public class GcpResourceConfigValidator implements ResourceConfigValidator {
   /** List of services required to be enabled. */
-  private static final List<String> REQUIRED_SERVICES = ImmutableList.of("compute.googleapis.com");
+  private static final List<String> REQUIRED_SERVICES =
+      ImmutableList.of("compute.googleapis.com", "storage-component.googleapis.com");
 
   @Override
   public void validate(ResourceConfig config) {

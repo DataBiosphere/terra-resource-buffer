@@ -13,7 +13,8 @@ public class ResourceConfigValidatorTest extends BaseUnitTest {
   private static GcpProjectConfig newValidGcpProjectConfig() {
     return new GcpProjectConfig()
         .billingAccount("123")
-        .addEnabledApisItem("compute.googleapis.com");
+        .addEnabledApisItem("compute.googleapis.com")
+        .addEnabledApisItem("storage-component.googleapis.com");
   }
 
   @Test
