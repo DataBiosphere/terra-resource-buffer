@@ -1,6 +1,7 @@
 package bio.terra.rbs.integration;
 
 import static bio.terra.rbs.integration.IntegrationUtils.pollUntilResourcesMatch;
+import static bio.terra.rbs.integration.IntegrationUtils.randomPoolId;
 import static bio.terra.rbs.service.pool.PoolConfigLoader.loadPoolConfig;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -35,7 +36,7 @@ public class RbsIntegrationTest extends BaseIntegrationTest {
   @Test
   public void testCreateGoogleProject() throws Exception {
     // The pool id in config file.
-    PoolId poolId = PoolId.create("ws_test_v1");
+    PoolId poolId = randomPoolId();
     List<PoolWithResourceConfig> config = loadPoolConfig("test/config");
     poolService.updateFromConfig(config);
 

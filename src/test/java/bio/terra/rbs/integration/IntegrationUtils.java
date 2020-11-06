@@ -19,6 +19,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -81,7 +82,7 @@ public class IntegrationUtils {
 
   /** Prepares a Pool with {@link GcpProjectConfig}. */
   public static Pool preparePool(RbsDao rbsDao, GcpProjectConfig gcpProjectConfig) {
-    PoolId poolId = PoolId.create("poolId");
+    PoolId poolId = randomPoolId();
     Pool pool =
         Pool.builder()
             .id(poolId)
@@ -138,5 +139,10 @@ public class IntegrationUtils {
       flightMap.put(FlightMapKeys.CLOUD_RESOURCE_UID, resource.cloudResourceUid());
       return FlightSubmission.create(flightClass, flightMap);
     }
+  }
+
+  /** Generates a random poolId. */
+  public static PoolId randomPoolId() {
+    return PoolId.create(UUID.randomUUID().toString());
   }
 }

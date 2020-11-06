@@ -2,7 +2,7 @@
 # Copied from Janitor(https://github.com/DataBiosphere/terra-resource-janitor) and similar to all other MCTerra servers.
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
 
-name: Run Tests
+name: Run Unit Tests
 
 on:
   push:
@@ -68,12 +68,9 @@ jobs:
       - name: Run unit tests
         id: unit-test
         run: ./gradlew unitTest --scan
-      - name: Run integration tests
-        id: integration-test
-        run: ./gradlew integrationTest --scan
       - name: Upload Test Reports
         if: always()
         uses: actions/upload-artifact@v1
         with:
           name: Test Reports
-          path: build/reports/tests
+          path: build/reports/tests/unit

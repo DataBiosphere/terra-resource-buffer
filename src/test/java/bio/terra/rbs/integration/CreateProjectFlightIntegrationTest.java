@@ -207,12 +207,13 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
    */
   public static class MultiInstanceStepFlight extends GoogleProjectCreationFlight {
     /**
-     * Steps that doesn't need to handle "retry after succeed" scenario, if duplicates happens, the flight will fail
-     * instead of success. Those steps are:
+     * Steps that doesn't need to handle "retry after succeed" scenario, if duplicates happens, the
+     * flight will fail instead of success. Those steps are:
+     *
      * <ul>
-     *      <li>CreateResourceDbEntityStep: No long waiting operations inside, it's will not trigger "retry after
-     *      succeed" cases.
-     *      <li>CreateProjectStep: We want to fail the flight to avoid project id collision.
+     *   <li>CreateResourceDbEntityStep: No long waiting operations inside, it's will not trigger
+     *       "retry after succeed" cases.
+     *   <li>CreateProjectStep: We want to fail the flight to avoid project id collision.
      * </ul>
      */
     private static final List<Class<? extends Step>> SKIP_DUP_CHECK_STEP_CLAZZ =

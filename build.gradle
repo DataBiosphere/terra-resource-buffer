@@ -252,4 +252,6 @@ task integrationTest(type: Test) {
     // Force tests to always be re-run, since integration tests involve communicating with external
     // resources.
     outputs.upToDateWhen { false }
+    // Run integration tests in parallel
+    maxParallelForks = Runtime.runtime.availableProcessors() / 2
 }
