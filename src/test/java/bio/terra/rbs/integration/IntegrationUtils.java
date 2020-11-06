@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import bio.terra.rbs.common.*;
 import bio.terra.rbs.db.RbsDao;
 import bio.terra.rbs.generated.model.GcpProjectConfig;
+import bio.terra.rbs.generated.model.IamBinding;
 import bio.terra.rbs.generated.model.ResourceConfig;
 import bio.terra.rbs.service.resource.FlightMapKeys;
 import bio.terra.rbs.service.resource.FlightSubmissionFactory;
@@ -15,6 +16,7 @@ import bio.terra.stairway.exception.DatabaseOperationException;
 import com.google.common.collect.ImmutableList;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -29,6 +31,20 @@ public class IntegrationUtils {
 
   private static final Duration PERIOD = Duration.ofSeconds(4);
   private static final int MAX_POLL_NUM = 100;
+
+  /**
+   * The groups used to test IAM policy sets up on a group. It doesn't matter what the users are for
+   * the purpose of this test. They just need to exist for Google. These groups were manually
+   * created for Broad development via the BITs service portal.
+   */
+  private static final String TEST_GROUP_NAME = "terra-rbs-test@broadinstitute.org";
+
+  private static final String TEST_GROUP_VIEWER_NAME = "terra-rbs-viewer-test@broadinstitute.org";
+
+  public static final List<IamBinding> IAM_BINDINGS =
+      Arrays.asList(
+          new IamBinding().role("roles/editor").addMembersItem("group:" + TEST_GROUP_NAME),
+          new IamBinding().role("roles/viewer").addMembersItem("group:" + TEST_GROUP_VIEWER_NAME));
 
   public static List<Resource> pollUntilResourcesMatch(
       RbsDao rbsDao, PoolId poolId, ResourceState state, int expectedResourceNum) throws Exception {
@@ -89,12 +105,14 @@ public class IntegrationUtils {
         .parentFolderId(FOLDER_ID)
         .billingAccount(BILLING_ACCOUNT_NAME)
         .addEnabledApisItem("compute.googleapis.com")
-        .addEnabledApisItem("dns.googleapis.com");
+        .addEnabledApisItem("dns.googleapis.com")
+        .addEnabledApisItem("storage-component.googleapis.com");
   }
 
   /** Create a {@link GcpProjectConfig} with everything enabled. */
   public static GcpProjectConfig newFullGcpConfig() {
     return newBasicGcpConfig()
+        .iamBindings(IAM_BINDINGS)
         .network(new bio.terra.rbs.generated.model.Network().enableNetworkMonitoring(true));
   }
 

@@ -60,10 +60,11 @@ dependencies {
     implementation group: 'bio.terra', name: 'stairway', version: '0.0.20'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'cloud-resource-schema'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-billing', version: '0.1.0'
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-compute', version: '0.1.0'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-cloudresourcemanager', version: '0.1.0'
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-serviceusage', version: '0.1.0'
+    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-compute', version: '0.1.0'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-dns', version: '0.1.0'
+    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-serviceusage', version: '0.1.0'
+    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-storage', version: '0.1.0'
 
     // Versioned direct deps
     implementation group: 'com.google.auto.value', name: 'auto-value-annotations', version: '1.7.3'
