@@ -1,16 +1,20 @@
 package bio.terra.rbs.service.resource.flight;
 
 import static bio.terra.rbs.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
+import static bio.terra.rbs.service.resource.FlightMapKeys.RESOURCE_CONFIG;
 import static bio.terra.rbs.service.resource.flight.GoogleUtils.*;
 import static bio.terra.rbs.service.resource.flight.StepUtils.isResourceReady;
 
 import bio.terra.cloudres.google.api.services.common.OperationCow;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.rbs.generated.model.GcpProjectConfig;
+import bio.terra.rbs.generated.model.ResourceConfig;
 import bio.terra.stairway.*;
 import bio.terra.stairway.exception.RetryException;
 import com.google.api.services.cloudresourcemanager.model.Project;
 import com.google.api.services.cloudresourcemanager.model.ResourceId;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Optional;
@@ -19,6 +23,10 @@ import org.slf4j.LoggerFactory;
 
 /** Creates the basic GCP project. */
 public class CreateProjectStep implements Step {
+  @VisibleForTesting public static final String NETWORK_LABEL_KEY = "vpc-network-name";
+  @VisibleForTesting public static final String SUB_NETWORK_LABEL_KEY = "vpc-subnetwork-name";
+  @VisibleForTesting public static final String CONFIG_NAME_LABEL_LEY = "rbs-config-name";
+
   private final Logger logger = LoggerFactory.getLogger(CreateProjectStep.class);
   private final CloudResourceManagerCow rmCow;
   private final GcpProjectConfig gcpProjectConfig;
@@ -39,6 +47,18 @@ public class CreateProjectStep implements Step {
       Project project =
           new Project()
               .setProjectId(projectId)
+              .setLabels(
+                  ImmutableMap.of(
+                      NETWORK_LABEL_KEY,
+                      createValidLabelValue(NETWORK_NAME),
+                      SUB_NETWORK_LABEL_KEY,
+                      createValidLabelValue(SUBNETWORK_NAME),
+                      CONFIG_NAME_LABEL_LEY,
+                      createValidLabelValue(
+                          flightContext
+                              .getInputParameters()
+                              .get(RESOURCE_CONFIG, ResourceConfig.class)
+                              .getConfigName())))
               .setParent(
                   new ResourceId().setType("folder").setId(gcpProjectConfig.getParentFolderId()));
       OperationCow<?> operation =
@@ -76,5 +96,17 @@ public class CreateProjectStep implements Step {
       return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY, e);
     }
     return StepResult.getStepResultSuccess();
+  }
+
+  /**
+   * Creates a valid GCP label value to meet the requirement. See <a
+   * href='https://cloud.google.com/deployment-manager/docs/creating-managing-labels#requirements'>Requirements
+   * for labels</a>
+   */
+  @VisibleForTesting
+  public static String createValidLabelValue(String originalName) {
+    String regex = "[^a-z0-9-_]+";
+    String value = originalName.toLowerCase().replaceAll(regex, "--");
+    return value.length() > 64 ? value.substring(0, 63) : value;
   }
 }

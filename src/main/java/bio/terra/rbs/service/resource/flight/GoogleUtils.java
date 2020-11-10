@@ -21,6 +21,9 @@ public class GoogleUtils {
   @VisibleForTesting
   public static final String MANAGED_ZONE_NAME = "private-google-access-dns-zone";
 
+  /** All project will use the same sub network name. */
+  @VisibleForTesting public static final String SUBNETWORK_NAME = "subnetwork";
+
   /**
    * Poll until the Google Service API operation has completed. Throws any error or timeouts as a
    * {@link RetryException}.

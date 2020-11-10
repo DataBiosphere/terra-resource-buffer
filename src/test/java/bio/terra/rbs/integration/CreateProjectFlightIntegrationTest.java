@@ -4,6 +4,7 @@ import static bio.terra.rbs.integration.IntegrationUtils.*;
 import static bio.terra.rbs.service.resource.FlightMapKeys.RESOURCE_CONFIG;
 import static bio.terra.rbs.service.resource.flight.CreateDnsZoneStep.MANAGED_ZONE_TEMPLATE;
 import static bio.terra.rbs.service.resource.flight.CreateFirewallRuleStep.*;
+import static bio.terra.rbs.service.resource.flight.CreateProjectStep.*;
 import static bio.terra.rbs.service.resource.flight.CreateResourceRecordSetStep.A_RECORD;
 import static bio.terra.rbs.service.resource.flight.CreateResourceRecordSetStep.CNAME_RECORD;
 import static bio.terra.rbs.service.resource.flight.CreateRouteStep.*;
@@ -44,6 +45,7 @@ import com.google.api.services.serviceusage.v1.model.GoogleApiServiceusageV1Serv
 import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.StorageOptions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -188,6 +190,29 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
         FlightStatus.ERROR, stairwayComponent.get().getFlightState(flightId).getFlightStatus());
   }
 
+  @Test
+  public void testCreateValidLabel() {
+    assertEquals("test-config-name", createValidLabelValue("TEST-CONFIG-NAME"));
+    assertEquals("test--config--name--", createValidLabelValue("test@@Config@@Name@@"));
+    assertEquals(
+        "1234567890"
+            + "1234567890"
+            + "1234567890"
+            + "1234567890"
+            + "1234567890"
+            + "1234567890"
+            + "123",
+        createValidLabelValue(
+            "1234567890"
+                + "1234567890"
+                + "1234567890"
+                + "1234567890"
+                + "1234567890"
+                + "1234567890"
+                + "1234567890"
+                + "1234567890"));
+  }
+
   /** A {@link Flight} that will fail to create Google Project. */
   public static class ErrorCreateProjectFlight extends Flight {
     public ErrorCreateProjectFlight(FlightMap inputParameters, Object applicationContext) {
@@ -257,6 +282,15 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
             .get(resource.cloudResourceUid().getGoogleProjectUid().getProjectId())
             .execute();
     assertEquals("ACTIVE", project.getLifecycleState());
+    assertEquals(
+        ImmutableMap.of(
+            NETWORK_LABEL_KEY,
+            NETWORK_NAME,
+            SUB_NETWORK_LABEL_KEY,
+            SUBNETWORK_NAME,
+            CONFIG_NAME_LABEL_LEY,
+            TEST_CONFIG_NAME),
+        project.getLabels());
     return project;
   }
 

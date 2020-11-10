@@ -29,6 +29,8 @@ public class IntegrationUtils {
   /** The billing account to use in test. */
   public static final String BILLING_ACCOUNT_NAME = "01A82E-CA8A14-367457";
 
+  public static final String TEST_CONFIG_NAME = "test_config_v1";
+
   private static final Duration PERIOD = Duration.ofSeconds(4);
   private static final int MAX_POLL_NUM = 100;
 
@@ -88,7 +90,9 @@ public class IntegrationUtils {
             .resourceType(ResourceType.GOOGLE_PROJECT)
             .size(1)
             .resourceConfig(
-                new ResourceConfig().configName("configName").gcpProjectConfig(gcpProjectConfig))
+                new ResourceConfig()
+                    .configName(TEST_CONFIG_NAME)
+                    .gcpProjectConfig(gcpProjectConfig))
             .status(PoolStatus.ACTIVE)
             .creation(Instant.now())
             .build();
