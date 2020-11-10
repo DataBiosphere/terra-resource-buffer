@@ -48,17 +48,17 @@ public class CreateProjectStep implements Step {
           new Project()
               .setProjectId(projectId)
               .setLabels(
-                  ImmutableMap.of(
-                      NETWORK_LABEL_KEY,
-                      createValidLabelValue(NETWORK_NAME),
-                      SUB_NETWORK_LABEL_KEY,
-                      createValidLabelValue(SUBNETWORK_NAME),
-                      CONFIG_NAME_LABEL_LEY,
-                      createValidLabelValue(
-                          flightContext
-                              .getInputParameters()
-                              .get(RESOURCE_CONFIG, ResourceConfig.class)
-                              .getConfigName())))
+                  new ImmutableMap.Builder<String, String>()
+                      .put(NETWORK_LABEL_KEY, createValidLabelValue(NETWORK_NAME))
+                      .put(SUB_NETWORK_LABEL_KEY, createValidLabelValue(SUBNETWORK_NAME))
+                      .put(
+                          CONFIG_NAME_LABEL_LEY,
+                          createValidLabelValue(
+                              flightContext
+                                  .getInputParameters()
+                                  .get(RESOURCE_CONFIG, ResourceConfig.class)
+                                  .getConfigName()))
+                      .build())
               .setParent(
                   new ResourceId().setType("folder").setId(gcpProjectConfig.getParentFolderId()));
       OperationCow<?> operation =
