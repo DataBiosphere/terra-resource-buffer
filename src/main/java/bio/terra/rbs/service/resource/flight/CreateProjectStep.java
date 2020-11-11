@@ -17,6 +17,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Map;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,18 +48,7 @@ public class CreateProjectStep implements Step {
       Project project =
           new Project()
               .setProjectId(projectId)
-              .setLabels(
-                  new ImmutableMap.Builder<String, String>()
-                      .put(NETWORK_LABEL_KEY, createValidLabelValue(NETWORK_NAME))
-                      .put(SUB_NETWORK_LABEL_KEY, createValidLabelValue(SUBNETWORK_NAME))
-                      .put(
-                          CONFIG_NAME_LABEL_LEY,
-                          createValidLabelValue(
-                              flightContext
-                                  .getInputParameters()
-                                  .get(RESOURCE_CONFIG, ResourceConfig.class)
-                                  .getConfigName()))
-                      .build())
+              .setLabels(createLabelMap(flightContext))
               .setParent(
                   new ResourceId().setType("folder").setId(gcpProjectConfig.getParentFolderId()));
       OperationCow<?> operation =
@@ -96,6 +86,24 @@ public class CreateProjectStep implements Step {
       return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY, e);
     }
     return StepResult.getStepResultSuccess();
+  }
+
+  /**
+   * Creates labels for the a GCP projects including network name, sub network name, and the RBS
+   * resource config name it uses.
+   */
+  private static Map<String, String> createLabelMap(FlightContext flightContext) {
+    return new ImmutableMap.Builder<String, String>()
+        .put(NETWORK_LABEL_KEY, createValidLabelValue(NETWORK_NAME))
+        .put(SUB_NETWORK_LABEL_KEY, createValidLabelValue(SUBNETWORK_NAME))
+        .put(
+            CONFIG_NAME_LABEL_LEY,
+            createValidLabelValue(
+                flightContext
+                    .getInputParameters()
+                    .get(RESOURCE_CONFIG, ResourceConfig.class)
+                    .getConfigName()))
+        .build();
   }
 
   /**
