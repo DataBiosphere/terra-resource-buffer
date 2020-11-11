@@ -43,7 +43,6 @@ import org.slf4j.LoggerFactory;
  * subnetworks in existing Terra workspaces.
  */
 public class CreateSubnetsStep implements Step {
-  @VisibleForTesting public static final String SUBNETWORK_NAME = "subnetwork";
   /**
    * All current Google Compute Engine regions with the default Ip ranges listed (and manually
    * copied) in: https://cloud.google.com/vpc/docs/vpc#ip-ranges.
