@@ -20,9 +20,6 @@ import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.storage.StorageOptions;
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.time.Duration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -30,12 +27,16 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.time.Duration;
+
 /** Configuration to use Terra Cloud Resource Libraty */
 @Component
 @EnableConfigurationProperties
 @EnableTransactionManagement
 @ConfigurationProperties(prefix = "rbs.crl")
-public class CrlConfiguration {
+public class CleanConfiguration {
   /** The client name required by CRL. */
   public static final String CLIENT_NAME = "terra-rbs";
   /** How long to keep the resource before Janitor do the cleanup. */
@@ -58,7 +59,6 @@ public class CrlConfiguration {
 
   /** pubsub topic id to publish track resource to Janitor */
   private String janitorTrackResourceTopicId;
-
 
   public boolean isCleanupAfterHandout() {
     return cleanupAfterHandout;
