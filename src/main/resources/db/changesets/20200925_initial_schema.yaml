@@ -106,3 +106,15 @@ databaseChangeLog:
                 constraints:
                   nullable: true
                   unique: false
+      - createTable:
+          tableName: cleanup_record
+          columns:
+            - column:
+                name: resource_id
+                type: uuid
+                constraints:
+                  primaryKey: true
+                  references: resource(id)
+                  foreignKeyName: fk_resource_id
+                  unique: false
+                  nullable: false
