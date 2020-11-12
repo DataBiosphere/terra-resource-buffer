@@ -4,6 +4,7 @@ import bio.terra.rbs.app.configuration.RbsJdbcConfiguration;
 import bio.terra.rbs.service.migrate.MigrateService;
 import bio.terra.rbs.service.pool.PoolService;
 import bio.terra.rbs.service.resource.FlightScheduler;
+import bio.terra.rbs.service.cleanup.CleanupScheduler;
 import bio.terra.rbs.service.stairway.StairwayComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,5 +32,6 @@ public final class StartupInitializer {
     applicationContext.getBean(StairwayComponent.class).initialize();
     applicationContext.getBean(PoolService.class).initialize();
     applicationContext.getBean(FlightScheduler.class).initialize();
+    applicationContext.getBean(CleanupScheduler.class).initialize();
   }
 }

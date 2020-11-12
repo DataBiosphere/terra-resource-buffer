@@ -70,7 +70,7 @@ dependencies {
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-serviceusage', version: '0.1.0'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-dns', version: '0.1.0'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-storage', version: '0.1.0'
-    implementation group: 'bio.terra.janitor', name: 'terra-resource-janitor-client', version: '0.0.1-SNAPSHOT'
+    implementation group: 'bio.terra.janitor', name: 'terra-resource-janitor-client', version: '0.0.2-SNAPSHOT'
 
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'

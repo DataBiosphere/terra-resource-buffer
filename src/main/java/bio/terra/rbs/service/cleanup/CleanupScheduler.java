@@ -30,6 +30,9 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import static bio.terra.rbs.app.configuration.CrlConfiguration.CLIENT_NAME;
+import static bio.terra.rbs.app.configuration.CrlConfiguration.TEST_RESOURCE_TIME_TO_LIVE;
+
 /** Scheduler service to publish message to Janitor to cleanup resource. */
 public class CleanupScheduler {
     private final Logger logger = LoggerFactory.getLogger(CleanupScheduler.class);
@@ -51,6 +54,13 @@ public class CleanupScheduler {
      * Initialize the CleanupScheduler, kicking off its tasks.
      */
     public void initialize() {
+        if (crlConfiguration.isCleanupAfterHandout()) {
+            logger.info("Rbs cleanup scheduling enabled.");
+        } else {
+            // Do nothing if scheduling is disabled.
+            logger.info("Rbs cleanup scheduling disabled.");
+            return;
+        }
         TopicName topicName =
                 TopicName.of(crlConfiguration.getJanitorTrackResourceProjectId(), crlConfiguration.getJanitorTrackResourceTopicId());
 
@@ -86,16 +96,16 @@ public class CleanupScheduler {
     }
 
     private void publish(CloudResourceUid resource) {
-        CreateResourceRequestBody body =
-                new CreateResourceRequestBody()
-                        .resourceUid(resource)
-                        .creation(Instant.now().atOffset(ZoneOffset.UTC))
-                        .expiration(now.plus(cleanupConfig.timeToLive()))
-                        .putLabelsItem("client", clientConfig.getClientName())
-                        .putLabelsItem("cleanupId", cleanupConfig.cleanupId());
-
         ByteString data;
         try {
+            CreateResourceRequestBody body =
+                    new CreateResourceRequestBody()
+                            .resourceUid(
+                                    objectMapper.readValue(objectMapper.writeValueAsString(resource),
+                                            bio.terra.janitor.model.CloudResourceUid.class))
+                            .creation(Instant.now().atOffset(ZoneOffset.UTC))
+                            .expiration(Instant.now().plus(TEST_RESOURCE_TIME_TO_LIVE).atOffset(ZoneOffset.UTC))
+                            .putLabelsItem("client", CLIENT_NAME);
             data = ByteString.copyFromUtf8(objectMapper.writeValueAsString(body));
         } catch (IOException e) {
             throw new RuntimeException(

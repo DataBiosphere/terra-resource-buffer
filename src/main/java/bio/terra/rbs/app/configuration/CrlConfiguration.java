@@ -30,7 +30,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-/** Configuration to use Terra Cloud Resource Libraty */
+/** Configuration to use Terra Cloud Resource Library */
 @Component
 @EnableConfigurationProperties
 @EnableTransactionManagement
@@ -58,7 +58,6 @@ public class CrlConfiguration {
 
   /** pubsub topic id to publish track resource to Janitor */
   private String janitorTrackResourceTopicId;
-
 
   public boolean isCleanupAfterHandout() {
     return cleanupAfterHandout;
