@@ -70,9 +70,7 @@ public class CleanupSchedulerTest extends BaseUnitTest {
   @AfterEach
   public void tearDown() {
     // Shutdown the FlightScheduler so that it isn't running during other tests.
-    if (cleanupScheduler != null) {
-      cleanupScheduler.shutdown();
-    }
+    cleanupScheduler.shutdown();
   }
 
   private static Resource newResource(PoolId poolId, ResourceState state) {
@@ -96,19 +94,19 @@ public class CleanupSchedulerTest extends BaseUnitTest {
             .status(PoolStatus.ACTIVE)
             .build();
 
-    CloudResourceUid cloudResourceUid1 =
+    CloudResourceUid cloudResourceUid =
         new CloudResourceUid().googleProjectUid(new GoogleProjectUid().projectId("p1"));
-    CloudResourceUid cloudResourceUid2 =
-        new CloudResourceUid().googleProjectUid(new GoogleProjectUid().projectId("p2"));
-    Resource handedOutR1 = newResource(pool.id(), ResourceState.READY);
-    Resource handedOutR2 = newResource(pool.id(), ResourceState.READY);
+    Resource resource =
+        Resource.builder()
+            .id(ResourceId.create(UUID.randomUUID()))
+            .poolId(pool.id())
+            .creation(Instant.now())
+            .state(ResourceState.CREATING)
+            .build();
     rbsDao.createPools(ImmutableList.of(pool));
-    rbsDao.createResource(handedOutR1);
-    rbsDao.createResource(handedOutR2);
-    rbsDao.updateResourceAsReady(handedOutR1.id(), cloudResourceUid1);
-    rbsDao.updateResourceAsReady(handedOutR2.id(), cloudResourceUid2);
-    rbsDao.updateResourceAsHandedOut(handedOutR1.id(), RequestHandoutId.create("1111"));
-    rbsDao.updateResourceAsHandedOut(handedOutR2.id(), RequestHandoutId.create("2222"));
+    rbsDao.createResource(resource);
+    rbsDao.updateResourceAsReady(resource.id(), cloudResourceUid);
+    rbsDao.updateResourceAsHandedOut(resource.id(), RequestHandoutId.create("1111"));
 
     CreateResourceRequestBody MESSAGE_BODY =
         new CreateResourceRequestBody()
@@ -117,8 +115,9 @@ public class CleanupSchedulerTest extends BaseUnitTest {
             .putLabelsItem("client", CLIENT_NAME);
 
     cleanupScheduler.initialize();
+    Thread.sleep(1000);
 
-    verify(mockPublisher, times(2)).publish(messageArgumentCaptor.capture());
+    verify(mockPublisher).publish(messageArgumentCaptor.capture());
 
     assertThat(
         messageArgumentCaptor.getAllValues().stream()
@@ -129,11 +128,6 @@ public class CleanupSchedulerTest extends BaseUnitTest {
                 MESSAGE_BODY.resourceUid(
                     new bio.terra.janitor.model.CloudResourceUid()
                         .googleProjectUid(
-                            new bio.terra.janitor.model.GoogleProjectUid().projectId("p1")))),
-            objectMapper.writeValueAsString(
-                MESSAGE_BODY.resourceUid(
-                    new bio.terra.janitor.model.CloudResourceUid()
-                        .googleProjectUid(
-                            new bio.terra.janitor.model.GoogleProjectUid().projectId("p2"))))));
+                            new bio.terra.janitor.model.GoogleProjectUid().projectId("p1"))))));
   }
 }

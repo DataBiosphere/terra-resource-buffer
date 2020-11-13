@@ -36,6 +36,9 @@ import org.springframework.stereotype.Component;
 /** Scheduler service to publish message to Janitor to cleanup resource. */
 @Component
 public class CleanupScheduler {
+  // Number of message to publish per scheduler run.
+  private static final Integer MESSAGE_TO_PUBLISH_PER_RUN = 100;
+
   private final Logger logger = LoggerFactory.getLogger(CleanupScheduler.class);
 
   /** Only need as many threads as we have scheduled tasks. */
@@ -70,7 +73,6 @@ public class CleanupScheduler {
       logger.info("Rbs cleanup scheduling disabled.");
       return;
     }
-
     if (publisher == null) {
       TopicName topicName =
           TopicName.of(
@@ -102,9 +104,10 @@ public class CleanupScheduler {
   }
 
   public void scheduleCleanup() {
-    List<Resource> resources = rbsDao.retrieveResourceToCleanup(10);
+    List<Resource> resources = rbsDao.retrieveResourceToCleanup(MESSAGE_TO_PUBLISH_PER_RUN);
     for (Resource resource : resources) {
       publish(resource.cloudResourceUid());
+      rbsDao.insertCleanupRecord(resource.id());
     }
   }
 
@@ -128,7 +131,6 @@ public class CleanupScheduler {
               cloudResourceUid),
           e);
     }
-
     ApiFuture<String> messageIdFuture =
         publisher.publish(PubsubMessage.newBuilder().setData(data).build());
     try {
