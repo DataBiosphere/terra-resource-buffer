@@ -295,7 +295,11 @@ public class RbsDao {
     return jdbcTemplate.update(sql, params) == 1;
   }
 
-  /** Inserts a record into cleanup_record table. */
+  /**
+   * Inserts a record into cleanup_record table. A record will be inserted into clean_up table after
+   * RBS publish this resource message to Janitor. This is only expected to be used in testing
+   * environment to make sure resources can be cleaned up after use.
+   */
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
   public void insertCleanupRecord(ResourceId resourceId) {
     String sql = "INSERT INTO cleanup_record (resource_id) values (:resource_id)";
@@ -310,26 +314,23 @@ public class RbsDao {
    *
    * <ul>
    *   <li>State is HANDED_OUT in resource table
-   *   <li>Handed out before given {@code handedOutBefore}
    *   <li>Not already in cleanup_record table
    * </ul>
    */
   @Transactional(propagation = Propagation.SUPPORTS)
-  public List<Resource> retrieveResourceToCleanup(Instant handedOutBefore, int limit) {
+  public List<Resource> retrieveResourceToCleanup(int limit) {
     String sql =
         "select r.id, r.cloud_resource_uid, r.pool_id, r.state, r.request_handout_id, "
             + "r.creation, r.deletion, r.handout_time "
             + "FROM resource r "
             + "LEFT JOIN cleanup_record c ON r.id = c.resource_id "
             + "WHERE r.state = :state "
-            + "AND handout_time <= :handout_before "
             + "AND c.resource_id IS NULL "
             + "LIMIT :limit";
 
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("state", ResourceState.HANDED_OUT.toString())
-            .addValue("handout_before", handedOutBefore.atOffset(ZoneOffset.UTC))
             .addValue("limit", limit);
 
     return jdbcTemplate.query(sql, params, RESOURCE_ROW_MAPPER);

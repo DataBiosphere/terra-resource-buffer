@@ -107,6 +107,7 @@ databaseChangeLog:
                   nullable: true
                   unique: false
       - createTable:
+          # This will be only used in testing environment to track resources that are published to Janitor after handed out.
           tableName: cleanup_record
           columns:
             - column:
