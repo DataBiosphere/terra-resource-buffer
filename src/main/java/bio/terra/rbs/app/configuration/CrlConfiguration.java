@@ -39,7 +39,7 @@ public class CrlConfiguration {
   /** The client name required by CRL. */
   public static final String CLIENT_NAME = "terra-rbs";
   /** How long to keep the resource before Janitor do the cleanup. */
-  public static final Duration TEST_RESOURCE_TIME_TO_LIVE = Duration.ofMinutes(30);
+  public static final Duration TEST_RESOURCE_TIME_TO_LIVE = Duration.ofMinutes(60);
 
   /**
    * Whether we're running RBS in test mode with Cloud Resource Library. If so, we enable to the
@@ -47,7 +47,11 @@ public class CrlConfiguration {
    */
   private boolean testingMode = false;
 
-  /** Whether to publish message to Janitor to cleanup resource after it is handed out. */
+  /**
+   * Whether to publish message to Janitor to cleanup resource after it is handed out. It is true
+   * only when the RBS is used to buffer resources for RBS clients' test. For multiple instance
+   * RBS(not likely for testing RBS), only turn it on for primary RBS.
+   */
   private boolean cleanupAfterHandout = false;
 
   /** Credential file path to be able to publish message to Janitor */
@@ -61,10 +65,6 @@ public class CrlConfiguration {
 
   public boolean isCleanupAfterHandout() {
     return cleanupAfterHandout;
-  }
-
-  public String getJanitorClientCredentialFilePath() {
-    return janitorClientCredentialFilePath;
   }
 
   public String getJanitorTrackResourceProjectId() {

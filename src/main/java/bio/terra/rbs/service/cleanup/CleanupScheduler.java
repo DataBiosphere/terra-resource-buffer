@@ -22,6 +22,7 @@ import com.google.pubsub.v1.TopicName;
 import java.io.IOException;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -114,14 +115,16 @@ public class CleanupScheduler {
   private void publish(CloudResourceUid cloudResourceUid) {
     ByteString data;
     try {
+      OffsetDateTime now = OffsetDateTime.now(clock);
       CreateResourceRequestBody body =
           new CreateResourceRequestBody()
               .resourceUid(
                   objectMapper.readValue(
                       objectMapper.writeValueAsString(cloudResourceUid),
                       bio.terra.janitor.model.CloudResourceUid.class))
-              .creation(Instant.now().atOffset(ZoneOffset.UTC))
+              .creation(now)
               .expiration(Instant.now().plus(TEST_RESOURCE_TIME_TO_LIVE).atOffset(ZoneOffset.UTC))
+              .expiration(now.plus(TEST_RESOURCE_TIME_TO_LIVE))
               .putLabelsItem("client", CLIENT_NAME);
       data = ByteString.copyFromUtf8(objectMapper.writeValueAsString(body));
     } catch (IOException e) {

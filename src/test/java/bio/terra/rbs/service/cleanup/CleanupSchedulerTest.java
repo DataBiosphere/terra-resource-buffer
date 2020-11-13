@@ -3,6 +3,8 @@ package bio.terra.rbs.service.cleanup;
 import static bio.terra.rbs.app.configuration.CrlConfiguration.CLIENT_NAME;
 import static bio.terra.rbs.app.configuration.CrlConfiguration.TEST_RESOURCE_TIME_TO_LIVE;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 import bio.terra.janitor.model.CreateResourceRequestBody;
@@ -16,6 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.google.api.core.ApiFuture;
 import com.google.cloud.pubsub.v1.Publisher;
 import com.google.common.collect.ImmutableList;
 import com.google.pubsub.v1.PubsubMessage;
@@ -41,6 +44,7 @@ public class CleanupSchedulerTest extends BaseUnitTest {
       "rendered/janitor-client-sa-account.json";
 
   @Mock private final Publisher mockPublisher = mock(Publisher.class);
+  @Mock ApiFuture<String> mockMessageIdFuture = mock(ApiFuture.class);
 
   private final ArgumentCaptor<PubsubMessage> messageArgumentCaptor =
       ArgumentCaptor.forClass(PubsubMessage.class);
@@ -56,30 +60,22 @@ public class CleanupSchedulerTest extends BaseUnitTest {
           .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 
   @BeforeEach
-  public void setUp() {
+  public void setUp() throws Exception {
     crlConfiguration.setCleanupAfterHandout(true);
     crlConfiguration.setJanitorClientCredentialFilePath(GOOGLE_SERVICE_ACCOUNT_ADMIN_PATH);
     crlConfiguration.setJanitorTrackResourceProjectId("projectId");
     crlConfiguration.setJanitorTrackResourceTopicId("topicId");
     cleanupScheduler =
-        new CleanupScheduler(
-            rbsDao, crlConfiguration, Clock.fixed(CREATION, ZoneId.systemDefault()));
+        new CleanupScheduler(rbsDao, crlConfiguration, Clock.fixed(CREATION, ZoneId.of("UTC")));
     cleanupScheduler.providePublisher(mockPublisher);
+    when(mockPublisher.publish(any())).thenReturn(mockMessageIdFuture);
+    when(mockMessageIdFuture.get()).thenReturn("message");
   }
 
   @AfterEach
   public void tearDown() {
     // Shutdown the FlightScheduler so that it isn't running during other tests.
     cleanupScheduler.shutdown();
-  }
-
-  private static Resource newResource(PoolId poolId, ResourceState state) {
-    return Resource.builder()
-        .id(ResourceId.create(UUID.randomUUID()))
-        .poolId(poolId)
-        .creation(Instant.now())
-        .state(state)
-        .build();
   }
 
   @Test
@@ -107,12 +103,7 @@ public class CleanupSchedulerTest extends BaseUnitTest {
     rbsDao.createResource(resource);
     rbsDao.updateResourceAsReady(resource.id(), cloudResourceUid);
     rbsDao.updateResourceAsHandedOut(resource.id(), RequestHandoutId.create("1111"));
-
-    CreateResourceRequestBody MESSAGE_BODY =
-        new CreateResourceRequestBody()
-            .creation(CREATION.atOffset(ZoneOffset.UTC))
-            .expiration(CREATION.plus(TEST_RESOURCE_TIME_TO_LIVE).atOffset(ZoneOffset.UTC))
-            .putLabelsItem("client", CLIENT_NAME);
+    assertFalse(rbsDao.retrieveResourceToCleanup(10).isEmpty());
 
     cleanupScheduler.initialize();
     Thread.sleep(1000);
@@ -125,9 +116,14 @@ public class CleanupSchedulerTest extends BaseUnitTest {
             .collect(Collectors.toList()),
         Matchers.containsInAnyOrder(
             objectMapper.writeValueAsString(
-                MESSAGE_BODY.resourceUid(
-                    new bio.terra.janitor.model.CloudResourceUid()
-                        .googleProjectUid(
-                            new bio.terra.janitor.model.GoogleProjectUid().projectId("p1"))))));
+                new CreateResourceRequestBody()
+                    .creation(CREATION.atOffset(ZoneOffset.UTC))
+                    .expiration(CREATION.plus(TEST_RESOURCE_TIME_TO_LIVE).atOffset(ZoneOffset.UTC))
+                    .putLabelsItem("client", CLIENT_NAME)
+                    .resourceUid(
+                        new bio.terra.janitor.model.CloudResourceUid()
+                            .googleProjectUid(
+                                new bio.terra.janitor.model.GoogleProjectUid().projectId("p1"))))));
+    assertTrue(rbsDao.retrieveResourceToCleanup(10).isEmpty());
   }
 }
