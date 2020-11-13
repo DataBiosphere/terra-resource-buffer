@@ -1,35 +1,11 @@
 package bio.terra.rbs.app.configuration;
 
-import bio.terra.cloudres.common.ClientConfig;
-import bio.terra.cloudres.common.cleanup.CleanupConfig;
-import bio.terra.cloudres.google.api.services.common.Defaults;
-import bio.terra.cloudres.google.billing.CloudBillingClientCow;
-import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
-import bio.terra.cloudres.google.compute.CloudComputeCow;
-import bio.terra.cloudres.google.dns.DnsCow;
-import bio.terra.cloudres.google.serviceusage.ServiceUsageCow;
-import bio.terra.cloudres.google.storage.StorageCow;
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.http.HttpRequestInitializer;
-import com.google.api.services.cloudresourcemanager.CloudResourceManager;
-import com.google.api.services.cloudresourcemanager.CloudResourceManagerScopes;
-import com.google.api.services.compute.Compute;
-import com.google.api.services.compute.ComputeScopes;
-import com.google.api.services.dns.Dns;
-import com.google.auth.http.HttpCredentialsAdapter;
-import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
-import com.google.cloud.storage.StorageOptions;
+import java.time.Duration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.time.Duration;
 
 /** Configuration to use Terra Cloud Resource Libraty */
 @Component
@@ -88,10 +64,14 @@ public class CleanupConfiguration {
   public ServiceAccountCredentials getJanitorClientCredential() {
     try {
       return ServiceAccountCredentials.fromStream(
-              Thread.currentThread().getContextClassLoader().getResourceAsStream(janitorClientCredentialFilePath));
+          Thread.currentThread()
+              .getContextClassLoader()
+              .getResourceAsStream(janitorClientCredentialFilePath));
     } catch (Exception e) {
       throw new RuntimeException(
-              "Unable to load Janitor GoogleCredentials from configuration" + janitorClientCredentialFilePath, e);
+          "Unable to load Janitor GoogleCredentials from configuration"
+              + janitorClientCredentialFilePath,
+          e);
     }
   }
 }

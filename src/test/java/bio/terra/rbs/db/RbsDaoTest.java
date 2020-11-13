@@ -243,10 +243,7 @@ public class RbsDaoTest extends BaseUnitTest {
     // handedOutR1 is already in cleanup_record table, expect only handedOutR2 is returned.
     rbsDao.insertCleanupRecord(handedOutR1.id());
     assertThat(
-        rbsDao.retrieveResourceToCleanup(Instant.now(), 1),
+        rbsDao.retrieveResourceToCleanup(1),
         Matchers.contains(rbsDao.retrieveResource(handedOutR2.id()).get()));
-
-    // No resource will be returned if handout_time is after handedOutBefore time.
-    assertTrue(rbsDao.retrieveResourceToCleanup(Instant.now().minusSeconds(60), 1).isEmpty());
   }
 }

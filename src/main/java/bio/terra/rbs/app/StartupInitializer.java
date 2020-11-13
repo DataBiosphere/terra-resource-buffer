@@ -1,10 +1,10 @@
 package bio.terra.rbs.app;
 
 import bio.terra.rbs.app.configuration.RbsJdbcConfiguration;
+import bio.terra.rbs.service.cleanup.CleanupScheduler;
 import bio.terra.rbs.service.migrate.MigrateService;
 import bio.terra.rbs.service.pool.PoolService;
 import bio.terra.rbs.service.resource.FlightScheduler;
-import bio.terra.rbs.service.cleanup.CleanupScheduler;
 import bio.terra.rbs.service.stairway.StairwayComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

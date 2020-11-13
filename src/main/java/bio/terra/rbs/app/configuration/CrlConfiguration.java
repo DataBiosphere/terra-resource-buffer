@@ -190,10 +190,14 @@ public class CrlConfiguration {
   public ServiceAccountCredentials getJanitorClientCredential() {
     try {
       return ServiceAccountCredentials.fromStream(
-              Thread.currentThread().getContextClassLoader().getResourceAsStream(janitorClientCredentialFilePath));
+          Thread.currentThread()
+              .getContextClassLoader()
+              .getResourceAsStream(janitorClientCredentialFilePath));
     } catch (Exception e) {
       throw new RuntimeException(
-              "Unable to load Janitor GoogleCredentials from configuration" + janitorClientCredentialFilePath, e);
+          "Unable to load Janitor GoogleCredentials from configuration"
+              + janitorClientCredentialFilePath,
+          e);
     }
   }
 
