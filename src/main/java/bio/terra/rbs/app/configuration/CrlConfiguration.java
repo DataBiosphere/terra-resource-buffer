@@ -30,7 +30,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-/** Configuration to use Terra Cloud Resource Library */
+/** Configuration to use Terra Cloud Resource Library and Janitor to manage CRL created resources. */
 @Component
 @EnableConfigurationProperties
 @EnableTransactionManagement
