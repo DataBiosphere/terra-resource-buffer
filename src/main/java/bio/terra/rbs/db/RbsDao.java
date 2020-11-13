@@ -295,7 +295,11 @@ public class RbsDao {
     return jdbcTemplate.update(sql, params) == 1;
   }
 
-  /** Inserts a record into cleanup_record table. */
+  /**
+   * Inserts a record into cleanup_record table. A record will be inserted into clean_up table after
+   * RBS publish this resource message to Janitor. This is only expected to be used in testing
+   * environment to make sure resources can be cleaned up after use.
+   */
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
   public void insertCleanupRecord(ResourceId resourceId) {
     String sql = "INSERT INTO cleanup_record (resource_id) values (:resource_id)";
