@@ -117,5 +117,5 @@ databaseChangeLog:
                   primaryKey: true
                   references: resource(id)
                   foreignKeyName: fk_resource_id
-                  unique: false
+                  unique: true
                   nullable: false
