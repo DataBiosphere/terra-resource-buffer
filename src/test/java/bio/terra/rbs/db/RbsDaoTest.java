@@ -225,4 +225,25 @@ public class RbsDaoTest extends BaseUnitTest {
     assertEquals(now, resource.deletion());
     assertEquals(ResourceState.DELETED, resource.state());
   }
+
+  @Test
+  public void insertAndRetrieveCleanupRecord() {
+    // Prepare 2 HANDED_OUT and 1 READY resources.
+    Pool pool = newPool(PoolId.create("poolId"));
+    Resource handedOutR1 = newResource(pool.id(), ResourceState.READY);
+    Resource handedOutR2 = newResource(pool.id(), ResourceState.READY);
+    Resource readyR1 = newResource(pool.id(), ResourceState.READY);
+    rbsDao.createPools(ImmutableList.of(pool));
+    rbsDao.createResource(handedOutR1);
+    rbsDao.createResource(handedOutR2);
+    rbsDao.createResource(readyR1);
+    rbsDao.updateResourceAsHandedOut(handedOutR1.id(), RequestHandoutId.create("1111"));
+    rbsDao.updateResourceAsHandedOut(handedOutR2.id(), RequestHandoutId.create("2222"));
+
+    // handedOutR1 is already in cleanup_record table, expect only handedOutR2 is returned.
+    rbsDao.insertCleanupRecord(handedOutR1.id());
+    assertThat(
+        rbsDao.retrieveResourceToCleanup(1),
+        Matchers.contains(rbsDao.retrieveResource(handedOutR2.id()).get()));
+  }
 }

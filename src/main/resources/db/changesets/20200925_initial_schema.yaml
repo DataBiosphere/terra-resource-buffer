@@ -106,3 +106,16 @@ databaseChangeLog:
                 constraints:
                   nullable: true
                   unique: false
+      - createTable:
+          # This will be only used in testing environment to track resources that are published to Janitor after handed out.
+          tableName: cleanup_record
+          columns:
+            - column:
+                name: resource_id
+                type: uuid
+                constraints:
+                  primaryKey: true
+                  references: resource(id)
+                  foreignKeyName: fk_resource_id
+                  unique: true
+                  nullable: false
