@@ -5,10 +5,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import bio.terra.rbs.app.configuration.RbsJdbcConfiguration;
 import bio.terra.rbs.common.*;
-import bio.terra.rbs.generated.model.CloudResourceUid;
-import bio.terra.rbs.generated.model.GcpProjectConfig;
-import bio.terra.rbs.generated.model.GoogleProjectUid;
-import bio.terra.rbs.generated.model.ResourceConfig;
+import bio.terra.rbs.common.PoolStatus;
+import bio.terra.rbs.generated.model.*;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
@@ -38,7 +36,9 @@ public class RbsDaoTest extends BaseUnitTest {
     ResourceConfig resourceConfig =
         new ResourceConfig()
             .configName("resourceName")
-            .gcpProjectConfig(new GcpProjectConfig().projectIDPrefix("test"));
+            .gcpProjectConfig(
+                new GcpProjectConfig()
+                    .projectIDGenerator(new ProjectIDGenerator().projectIDPrefix("test")));
 
     return Pool.builder()
         .creation(Instant.now())

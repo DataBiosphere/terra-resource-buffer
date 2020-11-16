@@ -2,7 +2,9 @@
 ---
 configName: "ws_resource_v1"
 gcpProjectConfig:
-  projectIDPrefix: "aou-rw-test"
+  projectIDName:
+    projectIDPrefix: "aou-rw-test"
+    projectIDScheme: "random_char"
   # RBS Testing
   parentFolderId: "637867149294"
   billingAccount: "01A82E-CA8A14-367457"

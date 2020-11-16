@@ -6,6 +6,7 @@ import bio.terra.rbs.common.*;
 import bio.terra.rbs.db.RbsDao;
 import bio.terra.rbs.generated.model.GcpProjectConfig;
 import bio.terra.rbs.generated.model.IamBinding;
+import bio.terra.rbs.generated.model.ProjectIDGenerator;
 import bio.terra.rbs.generated.model.ResourceConfig;
 import bio.terra.rbs.service.resource.FlightMapKeys;
 import bio.terra.rbs.service.resource.FlightSubmissionFactory;
@@ -105,7 +106,10 @@ public class IntegrationUtils {
   /** Create a Basic {@link ResourceConfig}. */
   public static GcpProjectConfig newBasicGcpConfig() {
     return new GcpProjectConfig()
-        .projectIDPrefix("prefix")
+        .projectIDGenerator(
+            new ProjectIDGenerator()
+                .projectIDPrefix("prefix")
+                .projectIDScheme(ProjectIDGenerator.ProjectIDSchemeEnum.RANDOM_CHAR))
         .parentFolderId(FOLDER_ID)
         .billingAccount(BILLING_ACCOUNT_NAME)
         .addEnabledApisItem("compute.googleapis.com")
