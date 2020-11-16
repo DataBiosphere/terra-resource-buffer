@@ -22,12 +22,4 @@ public class GcpProjectIDGeneratorTest extends BaseUnitTest {
     assertTrue(generatedID.startsWith("prefix-"));
     assertEquals(RANDOM_ID_SIZE, generatedID.substring("prefix-".length()).length());
   }
-
-  @Test
-  public void generateId_defaultSchema() {
-    ProjectIDGenerator generatorConfig = new ProjectIDGenerator().projectIDPrefix("prefix");
-    String generatedID = gcpProjectIDGenerator.generateID(generatorConfig);
-    assertTrue(generatedID.startsWith("prefix-"));
-    assertEquals(RANDOM_ID_SIZE, generatedID.substring("prefix-".length()).length());
-  }
 }

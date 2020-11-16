@@ -15,8 +15,7 @@ public class GcpProjectIDGenerator {
   /**
    * Generates project Id from prefix and scheme.
    *
-   * <p>The output will be prefix + naming scheme. For now, we only support RANDOM_CHAR scheme, and
-   * that is also the default scheme if not set in resource config.
+   * <p>The output will be prefix + naming scheme. For now, we only support RANDOM_CHAR scheme.
    */
   public String generateID(ProjectIDGenerator projectIDGenerator) {
     String generatedId = projectIDGenerator.getProjectIDPrefix();
