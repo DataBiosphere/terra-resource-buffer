@@ -31,8 +31,13 @@ public class GoogleUtils {
   public static void pollUntilSuccess(
       OperationCow<?> operation, Duration pollingInterval, Duration timeout)
       throws RetryException, IOException, InterruptedException {
+    System.out.println("~~~~~~~~~~Start polling~~~~~~~~......");
     operation = OperationUtils.pollUntilComplete(operation, pollingInterval, timeout);
+    System.out.println(operation.getOperation());
+    System.out.println(operation.getOperationAdapter().getName());
     if (operation.getOperationAdapter().getError() != null) {
+      System.out.println("~~~~~~~~` ERROR");
+      System.out.println(operation.getOperationAdapter().getError());
       throw new RetryException(
           String.format(
               "Error polling operation. name [%s] message [%s]",

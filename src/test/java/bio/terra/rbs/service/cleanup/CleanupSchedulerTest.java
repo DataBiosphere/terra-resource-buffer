@@ -21,9 +21,7 @@ import com.google.api.core.ApiFuture;
 import com.google.cloud.pubsub.v1.Publisher;
 import com.google.common.collect.ImmutableList;
 import com.google.pubsub.v1.PubsubMessage;
-import java.time.Clock;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -65,8 +63,7 @@ public class CleanupSchedulerTest extends BaseUnitTest {
     crlConfiguration.setJanitorClientCredentialFilePath("testPath");
     crlConfiguration.setJanitorTrackResourceProjectId("projectId");
     crlConfiguration.setJanitorTrackResourceTopicId("topicId");
-    cleanupScheduler =
-        new CleanupScheduler(rbsDao, crlConfiguration, Clock.fixed(CREATION, ZoneId.of("UTC")));
+    cleanupScheduler = new CleanupScheduler(rbsDao, crlConfiguration);
     cleanupScheduler.providePublisher(mockPublisher);
     when(mockPublisher.publish(any())).thenReturn(mockMessageIdFuture);
     when(mockMessageIdFuture.get()).thenReturn("message");

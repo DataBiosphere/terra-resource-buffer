@@ -45,6 +45,7 @@ public class CreateProjectStep implements Step {
       if (retrieveProject(rmCow, projectId).isPresent()) {
         return new StepResult(StepStatus.STEP_RESULT_FAILURE_FATAL);
       }
+      System.out.println("~~~~~~~~~~creating project......");
       Project project =
           new Project()
               .setProjectId(projectId)
@@ -53,7 +54,9 @@ public class CreateProjectStep implements Step {
                   new ResourceId().setType("folder").setId(gcpProjectConfig.getParentFolderId()));
       OperationCow<?> operation =
           rmCow.operations().operationCow(rmCow.projects().create(project).execute());
-      pollUntilSuccess(operation, Duration.ofSeconds(10), Duration.ofMinutes(5));
+      System.out.println("~~~~~~~~~~Middle of creating project......");
+      pollUntilSuccess(operation, Duration.ofSeconds(5), Duration.ofMinutes(5));
+      System.out.println("~~~~~~~~~~Done creating project......");
     } catch (IOException | InterruptedException e) {
       logger.info("Error when creating GCP project", e);
       return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY, e);

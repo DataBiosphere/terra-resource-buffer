@@ -47,16 +47,15 @@ public class CleanupScheduler {
 
   private final RbsDao rbsDao;
   private final CrlConfiguration crlConfiguration;
-  private final Clock clock;
 
+  private Clock clock;
   private ObjectMapper objectMapper;
   private Publisher publisher;
 
   @Autowired
-  public CleanupScheduler(RbsDao rbsDao, CrlConfiguration crlConfiguration, Clock clock) {
+  public CleanupScheduler(RbsDao rbsDao, CrlConfiguration crlConfiguration) {
     this.rbsDao = rbsDao;
     this.crlConfiguration = crlConfiguration;
-    this.clock = clock;
   }
 
   /** Provides an {@link Publisher}. */
@@ -94,6 +93,7 @@ public class CleanupScheduler {
             .registerModule(new Jdk8Module())
             .registerModule(new JavaTimeModule())
             .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+    this.clock = Clock.systemUTC();
 
     // The scheduled task will not execute concurrently with itself even if it takes a long time.
     // See javadoc on ScheduledExecutorService#scheduleAtFixedRate.
