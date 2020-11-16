@@ -30,7 +30,9 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-/** Configuration to use Terra Cloud Resource Libraty */
+/**
+ * Configuration to use Terra Cloud Resource Library and Janitor to manage CRL created resources.
+ */
 @Component
 @EnableConfigurationProperties
 @EnableTransactionManagement
@@ -39,13 +41,23 @@ public class CrlConfiguration {
   /** The client name required by CRL. */
   public static final String CLIENT_NAME = "terra-rbs";
   /** How long to keep the resource before Janitor do the cleanup. */
-  public static final Duration TEST_RESOURCE_TIME_TO_LIVE = Duration.ofMinutes(30);
+  public static final Duration TEST_RESOURCE_TIME_TO_LIVE = Duration.ofMinutes(60);
 
   /**
    * Whether we're running RBS in test mode with Cloud Resource Library. If so, we enable to the
    * Janitor to auto-delete all created cloud resources.
    */
   private boolean testingMode = false;
+
+  /**
+   * Whether to publish message to Janitor to cleanup resource after it is handed out. It is true
+   * only when the RBS is used to buffer resources for RBS clients' test. For multiple instance
+   * RBS(not likely for testing RBS), only turn it on for primary RBS.
+   *
+   * <p>We also have a {@code testingMode} flag, that will only be turned on for RBS's test to
+   * delete resource created by RBS integration test.
+   */
+  private boolean cleanupAfterHandout = false;
 
   /** Credential file path to be able to publish message to Janitor */
   private String janitorClientCredentialFilePath;
@@ -55,6 +67,18 @@ public class CrlConfiguration {
 
   /** pubsub topic id to publish track resource to Janitor */
   private String janitorTrackResourceTopicId;
+
+  public boolean isCleanupAfterHandout() {
+    return cleanupAfterHandout;
+  }
+
+  public String getJanitorTrackResourceProjectId() {
+    return janitorTrackResourceProjectId;
+  }
+
+  public String getJanitorTrackResourceTopicId() {
+    return janitorTrackResourceTopicId;
+  }
 
   public void setTestingMode(boolean testingMode) {
     this.testingMode = testingMode;
@@ -72,6 +96,10 @@ public class CrlConfiguration {
     this.janitorTrackResourceTopicId = janitorTrackResourceTopicId;
   }
 
+  public void setCleanupAfterHandout(boolean cleanupAfterHandout) {
+    this.cleanupAfterHandout = cleanupAfterHandout;
+  }
+
   /**
    * The {@link ClientConfig} in CRL's COW object. If in test, it will also include {@link
    * CleanupConfig}.
@@ -87,7 +115,7 @@ public class CrlConfiguration {
               .setJanitorProjectId(janitorTrackResourceProjectId)
               .setTimeToLive(TEST_RESOURCE_TIME_TO_LIVE)
               .setJanitorTopicName(janitorTrackResourceTopicId)
-              .setCredentials(getGoogleCredentialsOrDie(janitorClientCredentialFilePath))
+              .setCredentials(getJanitorClientCredential())
               .build());
     }
     return builder.build();
@@ -163,13 +191,18 @@ public class CrlConfiguration {
     return new StorageCow(clientConfig(), StorageOptions.getDefaultInstance());
   }
 
-  private static ServiceAccountCredentials getGoogleCredentialsOrDie(String serviceAccountPath) {
+  /** Gets the Janitor client service account credential. */
+  public ServiceAccountCredentials getJanitorClientCredential() {
     try {
       return ServiceAccountCredentials.fromStream(
-          Thread.currentThread().getContextClassLoader().getResourceAsStream(serviceAccountPath));
+          Thread.currentThread()
+              .getContextClassLoader()
+              .getResourceAsStream(janitorClientCredentialFilePath));
     } catch (Exception e) {
       throw new RuntimeException(
-          "Unable to load GoogleCredentials from configuration" + serviceAccountPath, e);
+          "Unable to load Janitor GoogleCredentials from configuration"
+              + janitorClientCredentialFilePath,
+          e);
     }
   }
 
