@@ -53,6 +53,9 @@ public class CrlConfiguration {
    * Whether to publish message to Janitor to cleanup resource after it is handed out. It is true
    * only when the RBS is used to buffer resources for RBS clients' test. For multiple instance
    * RBS(not likely for testing RBS), only turn it on for primary RBS.
+   *
+   * <p>We also have a {@code testingMode} flag, that will only be turned on for RBS's test to
+   * delete resource created by RBS integration test.
    */
   private boolean cleanupAfterHandout = false;
 

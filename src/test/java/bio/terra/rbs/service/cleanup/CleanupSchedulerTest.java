@@ -3,8 +3,7 @@ package bio.terra.rbs.service.cleanup;
 import static bio.terra.rbs.app.configuration.CrlConfiguration.CLIENT_NAME;
 import static bio.terra.rbs.app.configuration.CrlConfiguration.TEST_RESOURCE_TIME_TO_LIVE;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import bio.terra.janitor.model.CreateResourceRequestBody;
@@ -43,10 +42,6 @@ import org.springframework.test.annotation.DirtiesContext;
 public class CleanupSchedulerTest extends BaseUnitTest {
   private static final Instant CREATION = Instant.now();
 
-  /** Path to the service account credentials file. */
-  private static final String GOOGLE_SERVICE_ACCOUNT_ADMIN_PATH =
-      "rendered/janitor-client-sa-account.json";
-
   @Mock private final Publisher mockPublisher = mock(Publisher.class);
   @Mock ApiFuture<String> mockMessageIdFuture = mock(ApiFuture.class);
 
@@ -66,7 +61,8 @@ public class CleanupSchedulerTest extends BaseUnitTest {
   @BeforeEach
   public void setUp() throws Exception {
     crlConfiguration.setCleanupAfterHandout(true);
-    crlConfiguration.setJanitorClientCredentialFilePath(GOOGLE_SERVICE_ACCOUNT_ADMIN_PATH);
+    // Those are all arbitrary values because we use mock, and not actually publish message.
+    crlConfiguration.setJanitorClientCredentialFilePath("testPath");
     crlConfiguration.setJanitorTrackResourceProjectId("projectId");
     crlConfiguration.setJanitorTrackResourceTopicId("topicId");
     cleanupScheduler =
@@ -78,7 +74,7 @@ public class CleanupSchedulerTest extends BaseUnitTest {
 
   @AfterEach
   public void tearDown() {
-    // Shutdown the FlightScheduler so that it isn't running during other tests.
+    // Shutdown the CleanupScheduler so that it isn't running during other tests.
     cleanupScheduler.shutdown();
   }
 
@@ -107,7 +103,7 @@ public class CleanupSchedulerTest extends BaseUnitTest {
     rbsDao.createResource(resource);
     rbsDao.updateResourceAsReady(resource.id(), cloudResourceUid);
     rbsDao.updateResourceAsHandedOut(resource.id(), RequestHandoutId.create("1111"));
-    assertFalse(rbsDao.retrieveResourceToCleanup(10).isEmpty());
+    assertEquals(1, rbsDao.retrieveResourceToCleanup(10).size());
 
     cleanupScheduler.initialize();
     Thread.sleep(1000);
