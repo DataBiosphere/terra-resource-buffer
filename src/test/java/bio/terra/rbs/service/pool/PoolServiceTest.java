@@ -36,7 +36,10 @@ public class PoolServiceTest extends BaseUnitTest {
   private static ResourceConfig newResourceConfig() {
     return newResourceConfig(
         new GcpProjectConfig()
-            .projectIDGenerator(new ProjectIDGenerator().projectIDPrefix("aou-rw-test"))
+            .projectIdSchema(
+                new ProjectIdSchema()
+                    .prefix("aou-rw-test")
+                    .scheme(ProjectIdSchema.SchemeEnum.RANDOM_CHAR))
             .enabledApis(ImmutableList.of("bigquery-json.googleapis.com")));
   }
 
@@ -108,7 +111,10 @@ public class PoolServiceTest extends BaseUnitTest {
             poolConfig,
             newResourceConfig(
                 new GcpProjectConfig()
-                    .projectIDGenerator(new ProjectIDGenerator().projectIDPrefix("aou-rw-test2"))));
+                    .projectIdSchema(
+                        new ProjectIdSchema()
+                            .prefix("aou-rw-test2")
+                            .scheme(ProjectIdSchema.SchemeEnum.RANDOM_CHAR))));
 
     assertThrows(
         RuntimeException.class,

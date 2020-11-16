@@ -34,8 +34,8 @@ components:
       required:
         - projectIdPrefix
       properties:
-        projectIDGenerator:
-          $ref: '#/components/schemas/ProjectIDGenerator'
+        projectIdSchema:
+          $ref: '#/components/schemas/ProjectIdSchema'
         parentFolderId:
           description: |-
             The parent folder id of created project.
@@ -60,16 +60,16 @@ components:
           $ref: '#/components/schemas/Network'
       type: object
 
-    ProjectIDGenerator:
+    ProjectIdSchema:
       description: |-
-        How to generate project ID, including prefix and the nameing schema. For example, projectIDPrefix is
-        aou_rw, projectIDScheme is random_char, the generated project ID might be aou_rw_a1bc23
+        How to generate project Id, including prefix and the naming schema. For example, projectIdPrefix is
+        aou_rw, projectIdScheme is random_char, the generated project Id might be aou_rw_a1bc23
       properties:
-        projectIDPrefix:
+        prefix:
           description: |-
             The created project name prefix.
           type: string
-        projectIDScheme:
+        scheme:
           type: string
           # swagger-codegen always looks for and removes a common prefix for
           # enum values, which breaks enums that only have a single value.
@@ -78,7 +78,7 @@ components:
           # TODO(PF-228): Add naming scheme for GCP style(TWO_WORDS_NUMBER)
           enum: ['PLACEHOLDER_VALUE', 'RANDOM_CHAR']
           description: >
-            ID Scheme:
+            Id Scheme:
              * `RANDOM_CHAR` - all random letters/numbers, length is defined in generator code.
       type: object
 

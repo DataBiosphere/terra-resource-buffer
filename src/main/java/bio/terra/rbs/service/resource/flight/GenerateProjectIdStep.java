@@ -6,24 +6,24 @@ import static bio.terra.rbs.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
 import bio.terra.rbs.generated.model.CloudResourceUid;
 import bio.terra.rbs.generated.model.GcpProjectConfig;
 import bio.terra.rbs.generated.model.GoogleProjectUid;
-import bio.terra.rbs.service.resource.projectid.GcpProjectIDGenerator;
+import bio.terra.rbs.service.resource.projectid.GcpProjectIdGenerator;
 import bio.terra.stairway.*;
 
 /** Generates Project Id and put it in working map. */
 public class GenerateProjectIdStep implements Step {
   private final GcpProjectConfig gcpProjectConfig;
-  private final GcpProjectIDGenerator projectIDGenerator;
+  private final GcpProjectIdGenerator projectIdGenerator;
 
   public GenerateProjectIdStep(
-      GcpProjectConfig gcpProjectConfig, GcpProjectIDGenerator projectIDGenerator) {
+      GcpProjectConfig gcpProjectConfig, GcpProjectIdGenerator projectIdGenerator) {
     this.gcpProjectConfig = gcpProjectConfig;
-    this.projectIDGenerator = projectIDGenerator;
+    this.projectIdGenerator = projectIdGenerator;
   }
 
   @Override
   public StepResult doStep(FlightContext flightContext) {
     FlightMap workingMap = flightContext.getWorkingMap();
-    String projectId = projectIDGenerator.generateID(gcpProjectConfig.getProjectIDGenerator());
+    String projectId = projectIdGenerator.generateId(gcpProjectConfig.getProjectIdSchema());
     flightContext.getWorkingMap().put(GOOGLE_PROJECT_ID, projectId);
     workingMap.put(
         CLOUD_RESOURCE_UID,

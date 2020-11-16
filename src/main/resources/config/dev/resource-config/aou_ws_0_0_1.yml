@@ -2,9 +2,9 @@
 ---
 configName: "aou_ws_resource_v1"
 gcpProjectConfig:
-  projectIDGenerator:
-    projectIDPrefix: "aou-rw-test"
-    projectIDScheme: "RANDOM_CHAR"
+  projectIdSchema:
+    prefix: "aou-rw-test"
+    scheme: "RANDOM_CHAR"
   # TODO: Fill this
   parentFolderId: null
   # TODO: Fill this

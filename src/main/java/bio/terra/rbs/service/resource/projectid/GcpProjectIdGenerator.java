@@ -1,14 +1,14 @@
 package bio.terra.rbs.service.resource.projectid;
 
-import bio.terra.rbs.generated.model.ProjectIDGenerator;
+import bio.terra.rbs.generated.model.ProjectIdSchema;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.hash.Hashing;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
 
-/** Generates Project ID for GCP project from config. */
+/** Generates Project Id for GCP project from config. */
 @Component
-public class GcpProjectIDGenerator {
+public class GcpProjectIdGenerator {
   /** The size of project when generating random characters. */
   @VisibleForTesting static final int RANDOM_ID_SIZE = 8;
 
@@ -17,13 +17,13 @@ public class GcpProjectIDGenerator {
    *
    * <p>The output will be prefix + naming scheme. For now, we only support RANDOM_CHAR scheme.
    */
-  public String generateID(ProjectIDGenerator projectIDGenerator) {
-    String generatedId = projectIDGenerator.getProjectIDPrefix();
+  public String generateId(ProjectIdSchema projectIdSchema) {
+    String generatedId = projectIdSchema.getPrefix();
     if (!generatedId.endsWith("-")) {
       generatedId = generatedId + "-";
     }
 
-    switch (projectIDGenerator.getProjectIDScheme()) {
+    switch (projectIdSchema.getScheme()) {
       case RANDOM_CHAR:
       default:
         generatedId += generateRandomId();

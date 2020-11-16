@@ -11,7 +11,7 @@ import bio.terra.cloudres.google.serviceusage.ServiceUsageCow;
 import bio.terra.rbs.db.RbsDao;
 import bio.terra.rbs.generated.model.GcpProjectConfig;
 import bio.terra.rbs.generated.model.ResourceConfig;
-import bio.terra.rbs.service.resource.projectid.GcpProjectIDGenerator;
+import bio.terra.rbs.service.resource.projectid.GcpProjectIdGenerator;
 import bio.terra.stairway.Flight;
 import bio.terra.stairway.FlightMap;
 import bio.terra.stairway.RetryRuleFixedInterval;
@@ -35,8 +35,8 @@ public class GoogleProjectCreationFlight extends Flight {
         ((ApplicationContext) applicationContext).getBean(ClientConfig.class);
     GcpProjectConfig gcpProjectConfig =
         inputParameters.get(RESOURCE_CONFIG, ResourceConfig.class).getGcpProjectConfig();
-    GcpProjectIDGenerator idGenerator =
-        ((ApplicationContext) applicationContext).getBean(GcpProjectIDGenerator.class);
+    GcpProjectIdGenerator idGenerator =
+        ((ApplicationContext) applicationContext).getBean(GcpProjectIdGenerator.class);
     RetryRuleFixedInterval retryRule =
         new RetryRuleFixedInterval(/* intervalSeconds =*/ 180, /* maxCount =*/ 5);
     addStep(new GenerateResourceIdStep());

@@ -38,7 +38,10 @@ public class RbsDaoTest extends BaseUnitTest {
             .configName("resourceName")
             .gcpProjectConfig(
                 new GcpProjectConfig()
-                    .projectIDGenerator(new ProjectIDGenerator().projectIDPrefix("test")));
+                    .projectIdSchema(
+                        new ProjectIdSchema()
+                            .prefix("test")
+                            .scheme(ProjectIdSchema.SchemeEnum.RANDOM_CHAR)));
 
     return Pool.builder()
         .creation(Instant.now())
