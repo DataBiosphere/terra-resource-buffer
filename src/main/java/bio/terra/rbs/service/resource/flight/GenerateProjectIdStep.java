@@ -23,7 +23,6 @@ public class GenerateProjectIdStep implements Step {
   @Override
   public StepResult doStep(FlightContext flightContext) {
     FlightMap workingMap = flightContext.getWorkingMap();
-    // TODO(PF-168): Use Terra Project Id generator.
     String projectId = projectIDGenerator.generateID(gcpProjectConfig.getProjectIDGenerator());
     flightContext.getWorkingMap().put(GOOGLE_PROJECT_ID, projectId);
     workingMap.put(
