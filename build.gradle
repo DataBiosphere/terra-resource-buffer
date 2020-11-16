@@ -48,6 +48,7 @@ dependencies {
     implementation 'org.springframework:spring-jdbc:5.1.9.RELEASE'
 
     implementation 'com.google.guava:guava:29.0-jre'
+    implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.104.1'
 
     implementation "com.google.auto.value:auto-value-annotations:1.7.3"
     annotationProcessor "com.google.auto.value:auto-value:1.7.3"
@@ -69,6 +70,7 @@ dependencies {
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-serviceusage', version: '0.1.0'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-dns', version: '0.1.0'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-storage', version: '0.1.0'
+    implementation group: 'bio.terra.janitor', name: 'terra-resource-janitor-client', version: '0.0.2-SNAPSHOT'
 
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
