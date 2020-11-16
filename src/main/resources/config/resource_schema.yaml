@@ -79,7 +79,7 @@ components:
           enum: ['PLACEHOLDER_VALUE', 'RANDOM_CHAR']
           description: >
             ID Scheme:
-             * `RANDOM_CHAR` - all random letters/numbers. And this is the default scheme if not set.
+             * `RANDOM_CHAR` - all random letters/numbers, length is defined in generator code. This is also the default scheme.
       type: object
 
     IamBinding:
