@@ -12,19 +12,19 @@ import bio.terra.stairway.*;
 /** Generates Project Id and put it in working map. */
 public class GenerateProjectIdStep implements Step {
   private final GcpProjectConfig gcpProjectConfig;
-  private final GcpProjectIDGenerator iDGenerator;
+  private final GcpProjectIDGenerator projectIDGenerator;
 
   public GenerateProjectIdStep(
-      GcpProjectConfig gcpProjectConfig, GcpProjectIDGenerator iDGenerator) {
+      GcpProjectConfig gcpProjectConfig, GcpProjectIDGenerator projectIDGenerator) {
     this.gcpProjectConfig = gcpProjectConfig;
-    this.iDGenerator = iDGenerator;
+    this.projectIDGenerator = projectIDGenerator;
   }
 
   @Override
   public StepResult doStep(FlightContext flightContext) {
     FlightMap workingMap = flightContext.getWorkingMap();
     // TODO(PF-168): Use Terra Project Id generator.
-    String projectId = iDGenerator.generateID(gcpProjectConfig.getProjectIDGenerator());
+    String projectId = projectIDGenerator.generateID(gcpProjectConfig.getProjectIDGenerator());
     flightContext.getWorkingMap().put(GOOGLE_PROJECT_ID, projectId);
     workingMap.put(
         CLOUD_RESOURCE_UID,
