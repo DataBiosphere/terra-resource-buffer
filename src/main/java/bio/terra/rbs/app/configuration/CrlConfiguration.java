@@ -193,17 +193,7 @@ public class CrlConfiguration {
 
   /** Gets the Janitor client service account credential. */
   public ServiceAccountCredentials getJanitorClientCredential() {
-    try {
-      return ServiceAccountCredentials.fromStream(
-          Thread.currentThread()
-              .getContextClassLoader()
-              .getResourceAsStream(janitorClientCredentialFilePath));
-    } catch (Exception e) {
-      throw new RuntimeException(
-          "Unable to load Janitor GoogleCredentials from configuration"
-              + janitorClientCredentialFilePath,
-          e);
-    }
+   return getGoogleCredentialsOrDie(janitorClientCredentialFilePath);
   }
 
   /** Sets longer timeout because ResourceManager operation may take longer than default timeout. */
@@ -214,5 +204,15 @@ public class CrlConfiguration {
       httpRequest.setConnectTimeout(5 * 60000); // 5 minutes connect timeout
       httpRequest.setReadTimeout(5 * 60000); // 5 minutes read timeout
     };
+  }
+
+  private static ServiceAccountCredentials getGoogleCredentialsOrDie(String serviceAccountPath) {
+    try {
+      return ServiceAccountCredentials.fromStream(
+              Thread.currentThread().getContextClassLoader().getResourceAsStream(serviceAccountPath));
+    } catch (Exception e) {
+      throw new RuntimeException(
+              "Unable to load GoogleCredentials from configuration" + serviceAccountPath, e);
+    }
   }
 }
