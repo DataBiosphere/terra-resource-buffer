@@ -32,7 +32,7 @@ components:
       description: |-
         Represents a GCP Project resource with extra cloud resource setup when creating project.
       required:
-        - projectIdPrefix
+        - projectIdSchema
       properties:
         projectIdSchema:
           $ref: '#/components/schemas/ProjectIdSchema'
