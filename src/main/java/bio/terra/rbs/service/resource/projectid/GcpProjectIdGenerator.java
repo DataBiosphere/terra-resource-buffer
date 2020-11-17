@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class GcpProjectIdGenerator {
   /**
-   * The size of project when generating random characters. Choose size as 8 based on AoU's historical experience,
-   * increase if 8 is not enough for a pool's naming.
+   * The size of project when generating random characters. Choose size as 8 based on AoU's
+   * historical experience, increase if 8 is not enough for a pool's naming.
    */
   @VisibleForTesting static final int RANDOM_ID_SIZE = 8;
 
