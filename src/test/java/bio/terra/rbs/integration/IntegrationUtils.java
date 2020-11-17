@@ -1,12 +1,12 @@
 package bio.terra.rbs.integration;
 
+import static bio.terra.rbs.generated.model.ProjectIdSchema.SchemeEnum.RANDOM_CHAR;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.rbs.common.*;
+import bio.terra.rbs.common.PoolStatus;
 import bio.terra.rbs.db.RbsDao;
-import bio.terra.rbs.generated.model.GcpProjectConfig;
-import bio.terra.rbs.generated.model.IamBinding;
-import bio.terra.rbs.generated.model.ResourceConfig;
+import bio.terra.rbs.generated.model.*;
 import bio.terra.rbs.service.resource.FlightMapKeys;
 import bio.terra.rbs.service.resource.FlightSubmissionFactory;
 import bio.terra.rbs.service.stairway.StairwayComponent;
@@ -105,7 +105,7 @@ public class IntegrationUtils {
   /** Create a Basic {@link ResourceConfig}. */
   public static GcpProjectConfig newBasicGcpConfig() {
     return new GcpProjectConfig()
-        .projectIDPrefix("prefix")
+        .projectIdSchema(new ProjectIdSchema().prefix("prefix").scheme(RANDOM_CHAR))
         .parentFolderId(FOLDER_ID)
         .billingAccount(BILLING_ACCOUNT_NAME)
         .addEnabledApisItem("compute.googleapis.com")

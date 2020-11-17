@@ -30,6 +30,7 @@ import bio.terra.rbs.generated.model.ResourceConfig;
 import bio.terra.rbs.service.resource.FlightManager;
 import bio.terra.rbs.service.resource.FlightSubmissionFactoryImpl;
 import bio.terra.rbs.service.resource.flight.*;
+import bio.terra.rbs.service.resource.projectid.GcpProjectIdGenerator;
 import bio.terra.rbs.service.stairway.StairwayComponent;
 import bio.terra.stairway.*;
 import com.google.api.services.cloudresourcemanager.model.Binding;
@@ -222,10 +223,12 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
           ((ApplicationContext) applicationContext).getBean(CloudResourceManagerCow.class);
       GcpProjectConfig gcpProjectConfig =
           inputParameters.get(RESOURCE_CONFIG, ResourceConfig.class).getGcpProjectConfig();
+      GcpProjectIdGenerator idGenerator =
+          ((ApplicationContext) applicationContext).getBean(GcpProjectIdGenerator.class);
       addStep(new GenerateResourceIdStep());
       addStep(new CreateResourceDbEntityStep(rbsDao));
       addStep(new LatchStep());
-      addStep(new GenerateProjectIdStep());
+      addStep(new GenerateProjectIdStep(gcpProjectConfig, idGenerator));
       addStep(new ErrorCreateProjectStep(rmCow, gcpProjectConfig));
       addStep(new FinishResourceCreationStep(rbsDao));
     }

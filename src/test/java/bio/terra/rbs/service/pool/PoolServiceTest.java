@@ -36,7 +36,10 @@ public class PoolServiceTest extends BaseUnitTest {
   private static ResourceConfig newResourceConfig() {
     return newResourceConfig(
         new GcpProjectConfig()
-            .projectIDPrefix("aou-rw-test")
+            .projectIdSchema(
+                new ProjectIdSchema()
+                    .prefix("aou-rw-test")
+                    .scheme(ProjectIdSchema.SchemeEnum.RANDOM_CHAR))
             .enabledApis(ImmutableList.of("bigquery-json.googleapis.com")));
   }
 
@@ -105,7 +108,13 @@ public class PoolServiceTest extends BaseUnitTest {
     // Sets ResourceConfig's GCP project id prefix to newer value.
     PoolWithResourceConfig updatedPoolConfig =
         PoolWithResourceConfig.create(
-            poolConfig, newResourceConfig(new GcpProjectConfig().projectIDPrefix("aou-rw-test2")));
+            poolConfig,
+            newResourceConfig(
+                new GcpProjectConfig()
+                    .projectIdSchema(
+                        new ProjectIdSchema()
+                            .prefix("aou-rw-test2")
+                            .scheme(ProjectIdSchema.SchemeEnum.RANDOM_CHAR))));
 
     assertThrows(
         RuntimeException.class,
