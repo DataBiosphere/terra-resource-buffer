@@ -1,12 +1,12 @@
-# All Of Us buffered workspace template
+# Community Workbench buffered workspace template
 ---
-configName: "aou_ws_resource_v1"
+configName: "cwb_ws_resource_v1"
 gcpProjectConfig:
   projectIdSchema:
-    prefix: "aou-rw-test"
+    prefix: "terra-dev"
     scheme: "RANDOM_CHAR"
   # TODO: Fill this
-  parentFolderId: null
+  parentFolderId: "637867149294"
   # TODO: Fill this
   billingAccount: "01A82E-CA8A14-367457"
   enabledApis:
