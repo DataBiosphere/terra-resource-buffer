@@ -1,6 +1,7 @@
 package bio.terra.rbs.app;
 
 import bio.terra.rbs.app.configuration.RbsJdbcConfiguration;
+import bio.terra.rbs.service.cleanup.CleanupScheduler;
 import bio.terra.rbs.service.migrate.MigrateService;
 import bio.terra.rbs.service.pool.PoolService;
 import bio.terra.rbs.service.resource.FlightScheduler;
@@ -31,5 +32,6 @@ public final class StartupInitializer {
     applicationContext.getBean(StairwayComponent.class).initialize();
     applicationContext.getBean(PoolService.class).initialize();
     applicationContext.getBean(FlightScheduler.class).initialize();
+    applicationContext.getBean(CleanupScheduler.class).initialize();
   }
 }

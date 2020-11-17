@@ -1,12 +1,12 @@
 package bio.terra.rbs.integration;
 
+import static bio.terra.rbs.generated.model.ProjectIdSchema.SchemeEnum.RANDOM_CHAR;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.rbs.common.*;
+import bio.terra.rbs.common.PoolStatus;
 import bio.terra.rbs.db.RbsDao;
-import bio.terra.rbs.generated.model.GcpProjectConfig;
-import bio.terra.rbs.generated.model.IamBinding;
-import bio.terra.rbs.generated.model.ResourceConfig;
+import bio.terra.rbs.generated.model.*;
 import bio.terra.rbs.service.resource.FlightMapKeys;
 import bio.terra.rbs.service.resource.FlightSubmissionFactory;
 import bio.terra.rbs.service.stairway.StairwayComponent;
@@ -28,6 +28,8 @@ public class IntegrationUtils {
   public static final String FOLDER_ID = "637867149294";
   /** The billing account to use in test. */
   public static final String BILLING_ACCOUNT_NAME = "01A82E-CA8A14-367457";
+
+  public static final String TEST_CONFIG_NAME = "test_config_v1";
 
   private static final Duration PERIOD = Duration.ofSeconds(4);
   private static final int MAX_POLL_NUM = 100;
@@ -88,7 +90,9 @@ public class IntegrationUtils {
             .resourceType(ResourceType.GOOGLE_PROJECT)
             .size(1)
             .resourceConfig(
-                new ResourceConfig().configName("configName").gcpProjectConfig(gcpProjectConfig))
+                new ResourceConfig()
+                    .configName(TEST_CONFIG_NAME)
+                    .gcpProjectConfig(gcpProjectConfig))
             .status(PoolStatus.ACTIVE)
             .creation(Instant.now())
             .build();
@@ -101,7 +105,7 @@ public class IntegrationUtils {
   /** Create a Basic {@link ResourceConfig}. */
   public static GcpProjectConfig newBasicGcpConfig() {
     return new GcpProjectConfig()
-        .projectIDPrefix("prefix")
+        .projectIdSchema(new ProjectIdSchema().prefix("prefix").scheme(RANDOM_CHAR))
         .parentFolderId(FOLDER_ID)
         .billingAccount(BILLING_ACCOUNT_NAME)
         .addEnabledApisItem("compute.googleapis.com")

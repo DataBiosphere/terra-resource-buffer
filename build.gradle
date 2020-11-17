@@ -65,9 +65,11 @@ dependencies {
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-dns', version: '0.1.0'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-serviceusage', version: '0.1.0'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-storage', version: '0.1.0'
+    implementation group: 'bio.terra.janitor', name: 'terra-resource-janitor-client', version: '0.0.2-SNAPSHOT'
 
     // Versioned direct deps
     implementation group: 'com.google.auto.value', name: 'auto-value-annotations', version: '1.7.3'
+    implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.104.1'
     implementation group: 'com.google.guava', name: 'guava', version: '29.0-jre'
     implementation group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
     implementation group: 'org.liquibase' , name: 'liquibase-core', version: '3.10.0'

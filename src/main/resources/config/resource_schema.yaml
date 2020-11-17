@@ -32,13 +32,10 @@ components:
       description: |-
         Represents a GCP Project resource with extra cloud resource setup when creating project.
       required:
-        - projectIdPrefix
+        - projectIdSchema
       properties:
-        projectIDPrefix:
-          description: |-
-            The created project name prefix. For example, if the prefix is aou-rw-test, the generated project id may be
-            aou-rw-test-abc123
-          type: string
+        projectIdSchema:
+          $ref: '#/components/schemas/ProjectIdSchema'
         parentFolderId:
           description: |-
             The parent folder id of created project.
@@ -61,6 +58,28 @@ components:
             $ref: '#/components/schemas/IamBinding'
         network:
           $ref: '#/components/schemas/Network'
+      type: object
+
+    ProjectIdSchema:
+      description: |-
+        How to generate project Id, including prefix and the naming schema. For example, projectIdPrefix is
+        aou_rw, projectIdScheme is random_char, the generated project Id might be aou_rw_a1bc23
+      properties:
+        prefix:
+          description: |-
+            The created project name prefix.
+          type: string
+        scheme:
+          type: string
+          # swagger-codegen always looks for and removes a common prefix for
+          # enum values, which breaks enums that only have a single value.
+          # PLACEHOLDER_VALUE should be removed when we have an actual second value
+          # to use.
+          # TODO(PF-228): Add naming scheme for GCP style(TWO_WORDS_NUMBER)
+          enum: ['PLACEHOLDER_VALUE', 'RANDOM_CHAR']
+          description: >
+            Id Scheme:
+             * `RANDOM_CHAR` - all random letters/numbers, length is defined in generator code.
       type: object
 
     IamBinding:
