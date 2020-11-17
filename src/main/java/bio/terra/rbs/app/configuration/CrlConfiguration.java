@@ -115,7 +115,7 @@ public class CrlConfiguration {
               .setJanitorProjectId(janitorTrackResourceProjectId)
               .setTimeToLive(TEST_RESOURCE_TIME_TO_LIVE)
               .setJanitorTopicName(janitorTrackResourceTopicId)
-              .setCredentials(getJanitorClientCredential())
+              .setCredentials(createJanitorClientCredentialFromFile())
               .build());
     }
     return builder.build();
@@ -192,7 +192,7 @@ public class CrlConfiguration {
   }
 
   /** Gets the Janitor client service account credential. */
-  public ServiceAccountCredentials getJanitorClientCredential() {
+  public ServiceAccountCredentials createJanitorClientCredentialFromFile() {
     try {
       return ServiceAccountCredentials.fromStream(
           Thread.currentThread()

@@ -36,11 +36,13 @@ public class SetIamPolicyStep implements Step {
 
     try {
       Policy policy = rmCow.projects().getIamPolicy(projectId, new GetIamPolicyRequest()).execute();
+      System.out.println("~~~~~~~~~~~~Setting Policy");
       gcpProjectConfig.getIamBindings().stream()
           .map(
               iamBinding ->
                   new Binding().setRole(iamBinding.getRole()).setMembers(iamBinding.getMembers()))
           .forEach(policy.getBindings()::add);
+      System.out.println(policy);
       rmCow
           .projects()
           .setIamPolicy(projectId, new SetIamPolicyRequest().setPolicy(policy))

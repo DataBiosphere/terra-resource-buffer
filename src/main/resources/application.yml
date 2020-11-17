@@ -1,4 +1,11 @@
 rbs:
+  crl:
+    # Set to true if CRL is used in testing mode.
+    testing-mode:
+    # Use in test to clean up created cloud resource.
+    janitor-client-credential-file-path:
+    janitor-track-resource-project-id:
+    janitor-track-resource-topic-id:
   db:
     password:
     recreate-db-on-start: false

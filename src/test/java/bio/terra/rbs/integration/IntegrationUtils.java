@@ -43,9 +43,27 @@ public class IntegrationUtils {
 
   private static final String TEST_GROUP_VIEWER_NAME = "terra-rbs-viewer-test@broadinstitute.org";
 
+  //  public static final List<IamBinding> IAM_BINDINGS =
+  //      Arrays.asList(
+  //          new IamBinding()
+  //              .role("roles/editor")
+  //              .addMembersItem("group:" + TEST_GROUP_NAME)
+  //              .addMembersItem(
+  //
+  // "serviceAccount:806222273987-gffklo3qfd1gedvlgr55i84cocjh8efa@developer.gserviceaccount.com")
+  //              .addMembersItem(
+  //
+  // "serviceAccount:806222273987-ksinuueghug8u81i36lq8aof266q19hl@developer.gserviceaccount.com"),
+  //          new IamBinding().role("roles/viewer").addMembersItem("group:" +
+  // TEST_GROUP_VIEWER_NAME),
+  //          new IamBinding()
+  //              .role("roles/owner")
+  //              .addMembersItem("group:firecloud-project-owners@test.firecloud.org")
+  //              .addMembersItem("user:yyu@broadinstitute.org"));
+
   public static final List<IamBinding> IAM_BINDINGS =
       Arrays.asList(
-          new IamBinding().role("roles/editor").addMembersItem("group:" + TEST_GROUP_NAME),
+          new IamBinding().role("roles/owner").addMembersItem("group:" + TEST_GROUP_NAME),
           new IamBinding().role("roles/viewer").addMembersItem("group:" + TEST_GROUP_VIEWER_NAME));
 
   public static List<Resource> pollUntilResourcesMatch(
