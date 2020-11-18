@@ -136,7 +136,7 @@ task extractProfilerAgent(dependsOn: downloadProfilerAgent, type: Copy) {
 
 jib {
     from {
-        image = "openjdk:8"
+        image = "adoptopenjdk:11-jre-hotspot"
     }
     extraDirectories {
         paths = [file(jibExtraDirectory)]
