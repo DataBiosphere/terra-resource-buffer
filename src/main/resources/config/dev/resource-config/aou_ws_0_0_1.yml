@@ -5,9 +5,8 @@ gcpProjectConfig:
   projectIdSchema:
     prefix: "aou-rw-test"
     scheme: "RANDOM_CHAR"
-  # TODO: Fill this
+  # test.firecloud.org/terra_dev_aou_test
   parentFolderId: "637867149294"
-  # TODO: Fill this
   billingAccount: "01A82E-CA8A14-367457"
   enabledApis:
     - "bigquery-json.googleapis.com"
@@ -27,7 +26,7 @@ gcpProjectConfig:
     - "storage-component.googleapis.com"
     - "dns.googleapis.com"
   iamBindings:
-    - members: ["group:firecloud-project-owners@test.firecloud.org", "user:yyu@broadinstitute.org"]
+    - members: ["group:firecloud-project-owners@test.firecloud.org"]
       role: "roles/owner"
     - members: ["user:yyu@broadinstitute.org", "serviceAccount:806222273987-gffklo3qfd1gedvlgr55i84cocjh8efa@developer.gserviceaccount.com", "serviceAccount:806222273987-ksinuueghug8u81i36lq8aof266q19hl@developer.gserviceaccount.com"]
       role: "roles/editor"

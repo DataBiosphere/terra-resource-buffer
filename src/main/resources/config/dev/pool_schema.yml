@@ -1,9 +1,9 @@
 # RBS Pools Schema in dev environment
 ---
 poolConfigs:
-  - poolId: "aou_ws_dev_v1"
-    size: 10
-    resourceConfigName: "aou_ws_resource_v1"
+#  - poolId: "aou_ws_dev_v1"
+#    size: 1
+#    resourceConfigName: "aou_ws_resource_v1"
   - poolId: "cwb_ws_dev_v1"
-    size: 10
+    size: 5
     resourceConfigName: "cwb_ws_resource_v1"

@@ -20,6 +20,7 @@ import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.storage.StorageOptions;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.time.Duration;
@@ -194,10 +195,10 @@ public class CrlConfiguration {
   /** Gets the Janitor client service account credential. */
   public ServiceAccountCredentials createJanitorClientCredentialFromFile() {
     try {
+      System.out.println("~~~~~janitorClientCredentialFilePath");
+      System.out.println(janitorClientCredentialFilePath);
       return ServiceAccountCredentials.fromStream(
-          Thread.currentThread()
-              .getContextClassLoader()
-              .getResourceAsStream(janitorClientCredentialFilePath));
+          new FileInputStream(janitorClientCredentialFilePath));
     } catch (Exception e) {
       throw new RuntimeException(
           "Unable to load Janitor GoogleCredentials from configuration"

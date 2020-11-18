@@ -312,8 +312,13 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
             .map(apiName -> serviceName(project, apiName))
             .collect(Collectors.toList());
     assertThat(
-        serviceUsageCow.services().list(projectIdToName(project.getProjectId()))
-            .setFilter("state:ENABLED").execute().getServices().stream()
+        serviceUsageCow
+            .services()
+            .list(projectIdToName(project.getProjectId()))
+            .setFilter("state:ENABLED")
+            .execute()
+            .getServices()
+            .stream()
             .map(GoogleApiServiceusageV1Service::getName)
             .collect(Collectors.toList()),
         Matchers.hasItems(serviceNames.toArray()));
@@ -328,8 +333,12 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     // roles we expect.
 
     Map<String, List<String>> allBindings =
-        rmCow.projects().getIamPolicy(project.getProjectId(), new GetIamPolicyRequest()).execute()
-            .getBindings().stream()
+        rmCow
+            .projects()
+            .getIamPolicy(project.getProjectId(), new GetIamPolicyRequest())
+            .execute()
+            .getBindings()
+            .stream()
             .collect(Collectors.toMap(Binding::getRole, Binding::getMembers));
 
     for (IamBinding iamBinding : iamBindings) {
@@ -416,8 +425,12 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
     ManagedZone managedZone = dnsCow.managedZones().get(projectId, MANAGED_ZONE_NAME).execute();
     Map<String, ResourceRecordSet> resourceRecordSets =
-        dnsCow.resourceRecordSets().list(project.getProjectId(), MANAGED_ZONE_NAME).execute()
-            .getRrsets().stream()
+        dnsCow
+            .resourceRecordSets()
+            .list(project.getProjectId(), MANAGED_ZONE_NAME)
+            .execute()
+            .getRrsets()
+            .stream()
             .collect(Collectors.toMap(ResourceRecordSet::getType, r -> r));
     ResourceRecordSet aRecordSet = resourceRecordSets.get(A_RECORD.getType());
     ResourceRecordSet cnameRecordSet = resourceRecordSets.get(CNAME_RECORD.getType());

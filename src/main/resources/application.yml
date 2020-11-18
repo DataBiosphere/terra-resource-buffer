@@ -21,8 +21,6 @@ rbs:
     # Whether to update pool when config changes during server startup.
     # Might be useful to avoid potential backward compatibility casued by config change and make tests easier.
     update-pool-on-start: true
-  server:
-    port: 8080
   stairway:
     db:
       password:
@@ -33,3 +31,18 @@ rbs:
     migrate-upgrade: true
     quiet-down-timeout: 20s
     terminate-timeout: 5s
+
+server:
+  compression:
+    enabled: true
+    mime-types: text/css,application/javascript
+  port: 8080
+
+spring:
+  application:
+    name: rbs
+  resources:
+    cache.cachecontrol:
+      max-age: 0
+      must-revalidate: true
+    static-locations: classpath:/api/

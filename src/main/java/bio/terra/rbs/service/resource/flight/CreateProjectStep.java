@@ -45,6 +45,8 @@ public class CreateProjectStep implements Step {
       if (retrieveProject(rmCow, projectId).isPresent()) {
         return new StepResult(StepStatus.STEP_RESULT_FAILURE_FATAL);
       }
+      System.out.println("~~~~~~~~Creating project");
+      System.out.println(gcpProjectConfig.getParentFolderId());
       Project project =
           new Project()
               .setProjectId(projectId)

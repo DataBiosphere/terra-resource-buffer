@@ -1,4 +1,3 @@
-// Copied from Terra Janitor repo
 plugins {
     id 'java-library'
     id 'maven-publish'
@@ -7,55 +6,47 @@ plugins {
     id 'org.hidetake.swagger.generator'
 }
 
-sourceCompatibility = '1.8'
-
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    ext {
-        jersey = "2.31"
-    }
-
-    implementation group: 'org.glassfish.jersey.core', name: 'jersey-client', version: "${jersey}"
-    implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version: "${jersey}"
-    implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-multipart', version: "${jersey}"
-
-    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.11.1'
-
-    implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.1.3'
-    swaggerCodegen 'io.swagger.codegen.v3:swagger-codegen-cli:3.0.20'
+    // Swagger deps, versions controlled by dependencyManagement in root project
+    implementation group: 'org.glassfish.jersey.core', name: 'jersey-client'
+    implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson'
+    implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-multipart'
+    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310'
+    implementation group: 'io.swagger.core.v3', name: 'swagger-annotations'
+    swaggerCodegen group: 'io.swagger.codegen.v3', name: 'swagger-codegen-cli'
 }
 
-def openapiSourceLocation = "${projectDir}/../src/main/resources/api"
-def openapiSourceFile = "${openapiSourceLocation}/service_openapi.yaml"
-def openapiClientTargetDir = "${buildDir}/client"
+// OpenAPI/Swagger Client Generation
 
 swaggerSources {
     client {
-        inputFile = file("${openapiSourceFile}")
+        inputFile = file("${resourceDir}/api/service_openapi.yaml")
         code {
             language = "java"
             library = "jersey2"
-            outputDir = file("${openapiClientTargetDir}")
+            outputDir = file("${swaggerOutputDir}")
             rawOptions = [
-                    "--api-package", "${this.group}.rbs.generated.controller",
-                    "--model-package", "${this.group}.rbs.generated.model",
-                    "--group-id", "${this.group}",
-                    "--artifact-id", "terra-rbs-client",
-                    "--artifact-version", "${this.version}",
+                    "--model-package", "${artifactGroup}.model",
+                    "--api-package", "${artifactGroup}.api",
+                    "--invoker-package", "${artifactGroup}.client",
+                    "--group-id", "${artifactGroup}",
+                    "--artifact-version", "${version}",
+                    "--ignore-file-override", "${projectDir}/.swagger-codegen-ignore",
                     "-D", "apiTests=false," +
                             "apiDocs=false," +
-                            "dateLibrary=java8," +
                             "modelTests=false," +
-                            "modelDocs=false" +
-                            "useTags=true"
+                            "modelDocs=false," +
+                            "dateLibrary=java8"
             ]
         }
     }
 }
 
+// Publishing
 def artifactory_username = System.getenv('ARTIFACTORY_USERNAME')
 def artifactory_password = System.getenv('ARTIFACTORY_PASSWORD')
 
@@ -70,6 +61,11 @@ publishing {
     publications {
         rbsClientLibrary(MavenPublication) {
             from components.java
+            versionMapping {
+                usage("java-runtime") {
+                    fromResolutionResult()
+                }
+            }
         }
     }
 }
@@ -94,7 +90,5 @@ artifactory {
 
 // Internal dependencies
 
-sourceSets.main.java.srcDir "${openapiClientTargetDir}/src/main/java"
-
-build.dependsOn swaggerSources.client.code
+sourceSets.main.java.srcDir "${swaggerOutputDir}/src/main/java"
 compileJava.dependsOn swaggerSources.client.code
