@@ -65,7 +65,11 @@ public class CreateResourceRecordSetStep implements Step {
 
       // Find all ResourceRecordSets to check if A and CNAME already created.
       Map<String, ResourceRecordSet> resourceRecordSetMap =
-          dnsCow.resourceRecordSets().list(projectId, MANAGED_ZONE_NAME).execute().getRrsets()
+          dnsCow
+              .resourceRecordSets()
+              .list(projectId, MANAGED_ZONE_NAME)
+              .execute()
+              .getRrsets()
               .stream()
               .collect(Collectors.toMap(ResourceRecordSet::getType, r -> r));
       List<ResourceRecordSet> resourceRecordSetsToCreate = new ArrayList<>();

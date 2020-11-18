@@ -83,7 +83,7 @@ public class CleanupScheduler {
         this.publisher =
             Publisher.newBuilder(topicName)
                 .setCredentialsProvider(
-                    FixedCredentialsProvider.create(crlConfiguration.getJanitorClientCredential()))
+                    FixedCredentialsProvider.create(crlConfiguration.loadJanitorClientCredential()))
                 .build();
       } catch (IOException e) {
         throw new RuntimeException("Failed to create publisher", e);
