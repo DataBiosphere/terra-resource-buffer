@@ -11,11 +11,11 @@ plugins {
     id 'org.springframework.boot' version '2.3.1.RELEASE'
 }
 
+sourceCompatibility = JavaVersion.VERSION_11
 
 allprojects {
     group = 'bio.terra'
     version = System.getenv('SERVICE_VERSION') != null ? System.getenv('SERVICE_VERSION') : '0.0.1-SNAPSHOT'
-    sourceCompatibility = JavaVersion.VERSION_1_8
     ext {
         artifactGroup = "${group}.rbs"
         swaggerOutputDir = "${buildDir}/generated"
@@ -136,7 +136,11 @@ task extractProfilerAgent(dependsOn: downloadProfilerAgent, type: Copy) {
 
 jib {
     from {
+<<<<<<< HEAD
         image = "openjdk:8"
+=======
+        image = "adoptopenjdk:11-jre-hotspot"
+>>>>>>> origin/master
     }
     extraDirectories {
         paths = [file(jibExtraDirectory)]
