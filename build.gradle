@@ -136,7 +136,7 @@ task extractProfilerAgent(dependsOn: downloadProfilerAgent, type: Copy) {
 
 jib {
     from {
-        image = "openjdk:8-jdk-alpine"
+        image = "openjdk:8"
     }
     extraDirectories {
         paths = [file(jibExtraDirectory)]
