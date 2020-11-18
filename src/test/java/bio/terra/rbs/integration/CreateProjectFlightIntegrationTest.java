@@ -104,6 +104,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, flightId).get();
 
     Project project = assertProjectExists(ResourceId.retrieve(resultMap));
+    System.out.println("~~~~~~~~~~~~~ProjectId");
+    System.out.println(project.getProjectId());
     assertIamBindingsContains(project, IAM_BINDINGS);
   }
 
