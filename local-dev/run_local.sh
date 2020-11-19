@@ -13,4 +13,5 @@ export RBS_CRL_TESTING_MODE=true
 export RBS_CRL_JANITOR_CLIENT_CREDENTIAL_FILE_PATH="$(dirname $0)"/../src/test/resources/rendered/janitor-client-sa-account.json
 export RBS_CRL_JANITOR_TRACK_RESOURCE_PROJECT_ID=terra-kernel-k8s
 export RBS_CRL_JANITOR_TRACK_RESOURCE_TOPIC_ID=crljanitor-tools-pubsub-topic
+export RBS_POOL_CONFIG_PATH=config/toolsalpha
 ./gradlew bootRun

@@ -19,11 +19,11 @@ gcpProjectConfig:
     - "containerregistry.googleapis.com"
     - "dataflow.googleapis.com"
     - "dataproc.googleapis.com"
+    - "dns.googleapis.com"
     - "genomics.googleapis.com"
     - "logging.googleapis.com"
     - "monitoring.googleapis.com"
     - "storage-api.googleapis.com"
     - "storage-component.googleapis.com"
-    - "dns.googleapis.com"
   network:
     enableNetworkMonitoring: "true"
