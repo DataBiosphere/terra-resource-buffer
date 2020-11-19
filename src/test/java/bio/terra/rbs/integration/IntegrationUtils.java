@@ -44,19 +44,19 @@ public class IntegrationUtils {
   private static final String TEST_GROUP_VIEWER_NAME = "terra-rbs-viewer-test@broadinstitute.org";
 
   public static final List<IamBinding> IAM_BINDINGS =
-          Arrays.asList(
-                  new IamBinding().role("roles/editor").addMembersItem("group:" + TEST_GROUP_NAME),
-                  new IamBinding().role("roles/viewer").addMembersItem("group:" + TEST_GROUP_VIEWER_NAME));
+      Arrays.asList(
+          new IamBinding().role("roles/editor").addMembersItem("group:" + TEST_GROUP_NAME),
+          new IamBinding().role("roles/viewer").addMembersItem("group:" + TEST_GROUP_VIEWER_NAME));
 
   public static List<Resource> pollUntilResourcesMatch(
-          RbsDao rbsDao, PoolId poolId, ResourceState state, int expectedResourceNum) throws Exception {
+      RbsDao rbsDao, PoolId poolId, ResourceState state, int expectedResourceNum) throws Exception {
     int numPolls = 0;
     while (numPolls < MAX_POLL_NUM) {
       TimeUnit.MILLISECONDS.sleep(PERIOD.toMillis());
       List<Resource> resources =
-              rbsDao.retrieveResources(poolId, state, 10).stream()
-                      .filter(r -> r.poolId().equals(poolId))
-                      .collect(Collectors.toList());
+          rbsDao.retrieveResources(poolId, state, 10).stream()
+              .filter(r -> r.poolId().equals(poolId))
+              .collect(Collectors.toList());
       if (resources.size() == expectedResourceNum) {
         return resources;
       }
@@ -66,8 +66,8 @@ public class IntegrationUtils {
   }
 
   public static Optional<FlightMap> blockUntilFlightComplete(
-          StairwayComponent stairwayComponent, String flightId)
-          throws InterruptedException, DatabaseOperationException {
+      StairwayComponent stairwayComponent, String flightId)
+      throws InterruptedException, DatabaseOperationException {
     Duration maxWait = Duration.ofSeconds(500);
     Duration waited = Duration.ZERO;
     while (waited.compareTo(maxWait) < 0) {
@@ -85,17 +85,17 @@ public class IntegrationUtils {
   public static Pool preparePool(RbsDao rbsDao, GcpProjectConfig gcpProjectConfig) {
     PoolId poolId = PoolId.create("poolId");
     Pool pool =
-            Pool.builder()
-                    .id(poolId)
-                    .resourceType(ResourceType.GOOGLE_PROJECT)
-                    .size(1)
-                    .resourceConfig(
-                            new ResourceConfig()
-                                    .configName(TEST_CONFIG_NAME)
-                                    .gcpProjectConfig(gcpProjectConfig))
-                    .status(PoolStatus.ACTIVE)
-                    .creation(Instant.now())
-                    .build();
+        Pool.builder()
+            .id(poolId)
+            .resourceType(ResourceType.GOOGLE_PROJECT)
+            .size(1)
+            .resourceConfig(
+                new ResourceConfig()
+                    .configName(TEST_CONFIG_NAME)
+                    .gcpProjectConfig(gcpProjectConfig))
+            .status(PoolStatus.ACTIVE)
+            .creation(Instant.now())
+            .build();
     rbsDao.createPools(ImmutableList.of(pool));
     assertTrue(rbsDao.retrieveResources(pool.id(), ResourceState.CREATING, 1).isEmpty());
     assertTrue(rbsDao.retrieveResources(pool.id(), ResourceState.READY, 1).isEmpty());
@@ -105,19 +105,19 @@ public class IntegrationUtils {
   /** Create a Basic {@link ResourceConfig}. */
   public static GcpProjectConfig newBasicGcpConfig() {
     return new GcpProjectConfig()
-            .projectIdSchema(new ProjectIdSchema().prefix("prefix").scheme(RANDOM_CHAR))
-            .parentFolderId(FOLDER_ID)
-            .billingAccount(BILLING_ACCOUNT_NAME)
-            .addEnabledApisItem("compute.googleapis.com")
-            .addEnabledApisItem("dns.googleapis.com")
-            .addEnabledApisItem("storage-component.googleapis.com");
+        .projectIdSchema(new ProjectIdSchema().prefix("prefix").scheme(RANDOM_CHAR))
+        .parentFolderId(FOLDER_ID)
+        .billingAccount(BILLING_ACCOUNT_NAME)
+        .addEnabledApisItem("compute.googleapis.com")
+        .addEnabledApisItem("dns.googleapis.com")
+        .addEnabledApisItem("storage-component.googleapis.com");
   }
 
   /** Create a {@link GcpProjectConfig} with everything enabled. */
   public static GcpProjectConfig newFullGcpConfig() {
     return newBasicGcpConfig()
-            .iamBindings(IAM_BINDINGS)
-            .network(new bio.terra.rbs.generated.model.Network().enableNetworkMonitoring(true));
+        .iamBindings(IAM_BINDINGS)
+        .network(new bio.terra.rbs.generated.model.Network().enableNetworkMonitoring(true));
   }
 
   /** A {@link FlightSubmissionFactory} used in test. */
