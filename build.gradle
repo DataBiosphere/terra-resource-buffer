@@ -58,6 +58,7 @@ repositories {
 dependencies {
     // Terra deps
     implementation group: 'bio.terra', name: 'stairway', version: '0.0.20'
+    implementation group: 'bio.terra.cloud-resource-lib', name: 'cloud-resource-schema'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-billing', version: '0.2.0'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-cloudresourcemanager', version: '0.2.0'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-compute', version: '0.2.0'
