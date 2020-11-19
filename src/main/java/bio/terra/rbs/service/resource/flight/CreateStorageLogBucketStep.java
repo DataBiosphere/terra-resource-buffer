@@ -54,8 +54,9 @@ public class CreateStorageLogBucketStep implements Step {
     storageCow.create(
         BucketInfo.newBuilder(bucketName)
             .setLifecycleRules(ImmutableList.of(STORAGE_LOGS_LIFECYCLE_RULE))
-            .setAcl(ImmutableList.of(STORAGE_LOGS_WRITE_ACL))
             .build());
+    // Set Acl as a separate call so bucket gets default permissions plus this one.
+    storageCow.updateAcl(bucketName, STORAGE_LOGS_WRITE_ACL);
     return StepResult.getStepResultSuccess();
   }
 
