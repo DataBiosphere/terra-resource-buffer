@@ -354,8 +354,15 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
         new StorageCow(clientConfig, StorageOptions.newBuilder().setProjectId(projectId).build());
     String bucketName = "storage-logs-" + projectId;
     BucketInfo bucketInfo = storageCow.get(bucketName).getBucketInfo();
-    assertEquals(bucketInfo.getAcl().get(0).getEntity(), STORAGE_LOGS_WRITE_ACL.getEntity());
-    assertEquals(bucketInfo.getAcl().get(0).getRole(), STORAGE_LOGS_WRITE_ACL.getRole());
+    // There might be multiple ACLs as we didn't remove the default ACLs. Only need to verify the
+    // one we just add exists.
+    assertEquals(
+        bucketInfo.getAcl().stream()
+            .filter(acl -> acl.getEntity().equals(STORAGE_LOGS_WRITE_ACL.getEntity()))
+            .findAny()
+            .get()
+            .getRole(),
+        STORAGE_LOGS_WRITE_ACL.getRole());
     assertThat(bucketInfo.getLifecycleRules(), Matchers.contains(STORAGE_LOGS_LIFECYCLE_RULE));
   }
 
