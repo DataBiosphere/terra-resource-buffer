@@ -28,7 +28,7 @@ gcpProjectConfig:
   iamBindings:
     - members: ["group:terra-rbs-test@broadinstitute.org"]
       role: "roles/editor"
-    - members: ["terra-rbs-viewer-test@broadinstitute.org"]
+    - members: ["group:terra-rbs-viewer-test@broadinstitute.org"]
       role: "roles/viewer"
   network:
     enableNetworkMonitoring: "true"
