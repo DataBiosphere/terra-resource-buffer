@@ -1,4 +1,4 @@
-# RBS Pools Schema in dev environment
+# RBS Pools Schema in tools environment
 ---
 poolConfigs:
   - poolId: "cwb_ws_test_v1"
