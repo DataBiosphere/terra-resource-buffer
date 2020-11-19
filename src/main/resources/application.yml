@@ -1,7 +1,7 @@
 rbs:
   db:
     password:
-    recreate-db-on-start: true
+    recreate-db-on-start: false
     update-db-on-start: true
     uri: jdbc:postgresql://127.0.0.1:5432/${RBS_DATABASE_NAME}
     username:
@@ -10,7 +10,7 @@ rbs:
   pool:
     # The Folder to have all RBS configs.
     # TODO: Investigate where and how to put those files.
-    configPath: config/dev
+    configPath: config/toolsalpha
     # Whether to update pool when config changes during server startup.
     # Might be useful to avoid potential backward compatibility casued by config change and make tests easier.
     update-pool-on-start: true
@@ -19,7 +19,7 @@ rbs:
       password:
       uri: jdbc:postgresql://127.0.0.1:5432/${RBS_STAIRWAY_DATABASE_NAME}
       username:
-    force-clean-start: true
+    force-clean-start: false
     max-parallel-flights: 40
     migrate-upgrade: true
     quiet-down-timeout: 20s

@@ -1,0 +1,6 @@
+# RBS Pools Schema in dev environment
+---
+poolConfigs:
+  - poolId: "cwb_ws_test_v1"
+    size: 10
+    resourceConfigName: "cwb_ws_resource_test_v1"

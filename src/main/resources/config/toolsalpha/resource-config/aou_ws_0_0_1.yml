@@ -1,12 +1,12 @@
-# All Of Us buffered workspace template
+# Resource template for local testing and personal environment on GKE
 ---
-configName: "aou_ws_resource_test_v1"
+configName: "ws_resource_toolsalpha_v1"
 gcpProjectConfig:
   projectIdSchema:
-    prefix: "aou-rw-test"
+    prefix: "terra-toolsalpha"
     scheme: "RANDOM_CHAR"
-  # test.firecloud.org/terra_dev_aou_test
-  parentFolderId: "737976594150"
+  # RBS Testing
+  parentFolderId: "637867149294"
   billingAccount: "01A82E-CA8A14-367457"
   enabledApis:
     - "bigquery-json.googleapis.com"
@@ -25,5 +25,10 @@ gcpProjectConfig:
     - "storage-api.googleapis.com"
     - "storage-component.googleapis.com"
     - "dns.googleapis.com"
+  iamBindings:
+    - members: ["group:terra-rbs-test@broadinstitute.org"]
+      role: "roles/editor"
+    - members: ["terra-rbs-viewer-test@broadinstitute.org"]
+      role: "roles/viewer"
   network:
     enableNetworkMonitoring: "true"
