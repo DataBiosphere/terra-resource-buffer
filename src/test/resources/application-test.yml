@@ -1,4 +1,4 @@
-rbs:
+buffer:
   db:
     password: dbpwd
     recreate-db-on-start: true

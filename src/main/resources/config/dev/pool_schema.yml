@@ -1,4 +1,4 @@
-# RBS Pools Schema in dev encironment
+# Resource Buffer Service Pools Schema in dev encironment
 ---
 poolConfigs:
   - poolId: "aou_ws_dev_v1"

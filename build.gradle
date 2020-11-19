@@ -17,7 +17,7 @@ allprojects {
     group = 'bio.terra'
     version = System.getenv('SERVICE_VERSION') != null ? System.getenv('SERVICE_VERSION') : '0.0.1-SNAPSHOT'
     ext {
-        artifactGroup = "${group}.rbs"
+        artifactGroup = "${group}.buffer"
         swaggerOutputDir = "${buildDir}/generated"
         resourceDir = "${rootDir}/src/main/resources"
     }
@@ -145,7 +145,7 @@ jib {
         filesModificationTime = java.time.ZonedDateTime.now().toString() // to prevent ui caching
         jvmFlags = [
                 '-agentpath:' + cloudProfilerLocation + '/profiler_java_agent.so=' +
-                        '-cprof_service=bio.terra.rbs' +
+                        '-cprof_service=bio.terra.buffer' +
                         ',-cprof_service_version=' + version +
                         ',-cprof_enable_heap_sampling=true' +
                         ',-logtostderr' +
@@ -221,7 +221,7 @@ swaggerSources {
 
 // Testing config
 
-// This is the path to the default Google service account for the rbs service to run as.
+// This is the path to the default Google service account for the buffer service to run as.
 def googleCredentialsFile = "${projectDir}/src/test/resources/rendered/sa-account.json"
 
 tasks.withType(Test) {

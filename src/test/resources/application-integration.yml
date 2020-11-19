@@ -1,4 +1,4 @@
-rbs:
+buffer:
   crl:
     # If CRL is used in testing mode.
     testing-mode: true

@@ -1,4 +1,4 @@
-rootProject.name = 'terra-rbs'
-include 'terra-rbs-client'
+rootProject.name = 'terra-resource-buffer'
+include 'terra-resource-buffer-client'
 
 enableFeaturePreview('ONE_LOCKFILE_PER_PROJECT')

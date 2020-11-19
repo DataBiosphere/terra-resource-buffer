@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: init_rbs_table
+      id: init_buffer_table
       author: yonghaoy
       changes:
       - createTable:
