@@ -355,8 +355,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     String bucketName = "storage-logs-" + projectId;
     BucketInfo bucketInfo = storageCow.get(bucketName).getBucketInfo();
     // There might be multiple ACLs as we didn't remove the default ACLs. Only need to verify the
-    // one we just add
-    // exists.
+    // one we just add exists.
     assertEquals(
         bucketInfo.getAcl().stream()
             .filter(acl -> acl.getEntity().equals(STORAGE_LOGS_WRITE_ACL.getEntity()))
