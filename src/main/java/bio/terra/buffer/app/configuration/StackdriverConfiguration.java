@@ -12,7 +12,7 @@ public class StackdriverConfiguration {
   private boolean enabled = true;
 
   /** The probability to record a trace. Should be between 0 and 1. */
-  private double traceSampleProbability = 1.;
+  private double traceSampleProbability = 0.1;
 
   public double getTraceSampleProbability() {
     return traceSampleProbability;
