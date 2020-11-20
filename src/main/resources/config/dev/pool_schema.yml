@@ -1,4 +1,4 @@
-# RBS Pools Schema in dev environment
+# Resource Buffer Service Pools Schema in dev encironment
 ---
 poolConfigs:
   # Pool for GCP projects to be used by workspaces in the AoU test environment. Rawls is the proximal owner of these

@@ -1,23 +1,23 @@
-rbs:
+buffer:
   db:
     password:
     recreate-db-on-start: false
     update-db-on-start: true
-    uri: jdbc:postgresql://127.0.0.1:5432/${RBS_DATABASE_NAME}
+    uri: jdbc:postgresql://127.0.0.1:5432/${BUFFER_DATABASE_NAME}
     username:
   primary:
     scheduler-enabled: true
   pool:
-    # The Folder to have all RBS configs.
+    # The Folder to have all Resource Buffer Service configs.
     # TODO: Investigate where and how to put those files.
     config-path:
     # Whether to update pool when config changes during server startup.
-    # Might be useful to avoid potential backward compatibility casued by config change and make tests easier.
+    # Might be useful to avoid potential backward compatibility caused by config change and make tests easier.
     update-pool-on-start: true
   stairway:
     db:
       password:
-      uri: jdbc:postgresql://127.0.0.1:5432/${RBS_STAIRWAY_DATABASE_NAME}
+      uri: jdbc:postgresql://127.0.0.1:5432/${BUFFER_STAIRWAY_DATABASE_NAME}
       username:
     force-clean-start: false
     max-parallel-flights: 40
@@ -33,7 +33,7 @@ server:
 
 spring:
   application:
-    name: rbs
+    name: buffer
   resources:
     cache.cachecontrol:
       max-age: 0

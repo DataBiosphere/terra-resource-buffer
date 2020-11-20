@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  title: RBS API
+  title: Terra Resource Buffer Service API
   description: |
     Resource Buffering Service to allocate and buffer cloud resources
   version: 0.0.1
@@ -40,7 +40,7 @@ paths:
         - $ref: '#/components/parameters/PoolId'
         - $ref: '#/components/parameters/HandoutRequestId'
       tags:
-        - rbs
+        - buffer
       responses:
         '200':
           description: OK, using the same handoutRequestId will also get 200 back with the same ResourceInfo.
@@ -64,7 +64,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/PoolId'
       tags:
-        - rbs
+        - buffer
       responses:
         '200':
           description: OK
@@ -135,7 +135,7 @@ components:
 
     PoolConfigs:
       description: |-
-        Terra RBS Reource Pools
+        Terra Resource Buffer Service Reource Pools
       required:
         - poolConfigs
       properties:
@@ -147,7 +147,7 @@ components:
 
     PoolConfig:
       description: |-
-        Terra RBS Reource Pool Config
+        Terra Resource Buffer Service Reource Pool Config
       required:
         - poolId
         - size
@@ -163,13 +163,13 @@ components:
           type: integer
         resourceConfigName:
           description: |
-            The config name the pool use. RBS will use it to locate the actual config file.
+            The config name the pool use. Resource Buffer Service will use it to locate the actual config file.
           type: string
       type: object
 
     ResourceInfo:
       description: |-
-        Information represents a resource in RBS
+        Information represents a resource in Resource Buffer Service
       required:
         - poolId
         - requestHandoutId
@@ -181,7 +181,7 @@ components:
           type: string
         requestHandoutId:
           description: |
-            The unique identifier used for handout resource. RBS will handout the same resource for the same id.
+            The unique identifier used for handout resource. Resource Buffer Service will handout the same resource for the same id.
           type: string
         cloudResourceUid:
           $ref: '../../../../build/crlSchema/cloud_resources_uid.yaml#/components/schemas/CloudResourceUid'
@@ -189,7 +189,7 @@ components:
 
     PoolInfo:
       description: |-
-        Information represents a pool in RBS
+        Information represents a pool in Resource Buffer Service
       required:
         - poolId
         - status

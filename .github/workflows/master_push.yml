@@ -80,5 +80,5 @@ jobs:
         token: ${{ secrets.REPO_ACCESS_TOKEN }}
         repository: broadinstitute/terra-helmfile
         event-type: update-service
-        client-payload: '{"service": "rbs", "version": "${{ steps.tag.outputs.tag }}"}'
+        client-payload: '{"service": "buffer", "version": "${{ steps.tag.outputs.tag }}"}'
 
