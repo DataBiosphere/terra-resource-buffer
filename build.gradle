@@ -29,6 +29,14 @@ allprojects {
             mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
         }
         dependencies {
+            dependencySet(group: "io.opencensus", version: "0.26.0") {
+                entry "opencensus-exporter-trace-stackdriver"
+                entry "opencensus-exporter-stats-stackdriver"
+                entry "opencensus-api"
+                entry "opencensus-contrib-spring"
+                entry "opencensus-impl"
+            }
+
             dependency group: "io.swagger.core.v3", name: "swagger-annotations", version: "2.1.5"
             dependency group: "io.swagger.codegen.v3", name: "swagger-codegen-cli", version: "3.0.22"
 
@@ -90,6 +98,12 @@ dependencies {
     implementation group: 'io.swagger.core.v3', name: 'swagger-annotations'
     runtimeOnly group: 'org.webjars.npm', name: 'swagger-ui-dist', version: '3.36.2'
     swaggerCodegen group: 'io.swagger.codegen.v3', name: 'swagger-codegen-cli'
+
+    // Tracing deps
+    implementation group: 'io.opencensus', name: 'opencensus-api'
+    implementation group: 'io.opencensus', name: 'opencensus-exporter-stats-stackdriver'
+    implementation group: 'io.opencensus', name: 'opencensus-exporter-trace-stackdriver'
+    runtimeOnly group: 'io.opencensus', name: 'opencensus-impl'
 
     // Test deps
     testImplementation('org.springframework.boot:spring-boot-starter-test') {

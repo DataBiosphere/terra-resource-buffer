@@ -14,6 +14,8 @@ buffer:
     # Whether to update pool when config changes during server startup.
     # Might be useful to avoid potential backward compatibility caused by config change and make tests easier.
     update-pool-on-start: true
+  stackdriver:
+    enabled: true
   stairway:
     db:
       password:
