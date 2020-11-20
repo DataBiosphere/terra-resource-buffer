@@ -10,7 +10,7 @@ buffer:
   pool:
     # The Folder to have all Resource Buffer Service configs.
     # TODO: Investigate where and how to put those files.
-    configPath: config/dev
+    config-path:
     # Whether to update pool when config changes during server startup.
     # Might be useful to avoid potential backward compatibility caused by config change and make tests easier.
     update-pool-on-start: true

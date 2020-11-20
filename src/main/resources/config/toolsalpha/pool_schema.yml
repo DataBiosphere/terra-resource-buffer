@@ -1,0 +1,6 @@
+# RBS Pools Schema for local testing and on personal environment
+---
+poolConfigs:
+  - poolId: "resource_toolsalpha_v1"
+    size: 3
+    resourceConfigName: "resource_toolsalpha_v1"

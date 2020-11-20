@@ -1,13 +1,12 @@
 # All Of Us buffered workspace template
 ---
-configName: "aou_ws_resource_v1"
+configName: "aou_ws_resource_test_v1"
 gcpProjectConfig:
   projectIdSchema:
     prefix: "aou-rw-test"
     scheme: "RANDOM_CHAR"
-  # TODO: Fill this
-  parentFolderId: null
-  # TODO: Fill this
+  # test.firecloud.org/terra_dev_aou_test
+  parentFolderId: "737976594150"
   billingAccount: "01A82E-CA8A14-367457"
   enabledApis:
     - "bigquery-json.googleapis.com"
@@ -20,9 +19,11 @@ gcpProjectConfig:
     - "containerregistry.googleapis.com"
     - "dataflow.googleapis.com"
     - "dataproc.googleapis.com"
+    - "dns.googleapis.com"
     - "genomics.googleapis.com"
     - "logging.googleapis.com"
     - "monitoring.googleapis.com"
     - "storage-api.googleapis.com"
     - "storage-component.googleapis.com"
-    - "dns.googleapis.com"
+  network:
+    enableNetworkMonitoring: "true"
