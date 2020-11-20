@@ -32,7 +32,7 @@ public class IntegrationUtils {
   public static final String TEST_CONFIG_NAME = "test_config_v1";
 
   private static final Duration PERIOD = Duration.ofSeconds(4);
-  private static final int MAX_POLL_NUM = 100;
+  private static final int MAX_POLL_NUM = 150;
 
   /**
    * The groups used to test IAM policy sets up on a group. It doesn't matter what the users are for
