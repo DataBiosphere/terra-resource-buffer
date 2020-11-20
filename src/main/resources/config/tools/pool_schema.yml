@@ -1,0 +1,6 @@
+# RBS Pools Schema in tools environment
+---
+poolConfigs:
+  - poolId: "cwb_ws_fiab_v1"
+    size: 10
+    resourceConfigName: "cwb_ws_resource_fiab_v1"

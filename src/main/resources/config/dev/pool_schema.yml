@@ -1,6 +1,11 @@
-# RBS Pools Schema in dev encironment
+# RBS Pools Schema in dev environment
 ---
 poolConfigs:
-  - poolId: "aou_ws_dev_v1"
+  # Pool for GCP projects to be used by workspaces in the AoU test environment. Rawls is the proximal owner of these
+  # projects; AoU sits as a layer atop Rawls.
+  - poolId: "aou_ws_test_v1"
     size: 10
-    resourceConfigName: "aou_ws_resource_v1"
+    resourceConfigName: "aou_ws_resource_test_v1"
+  - poolId: "cwb_ws_dev_v1"
+    size: 10
+    resourceConfigName: "cwb_ws_resource_dev_v1"
