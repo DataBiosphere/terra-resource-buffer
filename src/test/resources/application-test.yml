@@ -10,6 +10,8 @@ buffer:
     scheduler-enabled: false
   pool:
     update-pool-on-start: false
+  stackdriver:
+    enabled: false
   stairway:
     db:
       password: dbpwd_stairway

@@ -5,6 +5,7 @@ import bio.terra.buffer.service.cleanup.CleanupScheduler;
 import bio.terra.buffer.service.migrate.MigrateService;
 import bio.terra.buffer.service.pool.PoolService;
 import bio.terra.buffer.service.resource.FlightScheduler;
+import bio.terra.buffer.service.stackdriver.StackdriverExporter;
 import bio.terra.buffer.service.stairway.StairwayComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,7 @@ public final class StartupInitializer {
   private static final String changelogPath = "db/changelog.xml";
 
   public static void initialize(ApplicationContext applicationContext) {
+    applicationContext.getBean(StackdriverExporter.class).initialize();
     // Initialize or upgrade the database depending on the configuration
     MigrateService migrateService = applicationContext.getBean(MigrateService.class);
     BufferJdbcConfiguration bufferJdbcConfiguration =
