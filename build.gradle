@@ -40,7 +40,7 @@ allprojects {
             dependency group: "io.swagger.core.v3", name: "swagger-annotations", version: "2.1.5"
             dependency group: "io.swagger.codegen.v3", name: "swagger-codegen-cli", version: "3.0.22"
 
-            dependency group: 'bio.terra.cloud-resource-lib', name: 'cloud-resource-schema', version: "0.3.0"
+            dependency group: 'bio.terra.cloud-resource-lib', name: 'cloud-resource-schema', version: "0.4.0"
         }
     }
 
@@ -67,12 +67,12 @@ dependencies {
     // Terra deps
     implementation group: 'bio.terra', name: 'stairway', version: '0.0.20'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'cloud-resource-schema'
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-billing', version: '0.3.0'
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-cloudresourcemanager', version: '0.3.0'
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-compute', version: '0.3.0'
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-dns', version: '0.3.0'
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-serviceusage', version: '0.3.0'
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-storage', version: '0.3.0'
+    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-billing', version: '0.4.0'
+    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-cloudresourcemanager', version: '0.4.0'
+    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-compute', version: '0.4.2'
+    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-dns', version: '0.4.0'
+    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-serviceusage', version: '0.4.0'
+    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-storage', version: '0.4.0'
     implementation group: 'bio.terra.janitor', name: 'terra-resource-janitor-client', version: '0.0.2-SNAPSHOT'
 
     // Versioned direct deps

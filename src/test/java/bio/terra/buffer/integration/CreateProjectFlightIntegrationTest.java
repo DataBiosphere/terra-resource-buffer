@@ -11,6 +11,8 @@ import static bio.terra.buffer.service.resource.flight.CreateRouteStep.*;
 import static bio.terra.buffer.service.resource.flight.CreateStorageLogBucketStep.STORAGE_LOGS_LIFECYCLE_RULE;
 import static bio.terra.buffer.service.resource.flight.CreateStorageLogBucketStep.STORAGE_LOGS_WRITE_ACL;
 import static bio.terra.buffer.service.resource.flight.CreateSubnetsStep.*;
+import static bio.terra.buffer.service.resource.flight.DeleteDefaultFirewallRuleStep.DEFAULT_FIREWALL_NAME;
+import static bio.terra.buffer.service.resource.flight.DeleteDefaultNetworkStep.DEFAULT_NETWORK_NAME;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -92,6 +94,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertSubnetsExist(project, NetworkMonitoring.DISABLED);
     assertRouteNotExists(project);
     assertDnsNotExists(project);
+    assertDefaultVPCNotExists(project);
   }
 
   @Test
@@ -124,6 +127,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertSubnetsExist(project, NetworkMonitoring.ENABLED);
     assertRouteExists(project);
     assertDnsExists(project);
+    assertDefaultVPCNotExists(project);
   }
 
   @Test
@@ -460,6 +464,18 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertEquals(expected.getName(), actual.getName());
     assertEquals(expected.getRrdatas(), actual.getRrdatas());
     assertEquals(expected.getTtl(), actual.getTtl());
+  }
+
+  private void assertDefaultVPCNotExists(Project project) throws Exception {
+    for (String firewall : DEFAULT_FIREWALL_NAME) {
+      assertFalse(
+          resourceExists(
+              () -> computeCow.firewalls().get(project.getProjectId(), firewall).execute(), 404));
+    }
+    assertFalse(
+        resourceExists(
+            () -> computeCow.networks().get(project.getProjectId(), DEFAULT_NETWORK_NAME).execute(),
+            404));
   }
 
   /** Dummy {@link CreateProjectStep} which fails in doStep but still runs undoStep. */
