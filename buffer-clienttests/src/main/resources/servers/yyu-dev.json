@@ -1,6 +1,6 @@
 {
   "name": "yyu-dev",
-  "description": "Developer namespace (yyu) in Terra integration cluster.",
+  "description": "Developer namespace (yyu) in terra-integration cluster.",
 
   "bufferUri": "https://buffer.yyu.integ.envs.broadinstitute.org",
   "bufferClientServiceAccountFile": "yyu-buffer-client-sa.json",

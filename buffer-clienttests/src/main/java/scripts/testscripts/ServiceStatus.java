@@ -18,9 +18,6 @@ public class ServiceStatus extends TestScript {
   }
 
   public void userJourney(TestUserSpecification testUser) throws Exception {
-    //    ServiceAccountCredential cred = ServiceAccountCredentials.fromStream(
-    //            new FileInputStream("/tmp/mmedlock-buffer-client-sa.json"));
-
     ApiClient apiClient = BufferServiceUtils.getClient(server);
     UnauthenticatedApi unauthenticatedApi = new UnauthenticatedApi(apiClient);
     SystemStatus systemStatus = unauthenticatedApi.serviceStatus();
