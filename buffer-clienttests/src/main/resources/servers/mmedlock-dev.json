@@ -2,7 +2,7 @@
   "name": "mmedlock-dev",
   "description": "Developer namespace (mmedlock) in Terra integration cluster.",
 
-  "bufferUri": "https://buffer.yyu.integ.envs.broadinstitute.org",
+  "bufferUri": "https://buffer.mmedlock.integ.envs.broadinstitute.org",
   "bufferClientServiceAccountFile": "mmedlock-buffer-client-sa.json",
 
   "cluster": {},
