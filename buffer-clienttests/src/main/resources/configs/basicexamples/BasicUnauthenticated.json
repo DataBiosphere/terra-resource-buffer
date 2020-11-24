@@ -14,5 +14,5 @@
       "expectedTimeForEachUnit": "SECONDS"
     }
   ],
-  "testUserFiles": ["neville.json", "voldemort.json"]
+  "testUserFiles": []
 }

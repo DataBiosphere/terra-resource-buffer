@@ -1,13 +1,11 @@
 package scripts.utils;
 
 import bio.terra.buffer.client.ApiClient;
-import bio.terra.buffer.client.auth.Authentication;
 import bio.terra.testrunner.common.utils.AuthenticationUtils;
 import bio.terra.testrunner.runner.config.ServerSpecification;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
 import java.io.IOException;
-import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,9 +30,9 @@ public class BufferServiceUtils {
 
     // refresh the client service account token
     GoogleCredentials serviceAccountCredential =
-        AuthenticationUtils.getServiceAccountCredential(server.bufferClientServiceAccount);
+        AuthenticationUtils.getServiceAccountCredential(server.bufferClientServiceAccount, true);
     AccessToken accessToken = AuthenticationUtils.getAccessToken(serviceAccountCredential);
-    logger.info(
+    logger.debug(
         "Generated access token for buffer service client SA: {}",
         server.bufferClientServiceAccount.name);
 
@@ -42,12 +40,7 @@ public class BufferServiceUtils {
     ApiClient apiClient = new ApiClient();
     apiClient.setBasePath(server.bufferUri);
     apiClient.setAccessToken(accessToken.getTokenValue());
-    apiClient.setDebugging(true);
-
-    Map<String, Authentication> authentications = apiClient.getAuthentications();
-    for (Map.Entry<String, Authentication> authentication : authentications.entrySet()) {
-      System.out.println(authentication.getKey() + " : " + authentication.getValue().toString());
-    }
+    // apiClient.setDebugging(true); // useful for debugging problems header sent/received
 
     return apiClient;
   }

@@ -42,7 +42,7 @@ dependencies {
 
         samClient = "0.1-9435410-SNAP"
         datarepoClient = "1.0.155-SNAPSHOT"
-        bufferServiceClient = "0.0.2-SNAPSHOT"
+        bufferServiceClient = "0.4.0-SNAPSHOT"
         testRunner = "0.0.1-SNAPSHOT"
     }
 

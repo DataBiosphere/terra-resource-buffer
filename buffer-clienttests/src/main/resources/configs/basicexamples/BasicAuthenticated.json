@@ -8,11 +8,11 @@
   "testScripts": [
     {
       "name": "GetPoolInfo",
-      "numberOfUserJourneyThreadsToRun": 1,
+      "numberOfUserJourneyThreadsToRun": 10,
       "userJourneyThreadPoolSize": 2,
       "expectedTimeForEach": 5,
       "expectedTimeForEachUnit": "SECONDS"
     }
   ],
-  "testUserFiles": ["neville.json", "voldemort.json"]
+  "testUserFiles": []
 }
