@@ -8,6 +8,8 @@ import bio.terra.testrunner.runner.config.TestUserSpecification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scripts.utils.BufferServiceUtils;
+import scripts.utils.DataRepoUtils;
+import scripts.utils.SAMUtils;
 
 public class GetPoolInfo extends TestScript {
   private static final Logger logger = LoggerFactory.getLogger(GetPoolInfo.class);
@@ -18,6 +20,12 @@ public class GetPoolInfo extends TestScript {
   }
 
   public void userJourney(TestUserSpecification testUser) throws Exception {
+    org.broadinstitute.dsde.workbench.client.sam.ApiClient samApiClient =
+        SAMUtils.getClientForTestUser(testUser, server);
+
+    bio.terra.datarepo.client.ApiClient datarepoApiClient =
+        DataRepoUtils.getClientForTestUser(testUser, server);
+
     ApiClient apiClient = BufferServiceUtils.getClient(server);
     BufferApi bufferApi = new BufferApi(apiClient);
     PoolInfo poolInfo = bufferApi.getPoolInfo("123");

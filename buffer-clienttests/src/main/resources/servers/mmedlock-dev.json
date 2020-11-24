@@ -2,6 +2,9 @@
   "name": "mmedlock-dev",
   "description": "Developer namespace (mmedlock) in terra-integration cluster.",
 
+  "samUri": "https://sam.dsde-dev.broadinstitute.org",
+  "datarepoUri": "https://jade-mm.datarepo-dev.broadinstitute.org",
+  "samResourceIdForDatarepo": "broad-jade-dev",
   "bufferUri": "https://buffer.mmedlock.integ.envs.broadinstitute.org",
   "bufferClientServiceAccountFile": "mmedlock-buffer-client-sa.json",
 
