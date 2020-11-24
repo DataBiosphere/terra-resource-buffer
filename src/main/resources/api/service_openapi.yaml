@@ -9,11 +9,8 @@ servers:
   - url: /
 
 security:
-  - googleoauth:
-      - openid
-      - email
-      - profile
   - bearerAuth: []
+  - authorization: [openid, email, profile]
 
 paths:
   '/status':
