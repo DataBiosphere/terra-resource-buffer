@@ -42,8 +42,8 @@ dependencies {
 
         samClient = "0.1-9435410-SNAP"
         datarepoClient = "1.0.155-SNAPSHOT"
-        bufferServiceClient = "0.0.2-20201120.175020-1"
-        testRunner = "0.0.1-20201123.223635-44"
+        bufferServiceClient = "0.0.2-SNAPSHOT"
+        testRunner = "0.0.1-SNAPSHOT"
     }
 
     compileOnly "com.google.code.findbugs:annotations:${findbugsAnnotations}"
@@ -67,8 +67,7 @@ dependencies {
     implementation "org.broadinstitute.dsde.workbench:sam-client_2.12:${samClient}"
 
     // Buffer Service client library
-//    implementation "org.broadinstitute.dsde.workbench:terra-resource-buffer-client:${bufferServiceClient}"
-    implementation files("/Users/marikomedlock/Downloads/terra-resource-buffer-client-0.0.1-20201119.231723-1.jar")
+    implementation "bio.terra:terra-resource-buffer-client:${bufferServiceClient}"
 
     // Data Repo client library
     // Gradle project property "datarepoclientjar" overrides the fetch from Maven
@@ -86,12 +85,11 @@ dependencies {
 
     // Terra Test Runner library
     // Gradle project property "testrunnerjar" overrides the fetch from Maven
-//    if (project.hasProperty("testrunnerjar")) {
-//        implementation files(project.findProperty("testrunnerjar"))
-//    } else {
-//        implementation "bio.terra:terra-test-runner:${testRunner}"
-//    }
-    implementation files("/Users/marikomedlock/Workspaces/terra-test-runner/build/libs/terra-test-runner-0.0.1-SNAPSHOT.jar")
+    if (project.hasProperty("testrunnerjar")) {
+        implementation files(project.findProperty("testrunnerjar"))
+    } else {
+        implementation "bio.terra:terra-test-runner:${testRunner}"
+    }
 }
 
 group "bio.terra"
