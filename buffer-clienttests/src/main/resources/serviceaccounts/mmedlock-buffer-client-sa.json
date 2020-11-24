@@ -1,0 +1,5 @@
+{
+  "name": "buffer-client-mmedlock@terra-kernel-k8s.iam.gserviceaccount.com",
+  "jsonKeyFilename": "mmedlock-buffer-client-sa.json",
+  "jsonKeyDirectoryPath": "/tmp"
+}

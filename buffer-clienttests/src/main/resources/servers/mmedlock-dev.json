@@ -1,0 +1,14 @@
+{
+  "name": "mmedlock-dev",
+  "description": "Developer namespace (mmedlock) in Terra integration cluster.",
+
+  "bufferUri": "https://buffer.yyu.integ.envs.broadinstitute.org",
+  "bufferClientServiceAccountFile": "mmedlock-buffer-client-sa.json",
+
+  "cluster": {},
+  "deploymentScript": {},
+  "testRunnerServiceAccountFile": "jade-k8-sa.json",
+
+  "skipDeployment": true,
+  "skipKubernetes": true
+}
