@@ -49,7 +49,7 @@ public class CreateNetworkStep implements Step {
           computeCow
               .globalOperations()
               .operationCow(projectId, computeCow.networks().insert(projectId, network).execute());
-      pollUntilSuccess(operation, Duration.ofSeconds(5), Duration.ofMinutes(5));
+      pollUntilSuccess(operation, Duration.ofSeconds(3), Duration.ofMinutes(5));
     } catch (IOException | InterruptedException e) {
       logger.info("Error when creating network", e);
       return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY, e);

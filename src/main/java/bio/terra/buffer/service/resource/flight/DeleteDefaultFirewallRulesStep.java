@@ -56,7 +56,7 @@ public class DeleteDefaultFirewallRulesStep implements Step {
       }
 
       for (OperationCow<?> operation : operationsToPoll) {
-        pollUntilSuccess(operation, Duration.ofSeconds(5), Duration.ofMinutes(5));
+        pollUntilSuccess(operation, Duration.ofSeconds(3), Duration.ofMinutes(5));
       }
     } catch (IOException | InterruptedException e) {
       logger.info("Error when deleting firewall rule", e);
