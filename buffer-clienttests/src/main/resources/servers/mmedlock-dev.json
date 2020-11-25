@@ -10,7 +10,7 @@
 
   "cluster": {},
   "deploymentScript": {},
-  "testRunnerServiceAccountFile": "jade-k8-sa.json",
+  "testRunnerServiceAccountFile": "mmedlock-buffer-client-sa.json",
 
   "skipDeployment": true,
   "skipKubernetes": true

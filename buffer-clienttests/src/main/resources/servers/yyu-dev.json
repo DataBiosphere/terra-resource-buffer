@@ -7,7 +7,7 @@
 
   "cluster": {},
   "deploymentScript": {},
-  "testRunnerServiceAccountFile": "jade-k8-sa.json",
+  "testRunnerServiceAccountFile": "yyu-buffer-client-sa.json",
 
   "skipDeployment": true,
   "skipKubernetes": true
