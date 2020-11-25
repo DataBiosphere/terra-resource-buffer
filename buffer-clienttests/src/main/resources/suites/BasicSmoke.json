@@ -2,5 +2,5 @@
   "name": "BasicSmoke",
   "description": "Smoke tests.",
   "serverSpecificationFile": "mmedlock-dev.json",
-  "testConfigurationFiles": ["basicexamples/BasicUnauthenticated.json", "basicexamples/BasicAuthenticated.json"]
+  "testConfigurationFiles": ["BasicUnauthenticated.json", "BasicAuthenticated.json"]
 }
