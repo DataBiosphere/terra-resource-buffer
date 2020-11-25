@@ -1,7 +1,7 @@
 {
   "name": "BasicAuthenticated",
   "description": "Fetch pool info repeatedly, concurrently. Authentication required.",
-  "serverSpecificationFile": "mmedlock-dev.json",
+  "serverSpecificationFile": "yyu-dev.json",
   "billingAccount": "00708C-45D19D-27AAFA",
   "kubernetes": {},
   "application": {},
