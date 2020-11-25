@@ -18,6 +18,7 @@ import com.google.api.services.compute.Compute;
 import com.google.api.services.compute.ComputeScopes;
 import com.google.api.services.dns.Dns;
 import com.google.api.services.iam.v1.Iam;
+import com.google.api.services.iam.v1.IamScopes;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
@@ -207,7 +208,7 @@ public class CrlConfiguration {
                 setHttpTimeout(
                     new HttpCredentialsAdapter(
                         GoogleCredentials.getApplicationDefault()
-                            .createScoped(ComputeScopes.all()))))
+                            .createScoped(IamScopes.all()))))
             .setApplicationName(CLIENT_NAME));
   }
 
