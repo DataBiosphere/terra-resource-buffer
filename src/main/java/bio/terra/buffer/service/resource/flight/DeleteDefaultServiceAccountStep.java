@@ -40,7 +40,7 @@ public class DeleteDefaultServiceAccountStep implements Step {
       if (e instanceof GoogleJsonResponseException
           && ((GoogleJsonResponseException) e).getStatusCode() == 404) {
         logger.info("Service Account does not exist", e);
-        // Mark step success if the SA account does not exist or already deleted.
+        // Mark step as success if the SA account does not exist or already deleted.
         return StepResult.getStepResultSuccess();
       }
       logger.info("Error when deleting service account", e);
