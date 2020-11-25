@@ -6,6 +6,7 @@ import bio.terra.stairway.FlightMap;
 public class FlightMapKeys {
   public static final String CLOUD_RESOURCE_UID = "cloudResourceUid";
   public static final String GOOGLE_PROJECT_ID = "googleProjectId";
+  public static final String GOOGLE_PROJECT_NUMBER = "googleProjectNumber";
   public static final String RESOURCE_CONFIG = "resourceConfig";
 
   /**

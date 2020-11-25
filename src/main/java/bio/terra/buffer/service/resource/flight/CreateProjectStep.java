@@ -1,7 +1,6 @@
 package bio.terra.buffer.service.resource.flight;
 
-import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
-import static bio.terra.buffer.service.resource.FlightMapKeys.RESOURCE_CONFIG;
+import static bio.terra.buffer.service.resource.FlightMapKeys.*;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.*;
 import static bio.terra.buffer.service.resource.flight.StepUtils.isResourceReady;
 
@@ -53,7 +52,9 @@ public class CreateProjectStep implements Step {
                   new ResourceId().setType("folder").setId(gcpProjectConfig.getParentFolderId()));
       OperationCow<?> operation =
           rmCow.operations().operationCow(rmCow.projects().create(project).execute());
-      pollUntilSuccess(operation, Duration.ofSeconds(10), Duration.ofMinutes(5));
+      pollUntilSuccess(operation, Duration.ofSeconds(5), Duration.ofMinutes(5));
+      Project createdProject = rmCow.projects().get(projectId).execute();
+      flightContext.getWorkingMap().put(GOOGLE_PROJECT_NUMBER, createdProject.getProjectNumber());
     } catch (IOException | InterruptedException e) {
       logger.info("Error when creating GCP project", e);
       return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY, e);

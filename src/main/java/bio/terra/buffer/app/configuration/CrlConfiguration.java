@@ -7,6 +7,7 @@ import bio.terra.cloudres.google.billing.CloudBillingClientCow;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.cloudres.google.compute.CloudComputeCow;
 import bio.terra.cloudres.google.dns.DnsCow;
+import bio.terra.cloudres.google.iam.IamCow;
 import bio.terra.cloudres.google.serviceusage.ServiceUsageCow;
 import bio.terra.cloudres.google.storage.StorageCow;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
@@ -16,6 +17,7 @@ import com.google.api.services.cloudresourcemanager.CloudResourceManagerScopes;
 import com.google.api.services.compute.Compute;
 import com.google.api.services.compute.ComputeScopes;
 import com.google.api.services.dns.Dns;
+import com.google.api.services.iam.v1.Iam;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
@@ -193,6 +195,22 @@ public class CrlConfiguration {
     return new StorageCow(clientConfig(), StorageOptions.getDefaultInstance());
   }
 
+  /** The CRL {@link IamCow} which wrappers Google IAM API. */
+  @Bean
+  @Lazy
+  public IamCow iamCow() throws IOException, GeneralSecurityException {
+    return new IamCow(
+            clientConfig(),
+            new Iam.Builder(
+                    GoogleNetHttpTransport.newTrustedTransport(),
+                    Defaults.jsonFactory(),
+                    setHttpTimeout(
+                            new HttpCredentialsAdapter(
+                                    GoogleCredentials.getApplicationDefault()
+                                            .createScoped(ComputeScopes.all()))))
+                    .setApplicationName(CLIENT_NAME));
+  }
+  
   /** Loads the Janitor client service account credential from file. */
   public ServiceAccountCredentials loadJanitorClientCredential() {
     try {

@@ -30,6 +30,7 @@ import bio.terra.cloudres.google.billing.CloudBillingClientCow;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.cloudres.google.compute.CloudComputeCow;
 import bio.terra.cloudres.google.dns.DnsCow;
+import bio.terra.cloudres.google.iam.IamCow;
 import bio.terra.cloudres.google.serviceusage.ServiceUsageCow;
 import bio.terra.cloudres.google.storage.StorageCow;
 import bio.terra.stairway.*;
@@ -67,6 +68,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   @Autowired CloudResourceManagerCow rmCow;
   @Autowired CloudBillingClientCow billingCow;
   @Autowired DnsCow dnsCow;
+  @Autowired
+  IamCow iamCow;
   @Autowired ServiceUsageCow serviceUsageCow;
   @Autowired FlightSubmissionFactoryImpl flightSubmissionFactoryImpl;
   @Autowired ClientConfig clientConfig;
