@@ -71,6 +71,7 @@ dependencies {
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-cloudresourcemanager', version: '0.4.0'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-compute', version: '0.4.2'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-dns', version: '0.4.0'
+    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-iam', version: '0.1.0'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-serviceusage', version: '0.4.0'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-storage', version: '0.4.0'
     implementation group: 'bio.terra.janitor', name: 'terra-resource-janitor-client', version: '0.0.2-SNAPSHOT'

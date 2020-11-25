@@ -11,6 +11,7 @@ import bio.terra.cloudres.google.billing.CloudBillingClientCow;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.cloudres.google.compute.CloudComputeCow;
 import bio.terra.cloudres.google.dns.DnsCow;
+import bio.terra.cloudres.google.iam.IamCow;
 import bio.terra.cloudres.google.serviceusage.ServiceUsageCow;
 import bio.terra.stairway.Flight;
 import bio.terra.stairway.FlightMap;
@@ -31,6 +32,7 @@ public class GoogleProjectCreationFlight extends Flight {
     CloudComputeCow cloudComputeCow =
         ((ApplicationContext) applicationContext).getBean(CloudComputeCow.class);
     DnsCow dnsCow = ((ApplicationContext) applicationContext).getBean(DnsCow.class);
+    IamCow iamCow = ((ApplicationContext) applicationContext).getBean(IamCow.class);
     ClientConfig clientConfig =
         ((ApplicationContext) applicationContext).getBean(ClientConfig.class);
     GcpProjectConfig gcpProjectConfig =
@@ -47,6 +49,7 @@ public class GoogleProjectCreationFlight extends Flight {
     addStep(new EnableServicesStep(serviceUsageCow, gcpProjectConfig));
     addStep(new SetIamPolicyStep(rmCow, gcpProjectConfig));
     addStep(new CreateStorageLogBucketStep(clientConfig, gcpProjectConfig));
+    addStep(new DeleteDefaultServiceAccountStep(iamCow));
     addStep(new DeleteDefaultFirewallRulesStep(cloudComputeCow));
     addStep(new DeleteDefaultNetworkStep(cloudComputeCow, gcpProjectConfig));
     addStep(new CreateNetworkStep(cloudComputeCow, gcpProjectConfig));

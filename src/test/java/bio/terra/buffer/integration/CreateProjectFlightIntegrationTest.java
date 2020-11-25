@@ -32,6 +32,7 @@ import bio.terra.cloudres.google.billing.CloudBillingClientCow;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.cloudres.google.compute.CloudComputeCow;
 import bio.terra.cloudres.google.dns.DnsCow;
+import bio.terra.cloudres.google.iam.IamCow;
 import bio.terra.cloudres.google.serviceusage.ServiceUsageCow;
 import bio.terra.cloudres.google.storage.StorageCow;
 import bio.terra.stairway.*;
@@ -69,6 +70,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   @Autowired CloudResourceManagerCow rmCow;
   @Autowired CloudBillingClientCow billingCow;
   @Autowired DnsCow dnsCow;
+  @Autowired IamCow iamCow;
   @Autowired ServiceUsageCow serviceUsageCow;
   @Autowired FlightSubmissionFactoryImpl flightSubmissionFactoryImpl;
   @Autowired ClientConfig clientConfig;
@@ -95,6 +97,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertRouteNotExists(project);
     assertDnsNotExists(project);
     assertDefaultVpcNotExists(project);
+    assertDefaultServiceAccountNotExists(project);
   }
 
   @Test
@@ -476,6 +479,16 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
         resourceExists(
             () -> computeCow.networks().get(project.getProjectId(), DEFAULT_NETWORK_NAME).execute(),
             404));
+  }
+
+  private void assertDefaultServiceAccountNotExists(Project project) throws Exception {
+    assertNull(
+        iamCow
+            .projects()
+            .serviceAccounts()
+            .list("projects/" + project.getProjectId())
+            .execute()
+            .getAccounts());
   }
 
   /** Dummy {@link CreateProjectStep} which fails in doStep but still runs undoStep. */
