@@ -1,7 +1,8 @@
 package bio.terra.buffer.service.resource.flight;
 
-import bio.terra.buffer.generated.model.GcpProjectConfig;
-import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
+import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
+import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_NUMBER;
+
 import bio.terra.cloudres.google.iam.IamCow;
 import bio.terra.stairway.FlightContext;
 import bio.terra.stairway.Step;
@@ -9,22 +10,13 @@ import bio.terra.stairway.StepResult;
 import bio.terra.stairway.StepStatus;
 import bio.terra.stairway.exception.RetryException;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
-import com.google.api.services.cloudresourcemanager.model.Binding;
-import com.google.api.services.cloudresourcemanager.model.GetIamPolicyRequest;
-import com.google.api.services.cloudresourcemanager.model.Policy;
-import com.google.api.services.cloudresourcemanager.model.SetIamPolicyRequest;
+import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-
-import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
-import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_NUMBER;
-import static bio.terra.buffer.service.resource.flight.GoogleUtils.resourceExists;
-
 /**
- * Deletes the default Compute Engine service account in the project.
- * See <a href="https://cloud.google.com/iam/docs/service-accounts#default"> Default service accounts</a>
+ * Deletes the default Compute Engine service account in the project. See <a
+ * href="https://cloud.google.com/iam/docs/service-accounts#default">Default service accounts</a>
  */
 public class DeleteDefaultServiceAccountStep implements Step {
   private final Logger logger = LoggerFactory.getLogger(DeleteDefaultServiceAccountStep.class);
@@ -39,9 +31,14 @@ public class DeleteDefaultServiceAccountStep implements Step {
     String projectId = flightContext.getWorkingMap().get(GOOGLE_PROJECT_ID, String.class);
     Long projectNumber = flightContext.getWorkingMap().get(GOOGLE_PROJECT_NUMBER, Long.class);
     try {
-      iamCow.projects().serviceAccounts().delete(getServiceAccountName(projectId, projectNumber));
+      iamCow
+          .projects()
+          .serviceAccounts()
+          .delete(getServiceAccountName(projectId, projectNumber))
+          .execute();
     } catch (IOException e) {
-      if(e instanceof GoogleJsonResponseException && ((GoogleJsonResponseException) e).getStatusCode() == 404) {
+      if (e instanceof GoogleJsonResponseException
+          && ((GoogleJsonResponseException) e).getStatusCode() == 404) {
         logger.info("Service Account does not exist", e);
         // Mark step success if the SA account does not exist or already deleted.
         return StepResult.getStepResultSuccess();
@@ -59,6 +56,10 @@ public class DeleteDefaultServiceAccountStep implements Step {
 
   /** The default Compute Engine service account name. */
   public String getServiceAccountName(String projectId, Long projectNumber) {
-    return "projects/" + projectId + "/serviceAccounts/" + projectNumber + "-compute@developer.gserviceaccount.com";
+    return "projects/"
+        + projectId
+        + "/serviceAccounts/"
+        + projectNumber
+        + "-compute@developer.gserviceaccount.com";
   }
 }

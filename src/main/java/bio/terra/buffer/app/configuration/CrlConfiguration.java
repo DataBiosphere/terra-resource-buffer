@@ -200,17 +200,17 @@ public class CrlConfiguration {
   @Lazy
   public IamCow iamCow() throws IOException, GeneralSecurityException {
     return new IamCow(
-            clientConfig(),
-            new Iam.Builder(
-                    GoogleNetHttpTransport.newTrustedTransport(),
-                    Defaults.jsonFactory(),
-                    setHttpTimeout(
-                            new HttpCredentialsAdapter(
-                                    GoogleCredentials.getApplicationDefault()
-                                            .createScoped(ComputeScopes.all()))))
-                    .setApplicationName(CLIENT_NAME));
+        clientConfig(),
+        new Iam.Builder(
+                GoogleNetHttpTransport.newTrustedTransport(),
+                Defaults.jsonFactory(),
+                setHttpTimeout(
+                    new HttpCredentialsAdapter(
+                        GoogleCredentials.getApplicationDefault()
+                            .createScoped(ComputeScopes.all()))))
+            .setApplicationName(CLIENT_NAME));
   }
-  
+
   /** Loads the Janitor client service account credential from file. */
   public ServiceAccountCredentials loadJanitorClientCredential() {
     try {

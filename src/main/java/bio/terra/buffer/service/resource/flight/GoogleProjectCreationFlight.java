@@ -16,7 +16,6 @@ import bio.terra.cloudres.google.serviceusage.ServiceUsageCow;
 import bio.terra.stairway.Flight;
 import bio.terra.stairway.FlightMap;
 import bio.terra.stairway.RetryRuleFixedInterval;
-import com.google.api.services.iam.v1.Iam;
 import org.springframework.context.ApplicationContext;
 
 /** {@link Flight} to create GCP project. */
@@ -33,8 +32,7 @@ public class GoogleProjectCreationFlight extends Flight {
     CloudComputeCow cloudComputeCow =
         ((ApplicationContext) applicationContext).getBean(CloudComputeCow.class);
     DnsCow dnsCow = ((ApplicationContext) applicationContext).getBean(DnsCow.class);
-    IamCow iamCow =
-            ((ApplicationContext) applicationContext).getBean(IamCow.class);
+    IamCow iamCow = ((ApplicationContext) applicationContext).getBean(IamCow.class);
     ClientConfig clientConfig =
         ((ApplicationContext) applicationContext).getBean(ClientConfig.class);
     GcpProjectConfig gcpProjectConfig =
@@ -52,6 +50,8 @@ public class GoogleProjectCreationFlight extends Flight {
     addStep(new SetIamPolicyStep(rmCow, gcpProjectConfig));
     addStep(new CreateStorageLogBucketStep(clientConfig, gcpProjectConfig));
     addStep(new DeleteDefaultServiceAccountStep(iamCow));
+    addStep(new DeleteDefaultFirewallRulesStep(cloudComputeCow));
+    addStep(new DeleteDefaultNetworkStep(cloudComputeCow, gcpProjectConfig));
     addStep(new CreateNetworkStep(cloudComputeCow, gcpProjectConfig));
     addStep(new CreateRouteStep(cloudComputeCow, gcpProjectConfig));
     addStep(new CreateFirewallRuleStep(cloudComputeCow));
