@@ -12,20 +12,21 @@ import bio.terra.stairway.Step;
 import bio.terra.stairway.StepResult;
 import bio.terra.stairway.StepStatus;
 import bio.terra.stairway.exception.RetryException;
-import com.google.api.services.compute.model.Network;
 import java.io.IOException;
 import java.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Creates a VPC network within a GCP project created in a prior step. */
-public class CreateNetworkStep implements Step {
+/** Delete the default network because we will manually create it later. */
+public class DeleteDefaultNetworkStep implements Step {
+  /** The name of GCP default network. */
+  public static final String DEFAULT_NETWORK_NAME = "default";
 
-  private final Logger logger = LoggerFactory.getLogger(CreateNetworkStep.class);
+  private final Logger logger = LoggerFactory.getLogger(DeleteDefaultNetworkStep.class);
   private final CloudComputeCow computeCow;
   private final GcpProjectConfig gcpProjectConfig;
 
-  public CreateNetworkStep(CloudComputeCow computeCow, GcpProjectConfig gcpProjectConfig) {
+  public DeleteDefaultNetworkStep(CloudComputeCow computeCow, GcpProjectConfig gcpProjectConfig) {
     this.computeCow = computeCow;
     this.gcpProjectConfig = gcpProjectConfig;
   }
@@ -36,22 +37,24 @@ public class CreateNetworkStep implements Step {
     try {
       // Skip this steps if network already exists. This may happen when previous step's polling
       // times out, while network is created before next retry.
-      if (resourceExists(
-          () -> computeCow.networks().get(projectId, GoogleUtils.NETWORK_NAME).execute(), 404)) {
+      if (!resourceExists(
+          () -> computeCow.networks().get(projectId, DEFAULT_NETWORK_NAME).execute(), 404)) {
         logger.info(
-            "Network already exists for project %s: {}. Skipping CreateNetworkStep", projectId);
+            "Default network: {} is already deleted for project: {}. Skipping DeleteDefaultNetworkStep",
+            DEFAULT_NETWORK_NAME,
+            projectId);
         return StepResult.getStepResultSuccess();
       }
 
-      Network network =
-          new Network().setName(GoogleUtils.NETWORK_NAME).setAutoCreateSubnetworks(false);
       OperationCow<?> operation =
           computeCow
               .globalOperations()
-              .operationCow(projectId, computeCow.networks().insert(projectId, network).execute());
+              .operationCow(
+                  projectId,
+                  computeCow.networks().delete(projectId, DEFAULT_NETWORK_NAME).execute());
       pollUntilSuccess(operation, Duration.ofSeconds(3), Duration.ofMinutes(5));
     } catch (IOException | InterruptedException e) {
-      logger.info("Error when creating network", e);
+      logger.info("Error when deleting default network", e);
       return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY, e);
     }
     return StepResult.getStepResultSuccess();
