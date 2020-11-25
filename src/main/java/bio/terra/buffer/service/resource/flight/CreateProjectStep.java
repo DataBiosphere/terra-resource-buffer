@@ -53,7 +53,7 @@ public class CreateProjectStep implements Step {
                   new ResourceId().setType("folder").setId(gcpProjectConfig.getParentFolderId()));
       OperationCow<?> operation =
           rmCow.operations().operationCow(rmCow.projects().create(project).execute());
-      pollUntilSuccess(operation, Duration.ofSeconds(10), Duration.ofMinutes(5));
+      pollUntilSuccess(operation, Duration.ofSeconds(5), Duration.ofMinutes(5));
     } catch (IOException | InterruptedException e) {
       logger.info("Error when creating GCP project", e);
       return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY, e);

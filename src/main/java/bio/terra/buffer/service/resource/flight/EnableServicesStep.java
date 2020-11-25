@@ -48,7 +48,7 @@ public class EnableServicesStep implements Step {
                           new BatchEnableServicesRequest()
                               .setServiceIds(gcpProjectConfig.getEnabledApis()))
                       .execute());
-      pollUntilSuccess(operation, Duration.ofSeconds(10), Duration.ofMinutes(5));
+      pollUntilSuccess(operation, Duration.ofSeconds(5), Duration.ofMinutes(5));
     } catch (IOException | InterruptedException e) {
       logger.info("Error enabling services GCP project, id: {}", projectId, e);
       return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY, e);

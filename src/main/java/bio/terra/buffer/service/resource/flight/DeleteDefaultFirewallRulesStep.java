@@ -19,20 +19,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Deletes GCP statically-named firewall rules because we will manually created them later. */
-public class DeleteDefaultFirewallRuleStep implements Step {
+public class DeleteDefaultFirewallRulesStep implements Step {
   /**
    * The default firewalls to delete. See <a
    * href="https://cloud.google.com/vpc/docs/firewalls#more_rules_default_vpc">Pre-populated rules
    * in the default network</a>.
    */
-  public static final List<String> DEFAULT_FIREWALL_NAME =
+  public static final List<String> DEFAULT_FIREWALL_NAMES =
       ImmutableList.of(
           "default-allow-icmp", "default-allow-internal", "default-allow-rdp", "default-allow-ssh");
 
-  private final Logger logger = LoggerFactory.getLogger(DeleteDefaultFirewallRuleStep.class);
+  private final Logger logger = LoggerFactory.getLogger(DeleteDefaultFirewallRulesStep.class);
   private final CloudComputeCow computeCow;
 
-  public DeleteDefaultFirewallRuleStep(CloudComputeCow computeCow) {
+  public DeleteDefaultFirewallRulesStep(CloudComputeCow computeCow) {
     this.computeCow = computeCow;
   }
 
@@ -41,7 +41,7 @@ public class DeleteDefaultFirewallRuleStep implements Step {
     String projectId = flightContext.getWorkingMap().get(GOOGLE_PROJECT_ID, String.class);
     try {
       List<OperationCow<?>> operationsToPoll = new ArrayList<>();
-      for (String firewallName : DEFAULT_FIREWALL_NAME) {
+      for (String firewallName : DEFAULT_FIREWALL_NAMES) {
         if (!resourceExists(
             () -> computeCow.firewalls().get(projectId, firewallName).execute(), 404)) {
           logger.info(

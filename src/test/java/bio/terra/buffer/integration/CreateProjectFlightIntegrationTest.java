@@ -11,7 +11,7 @@ import static bio.terra.buffer.service.resource.flight.CreateRouteStep.*;
 import static bio.terra.buffer.service.resource.flight.CreateStorageLogBucketStep.STORAGE_LOGS_LIFECYCLE_RULE;
 import static bio.terra.buffer.service.resource.flight.CreateStorageLogBucketStep.STORAGE_LOGS_WRITE_ACL;
 import static bio.terra.buffer.service.resource.flight.CreateSubnetsStep.*;
-import static bio.terra.buffer.service.resource.flight.DeleteDefaultFirewallRuleStep.DEFAULT_FIREWALL_NAME;
+import static bio.terra.buffer.service.resource.flight.DeleteDefaultFirewallRulesStep.DEFAULT_FIREWALL_NAMES;
 import static bio.terra.buffer.service.resource.flight.DeleteDefaultNetworkStep.DEFAULT_NETWORK_NAME;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -94,7 +94,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertSubnetsExist(project, NetworkMonitoring.DISABLED);
     assertRouteNotExists(project);
     assertDnsNotExists(project);
-    assertDefaultVPCNotExists(project);
+    assertDefaultVpcNotExists(project);
   }
 
   @Test
@@ -127,7 +127,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertSubnetsExist(project, NetworkMonitoring.ENABLED);
     assertRouteExists(project);
     assertDnsExists(project);
-    assertDefaultVPCNotExists(project);
+    assertDefaultVpcNotExists(project);
   }
 
   @Test
@@ -466,8 +466,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertEquals(expected.getTtl(), actual.getTtl());
   }
 
-  private void assertDefaultVPCNotExists(Project project) throws Exception {
-    for (String firewall : DEFAULT_FIREWALL_NAME) {
+  private void assertDefaultVpcNotExists(Project project) throws Exception {
+    for (String firewall : DEFAULT_FIREWALL_NAMES) {
       assertFalse(
           resourceExists(
               () -> computeCow.firewalls().get(project.getProjectId(), firewall).execute(), 404));
