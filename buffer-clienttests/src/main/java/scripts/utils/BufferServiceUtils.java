@@ -5,10 +5,18 @@ import bio.terra.testrunner.common.utils.AuthenticationUtils;
 import bio.terra.testrunner.runner.config.ServerSpecification;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.common.base.Strings;
 import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This class provides a method to build an ApiClient object with the appropriate service account
+ * credentials for a given Terra environment/deployment (i.e. ServerSpecification).
+ *
+ * <p>Any other utility methods that wrap client library functionality can also be added to this
+ * class.
+ */
 public class BufferServiceUtils {
   private static final Logger logger = LoggerFactory.getLogger(BufferServiceUtils.class);
 
@@ -21,7 +29,7 @@ public class BufferServiceUtils {
    * @return the API client object
    */
   public static ApiClient getClient(ServerSpecification server) throws IOException {
-    if (server.bufferUri == null || server.bufferUri.isEmpty()) {
+    if (Strings.isNullOrEmpty(server.bufferUri)) {
       throw new IllegalArgumentException("Buffer Service URI cannot be empty");
     }
     if (server.bufferClientServiceAccount == null) {
@@ -41,7 +49,6 @@ public class BufferServiceUtils {
     ApiClient apiClient = new ApiClient();
     apiClient.setBasePath(server.bufferUri);
     apiClient.setAccessToken(accessToken.getTokenValue());
-    // apiClient.setDebugging(true); // useful for debugging problems header sent/received
 
     return apiClient;
   }
