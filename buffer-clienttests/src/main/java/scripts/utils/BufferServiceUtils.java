@@ -30,7 +30,8 @@ public class BufferServiceUtils {
 
     // refresh the client service account token
     GoogleCredentials serviceAccountCredential =
-        AuthenticationUtils.getServiceAccountCredential(server.bufferClientServiceAccount, true);
+        AuthenticationUtils.getServiceAccountCredential(
+            server.bufferClientServiceAccount, AuthenticationUtils.userLoginScopes);
     AccessToken accessToken = AuthenticationUtils.getAccessToken(serviceAccountCredential);
     logger.debug(
         "Generated access token for buffer service client SA: {}",
