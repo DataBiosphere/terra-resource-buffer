@@ -2,6 +2,7 @@ package bio.terra.buffer.service.stairway;
 
 import bio.terra.buffer.app.configuration.StairwayConfiguration;
 import bio.terra.buffer.app.configuration.StairwayJdbcConfiguration;
+import bio.terra.buffer.service.resource.flight.SpanContextHook;
 import bio.terra.stairway.Stairway;
 import bio.terra.stairway.exception.StairwayException;
 import bio.terra.stairway.exception.StairwayExecutionException;
@@ -49,7 +50,7 @@ public class StairwayComponent {
             .maxParallelFlights(stairwayConfiguration.getMaxParallelFlights())
             .applicationContext(applicationContext)
             .stairwayName(stairwayConfiguration.getName())
-            .stairwayClusterName(stairwayConfiguration.getClusterName());
+            .stairwayClusterName(stairwayConfiguration.getClusterName()).stairwayHook(new SpanContextHook());
     try {
       stairway = builder.build();
     } catch (StairwayExecutionException e) {
