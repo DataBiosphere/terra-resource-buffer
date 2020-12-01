@@ -207,8 +207,7 @@ public class CrlConfiguration {
                 Defaults.jsonFactory(),
                 setHttpTimeout(
                     new HttpCredentialsAdapter(
-                        GoogleCredentials.getApplicationDefault()
-                            .createScoped(IamScopes.all()))))
+                        GoogleCredentials.getApplicationDefault().createScoped(IamScopes.all()))))
             .setApplicationName(CLIENT_NAME));
   }
 
