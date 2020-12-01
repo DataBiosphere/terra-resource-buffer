@@ -21,6 +21,7 @@ public class GetPoolInfo extends TestScript {
     super();
   }
 
+  @Override
   public void userJourney(TestUserSpecification testUser) throws Exception {
     ApiClient apiClient = BufferServiceUtils.getClient(server);
     BufferApi bufferApi = new BufferApi(apiClient);

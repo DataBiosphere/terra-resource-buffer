@@ -1,5 +1,5 @@
 {
   "name": "buffer-client-yyu@terra-kernel-k8s.iam.gserviceaccount.com",
-  "jsonKeyFilename": "sa-account.json",
-  "jsonKeyDirectoryPath": "../src/test/resources/rendered"
+  "jsonKeyFilename": "yyu-buffer-client-sa-key.json",
+  "jsonKeyDirectoryPath": "./rendered"
 }
