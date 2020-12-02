@@ -19,3 +19,5 @@ buffer:
       username: dbuser_stairway
     force-clean-start: true
     migrate-upgrade: true
+
+spring.profiles.include: human-readable-logging
