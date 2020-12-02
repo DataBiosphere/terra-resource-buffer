@@ -1,5 +1,7 @@
 package bio.terra.buffer.service.resource;
 
+import static bio.terra.buffer.service.resource.flight.SpanContextHookHelper.serializeSpanContext;
+
 import bio.terra.buffer.common.Pool;
 import bio.terra.buffer.common.Resource;
 import bio.terra.buffer.common.ResourceType;
@@ -12,10 +14,6 @@ import io.opencensus.trace.Span;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
 import org.springframework.stereotype.Component;
-
-import static bio.terra.buffer.service.resource.FlightMapKeys.SPAN_CONTEXT;
-import static bio.terra.buffer.service.resource.flight.SpanContextHookHelper.SPAN_CONTEXT;
-import static bio.terra.buffer.service.resource.flight.SpanContextHookHelper.serializeSpanContext;
 
 @Component
 public class FlightSubmissionFactoryImpl implements FlightSubmissionFactory {
@@ -39,8 +37,9 @@ public class FlightSubmissionFactoryImpl implements FlightSubmissionFactory {
               "Creation for ResourceType: %s is not supported, PoolId: %s",
               pool.toString(), pool.id()));
     }
-    Span span = tracer.spanBuilderWithExplicitParent(CREATE_GOOGLE_PROJECT_SPAN_NAME, null).startSpan();
-    try{
+    Span span =
+        tracer.spanBuilderWithExplicitParent(CREATE_GOOGLE_PROJECT_SPAN_NAME, null).startSpan();
+    try {
       FlightMap flightMap = new FlightMap();
       pool.id().store(flightMap);
       flightMap.put(FlightMapKeys.RESOURCE_CONFIG, pool.resourceConfig());
@@ -57,7 +56,8 @@ public class FlightSubmissionFactoryImpl implements FlightSubmissionFactory {
       throw new UnsupportedOperationException(
           String.format("Deletion for ResourceType: %s is not supported", type.toString()));
     }
-    Span span = tracer.spanBuilderWithExplicitParent(DELETE_GOOGLE_PROJECT_SPAN_NAME, null).startSpan();
+    Span span =
+        tracer.spanBuilderWithExplicitParent(DELETE_GOOGLE_PROJECT_SPAN_NAME, null).startSpan();
     try {
       FlightMap flightMap = new FlightMap();
       resource.id().store(flightMap);

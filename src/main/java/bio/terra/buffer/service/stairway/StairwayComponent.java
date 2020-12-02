@@ -50,7 +50,8 @@ public class StairwayComponent {
             .maxParallelFlights(stairwayConfiguration.getMaxParallelFlights())
             .applicationContext(applicationContext)
             .stairwayName(stairwayConfiguration.getName())
-            .stairwayClusterName(stairwayConfiguration.getClusterName()).stairwayHook(new SpanContextHook());
+            .stairwayClusterName(stairwayConfiguration.getClusterName())
+            .stairwayHook(new SpanContextHook());
     try {
       stairway = builder.build();
     } catch (StairwayExecutionException e) {
