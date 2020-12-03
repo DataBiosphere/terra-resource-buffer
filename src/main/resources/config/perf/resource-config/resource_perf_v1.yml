@@ -1,4 +1,4 @@
-# Resource template for running performace test for RBS
+# Resource template for running buffer service performance test
 ---
 configName: "resource_perf_v1"
 gcpProjectConfig:

@@ -1,4 +1,4 @@
-# RBS Pools Schema for local testing and on personal environment
+# RBS Pools Schema for running buffer service performance test.
 ---
 poolConfigs:
   - poolId: "resource_perf_v1"
