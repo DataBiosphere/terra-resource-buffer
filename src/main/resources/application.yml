@@ -1,7 +1,7 @@
 buffer:
   db:
     password:
-    recreate-db-on-start: true
+    recreate-db-on-start: false
     update-db-on-start: true
     uri: jdbc:postgresql://127.0.0.1:5432/${BUFFER_DATABASE_NAME}
     username:

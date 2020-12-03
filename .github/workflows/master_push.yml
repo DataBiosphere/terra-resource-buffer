@@ -7,6 +7,13 @@ on:
     paths-ignore:
     - 'README.md'
     - '.github/**'
+    - 'local-dev/**'
+  pull_request:
+    branches:
+      - master
+    paths-ignore:
+      - 'README.md'
+      - 'local-dev/**'
 env:
   SERVICE_NAME: ${{ github.event.repository.name }}
   GOOGLE_PROJECT: terra-kernel-k8s
@@ -70,10 +77,6 @@ jobs:
         java-version: 11
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
-    - name: Build and push GCR image using Jib
-      run: "./gradlew jib --image=gcr.io/${GOOGLE_PROJECT}/${SERVICE_NAME}:${{ steps.tag.outputs.tag }}"
-      env:
-        SERVICE_VERSION: ${{ steps.tag.outputs.tag }}
     - name: Update Version Mapping
       uses: broadinstitute/repository-dispatch@master
       with:
@@ -81,4 +84,22 @@ jobs:
         repository: broadinstitute/terra-helmfile
         event-type: update-service
         client-payload: '{"service": "buffer", "version": "${{ steps.tag.outputs.tag }}"}'
+    - name: Build and push GCR image using Jib (Official)
+      if: github.event_name == 'push'
+      run: "./gradlew jib --image=gcr.io/${GOOGLE_PROJECT}/${SERVICE_NAME}:${{ steps.tag.outputs.tag }}"
+    - name: Get short SHA
+      id: slug
+      if: github.event_name == 'pull_request'
+      run: echo ::set-output name=sha7::$(echo ${{ github.event.pull_request.head.sha }} | cut -c1-7)
+    - name: Build and push GCR image using Jib (Pull Request)
+      if: github.event_name == 'pull_request'
+      run: "./gradlew jib --image=gcr.io/${GOOGLE_PROJECT}/${SERVICE_NAME}:pr${{ github.event.number }}-${{ steps.slug.outputs.sha7 }}"
+    - name: Deploy to Terra Dev environment
+      if: github.event_name == 'push'
+      uses: broadinstitute/repository-dispatch@master
+      with:
+        token: ${{ secrets.REPO_ACCESS_TOKEN }}
+        repository: broadinstitute/terra-helmfile
+        event-type: update-service
+        client-payload: '{"service": "buffer", "version": "${{ steps.tag.outputs.tag }}", "dev_only": true}'
 
