@@ -14,5 +14,6 @@ export BUFFER_CRL_JANITOR_CLIENT_CREDENTIAL_FILE_PATH="$(dirname $0)"/../src/tes
 export BUFFER_CRL_JANITOR_TRACK_RESOURCE_PROJECT_ID=terra-kernel-k8s
 export BUFFER_CRL_JANITOR_TRACK_RESOURCE_TOPIC_ID=crljanitor-tools-pubsub-topic
 export BUFFER_POOL_CONFIG_PATH=config/toolsalpha
+export SPRING_PROFILES_INCLUDE=human-readable-logging
 
 ./gradlew bootRun
