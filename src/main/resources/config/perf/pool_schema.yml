@@ -1,0 +1,6 @@
+# RBS Pools Schema for running buffer service performance test.
+---
+poolConfigs:
+  - poolId: "resource_perf_v1"
+    size: 1500
+    resourceConfigName: "resource_perf_v1"
