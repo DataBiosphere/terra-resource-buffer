@@ -6,10 +6,10 @@
   "application": {},
   "testScripts": [
     {
-      "name": "GetPoolInfo",
-      "numberOfUserJourneyThreadsToRun": 10,
-      "userJourneyThreadPoolSize": 2,
-      "expectedTimeForEach": 5,
+      "name": "HandoutResource",
+      "numberOfUserJourneyThreadsToRun": 1,
+      "userJourneyThreadPoolSize": 1,
+      "expectedTimeForEach": 200,
       "expectedTimeForEachUnit": "SECONDS"
     }
   ],

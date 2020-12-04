@@ -40,7 +40,7 @@ public class HandoutResource extends TestScript {
     Set<String> handoutRequestIds = new HashSet<>();
     for (int i = 0; i < RESOURCE_COUNT; i++) {
       String handoutRequestId = UUID.randomUUID().toString();
-      logger.debug("Generated handoutRequestId: {}", handoutRequestId);
+      logger.info("Generated handoutRequestId: {}", handoutRequestId);
       try {
         String projectId =
             bufferApi
@@ -48,7 +48,7 @@ public class HandoutResource extends TestScript {
                 .getCloudResourceUid()
                 .getGoogleProjectUid()
                 .getProjectId();
-        logger.debug(
+        logger.info(
             "Iteration: {}, project Id: {} for handoutRequestId: {}",
             i,
             projectId,
@@ -56,11 +56,11 @@ public class HandoutResource extends TestScript {
         assertThat(handoutRequestIds, not(hasItem(projectId)));
         handoutRequestIds.add(projectId);
       } catch (ApiException apiEx) {
-        logger.debug(
+        logger.info(
             "Caught exception requesting resource, handoutRequestId: {}", handoutRequestId, apiEx);
       }
     }
-    logger.debug("Done requesting {} number of resources", handoutRequestIds.size());
+    logger.info("Done requesting {} number of resources", handoutRequestIds.size());
     // For now we verifies all RESOURCE_COUNT calls successfully. Not sure that is too ideal or we
     // want to set some
     // threshold like we allow 0.1% failure rate is allowable in this burst case.

@@ -66,6 +66,7 @@ public class BufferServiceUtils {
     ApiClient apiClient = new ApiClient();
     apiClient.setBasePath(server.bufferUri);
     apiClient.setAccessToken(accessToken.getTokenValue());
+    apiClient.setDebugging(true);
 
     return apiClient;
   }
