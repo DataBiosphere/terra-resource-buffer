@@ -6,6 +6,7 @@ import static scripts.utils.BufferServiceUtils.*;
 
 import bio.terra.buffer.api.BufferApi;
 import bio.terra.buffer.client.ApiClient;
+import bio.terra.buffer.model.HandoutRequestBody;
 import bio.terra.buffer.model.PoolInfo;
 import bio.terra.testrunner.runner.TestScript;
 import bio.terra.testrunner.runner.config.TestUserSpecification;
@@ -43,7 +44,8 @@ public class HandoutResource extends TestScript {
       try {
         String projectId =
             bufferApi
-                .handoutResource(POOL_ID, handoutRequestId)
+                .handoutResource(
+                    new HandoutRequestBody().handoutRequestId(handoutRequestId), POOL_ID)
                 .getCloudResourceUid()
                 .getGoogleProjectUid()
                 .getProjectId();
