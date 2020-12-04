@@ -70,7 +70,9 @@ public class BufferApiControllerTest {
             .perform(
                 put("/api/pool/v1/" + poolId.id() + "/resource")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(requestHandoutId.id()))
+                    .content(
+                        objectMapper.writeValueAsString(
+                            new HandoutRequestBody().handoutRequestId(requestHandoutId.id()))))
             .andExpect(status().isOk())
             .andReturn()
             .getResponse()
@@ -103,7 +105,9 @@ public class BufferApiControllerTest {
         .perform(
             put("/api/pool/v1/poolId/resource")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("handoutRequestId"))
+                .content(
+                    objectMapper.writeValueAsString(
+                        new HandoutRequestBody().handoutRequestId("handoutRequestId"))))
         .andExpect(status().isNotFound());
   }
 
@@ -113,7 +117,9 @@ public class BufferApiControllerTest {
         .perform(
             put("/api/pool/v1/poolId/resource")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("handoutRequestId"))
+                .content(
+                    objectMapper.writeValueAsString(
+                        new HandoutRequestBody().handoutRequestId("handoutRequestId"))))
         .andExpect(status().isBadRequest());
   }
 
