@@ -20,6 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -66,7 +67,10 @@ public class BufferApiControllerTest {
 
     String response =
         this.mvc
-            .perform(put("/api/pool/v1/" + poolId.id() + "/resource/" + requestHandoutId.id()))
+            .perform(
+                put("/api/pool/v1/" + poolId.id() + "/resource")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(requestHandoutId.id()))
             .andExpect(status().isOk())
             .andReturn()
             .getResponse()
@@ -96,14 +100,20 @@ public class BufferApiControllerTest {
                 .build()));
 
     this.mvc
-        .perform(put("/api/pool/v1/poolId/resource/handoutRequestId"))
+        .perform(
+            put("/api/pool/v1/poolId/resource")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("handoutRequestId"))
         .andExpect(status().isNotFound());
   }
 
   @Test
   public void handoutResource_invalidPoolId() throws Exception {
     this.mvc
-        .perform(put("/api/pool/v1/poolId/resource/handoutRequestId"))
+        .perform(
+            put("/api/pool/v1/poolId/resource")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("handoutRequestId"))
         .andExpect(status().isBadRequest());
   }
 
