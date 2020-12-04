@@ -12,7 +12,6 @@ import com.google.common.base.Strings;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,15 +26,16 @@ public class BufferServiceUtils {
   private static final Logger logger = LoggerFactory.getLogger(BufferServiceUtils.class);
 
   /**
-   * The pool id to get projects from. Pool config can be found at src/resources/config/perf folder under Buffer
-   * Service repo.
+   * The pool id to get projects from. Pool config can be found at src/resources/config/perf folder
+   * under Buffer Service repo.
    */
-  public static final String POOL_ID = "resource_perf_v1";
+  public static final String POOL_ID = "resource_toolsalpha_v1";
 
   /**
-   * The size of the pool. Pool config also can be found at src/resources/config/perf folder under BufferService repo.
+   * The size of the pool. Pool config also can be found at src/resources/config/perf folder under
+   * BufferService repo.
    */
-  public static final Integer POOL_SIZE = 1500;
+  public static final Integer POOL_SIZE = 3;
 
   private BufferServiceUtils() {}
 
@@ -70,21 +70,19 @@ public class BufferServiceUtils {
     return apiClient;
   }
 
-
   /**
-   * Poll poll info from Buffer Service until the pool is full. Throws any error or timeouts
-   * as a {@link InterruptedException}.
+   * Poll poll info from Buffer Service until the pool is full. Throws any error or timeouts as a
+   * {@link InterruptedException}.
    */
-  public static PoolInfo pollUntilPoolFull(
-          BufferApi bufferApi, Duration timeout)
-          throws InterruptedException, ApiException {
+  public static PoolInfo pollUntilPoolFull(BufferApi bufferApi, Duration timeout)
+      throws InterruptedException, ApiException {
     Instant deadline = Instant.now().plus(timeout);
     int count = 1;
 
     while (true) {
       PoolInfo poolInfo = bufferApi.getPoolInfo(POOL_ID);
       logger.debug("Total polling count: {}, poolInfo: {}", count, poolInfo);
-      if(poolInfo.getResourceStateCount().get("READY").equals(POOL_SIZE)) {
+      if (poolInfo.getResourceStateCount().get("READY").equals(POOL_SIZE)) {
         logger.debug("Done after {} times poll. ", count);
         return poolInfo;
       }
