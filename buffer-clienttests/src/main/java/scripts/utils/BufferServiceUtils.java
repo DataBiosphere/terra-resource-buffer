@@ -35,7 +35,7 @@ public class BufferServiceUtils {
    * The size of the pool. Pool config also can be found at src/resources/config/perf folder under
    * BufferService repo.
    */
-  public static final Integer POOL_SIZE = 3;
+  public static final Integer POOL_SIZE = 1000;
 
   private BufferServiceUtils() {}
 

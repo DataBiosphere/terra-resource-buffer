@@ -6,7 +6,6 @@ import static scripts.utils.BufferServiceUtils.*;
 
 import bio.terra.buffer.api.BufferApi;
 import bio.terra.buffer.client.ApiClient;
-import bio.terra.buffer.client.ApiException;
 import bio.terra.buffer.model.PoolInfo;
 import bio.terra.testrunner.runner.TestScript;
 import bio.terra.testrunner.runner.config.TestUserSpecification;
@@ -26,7 +25,7 @@ public class HandoutResource extends TestScript {
   private static final Logger logger = LoggerFactory.getLogger(HandoutResource.class);
 
   /** How many projects to get for from Buffer Service. */
-  private static final Integer RESOURCE_COUNT = 1000;
+  private static final Integer RESOURCE_COUNT = 1;
 
   /** Public constructor so that this class can be instantiated via reflection. */
   public HandoutResource() {
@@ -55,7 +54,7 @@ public class HandoutResource extends TestScript {
             handoutRequestId);
         assertThat(handoutRequestIds, not(hasItem(projectId)));
         handoutRequestIds.add(projectId);
-      } catch (ApiException apiEx) {
+      } catch (Exception apiEx) {
         logger.info(
             "Caught exception requesting resource, handoutRequestId: {}", handoutRequestId, apiEx);
       }

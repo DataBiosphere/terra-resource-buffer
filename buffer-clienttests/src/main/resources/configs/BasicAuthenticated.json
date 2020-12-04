@@ -9,8 +9,8 @@
       "name": "HandoutResource",
       "numberOfUserJourneyThreadsToRun": 1,
       "userJourneyThreadPoolSize": 1,
-      "expectedTimeForEach": 200,
-      "expectedTimeForEachUnit": "SECONDS"
+      "expectedTimeForEach": 2,
+      "expectedTimeForEachUnit": "HOURS"
     }
   ],
   "testUserFiles": []
