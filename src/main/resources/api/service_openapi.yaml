@@ -36,6 +36,9 @@ paths:
       parameters:
         - $ref: '#/components/parameters/PoolId'
         - $ref: '#/components/parameters/HandoutRequestId'
+      requestBody:
+        required: false
+        content: {}
       tags:
         - buffer
       responses:

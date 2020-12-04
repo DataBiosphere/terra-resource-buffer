@@ -15,7 +15,7 @@ sourceCompatibility = JavaVersion.VERSION_11
 
 allprojects {
     group = 'bio.terra'
-    version = System.getenv('SERVICE_VERSION') != null ? System.getenv('SERVICE_VERSION') : '0.0.1-SNAPSHOT'
+    version = System.getenv('SERVICE_VERSION') != null ? System.getenv('SERVICE_VERSION') : '0.4.1-SNAPSHOT'
     ext {
         artifactGroup = "${group}.buffer"
         swaggerOutputDir = "${buildDir}/generated"
