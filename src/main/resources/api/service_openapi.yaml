@@ -40,7 +40,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/parameters/HandoutRequestId'
+              $ref: '#/components/schemas/HandoutRequestBody'
       tags:
         - buffer
       responses:
@@ -125,11 +125,18 @@ components:
                 items:
                   type: string
 
-    HandoutRequestId:
+    HandoutRequestBody:
       description: |-
-        The unique identifier presented by the client for a resource request.
-        Using the same handoutRequestId in the same pool would ge the same resource back.
-      type: string
+        The request body for getting resource from Buffer Service
+      type: object
+      required:
+        - handoutRequestId
+      properties:
+        handoutRequestId:
+          description: |-
+            The unique identifier presented by the client for a resource request.
+            Using the same handoutRequestId in the same pool would ge the same resource back.
+          type: string
 
     PoolConfigs:
       description: |-
