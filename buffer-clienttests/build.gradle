@@ -30,7 +30,7 @@ dependencies {
 
         googleOauth2 = "0.20.0"
 
-        bufferServiceClient = "0.4.1-SNAPSHOT"
+        bufferServiceClient = "0.4.2-SNAPSHOT"
         testRunner = "0.0.1-SNAPSHOT"
     }
 
