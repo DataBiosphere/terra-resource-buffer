@@ -31,11 +31,8 @@ public class BufferServiceUtils {
    */
   public static final String POOL_ID = "resource_toolsalpha_v1";
 
-  /**
-   * The size of the pool. Pool config also can be found at src/resources/config/perf folder under
-   * BufferService repo.
-   */
-  public static final Integer POOL_SIZE = 1000;
+  /** How ofter to poll from buffer service. */
+  public static final Duration POLLING_INTERVAL = Duration.ofMinutes(1);
 
   private BufferServiceUtils() {}
 
@@ -66,7 +63,6 @@ public class BufferServiceUtils {
     ApiClient apiClient = new ApiClient();
     apiClient.setBasePath(server.bufferUri);
     apiClient.setAccessToken(accessToken.getTokenValue());
-    apiClient.setDebugging(true);
 
     return apiClient;
   }
@@ -75,21 +71,22 @@ public class BufferServiceUtils {
    * Poll poll info from Buffer Service until the pool is full. Throws any error or timeouts as a
    * {@link InterruptedException}.
    */
-  public static PoolInfo pollUntilPoolFull(BufferApi bufferApi, Duration timeout)
+  public static PoolInfo pollUntilPoolFull(BufferApi bufferApi, Duration timeout, int poolSize)
       throws InterruptedException, ApiException {
     Instant deadline = Instant.now().plus(timeout);
-    int count = 1;
-
+    int count = 0;
     while (true) {
+      count++;
       PoolInfo poolInfo = bufferApi.getPoolInfo(POOL_ID);
-      logger.debug("Total polling count: {}, poolInfo: {}", count, poolInfo);
-      if (poolInfo.getResourceStateCount().get("READY").equals(POOL_SIZE)) {
-        logger.debug("Done after {} times poll. ", count);
+      logger.info("Total polling count: {}, poolInfo: {}", count, poolInfo);
+      if (poolInfo.getResourceStateCount().get("READY").equals(poolSize)) {
+        logger.info("Done after {} times poll. ", count);
         return poolInfo;
       }
-      if (Instant.now().plus(Duration.ofMinutes(3)).isAfter(deadline)) {
+      if (Instant.now().plus(POLLING_INTERVAL).isAfter(deadline)) {
         throw new InterruptedException("Timeout during pollUntilPoolFull");
       }
+      Thread.sleep(POLLING_INTERVAL.toMillis());
     }
   }
 }
