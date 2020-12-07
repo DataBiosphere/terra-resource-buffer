@@ -12,10 +12,12 @@ import bio.terra.stairway.StepResult;
 import bio.terra.stairway.StepStatus;
 import bio.terra.stairway.exception.RetryException;
 import com.google.api.services.compute.model.Network;
+import com.google.api.services.compute.model.Operation;
 import com.google.api.services.compute.model.Route;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,9 +53,6 @@ public class CreateRouteStep implements Step {
     }
     String projectId = flightContext.getWorkingMap().get(GOOGLE_PROJECT_ID, String.class);
     try {
-      if (resourceExists(() -> computeCow.routes().get(projectId, ROUTE_NAME).execute(), 404)) {
-        return StepResult.getStepResultSuccess();
-      }
       // Network is already created and checked in previous step so here won't be empty.
       // If we got NPE, that means something went wrong with GCP, fine to just throw NPE here.
       Network network =
@@ -65,12 +64,14 @@ public class CreateRouteStep implements Step {
               .setDestRange(DESTINATION_RANGE)
               .setNetwork(network.getSelfLink())
               .setNextHopGateway("projects/" + projectId + DEFAULT_GATEWAY);
-
-      OperationCow<?> operation =
-          computeCow
-              .globalOperations()
-              .operationCow(projectId, computeCow.routes().insert(projectId, route).execute());
-      pollUntilSuccess(operation, Duration.ofSeconds(3), Duration.ofMinutes(5));
+      Optional<Operation> insertOperation =
+          createResourceAndIgnoreConflict(
+              () -> computeCow.routes().insert(projectId, route).execute());
+      if (insertOperation.isPresent()) {
+        OperationCow<?> operation =
+            computeCow.globalOperations().operationCow(projectId, insertOperation.get());
+        pollUntilSuccess(operation, Duration.ofSeconds(3), Duration.ofMinutes(5));
+      }
     } catch (IOException | InterruptedException e) {
       logger.info("Error when creating route", e);
       return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY, e);

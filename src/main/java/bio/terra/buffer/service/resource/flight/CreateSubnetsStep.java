@@ -112,11 +112,6 @@ public class CreateSubnetsStep implements Step {
               .get();
       for (Map.Entry<String, String> entry : REGION_TO_IP_RANGE.entrySet()) {
         String region = entry.getKey();
-        if (resourceExists(
-            () -> computeCow.subnetworks().get(projectId, region, SUBNETWORK_NAME).execute(),
-            404)) {
-          continue;
-        }
         Subnetwork subnetwork =
             new Subnetwork()
                 .setName(SUBNETWORK_NAME)
@@ -129,13 +124,14 @@ public class CreateSubnetsStep implements Step {
           subnetwork.setLogConfig(LOG_CONFIG);
         }
 
-        operationsToPoll.add(
-            computeCow
-                .regionalOperations()
-                .operationCow(
-                    projectId,
-                    region,
-                    computeCow.subnetworks().insert(projectId, region, subnetwork).execute()));
+        createResourceAndIgnoreConflict(
+                () -> computeCow.subnetworks().insert(projectId, region, subnetwork).execute())
+            .ifPresent(
+                insertOperation ->
+                    operationsToPoll.add(
+                        computeCow
+                            .regionalOperations()
+                            .operationCow(projectId, region, insertOperation)));
       }
 
       // Kick off all the operations first then poll all operations
