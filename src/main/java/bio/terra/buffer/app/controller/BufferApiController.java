@@ -4,6 +4,7 @@ import bio.terra.buffer.app.configuration.BufferJdbcConfiguration;
 import bio.terra.buffer.common.PoolId;
 import bio.terra.buffer.common.RequestHandoutId;
 import bio.terra.buffer.generated.controller.BufferApi;
+import bio.terra.buffer.generated.model.HandoutRequestBody;
 import bio.terra.buffer.generated.model.PoolInfo;
 import bio.terra.buffer.generated.model.ResourceInfo;
 import bio.terra.buffer.service.pool.PoolService;
@@ -34,10 +35,12 @@ public class BufferApiController implements BufferApi {
   }
 
   @Override
-  public ResponseEntity<ResourceInfo> handoutResource(String poolId, String handoutRequestId) {
+  public ResponseEntity<ResourceInfo> handoutResource(
+      String poolId, HandoutRequestBody handoutRequestBody) {
     return new ResponseEntity<>(
         poolService.handoutResource(
-            PoolId.create(poolId), RequestHandoutId.create(handoutRequestId)),
+            PoolId.create(poolId),
+            RequestHandoutId.create(handoutRequestBody.getHandoutRequestId())),
         HttpStatus.OK);
   }
 
