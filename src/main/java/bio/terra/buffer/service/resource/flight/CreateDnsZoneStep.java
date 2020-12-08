@@ -63,18 +63,16 @@ public class CreateDnsZoneStep implements Step {
               .get();
 
       // Skip ManagedZone creation if ManagedZone already present.
-      if (!resourceExists(
-          () -> dnsCow.managedZones().get(projectId, MANAGED_ZONE_TEMPLATE.getName()).execute(),
-          404)) {
-        ManagedZone managedZone =
-            MANAGED_ZONE_TEMPLATE.setPrivateVisibilityConfig(
-                new ManagedZonePrivateVisibilityConfig()
-                    .setNetworks(
-                        ImmutableList.of(
-                            new ManagedZonePrivateVisibilityConfigNetwork()
-                                .setNetworkUrl(network.getSelfLink()))));
-        dnsCow.managedZones().create(projectId, managedZone).execute();
-      }
+      ManagedZone managedZone =
+          MANAGED_ZONE_TEMPLATE.setPrivateVisibilityConfig(
+              new ManagedZonePrivateVisibilityConfig()
+                  .setNetworks(
+                      ImmutableList.of(
+                          new ManagedZonePrivateVisibilityConfigNetwork()
+                              .setNetworkUrl(network.getSelfLink()))));
+
+      createResourceAndIgnoreConflict(
+          () -> dnsCow.managedZones().create(projectId, managedZone).execute());
     } catch (IOException e) {
       logger.info("Error when configuring DNS ", e);
       return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY, e);

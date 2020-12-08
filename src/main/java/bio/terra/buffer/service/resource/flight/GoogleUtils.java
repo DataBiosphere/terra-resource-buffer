@@ -94,6 +94,20 @@ public class GoogleUtils {
     }
   }
 
+  /** Creates cloud resources and ignore conflict error(409). */
+  public static <R> Optional<R> createResourceAndIgnoreConflict(CloudExecute<R> execute)
+      throws IOException {
+    try {
+      return Optional.of(execute.execute());
+    } catch (GoogleJsonResponseException e) {
+      if (e.getStatusCode() == 409) {
+        return Optional.empty();
+      } else {
+        throw e;
+      }
+    }
+  }
+
   /** Checks if project is being deleted. */
   public static boolean isProjectDeleting(Project project) {
     return project.getLifecycleState().equals("DELETE_REQUESTED")

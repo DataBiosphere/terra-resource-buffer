@@ -78,38 +78,26 @@ public class CreateFirewallRuleStep implements Step {
               .get();
 
       List<OperationCow<?>> operationsToPoll = new ArrayList<>();
-
-      if (resourceExists(
-          () -> computeCow.firewalls().get(projectId, ALLOW_INTERNAL_RULE_NAME).execute(), 404)) {
-        logger.info("allow-internal firewall rules exists for project %s: {}.", projectId);
-
-      } else {
-        operationsToPoll.add(
-            computeCow
-                .globalOperations()
-                .operationCow(
-                    projectId,
-                    computeCow
-                        .firewalls()
-                        .insert(projectId, ALLOW_INTERNAL.setNetwork(network.getSelfLink()))
-                        .execute()));
-      }
-
-      if (resourceExists(
-          () -> computeCow.firewalls().get(projectId, LEONARDO_SSL_RULE_NAME).execute(), 404)) {
-        logger.info("Leonardo-ssl firewall rules exists for project %s: {}.", projectId);
-
-      } else {
-        operationsToPoll.add(
-            computeCow
-                .globalOperations()
-                .operationCow(
-                    projectId,
-                    computeCow
-                        .firewalls()
-                        .insert(projectId, LEONARDO_SSL.setNetwork(network.getSelfLink()))
-                        .execute()));
-      }
+      createResourceAndIgnoreConflict(
+              () ->
+                  computeCow
+                      .firewalls()
+                      .insert(projectId, ALLOW_INTERNAL.setNetwork(network.getSelfLink()))
+                      .execute())
+          .ifPresent(
+              insertOperation ->
+                  operationsToPoll.add(
+                      computeCow.globalOperations().operationCow(projectId, insertOperation)));
+      createResourceAndIgnoreConflict(
+              () ->
+                  computeCow
+                      .firewalls()
+                      .insert(projectId, LEONARDO_SSL.setNetwork(network.getSelfLink()))
+                      .execute())
+          .ifPresent(
+              insertOperation ->
+                  operationsToPoll.add(
+                      computeCow.globalOperations().operationCow(projectId, insertOperation)));
 
       for (OperationCow<?> operation : operationsToPoll) {
         pollUntilSuccess(operation, Duration.ofSeconds(3), Duration.ofMinutes(5));
