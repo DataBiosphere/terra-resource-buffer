@@ -33,7 +33,7 @@ To update resource configs, it is the same process as creating a new pool using 
 ## Development
 ### Connect to dev Buffer Service
 [Dev Buffer Service Swagger](https://buffer.dsde-dev.broadinstitute.org/swagger-ui.html)
-In Broad deployment, use a valid Google Service Account is required for service authorization. This can be retrieved in Vault:
+In Broad deployment, use a valid Google Service Account(created by [Terraform](https://github.com/broadinstitute/terraform-ap-modules/blob/master/buffer/sa.tf#L83)) is required for service authorization. This can be retrieved in Vault:
 ```
 docker run -e VAULT_TOKEN=$(cat ~/.vault-token) -it broadinstitute/dsde-toolbox:dev vault read secret/dsde/terra/kernel/integration/dev/buffer/client-sa
 ```
@@ -99,6 +99,7 @@ Start the client session
 ```
 psql "host=127.0.0.1 sslmode=disable dbname=<DB_NAME> user=<USER_NAME>"
 ```
+Then type in the db password when prompt. 
 For Broad engineer, DB_NAME and USER_NAME can be found in vault. 
 ```
 docker run -e VAULT_TOKEN=$(cat ~/.vault-token) -it broadinstitute/dsde-toolbox:dev vault read secret/dsde/terra/kernel/integration/{$NAMESPACE}/buffer/postgres/{db-creds|stairway-db-creds}
