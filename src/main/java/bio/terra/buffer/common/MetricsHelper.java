@@ -36,9 +36,9 @@ public class MetricsHelper {
           "ready resource count to pool size ratio",
           RESOURCE_TO_POOL_SIZE_RATIO);
 
-  private static final Measure.MeasureLong HANDOUT_RESOURCE_COUNT =
+  private static final Measure.MeasureLong HANDOUT_RESOURCE_REQUEST_COUNT =
       Measure.MeasureLong.create(
-          PREFIX + "/handout_resource_count", "Counts resource handed out.", COUNT);
+          PREFIX + "/handout_resource_request_count", "Handout resource request count.", COUNT);
 
   @VisibleForTesting
   public static final View RESOURCE_STATE_COUNT_VIEW =
@@ -59,17 +59,19 @@ public class MetricsHelper {
           ImmutableList.of(POOL_ID_KEY));
 
   @VisibleForTesting
-  public static final View HANDOUT_RESOURCE_COUNT_VIEW =
+  public static final View HANDOUT_RESOURCE_REQUEST_COUNT_VIEW =
       View.create(
-          View.Name.create(PREFIX + "/handout_resource_count"),
+          View.Name.create(PREFIX + "/handout_resource_request_count"),
           "Counts resource handed out.",
-          HANDOUT_RESOURCE_COUNT,
+          HANDOUT_RESOURCE_REQUEST_COUNT,
           Aggregation.Count.create(),
           ImmutableList.of(POOL_ID_KEY));
 
   private static final ImmutableList<View> VIEWS =
       ImmutableList.of(
-          RESOURCE_STATE_COUNT_VIEW, READY_RESOURCE_RATIO_VIEW, HANDOUT_RESOURCE_COUNT_VIEW);
+          RESOURCE_STATE_COUNT_VIEW,
+          READY_RESOURCE_RATIO_VIEW,
+          HANDOUT_RESOURCE_REQUEST_COUNT_VIEW);
 
   // Register all views
   static {
@@ -113,11 +115,11 @@ public class MetricsHelper {
         .record(tctx);
   }
 
-  /** Records a handout request event. */
-  public static void recordHandoutResource(PoolId poolId) {
+  /** Records a handout resource request event. */
+  public static void recordHandoutResourceRequest(PoolId poolId) {
     TagContext tctx =
         TAGGER.emptyBuilder().putLocal(POOL_ID_KEY, TagValue.create(poolId.id())).build();
-    STATS_RECORDER.newMeasureMap().put(HANDOUT_RESOURCE_COUNT, 1).record(tctx);
+    STATS_RECORDER.newMeasureMap().put(HANDOUT_RESOURCE_REQUEST_COUNT, 1).record(tctx);
   }
 
   /**

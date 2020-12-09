@@ -77,12 +77,12 @@ public class MetricsHelperTest extends BaseUnitTest {
   public void testRecordHandoutResource() throws Exception {
     PoolId poolId = PoolId.create("poolId");
     long currentCount =
-        getCurrentCount(HANDOUT_RESOURCE_COUNT_VIEW.getName(), getPoolIdTag(poolId));
-    MetricsHelper.recordHandoutResource(poolId);
-    MetricsHelper.recordHandoutResource(poolId);
+        getCurrentCount(HANDOUT_RESOURCE_REQUEST_COUNT_VIEW.getName(), getPoolIdTag(poolId));
+    MetricsHelper.recordHandoutResourceRequest(poolId);
+    MetricsHelper.recordHandoutResourceRequest(poolId);
     sleepForSpansExport();
 
     assertCountIncremented(
-        HANDOUT_RESOURCE_COUNT_VIEW.getName(), getPoolIdTag(poolId), currentCount, 2);
+        HANDOUT_RESOURCE_REQUEST_COUNT_VIEW.getName(), getPoolIdTag(poolId), currentCount, 2);
   }
 }
