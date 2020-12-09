@@ -1,6 +1,5 @@
 package bio.terra.buffer.service.pool;
 
-import static bio.terra.buffer.common.testing.MetricsTestUtil.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
