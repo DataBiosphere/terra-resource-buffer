@@ -30,7 +30,7 @@ To update resource configs, it is the same process as creating a new pool using 
 4. Remove the old pool from `pool_schema.yml` and delete old resource config(optional).
 5. Next Buffer Service release will delete resoruces in the old pool
 
-## Deployment
+## Development
 ### Connect to dev Buffer Service
 [Dev Buffer Service Swagger](https://buffer.dsde-dev.broadinstitute.org/swagger-ui.html)
 In Broad deployment, use a valid Google Service Account is required for service authorization. This can be retrieved in Vault:
