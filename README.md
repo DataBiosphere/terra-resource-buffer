@@ -2,7 +2,7 @@
 Cloud Resource Buffering Server for Terra. 
 
 ## Pool Configuration
-### Pool Configuration File Structure
+### File Structure
 Pool configuration manages the pool size, resources in the pool. All configuration files are under [src/main/resources/config](src/main/resources/config) folder.
 The folder structure is: 
 ```
