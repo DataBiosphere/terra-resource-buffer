@@ -44,13 +44,6 @@ public class MetricsTestUtil {
         MetricsHelper.viewManager.getView(viewName).getAggregationMap().get(tags));
   }
 
-  /** Asserts value matches the count value with given {@link TagValue} */
-  public static void assertCountValueIs(View.Name viewName, List<TagValue> tags, long value) {
-    assertEquals(
-        AggregationData.CountData.create(value),
-        MetricsHelper.viewManager.getView(viewName).getAggregationMap().get(tags));
-  }
-
   /**
    * Helper method to get current stats before test.
    *
