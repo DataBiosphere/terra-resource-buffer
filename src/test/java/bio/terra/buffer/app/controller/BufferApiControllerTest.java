@@ -1,5 +1,7 @@
 package bio.terra.buffer.app.controller;
 
+import static bio.terra.buffer.common.MetricsHelper.HANDOUT_RESOURCE_COUNT_VIEW;
+import static bio.terra.buffer.common.testing.MetricsTestUtil.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -42,6 +44,8 @@ public class BufferApiControllerTest {
   @Test
   public void handoutResource_ok() throws Exception {
     PoolId poolId = PoolId.create("poolId");
+    long currentCount =
+        getCurrentCount(HANDOUT_RESOURCE_COUNT_VIEW.getName(), getPoolIdTag(poolId));
     RequestHandoutId requestHandoutId = RequestHandoutId.create("requestHandoutId");
     CloudResourceUid cloudResourceUid =
         new CloudResourceUid().googleProjectUid(new GoogleProjectUid().projectId("projectId"));
@@ -85,6 +89,11 @@ public class BufferApiControllerTest {
             .cloudResourceUid(cloudResourceUid)
             .requestHandoutId(requestHandoutId.id()),
         resourceInfo);
+
+    // Verify the metric record this event twice
+    sleepForSpansExport();
+    assertCountIncremented(
+        HANDOUT_RESOURCE_COUNT_VIEW.getName(), getPoolIdTag(poolId), currentCount, 1);
   }
 
   @Test

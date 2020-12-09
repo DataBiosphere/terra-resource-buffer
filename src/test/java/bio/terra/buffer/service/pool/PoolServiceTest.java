@@ -1,8 +1,6 @@
 package bio.terra.buffer.service.pool;
 
-import static bio.terra.buffer.common.MetricsHelper.HANDOUT_RESOURCE_COUNT_VIEW;
 import static bio.terra.buffer.common.testing.MetricsTestUtil.*;
-import static bio.terra.buffer.common.testing.MetricsTestUtil.getPoolIdTag;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -210,8 +208,6 @@ public class PoolServiceTest extends BaseUnitTest {
   @Test
   public void handoutResource_success() throws Exception {
     PoolId poolId = PoolId.create("poolId");
-    long currentCount =
-        getCurrentCount(HANDOUT_RESOURCE_COUNT_VIEW.getName(), getPoolIdTag(poolId));
     RequestHandoutId requestHandoutId = RequestHandoutId.create("handoutId");
     newReadyPool(poolId, 2);
     List<CloudResourceUid> resourceUids =
@@ -230,11 +226,6 @@ public class PoolServiceTest extends BaseUnitTest {
     // Use the same requestHandoutId, expect to get the same resource back.
     ResourceInfo secondResourceInfo = poolService.handoutResource(poolId, requestHandoutId);
     assertEquals(resourceInfo, secondResourceInfo);
-
-    // Verify the metric record this event twice
-    sleepForSpansExport();
-    assertCountIncremented(
-        HANDOUT_RESOURCE_COUNT_VIEW.getName(), getPoolIdTag(poolId), currentCount, 2);
   }
 
   @Test
