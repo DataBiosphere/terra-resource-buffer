@@ -4,8 +4,10 @@ plugins {
 
     id 'com.diffplug.spotless' version '5.8.2'
     id 'com.github.ben-manes.versions' version '0.36.0'
+    id 'com.github.spotbugs' version '4.5.1'
     id 'com.google.cloud.tools.jib' version '2.6.0'
     id 'de.undercouch.download' version '4.0.0'
+    id "jacoco"
     id 'io.spring.dependency-management' version '1.0.10.RELEASE'
     id 'org.hidetake.swagger.generator' version '2.18.2'
     id 'org.springframework.boot' version '2.3.1.RELEASE'
@@ -182,7 +184,6 @@ spotless {
     }
 }
 
-
 // CRL schema extraction
 configurations {
     cloudResourceSchema { transitive = false }
@@ -235,6 +236,51 @@ swaggerSources {
     }
 }
 
+// Static analysis
+spotbugs {
+    effort = 'max'
+    // This makes the "html" reports come out in plain text so you can just open the file in IntelliJ
+    // and look at your bugs instead of having to switch to a browser.
+    extraArgs = ['-emacs']
+}
+spotbugsMain {
+    reports {
+        html {
+            enabled = true
+            destination = file("$buildDir/reports/spotbugs/main.html")
+        }
+    }
+}
+spotbugsTest {
+    reports {
+        html {
+            enabled = true
+            destination = file("$buildDir/reports/spotbugs/test.html")
+        }
+    }
+}
+
+tasks.withType(JacocoReport) {
+    reports {
+        xml.enabled false
+        csv.enabled false
+        html.destination file("${buildDir}/jacocoHtml")
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                counter = 'BRANCH'
+                value = 'COVEREDRATIO'
+                minimum = 0.1
+            }
+        }
+    }
+}
+check.dependsOn jacocoTestCoverageVerification
+
 // Testing config
 
 // This is the path to the default Google service account for the buffer service to run as.
@@ -281,3 +327,8 @@ swaggerSources.server.code.dependsOn tasks.unzipCloudResourceSchema
 compileJava.dependsOn swaggerSources.server.code, swaggerSources.resource.code, spotlessApply
 sourceSets.main.java.srcDir "${swaggerOutputDir}/src/main/java"
 sourceSets.test.resources.srcDir "config/" // Allow unit tests to directly load config files.
+sourceSets {
+    jacoco {
+        toolVersion '0.8.2'
+    }
+}
