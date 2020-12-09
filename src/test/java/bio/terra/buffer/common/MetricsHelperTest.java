@@ -1,7 +1,6 @@
 package bio.terra.buffer.common;
 
-import static bio.terra.buffer.common.MetricsHelper.READY_RESOURCE_RATIO_VIEW;
-import static bio.terra.buffer.common.MetricsHelper.RESOURCE_STATE_COUNT_VIEW;
+import static bio.terra.buffer.common.MetricsHelper.*;
 import static bio.terra.buffer.common.testing.MetricsTestUtil.*;
 
 import bio.terra.buffer.generated.model.ResourceConfig;
@@ -47,8 +46,7 @@ public class MetricsHelperTest extends BaseUnitTest {
         getResourceCountTags(poolId, ResourceState.DELETED, PoolStatus.ACTIVE),
         0);
     // 2 ready out of size 10
-    assertLastValueDoubleIs(
-        READY_RESOURCE_RATIO_VIEW.getName(), getReadyResourceRatioTags(poolId), 0.20);
+    assertLastValueDoubleIs(READY_RESOURCE_RATIO_VIEW.getName(), getPoolIdTag(poolId), 0.20);
 
     // Now decrease READY resource count to 0, verifies it can sill count.
     PoolAndResourceStates noReadyResourceStates =
@@ -62,8 +60,7 @@ public class MetricsHelperTest extends BaseUnitTest {
         RESOURCE_STATE_COUNT_VIEW.getName(),
         getResourceCountTags(poolId, ResourceState.READY, PoolStatus.ACTIVE),
         0);
-    assertLastValueDoubleIs(
-        READY_RESOURCE_RATIO_VIEW.getName(), getReadyResourceRatioTags(poolId), 0.0);
+    assertLastValueDoubleIs(READY_RESOURCE_RATIO_VIEW.getName(), getPoolIdTag(poolId), 0.0);
 
     // Now deactivate the pool and verifies READY resource ratio changed to 1.
     PoolAndResourceStates deactivatedResourceStates =
@@ -73,7 +70,19 @@ public class MetricsHelperTest extends BaseUnitTest {
             .build();
     MetricsHelper.recordResourceStateCount(deactivatedResourceStates);
     sleepForSpansExport();
-    assertLastValueDoubleIs(
-        READY_RESOURCE_RATIO_VIEW.getName(), getReadyResourceRatioTags(poolId), 1.0);
+    assertLastValueDoubleIs(READY_RESOURCE_RATIO_VIEW.getName(), getPoolIdTag(poolId), 1.0);
+  }
+
+  @Test
+  public void testRecordHandoutResource() throws Exception {
+    PoolId poolId = PoolId.create("poolId");
+    long currentCount =
+        getCurrentCount(HANDOUT_RESOURCE_COUNT_VIEW.getName(), getPoolIdTag(poolId));
+    MetricsHelper.recordHandoutResource(poolId);
+    MetricsHelper.recordHandoutResource(poolId);
+    sleepForSpansExport();
+
+    assertCountIncremented(
+        HANDOUT_RESOURCE_COUNT_VIEW.getName(), getPoolIdTag(poolId), currentCount, 2);
   }
 }

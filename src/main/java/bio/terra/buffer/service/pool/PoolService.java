@@ -1,5 +1,6 @@
 package bio.terra.buffer.service.pool;
 
+import static bio.terra.buffer.common.MetricsHelper.recordHandoutResource;
 import static bio.terra.buffer.service.pool.PoolConfigLoader.loadPoolConfig;
 
 import bio.terra.buffer.app.configuration.PoolConfiguration;
@@ -56,10 +57,13 @@ public class PoolService {
 
   /** Handout resource to client by given {@link PoolId} and {@link RequestHandoutId}. */
   public ResourceInfo handoutResource(PoolId poolId, RequestHandoutId requestHandoutId) {
-    return createResourceInfo(
-        transactionTemplate.execute(
-            status -> handoutResourceTransactionally(poolId, requestHandoutId, status)),
-        requestHandoutId);
+    ResourceInfo resourceInfo =
+        createResourceInfo(
+            transactionTemplate.execute(
+                status -> handoutResourceTransactionally(poolId, requestHandoutId, status)),
+            requestHandoutId);
+    recordHandoutResource(poolId);
+    return resourceInfo;
   }
 
   /** Gets pool information by given {@link PoolId}. */

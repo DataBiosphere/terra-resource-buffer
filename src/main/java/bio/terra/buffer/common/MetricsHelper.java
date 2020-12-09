@@ -36,6 +36,10 @@ public class MetricsHelper {
           "ready resource count to pool size ratio",
           RESOURCE_TO_POOL_SIZE_RATIO);
 
+  private static final Measure.MeasureLong HANDOUT_RESOURCE_COUNT =
+      Measure.MeasureLong.create(
+          PREFIX + "/handout_resource_count", "Counts resource handed out.", COUNT);
+
   @VisibleForTesting
   public static final View RESOURCE_STATE_COUNT_VIEW =
       View.create(
@@ -54,8 +58,18 @@ public class MetricsHelper {
           Aggregation.LastValue.create(),
           ImmutableList.of(POOL_ID_KEY));
 
+  @VisibleForTesting
+  public static final View HANDOUT_RESOURCE_COUNT_VIEW =
+      View.create(
+          View.Name.create(PREFIX + "/handout_resource_count"),
+          "Counts resource handed out.",
+          HANDOUT_RESOURCE_COUNT,
+          Aggregation.Count.create(),
+          ImmutableList.of(POOL_ID_KEY));
+
   private static final ImmutableList<View> VIEWS =
-      ImmutableList.of(RESOURCE_STATE_COUNT_VIEW, READY_RESOURCE_RATIO_VIEW);
+      ImmutableList.of(
+          RESOURCE_STATE_COUNT_VIEW, READY_RESOURCE_RATIO_VIEW, HANDOUT_RESOURCE_COUNT_VIEW);
 
   // Register all views
   static {
@@ -97,6 +111,13 @@ public class MetricsHelper {
         .newMeasureMap()
         .put(READY_RESOURCE_RADIO, getReadyResourceRatio(poolAndResourceStates))
         .record(tctx);
+  }
+
+  /** Records a handout request event. */
+  public static void recordHandoutResource(PoolId poolId) {
+    TagContext tctx =
+        TAGGER.emptyBuilder().putLocal(POOL_ID_KEY, TagValue.create(poolId.id())).build();
+    STATS_RECORDER.newMeasureMap().put(HANDOUT_RESOURCE_COUNT, 1).record(tctx);
   }
 
   /**
