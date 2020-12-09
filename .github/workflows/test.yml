@@ -65,6 +65,17 @@ jobs:
           restore-keys: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+      - name: Generate Jacoco Badge
+        id: jacoco
+        uses: cicirello/jacoco-badge-generator@v1.0.0
+      - name: Log coverage percentage
+        run: |
+          echo "coverage = ${{ steps.jacoco.outputs.coverage }}"
+      - name: Upload Jacoco coverage report
+        uses: actions/upload-artifact@v2
+        with:
+          name: jacoco-report
+          path: target/site/jacoco/
       - name: Run unit tests
         id: unit-test
         run: ./gradlew unitTest --scan
