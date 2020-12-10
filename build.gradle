@@ -280,7 +280,7 @@ jacocoTestCoverageVerification {
     }
 }
 check.dependsOn jacocoTestCoverageVerification
-
+jacocoTestReport.shouldRunAfter(test)
 // Testing config
 
 // This is the path to the default Google service account for the buffer service to run as.
