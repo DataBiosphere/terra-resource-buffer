@@ -280,6 +280,7 @@ jacocoTestCoverageVerification {
     }
 }
 check.dependsOn jacocoTestCoverageVerification
+jacocoTestReport.dependsOn test
 
 // Testing config
 
