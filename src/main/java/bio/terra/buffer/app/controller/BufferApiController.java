@@ -1,5 +1,7 @@
 package bio.terra.buffer.app.controller;
 
+import static bio.terra.buffer.common.MetricsHelper.recordHandoutResourceRequest;
+
 import bio.terra.buffer.app.configuration.BufferJdbcConfiguration;
 import bio.terra.buffer.common.PoolId;
 import bio.terra.buffer.common.RequestHandoutId;
@@ -37,6 +39,7 @@ public class BufferApiController implements BufferApi {
   @Override
   public ResponseEntity<ResourceInfo> handoutResource(
       String poolId, HandoutRequestBody handoutRequestBody) {
+    recordHandoutResourceRequest(PoolId.create(poolId));
     return new ResponseEntity<>(
         poolService.handoutResource(
             PoolId.create(poolId),

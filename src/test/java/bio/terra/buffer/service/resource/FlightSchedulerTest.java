@@ -232,8 +232,8 @@ public class FlightSchedulerTest extends BaseUnitTest {
         2);
     // activate pool ratio is 2/5. Deactivated pool is not recorded.
     assertLastValueDoubleIs(
-        READY_RESOURCE_RATIO_VIEW.getName(), getReadyResourceRatioTags(activatePool.id()), 0.40);
+        READY_RESOURCE_RATIO_VIEW.getName(), getPoolIdTag(activatePool.id()), 0.40);
     assertLastValueDoubleIs(
-        READY_RESOURCE_RATIO_VIEW.getName(), getReadyResourceRatioTags(deactivatedPool.id()), 1);
+        READY_RESOURCE_RATIO_VIEW.getName(), getPoolIdTag(deactivatedPool.id()), 1);
   }
 }
