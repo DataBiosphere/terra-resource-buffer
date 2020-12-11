@@ -68,19 +68,27 @@ jobs:
       - name: Run unit tests
         id: unit-test
         run: ./gradlew unitTest --scan
-      - name: Run integration tests
-        id: integration-test
-        run: ./gradlew integrationTest --scan
+#      - name: Run integration tests
+#        id: integration-test
+#        run: ./gradlew integrationTest --scan
       - name: Upload Test Reports
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v1
         with:
           name: Test Reports
-          path:
-            - build/reports/tests
-            - build/jacocoHtml
-            - build/jacoco
-            - build/reports
+          path: build/reports
+      - name: Upload Test Reports 2
+        if: always()
+        uses: actions/upload-artifact@v1
+        with:
+          name: Test Reports
+          path: build/reports/tests
+      - name: Upload Test Reports 3
+        if: always()
+        uses: actions/upload-artifact@v1
+        with:
+          name: Test Reports
+          path: build/jacoco
 #      - name: Generate Jacoco Report
 #        id: jacoco-report
 #        run: ./gradlew jacocoTestReport
