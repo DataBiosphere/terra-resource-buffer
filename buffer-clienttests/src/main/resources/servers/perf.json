@@ -4,7 +4,6 @@
 
   "bufferUri": "https://buffer.dsde-perf.broadinstitute.org",
   "bufferClientServiceAccountFile": "perf-buffer-client-sa.json",
-  "bufferPoolId": "resource_toolsalpha_v1",
 
   "cluster": {},
   "deploymentScript": {},
