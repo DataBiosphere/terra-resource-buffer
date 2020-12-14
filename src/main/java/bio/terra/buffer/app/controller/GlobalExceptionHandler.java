@@ -21,43 +21,9 @@ import org.springframework.web.servlet.NoHandlerFoundException;
  * Data Repo's code. Use the common library once we have.
  */
 @RestControllerAdvice
-public class GlobalExceptionHandler {
-  private final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
-
-  // -- Error Report - one of our exceptions --
-  @ExceptionHandler(ErrorReportException.class)
-  public ResponseEntity<ErrorReport> errorReportHandler(ErrorReportException ex) {
-    return buildErrorReport(ex, ex.getStatusCode(), ex.getCauses());
-  }
-
-  // -- validation exceptions - we don't control the exception raised
-  @ExceptionHandler({
-    MethodArgumentNotValidException.class,
-    IllegalArgumentException.class,
-    NoHandlerFoundException.class
-  })
-  public ResponseEntity<ErrorReport> validationExceptionHandler(Exception ex) {
-    return buildErrorReport(ex, HttpStatus.BAD_REQUEST, null);
-  }
-
-  // -- catchall - log so we can understand what we have missed in the handlers above
-  @ExceptionHandler(Exception.class)
-  public ResponseEntity<ErrorReport> catchallHandler(Exception ex) {
-    logger.error("Exception caught by catchall hander", ex);
-    return buildErrorReport(ex, HttpStatus.INTERNAL_SERVER_ERROR, null);
-  }
-
-  private ResponseEntity<ErrorReport> buildErrorReport(
-      Throwable ex, HttpStatus statusCode, List<String> causes) {
-    StringBuilder combinedCauseString = new StringBuilder();
-    logger.error("Global exception handler: catch stack", ex);
-    for (Throwable cause = ex; cause != null; cause = cause.getCause()) {
-      combinedCauseString.append("cause: " + cause.toString() + ", ");
-    }
-    logger.error("Global exception handler: " + combinedCauseString.toString(), ex);
-
-    ErrorReport errorReport =
-        new ErrorReport().message(ex.getMessage()).statusCode(statusCode.value()).causes(causes);
-    return new ResponseEntity<>(errorReport, statusCode);
+public class GlobalExceptionHandler extends AbstractGlobalExceptionHandler<ErrorReport> {
+  @Override
+  ErrorReport generateErrorReport(Throwable ex, HttpStatus statusCode, List<String> causes) {
+    return new ErrorReport().message(ex.getMessage()).statusCode(statusCode.value()).causes(causes);
   }
 }
