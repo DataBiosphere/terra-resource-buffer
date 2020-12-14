@@ -1,9 +1,10 @@
 {
-  "name": "yyu-dev",
+  "name": "perf",
   "description": "Perf environment in terra-perf cluster.",
 
   "bufferUri": "https://buffer.dsde-perf.broadinstitute.org",
   "bufferClientServiceAccountFile": "perf-buffer-client-sa.json",
+  "bufferPoolId": "resource_toolsalpha_v1",
 
   "cluster": {},
   "deploymentScript": {},

@@ -4,6 +4,7 @@
 
   "bufferUri": "https://buffer.yyu.integ.envs.broadinstitute.org",
   "bufferClientServiceAccountFile": "yyu-buffer-client-sa.json",
+  "bufferPoolId": "resource_perf_v1",
 
   "cluster": {},
   "deploymentScript": {},
