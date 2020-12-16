@@ -132,19 +132,15 @@ public class FlightSchedulerTest extends BaseUnitTest {
 
   @Test
   public void scheduleDeactivationFlights_poolSizeReduced() throws Exception {
-    // Pool size 1, should deactivate 2 resources(only READY resources).
-    Pool pool =
-        newPoolWithResourceCount(
-            1,
-            ImmutableMultiset.of(ResourceState.READY, ResourceState.READY, ResourceState.CREATING));
+    // Pool size 1, with 1 ready one creation. Shouldn't deactivate any resources since we only
+    // count READY one.
+    newPoolWithResourceCount(1, ImmutableMultiset.of(ResourceState.READY, ResourceState.CREATING));
 
-    List<Resource> resources = bufferDao.retrieveResources(pool.id(), ResourceState.READY, 2);
     initializeScheduler();
     Thread.sleep(4000);
 
-    resources.forEach(
-        resource ->
-            verify(flightManager).submitDeletionFlight(resource, ResourceType.GOOGLE_PROJECT));
+    verify(flightManager, never())
+        .submitDeletionFlight(any(Resource.class), eq(ResourceType.GOOGLE_PROJECT));
     verify(flightManager, never()).submitCreationFlight(any(Pool.class));
   }
 

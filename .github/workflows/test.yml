@@ -76,4 +76,10 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: Test Reports
-          path: build/reports/tests
+          path: build/reports
+      - name: Upload Jacoco Reports
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: Test Reports
+          path: build/jacoco

@@ -120,3 +120,7 @@ that mention "dependency lock state" after changing a dep, you need to do this s
 ./gradlew dependencies --write-locks
 ```
 
+### Jacoco
+We use [Jacoco](https://www.eclemma.org/jacoco/) as code coverage library. If you are getting Jacoco error when running
+test from intellij, change Java SDK to Java 11 will fix that. [solution](https://stackoverflow.com/questions/59945979/java-lang-nosuchfieldexception-error-from-jacoco)
+
