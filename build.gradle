@@ -2,6 +2,7 @@ plugins {
     id 'idea'
     id 'java'
 
+    id 'application'
     id 'com.diffplug.spotless' version '5.8.2'
     id 'com.github.ben-manes.versions' version '0.36.0'
     id 'com.github.spotbugs' version '4.5.1'
@@ -264,10 +265,7 @@ tasks.withType(JacocoReport) {
     reports {
         xml.enabled false
         csv.enabled true
-        html.enabled = true
         html.destination file("${buildDir}/jacocoHtml")
-        csv.destination file("${buildDir}/jacocoCsv")
-        executionData = fileTree(buildDir).include("/jacoco/*.exec")
     }
 }
 
@@ -283,7 +281,7 @@ jacocoTestCoverageVerification {
     }
 }
 check.dependsOn jacocoTestCoverageVerification
-jacocoTestReport.shouldRunAfter(test)
+
 // Testing config
 
 // This is the path to the default Google service account for the buffer service to run as.
@@ -304,6 +302,7 @@ tasks.withType(Test) {
             html.enabled = true
         }
     }
+    finalizedBy jacocoTestReport
 }
 
 test {
