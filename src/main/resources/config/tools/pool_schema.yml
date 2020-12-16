@@ -4,3 +4,6 @@ poolConfigs:
   - poolId: "cwb_ws_fiab_v1"
     size: 10
     resourceConfigName: "cwb_ws_resource_fiab_v1"
+  - poolId: "workspace_manager_v1"
+    size: 3
+    resourceConfigName: "workspace_manager_v1"
