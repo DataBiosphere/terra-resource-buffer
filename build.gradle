@@ -302,11 +302,11 @@ tasks.withType(Test) {
             html.enabled = true
         }
     }
-    finalizedBy jacocoTestReport
 }
 
 test {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport
 }
 
 task unitTest(type: Test) {
