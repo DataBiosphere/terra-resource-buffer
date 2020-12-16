@@ -15,13 +15,13 @@ public class PrimaryConfiguration {
   private boolean schedulerEnabled;
 
   /** How often to query for flights to submit. */
-  private Duration flightSubmissionPeriod = Duration.ofMinutes(1);
+  private Duration flightSubmissionPeriod = Duration.ofSeconds(90);
 
   /**
    * How many resource creation flights for a pool to process simultaneously because because we
    * don't want a pool eats all flights.
    */
-  private int resourceCreationPerPoolLimit = 100;
+  private int resourceCreationPerPoolLimit = 80;
 
   /**
    * How many resource deletion flights for a pool to process simultaneously because we don't want a

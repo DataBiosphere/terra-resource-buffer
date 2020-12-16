@@ -1,6 +1,7 @@
 package bio.terra.buffer.common.testing;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import bio.terra.buffer.common.PoolId;
 import bio.terra.buffer.common.PoolStatus;
@@ -23,8 +24,8 @@ public class MetricsTestUtil {
         TagValue.create(state.toString()));
   }
 
-  /** Creates the ready resource to pool size ratio count view tag values for an ACTIVE pool */
-  public static List<TagValue> getReadyResourceRatioTags(PoolId poolId) {
+  /** Creates list of {@link TagValue} which only contains {@link PoolId} */
+  public static List<TagValue> getPoolIdTag(PoolId poolId) {
     return ImmutableList.of(TagValue.create(poolId.id()));
   }
 
@@ -41,6 +42,36 @@ public class MetricsTestUtil {
     assertEquals(
         AggregationData.LastValueDataDouble.create(value),
         MetricsHelper.viewManager.getView(viewName).getAggregationMap().get(tags));
+  }
+
+  /**
+   * Helper method to get current stats before test.
+   *
+   * <p>The clear stats in opencensus is not public, so we have to keep track of each stats and
+   * verify the increment.
+   */
+  public static long getCurrentCount(View.Name viewName, List<TagValue> tags) {
+    AggregationData.CountData currentCount =
+        (AggregationData.CountData)
+            (MetricsHelper.viewManager.getView(viewName).getAggregationMap().get(tags));
+    return currentCount == null ? 0 : currentCount.getCount();
+  }
+
+  /**
+   * Assert the count is a value. 0 is equivalent to no count being present'
+   *
+   * <p>The clear stats in opencensus is not public, so we have to keep track of each stats and
+   * verify the increment.
+   */
+  public static void assertCountIncremented(
+      View.Name viewName, List<TagValue> tags, long previous, long increment) {
+    if (previous == 0 && increment == 0) {
+      assertNull(MetricsHelper.viewManager.getView(viewName).getAggregationMap().get(tags));
+    } else {
+      assertEquals(
+          AggregationData.CountData.create(increment + previous),
+          MetricsHelper.viewManager.getView(viewName).getAggregationMap().get(tags));
+    }
   }
 
   /**
