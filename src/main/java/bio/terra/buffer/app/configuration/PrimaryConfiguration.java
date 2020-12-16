@@ -21,7 +21,7 @@ public class PrimaryConfiguration {
    * How many resource creation flights for a pool to process simultaneously because because we
    * don't want a pool eats all flights.
    */
-  private int resourceCreationPerPoolLimit = 100;
+  private int resourceCreationPerPoolLimit = 80;
 
   /**
    * How many resource deletion flights for a pool to process simultaneously because we don't want a

@@ -80,18 +80,18 @@ public class FlightScheduler {
     for (PoolAndResourceStates poolAndResources : poolAndResourceStatesList) {
       recordResourceStateCount(poolAndResources);
       if (poolAndResources.pool().status().equals(PoolStatus.ACTIVE)) {
-        int size = poolAndResources.pool().size();
+        int size = poolAndResources.pool().size(); // 1500
         int readyAndCreatingCount =
             poolAndResources.resourceStates().count(ResourceState.CREATING)
-                + poolAndResources.resourceStates().count(ResourceState.READY);
+                + poolAndResources.resourceStates().count(ResourceState.READY); //2000
         if (size > readyAndCreatingCount) {
           scheduleCreationFlights(poolAndResources.pool(), size - readyAndCreatingCount);
-        } else if (readyAndCreatingCount > size) {
-          // Only deletion READY resource, we hope future schedule runs will deletion resources
+        } else if (poolAndResources.resourceStates().count(ResourceState.READY) > size) {
+          // Only delete READY resource, we hope future schedule runs will delete resources that are
           // just turns to READY from CREATING.
           scheduleDeletionFlights(
               poolAndResources.pool(),
-              poolAndResources.resourceStates().count(ResourceState.READY));
+              poolAndResources.resourceStates().count(ResourceState.READY) - size);
         }
       } else {
         // Only deletion READY resource, we hope future schedule runs will deletion resources
@@ -118,8 +118,7 @@ public class FlightScheduler {
     }
     logger.info(
         "Successfully submitted {} number of resource creation flights for pool: {} .",
-        pool.id(),
-        successSubmitNum);
+        successSubmitNum, pool.id());
   }
 
   /** Schedules up to {@code number} of resources creation flight for a pool. */
