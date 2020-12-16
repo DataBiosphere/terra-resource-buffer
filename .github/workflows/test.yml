@@ -67,10 +67,10 @@ jobs:
         run: chmod +x gradlew
       - name: Run unit tests
         id: unit-test
-        run: ./gradlew unitTest jacocoTestReport --scan
+        run: ./gradlew unitTest --scan
       - name: Run integration tests
         id: integration-test
-        run: ./gradlew integrationTest jacocoTestReport --scan
+        run: ./gradlew integrationTest --scan
       - name: Upload Test Reports
         if: always()
         uses: actions/upload-artifact@v1
@@ -82,4 +82,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: Test Reports
-          path: build/jacocoHtml
+          path: build/jacoco

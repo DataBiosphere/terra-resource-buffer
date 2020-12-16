@@ -264,7 +264,7 @@ spotbugsTest {
 tasks.withType(JacocoReport) {
     reports {
         xml.enabled false
-        csv.enabled true
+        csv.enabled false
         html.destination file("${buildDir}/jacocoHtml")
     }
 }
