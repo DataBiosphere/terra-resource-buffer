@@ -89,9 +89,9 @@ jobs:
         with:
           name: Test Reports
           path: build/jacoco
-#      - name: Generate Jacoco Report
-#        id: jacoco-report
-#        run: ./gradlew jacocoTestReport
+      - name: Generate Jacoco Report
+        id: jacoco-report
+        run: ./gradlew jacocoTestReport
       - name: Upload Jacoco Reports
         if: always()
         uses: actions/upload-artifact@v2
