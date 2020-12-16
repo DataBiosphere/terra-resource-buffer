@@ -267,6 +267,7 @@ tasks.withType(JacocoReport) {
         html.enabled = true
         html.destination file("${buildDir}/jacocoHtml")
         csv.destination file("${buildDir}/jacocoCsv")
+        executionData = fileTree(buildDir).include("/jacoco/*.exec")
     }
 }
 
