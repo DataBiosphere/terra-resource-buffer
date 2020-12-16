@@ -132,15 +132,15 @@ public class FlightSchedulerTest extends BaseUnitTest {
 
   @Test
   public void scheduleDeactivationFlights_poolSizeReduced() throws Exception {
-    // Pool size 1, with 1 ready one creation. Shouldn't deactivate any resources since we only count READY one.
-    newPoolWithResourceCount(
-            1,
-            ImmutableMultiset.of(ResourceState.READY, ResourceState.CREATING));
+    // Pool size 1, with 1 ready one creation. Shouldn't deactivate any resources since we only
+    // count READY one.
+    newPoolWithResourceCount(1, ImmutableMultiset.of(ResourceState.READY, ResourceState.CREATING));
 
     initializeScheduler();
     Thread.sleep(4000);
 
-    verify(flightManager, never()).submitDeletionFlight(any(Resource.class), ResourceType.GOOGLE_PROJECT);
+    verify(flightManager, never())
+        .submitDeletionFlight(any(Resource.class), eq(ResourceType.GOOGLE_PROJECT));
     verify(flightManager, never()).submitCreationFlight(any(Pool.class));
   }
 
