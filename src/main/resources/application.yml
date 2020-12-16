@@ -20,7 +20,7 @@ buffer:
       uri: jdbc:postgresql://127.0.0.1:5432/${BUFFER_STAIRWAY_DATABASE_NAME}
       username:
     force-clean-start: false
-    max-parallel-flights: 40
+    max-parallel-flights: 80
     migrate-upgrade: true
     quiet-down-timeout: 20s
     terminate-timeout: 5s
