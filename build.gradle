@@ -264,7 +264,9 @@ tasks.withType(JacocoReport) {
     reports {
         xml.enabled false
         csv.enabled true
+        html.enabled = true
         html.destination file("${buildDir}/jacocoHtml")
+        csv.destination file("${buildDir}/jacocoCsv")
     }
 }
 
@@ -329,6 +331,6 @@ sourceSets.main.java.srcDir "${swaggerOutputDir}/src/main/java"
 sourceSets.test.resources.srcDir "config/" // Allow unit tests to directly load config files.
 sourceSets {
     jacoco {
-        toolVersion '0.8.2'
+        toolVersion '0.8.6'
     }
 }
