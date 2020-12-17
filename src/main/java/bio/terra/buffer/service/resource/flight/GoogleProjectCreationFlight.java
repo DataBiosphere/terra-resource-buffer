@@ -1,8 +1,8 @@
 package bio.terra.buffer.service.resource.flight;
 
 import static bio.terra.buffer.service.resource.FlightMapKeys.RESOURCE_CONFIG;
-import static bio.terra.buffer.service.resource.flight.StepUtils.CLOUD_API_DEFAULT_RETRY_RULE;
-import static bio.terra.buffer.service.resource.flight.StepUtils.INTERNAL_DEFAULT_RETRY_RULE;
+import static bio.terra.buffer.service.resource.flight.StepUtils.CLOUD_API_DEFAULT_RETRY;
+import static bio.terra.buffer.service.resource.flight.StepUtils.INTERNAL_DEFAULT_RETRY;
 
 import bio.terra.buffer.db.BufferDao;
 import bio.terra.buffer.generated.model.GcpProjectConfig;
@@ -40,31 +40,26 @@ public class GoogleProjectCreationFlight extends Flight {
         inputParameters.get(RESOURCE_CONFIG, ResourceConfig.class).getGcpProjectConfig();
     GcpProjectIdGenerator idGenerator =
         ((ApplicationContext) applicationContext).getBean(GcpProjectIdGenerator.class);
-    addStep(new GenerateResourceIdStep(), INTERNAL_DEFAULT_RETRY_RULE);
-    addStep(new CreateResourceDbEntityStep(bufferDao), INTERNAL_DEFAULT_RETRY_RULE);
-    addStep(new GenerateProjectIdStep(gcpProjectConfig, idGenerator), CLOUD_API_DEFAULT_RETRY_RULE);
-    addStep(new CreateProjectStep(rmCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY_RULE);
-    addStep(new SetBillingInfoStep(billingCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY_RULE);
+    addStep(new GenerateResourceIdStep(), INTERNAL_DEFAULT_RETRY);
+    addStep(new CreateResourceDbEntityStep(bufferDao), INTERNAL_DEFAULT_RETRY);
+    addStep(new GenerateProjectIdStep(gcpProjectConfig, idGenerator), CLOUD_API_DEFAULT_RETRY);
+    addStep(new CreateProjectStep(rmCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
+    addStep(new SetBillingInfoStep(billingCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
+    addStep(new EnableServicesStep(serviceUsageCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
+    addStep(new SetIamPolicyStep(rmCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
     addStep(
-        new EnableServicesStep(serviceUsageCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY_RULE);
-    addStep(new SetIamPolicyStep(rmCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY_RULE);
+        new CreateStorageLogBucketStep(clientConfig, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
+    addStep(new DeleteDefaultServiceAccountStep(iamCow), CLOUD_API_DEFAULT_RETRY);
+    addStep(new DeleteDefaultFirewallRulesStep(cloudComputeCow), CLOUD_API_DEFAULT_RETRY);
     addStep(
-        new CreateStorageLogBucketStep(clientConfig, gcpProjectConfig),
-        CLOUD_API_DEFAULT_RETRY_RULE);
-    addStep(new DeleteDefaultServiceAccountStep(iamCow), CLOUD_API_DEFAULT_RETRY_RULE);
-    addStep(new DeleteDefaultFirewallRulesStep(cloudComputeCow), CLOUD_API_DEFAULT_RETRY_RULE);
+        new DeleteDefaultNetworkStep(cloudComputeCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
+    addStep(new CreateNetworkStep(cloudComputeCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
+    addStep(new CreateRouteStep(cloudComputeCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
+    addStep(new CreateFirewallRuleStep(cloudComputeCow), CLOUD_API_DEFAULT_RETRY);
+    addStep(new CreateSubnetsStep(cloudComputeCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
     addStep(
-        new DeleteDefaultNetworkStep(cloudComputeCow, gcpProjectConfig),
-        CLOUD_API_DEFAULT_RETRY_RULE);
-    addStep(new CreateNetworkStep(cloudComputeCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY_RULE);
-    addStep(new CreateRouteStep(cloudComputeCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY_RULE);
-    addStep(new CreateFirewallRuleStep(cloudComputeCow), CLOUD_API_DEFAULT_RETRY_RULE);
-    addStep(new CreateSubnetsStep(cloudComputeCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY_RULE);
-    addStep(
-        new CreateDnsZoneStep(cloudComputeCow, dnsCow, gcpProjectConfig),
-        CLOUD_API_DEFAULT_RETRY_RULE);
-    addStep(
-        new CreateResourceRecordSetStep(dnsCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY_RULE);
-    addStep(new FinishResourceCreationStep(bufferDao), INTERNAL_DEFAULT_RETRY_RULE);
+        new CreateDnsZoneStep(cloudComputeCow, dnsCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
+    addStep(new CreateResourceRecordSetStep(dnsCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
+    addStep(new FinishResourceCreationStep(bufferDao), INTERNAL_DEFAULT_RETRY);
   }
 }
