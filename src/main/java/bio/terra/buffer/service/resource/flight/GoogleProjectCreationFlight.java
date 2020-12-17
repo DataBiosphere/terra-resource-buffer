@@ -1,6 +1,7 @@
 package bio.terra.buffer.service.resource.flight;
 
 import static bio.terra.buffer.service.resource.FlightMapKeys.RESOURCE_CONFIG;
+import static bio.terra.buffer.service.resource.flight.StepUtils.RETRY_RULE;
 
 import bio.terra.buffer.db.BufferDao;
 import bio.terra.buffer.generated.model.GcpProjectConfig;
@@ -15,7 +16,6 @@ import bio.terra.cloudres.google.iam.IamCow;
 import bio.terra.cloudres.google.serviceusage.ServiceUsageCow;
 import bio.terra.stairway.Flight;
 import bio.terra.stairway.FlightMap;
-import bio.terra.stairway.RetryRuleFixedInterval;
 import org.springframework.context.ApplicationContext;
 
 /** {@link Flight} to create GCP project. */
@@ -39,25 +39,23 @@ public class GoogleProjectCreationFlight extends Flight {
         inputParameters.get(RESOURCE_CONFIG, ResourceConfig.class).getGcpProjectConfig();
     GcpProjectIdGenerator idGenerator =
         ((ApplicationContext) applicationContext).getBean(GcpProjectIdGenerator.class);
-    RetryRuleFixedInterval retryRule =
-        new RetryRuleFixedInterval(/* intervalSeconds =*/ 180, /* maxCount =*/ 5);
-    addStep(new GenerateResourceIdStep());
-    addStep(new CreateResourceDbEntityStep(bufferDao));
-    addStep(new GenerateProjectIdStep(gcpProjectConfig, idGenerator));
-    addStep(new CreateProjectStep(rmCow, gcpProjectConfig), retryRule);
-    addStep(new SetBillingInfoStep(billingCow, gcpProjectConfig));
-    addStep(new EnableServicesStep(serviceUsageCow, gcpProjectConfig));
-    addStep(new SetIamPolicyStep(rmCow, gcpProjectConfig));
-    addStep(new CreateStorageLogBucketStep(clientConfig, gcpProjectConfig));
-    addStep(new DeleteDefaultServiceAccountStep(iamCow));
-    addStep(new DeleteDefaultFirewallRulesStep(cloudComputeCow));
-    addStep(new DeleteDefaultNetworkStep(cloudComputeCow, gcpProjectConfig));
-    addStep(new CreateNetworkStep(cloudComputeCow, gcpProjectConfig));
-    addStep(new CreateRouteStep(cloudComputeCow, gcpProjectConfig));
-    addStep(new CreateFirewallRuleStep(cloudComputeCow));
-    addStep(new CreateSubnetsStep(cloudComputeCow, gcpProjectConfig));
-    addStep(new CreateDnsZoneStep(cloudComputeCow, dnsCow, gcpProjectConfig));
-    addStep(new CreateResourceRecordSetStep(dnsCow, gcpProjectConfig));
-    addStep(new FinishResourceCreationStep(bufferDao));
+    addStep(new GenerateResourceIdStep(), RETRY_RULE);
+    addStep(new CreateResourceDbEntityStep(bufferDao), RETRY_RULE);
+    addStep(new GenerateProjectIdStep(gcpProjectConfig, idGenerator), RETRY_RULE);
+    addStep(new CreateProjectStep(rmCow, gcpProjectConfig), RETRY_RULE);
+    addStep(new SetBillingInfoStep(billingCow, gcpProjectConfig), RETRY_RULE);
+    addStep(new EnableServicesStep(serviceUsageCow, gcpProjectConfig), RETRY_RULE);
+    addStep(new SetIamPolicyStep(rmCow, gcpProjectConfig), RETRY_RULE);
+    addStep(new CreateStorageLogBucketStep(clientConfig, gcpProjectConfig), RETRY_RULE);
+    addStep(new DeleteDefaultServiceAccountStep(iamCow), RETRY_RULE);
+    addStep(new DeleteDefaultFirewallRulesStep(cloudComputeCow), RETRY_RULE);
+    addStep(new DeleteDefaultNetworkStep(cloudComputeCow, gcpProjectConfig), RETRY_RULE);
+    addStep(new CreateNetworkStep(cloudComputeCow, gcpProjectConfig), RETRY_RULE);
+    addStep(new CreateRouteStep(cloudComputeCow, gcpProjectConfig), RETRY_RULE);
+    addStep(new CreateFirewallRuleStep(cloudComputeCow), RETRY_RULE);
+    addStep(new CreateSubnetsStep(cloudComputeCow, gcpProjectConfig), RETRY_RULE);
+    addStep(new CreateDnsZoneStep(cloudComputeCow, dnsCow, gcpProjectConfig), RETRY_RULE);
+    addStep(new CreateResourceRecordSetStep(dnsCow, gcpProjectConfig), RETRY_RULE);
+    addStep(new FinishResourceCreationStep(bufferDao), RETRY_RULE);
   }
 }

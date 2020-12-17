@@ -8,9 +8,13 @@ import bio.terra.buffer.generated.model.CloudResourceUid;
 import bio.terra.buffer.service.resource.FlightMapKeys;
 import bio.terra.stairway.FlightContext;
 import bio.terra.stairway.FlightMap;
+import bio.terra.stairway.RetryRuleFixedInterval;
 
 /** Utilities used in Stairway steps. */
 public class StepUtils {
+  /** The stairway retry rule used in all resource creation/deletion steps. */
+  public static final RetryRuleFixedInterval RETRY_RULE =
+      new RetryRuleFixedInterval(/* intervalSeconds =*/ 180, /* maxCount =*/ 5);
 
   /** Update resource state to READY and update working map's RESOURCE_READY boolean value. */
   public static void markResourceReady(BufferDao bufferDao, FlightContext flightContext) {
