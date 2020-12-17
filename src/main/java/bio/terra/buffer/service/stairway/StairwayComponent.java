@@ -48,6 +48,7 @@ public class StairwayComponent {
         Stairway.newBuilder()
             .maxParallelFlights(stairwayConfiguration.getMaxParallelFlights())
             .applicationContext(applicationContext)
+            .keepFlightLog(true)
             .stairwayName(stairwayConfiguration.getName())
             .stairwayClusterName(stairwayConfiguration.getClusterName());
     try {
