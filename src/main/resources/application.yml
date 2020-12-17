@@ -24,7 +24,6 @@ buffer:
     # having 500 hears means it takes 3000 resources / 500 threads * 10minute = 60 minutes to create this pool
     max-parallel-flights: 500
     migrate-upgrade: true
-    name: buffer-stairway
     quiet-down-timeout: 20s
     terminate-timeout: 5s
 
