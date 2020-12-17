@@ -20,8 +20,11 @@ buffer:
       uri: jdbc:postgresql://127.0.0.1:5432/${BUFFER_STAIRWAY_DATABASE_NAME}
       username:
     force-clean-start: false
-    max-parallel-flights: 80
+    # This decides how soon we can fill a pool. Example: if total pools size is 3000 and each flight takes 10 minues.
+    # having 500 hears means it takes 3000 resources / 500 threads * 10minute = 60 minutes to create this pool
+    max-parallel-flights: 500
     migrate-upgrade: true
+    name: buffer-stairway
     quiet-down-timeout: 20s
     terminate-timeout: 5s
 
