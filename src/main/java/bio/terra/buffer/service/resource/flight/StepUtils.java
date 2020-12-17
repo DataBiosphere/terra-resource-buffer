@@ -12,9 +12,13 @@ import bio.terra.stairway.RetryRuleFixedInterval;
 
 /** Utilities used in Stairway steps. */
 public class StepUtils {
-  /** The stairway retry rule used in all resource creation/deletion steps. */
-  public static final RetryRuleFixedInterval RETRY_RULE =
+  /** The stairway retry rule for GCP API calls(retry every 3 minutes). */
+  public static final RetryRuleFixedInterval CLOUD_API_DEFAULT_RETRY_RULE =
       new RetryRuleFixedInterval(/* intervalSeconds =*/ 180, /* maxCount =*/ 5);
+
+  /** The stairway retry rule for Buffer service internal operations(retry every 5 seconds). */
+  public static final RetryRuleFixedInterval INTERNAL_DEFAULT_RETRY_RULE =
+      new RetryRuleFixedInterval(/* intervalSeconds =*/ 5, /* maxCount =*/ 5);
 
   /** Update resource state to READY and update working map's RESOURCE_READY boolean value. */
   public static void markResourceReady(BufferDao bufferDao, FlightContext flightContext) {

@@ -1,6 +1,7 @@
 package bio.terra.buffer.service.resource.flight;
 
-import static bio.terra.buffer.service.resource.flight.StepUtils.RETRY_RULE;
+import static bio.terra.buffer.service.resource.flight.StepUtils.CLOUD_API_DEFAULT_RETRY_RULE;
+import static bio.terra.buffer.service.resource.flight.StepUtils.INTERNAL_DEFAULT_RETRY_RULE;
 
 import bio.terra.buffer.db.BufferDao;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
@@ -15,8 +16,8 @@ public class GoogleProjectDeletionFlight extends Flight {
     BufferDao bufferDao = ((ApplicationContext) applicationContext).getBean(BufferDao.class);
     CloudResourceManagerCow rmCow =
         ((ApplicationContext) applicationContext).getBean(CloudResourceManagerCow.class);
-    addStep(new InitialResourceDeletionStep(bufferDao), RETRY_RULE);
-    addStep(new DeleteProjectStep(rmCow), RETRY_RULE);
-    addStep(new UpdateResourceAsDeletedStep(bufferDao), RETRY_RULE);
+    addStep(new InitialResourceDeletionStep(bufferDao), INTERNAL_DEFAULT_RETRY_RULE);
+    addStep(new DeleteProjectStep(rmCow), CLOUD_API_DEFAULT_RETRY_RULE);
+    addStep(new UpdateResourceAsDeletedStep(bufferDao), INTERNAL_DEFAULT_RETRY_RULE);
   }
 }
