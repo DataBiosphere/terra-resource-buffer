@@ -29,6 +29,9 @@ public class PrimaryConfiguration {
    */
   private int resourceDeletionPerPoolLimit = 50;
 
+  /** How often to record the counts of the different resources in the database. */
+  private Duration recordResourceCountPeriod = Duration.ofMinutes(10);
+
   public boolean isSchedulerEnabled() {
     return schedulerEnabled;
   }
