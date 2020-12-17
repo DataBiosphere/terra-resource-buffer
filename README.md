@@ -40,7 +40,7 @@ Dev Buffer client service account can be found at:
 docker run -e VAULT_TOKEN=$(cat ~/.vault-token) -it broadinstitute/dsde-toolbox:dev vault read secret/dsde/terra/kernel/dev/dev/buffer/client-sa
 ```
 
-We use different vault path for different environment, they are defined as `vault.pathPrefix` in [helmfile repo](https://github.com/broadinstitute/terra-helmfile/tree/master/terra/values/buffer)
+To access Buffer Service in other environment, lookup for `vault.pathPrefix` in [helmfile repo](https://github.com/broadinstitute/terra-helmfile/tree/master/terra/values/buffer) to get the correct vault path.
 
 ### Configs Rendering
 Local Testing and Github Action tests require credentials to be able to call GCP, run
