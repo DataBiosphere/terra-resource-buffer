@@ -35,7 +35,9 @@ public class DeleteProjectFlightIntegrationTest extends BaseIntegrationTest {
     Pool pool = preparePool(bufferDao, newFullGcpConfig());
 
     String createFlightId = manager.submitCreationFlight(pool).get();
-    ResourceId resourceId = blockUntilFlightComplete(stairwayComponent, createFlightId).get();
+    ResourceId resourceId =
+        extractResourceIdFromFlightState(
+            blockUntilFlightComplete(stairwayComponent, createFlightId));
     Project project = assertProjectExists(resourceId);
     Resource resource = bufferDao.retrieveResources(pool.id(), ResourceState.READY, 1).get(0);
 
@@ -54,7 +56,9 @@ public class DeleteProjectFlightIntegrationTest extends BaseIntegrationTest {
     Pool pool = preparePool(bufferDao, newBasicGcpConfig());
 
     String createFlightId = manager.submitCreationFlight(pool).get();
-    ResourceId resourceId = blockUntilFlightComplete(stairwayComponent, createFlightId).get();
+    ResourceId resourceId =
+        extractResourceIdFromFlightState(
+            blockUntilFlightComplete(stairwayComponent, createFlightId));
     Resource resource = bufferDao.retrieveResource(resourceId).get();
 
     // An errors occurs after resource deleted. Expect project is deleted, but we resource state is

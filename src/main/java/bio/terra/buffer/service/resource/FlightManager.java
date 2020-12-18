@@ -52,8 +52,9 @@ public class FlightManager {
   /**
    * Create entity in resource table with CREATING and submit creation flight.
    *
-   * <p>This should be done as a part of a transaction. The TransactionStatus is unused, but a part
-   * of the signature as a reminder.
+   * <p>This should be done as a part of a transaction because we don't want resource state update
+   * without submitting a flight. The TransactionStatus is unused, but a part of the signature as a
+   * reminder.
    */
   private Optional<String> createResourceEntityAndSubmitFlight(
       Pool pool, TransactionStatus unused) {
@@ -71,8 +72,9 @@ public class FlightManager {
   /**
    * Update a READY resource state to DELETING and submit deletion flight.
    *
-   * <p>This should be done as a part of a transaction. The TransactionStatus is unused, but a part
-   * of the signature as a reminder.
+   * <p>This should be done as a part of a transaction because we don't want resource state update
+   * without submitting a flight. The TransactionStatus is unused, but a part of the signature as a
+   * reminder.
    */
   private Optional<String> updateResourceAsDeletingAndSubmitFlight(
       Resource resource, ResourceType resourceType, TransactionStatus unused) {
@@ -80,6 +82,7 @@ public class FlightManager {
       return submitToStairway(
           flightSubmissionFactory.getDeletionFlightSubmission(resource, resourceType));
     }
+    logger.info("Failed to submit resource deletion flight for resource{}", resource.id());
     return Optional.empty();
   }
 

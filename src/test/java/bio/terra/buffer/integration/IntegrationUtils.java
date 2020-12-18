@@ -12,13 +12,13 @@ import bio.terra.buffer.service.resource.FlightSubmissionFactory;
 import bio.terra.buffer.service.stairway.StairwayComponent;
 import bio.terra.stairway.Flight;
 import bio.terra.stairway.FlightMap;
+import bio.terra.stairway.FlightState;
 import bio.terra.stairway.exception.DatabaseOperationException;
 import com.google.common.collect.ImmutableList;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -67,29 +67,33 @@ public class IntegrationUtils {
     throw new InterruptedException("Polling exceeded maxNumPolls");
   }
 
-  /**
-   * Poll until flight finished, and return ResourceId back from input map.
-   *
-   * <p>Stairway convert all input parameter type to String when using FlightState. So we need extra
-   * step of converting from String to UUID to ResourceId. See <a
-   * href="https://broadworkbench.atlassian.net/browse/PF-316">PF-316</a>
-   */
-  public static Optional<ResourceId> blockUntilFlightComplete(
+  /** Poll until flight finished, and return {@link FlightState}. */
+  public static FlightState blockUntilFlightComplete(
       StairwayComponent stairwayComponent, String flightId)
       throws InterruptedException, DatabaseOperationException {
     Duration maxWait = Duration.ofSeconds(500);
     Duration waited = Duration.ZERO;
     while (waited.compareTo(maxWait) < 0) {
       if (!stairwayComponent.get().getFlightState(flightId).isActive()) {
-        FlightMap inputMap = stairwayComponent.get().getFlightState(flightId).getInputParameters();
-        return Optional.of(
-            ResourceId.create(UUID.fromString(inputMap.get("ResourceId", String.class))));
+        return stairwayComponent.get().getFlightState(flightId);
       }
       Duration poll = Duration.ofMillis(4000);
       waited = waited.plus(Duration.ofMillis(poll.toMillis()));
       TimeUnit.MILLISECONDS.sleep(poll.toMillis());
     }
     throw new InterruptedException("Flight did not complete in time.");
+  }
+
+  /**
+   * Extracts {@link ResourceId} from {@link FlightState}.
+   *
+   * <p>Stairway convert all input parameter type to String when using FlightState. So we need extra
+   * step of converting from String to UUID to ResourceId. See <a
+   * href="https://broadworkbench.atlassian.net/browse/PF-316">PF-316</a>
+   */
+  public static ResourceId extractResourceIdFromFlightState(FlightState flightState) {
+    return ResourceId.create(
+        UUID.fromString(flightState.getInputParameters().get("ResourceId", String.class)));
   }
 
   /** Prepares a Pool with {@link GcpProjectConfig}. */
