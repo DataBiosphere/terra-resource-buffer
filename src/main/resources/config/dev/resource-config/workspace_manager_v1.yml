@@ -3,7 +3,7 @@
 configName: "workspace_manager_v1"
 gcpProjectConfig:
   projectIdSchema:
-    prefix: "terra-dev"
+    prefix: "terra-wsm-dev"
     scheme: "RANDOM_CHAR"
   parentFolderId: "968850521993"
   billingAccount: "01A82E-CA8A14-367457"
