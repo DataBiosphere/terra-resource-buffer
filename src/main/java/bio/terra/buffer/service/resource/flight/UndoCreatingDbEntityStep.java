@@ -9,14 +9,14 @@ import bio.terra.stairway.Step;
 import bio.terra.stairway.StepResult;
 
 /**
- * A step with undo method to delete the entity from resource table. We create a CREATING state resource and submit it
- * to Stairway. If the flight fail, we need to delete the CREATING entity from resource table since the resource is not
- * CREATING anymore.
+ * A step with undo method to delete the entity from resource table. We create a CREATING state
+ * resource and submit it to Stairway. If the flight fail, we need to delete the CREATING entity
+ * from resource table since the resource is not CREATING anymore.
  */
-public class InitialResourceCreationStep implements Step {
+public class UndoCreatingDbEntityStep implements Step {
   private final BufferDao bufferDao;
 
-  public InitialResourceCreationStep(BufferDao bufferDao) {
+  public UndoCreatingDbEntityStep(BufferDao bufferDao) {
     this.bufferDao = bufferDao;
   }
 

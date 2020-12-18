@@ -272,8 +272,7 @@ public class BufferDao {
    */
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
   public boolean updateReadyResourceToDeleting(ResourceId id) {
-    Optional<Resource> resource =
-            retrieveResource(id);
+    Optional<Resource> resource = retrieveResource(id);
     if (resource.isEmpty() || !resource.get().state().equals(ResourceState.READY)) {
       logger.warn("We shouldn't mark non-READY resource {} to DELETING", resource);
       return false;
