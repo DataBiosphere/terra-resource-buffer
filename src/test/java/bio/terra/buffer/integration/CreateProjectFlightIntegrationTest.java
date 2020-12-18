@@ -90,8 +90,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     Pool pool = preparePool(bufferDao, newBasicGcpConfig());
 
     String flightId = manager.submitCreationFlight(pool).get();
-    FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, flightId).get();
-    Project project = assertProjectExists(ResourceId.retrieve(resultMap));
+    ResourceId resourceId = blockUntilFlightComplete(stairwayComponent, flightId).get();
+    Project project = assertProjectExists(resourceId);
     assertBillingIs(project, pool.resourceConfig().getGcpProjectConfig().getBillingAccount());
     assertEnableApisContains(project, pool.resourceConfig().getGcpProjectConfig().getEnabledApis());
     assertLogStorageBucketExists(project);
@@ -113,9 +113,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     Pool pool = preparePool(bufferDao, newBasicGcpConfig().iamBindings(IAM_BINDINGS));
 
     String flightId = manager.submitCreationFlight(pool).get();
-    FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, flightId).get();
-
-    Project project = assertProjectExists(ResourceId.retrieve(resultMap));
+    ResourceId resourceId = blockUntilFlightComplete(stairwayComponent, flightId).get();
+    Project project = assertProjectExists(resourceId);
     assertIamBindingsContains(project, IAM_BINDINGS);
   }
 
@@ -132,8 +131,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
                     new bio.terra.buffer.generated.model.Network().enableNetworkMonitoring(true)));
 
     String flightId = manager.submitCreationFlight(pool).get();
-    FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, flightId).get();
-    Project project = assertProjectExists(ResourceId.retrieve(resultMap));
+    ResourceId resourceId = blockUntilFlightComplete(stairwayComponent, flightId).get();
+    Project project = assertProjectExists(resourceId);
     assertNetworkExists(project);
     assertSubnetsExist(project, NetworkMonitoring.ENABLED);
     assertRouteExists(project);
@@ -153,8 +152,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     Pool pool = preparePool(bufferDao, newFullGcpConfig());
 
     String flightId = manager.submitCreationFlight(pool).get();
-    FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, flightId).get();
-    Project project = assertProjectExists(ResourceId.retrieve(resultMap));
+    ResourceId resourceId = blockUntilFlightComplete(stairwayComponent, flightId).get();
+    Project project = assertProjectExists(resourceId);
     assertIamBindingsContains(project, IAM_BINDINGS);
     assertNetworkExists(project);
     assertSubnetsExist(project, NetworkMonitoring.ENABLED);
@@ -199,7 +198,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
     Pool pool = preparePool(bufferDao, newBasicGcpConfig());
     String flightId = manager.submitCreationFlight(pool).get();
-    FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, flightId).get();
+    blockUntilFlightComplete(stairwayComponent, flightId).get();
 
     Resource resource = bufferDao.retrieveResources(pool.id(), ResourceState.READY, 1).get(0);
     assertEquals(
