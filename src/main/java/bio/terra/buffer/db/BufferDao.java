@@ -5,6 +5,7 @@ import static bio.terra.buffer.app.configuration.BeanNames.OBJECT_MAPPER;
 import bio.terra.buffer.common.*;
 import bio.terra.buffer.generated.model.CloudResourceUid;
 import bio.terra.buffer.generated.model.ResourceConfig;
+import bio.terra.buffer.service.resource.flight.CreateNetworkStep;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,6 +17,8 @@ import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.CheckReturnValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
@@ -32,6 +35,8 @@ import org.springframework.transaction.annotation.Transactional;
 /** Resource Buffer Service Database data access object. */
 @Component
 public class BufferDao {
+  private final Logger logger = LoggerFactory.getLogger(CreateNetworkStep.class);
+
   private final NamedParameterJdbcTemplate jdbcTemplate;
   private final ObjectMapper objectMapper;
 
@@ -262,19 +267,28 @@ public class BufferDao {
   }
 
   /**
-   * Updates resource in READY state to DELETING. Returns true if the current state is READY and
-   * successfully update it to DELETING.
+   * Updates resource in READY state to DELETING. Returns true if previous state is READY and we
+   * successfully update its state.
    */
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
   public boolean updateReadyResourceToDeleting(ResourceId id) {
-    String sql =
-        "UPDATE resource SET state = "
-            + ResourceState.DELETING.toString()
-            + " WHERE id = :id AND state = "
-            + ResourceState.READY.toString();
-
-    MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", id.id());
-    return jdbcTemplate.update(sql, params) == 1;
+    String readSql =
+        "select id, pool_id, creation, handout_time, state, request_handout_id, cloud_resource_uid, deletion "
+            + "FROM resource WHERE id = :id ";
+    MapSqlParameterSource readParams = new MapSqlParameterSource().addValue("id", id.id());
+    Resource resource =
+        DataAccessUtils.singleResult(jdbcTemplate.query(readSql, readParams, RESOURCE_ROW_MAPPER));
+    if (resource == null || !resource.state().equals(ResourceState.READY)) {
+      logger.warn("We shouldn't mark non-READY resource {} to DELETING", resource);
+      return false;
+    } else {
+      String sql = "UPDATE resource SET state = :state WHERE id = :id";
+      MapSqlParameterSource params =
+          new MapSqlParameterSource()
+              .addValue("state", ResourceState.DELETING.toString())
+              .addValue("id", id.id());
+      return jdbcTemplate.update(sql, params) == 1;
+    }
   }
 
   /** Updates resource state and deletion timestamp after resource is deleted. */
