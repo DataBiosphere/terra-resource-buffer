@@ -70,7 +70,7 @@ public class IntegrationUtils {
   /**
    * Poll until flight finished, and return ResourceId back from input map.
    *
-   * <p>Stairway convert all input parameter type to String when using FlightState. So we have extra
+   * <p>Stairway convert all input parameter type to String when using FlightState. So we need extra
    * step of converting from String to UUID to ResourceId. See <a
    * href="https://broadworkbench.atlassian.net/browse/PF-316">PF-316</a>
    */
