@@ -272,13 +272,9 @@ public class BufferDao {
    */
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
   public boolean updateReadyResourceToDeleting(ResourceId id) {
-    String readSql =
-        "select id, pool_id, creation, handout_time, state, request_handout_id, cloud_resource_uid, deletion "
-            + "FROM resource WHERE id = :id ";
-    MapSqlParameterSource readParams = new MapSqlParameterSource().addValue("id", id.id());
-    Resource resource =
-        DataAccessUtils.singleResult(jdbcTemplate.query(readSql, readParams, RESOURCE_ROW_MAPPER));
-    if (resource == null || !resource.state().equals(ResourceState.READY)) {
+    Optional<Resource> resource =
+            retrieveResource(id);
+    if (resource.isEmpty() || !resource.get().state().equals(ResourceState.READY)) {
       logger.warn("We shouldn't mark non-READY resource {} to DELETING", resource);
       return false;
     } else {

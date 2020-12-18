@@ -9,8 +9,9 @@ import bio.terra.stairway.Step;
 import bio.terra.stairway.StepResult;
 
 /**
- * Initial resource creation step. Now we create CREATING resource before the flight, but we need to
- * delete it if flight fails.
+ * A step with undo method to delete the entity from resource table. We create a CREATING state resource and submit it
+ * to Stairway. If the flight fail, we need to delete the CREATING entity from resource table since the resource is not
+ * CREATING anymore.
  */
 public class InitialResourceCreationStep implements Step {
   private final BufferDao bufferDao;
@@ -21,6 +22,7 @@ public class InitialResourceCreationStep implements Step {
 
   @Override
   public StepResult doStep(FlightContext flightContext) {
+    // Do nothing. We just use this step's undo method.
     return StepResult.getStepResultSuccess();
   }
 
