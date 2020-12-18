@@ -261,14 +261,15 @@ public class BufferDao {
     return jdbcTemplate.update(sql, params) == 1;
   }
 
-  /** Updates resource state to DELETING. */
+  /** Updates resource in READY state to DELETING. */
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
-  public boolean updateResourceAsDeleting(ResourceId id) {
-    String sql = "UPDATE resource SET state = :state WHERE id = :id";
+  public boolean updateReadyResourceToDeleting(ResourceId id) {
+    String sql = "UPDATE resource SET state = :state WHERE id = :id AND state = :currentState";
 
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("state", ResourceState.DELETING.toString())
+            .addValue("currentState", ResourceState.READY.toString())
             .addValue("id", id.id());
     return jdbcTemplate.update(sql, params) == 1;
   }

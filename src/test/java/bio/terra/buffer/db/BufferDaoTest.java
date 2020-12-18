@@ -205,14 +205,25 @@ public class BufferDaoTest extends BaseUnitTest {
   }
 
   @Test
-  public void updateResourceAsDeleting() {
+  public void updateReadyResourceAsDeleting_success() {
     Pool pool = newPool(PoolId.create("poolId"));
     Resource resource = newResource(pool.id(), ResourceState.READY);
     bufferDao.createPools(ImmutableList.of(pool));
     bufferDao.createResource(resource);
 
-    bufferDao.updateResourceAsDeleting(resource.id());
+    assertTrue(bufferDao.updateReadyResourceToDeleting(resource.id()));
     assertEquals(ResourceState.DELETING, bufferDao.retrieveResource(resource.id()).get().state());
+  }
+
+  @Test
+  public void updateReadyResourceAsDeleting_currentStateIsNotReady() {
+    Pool pool = newPool(PoolId.create("poolId"));
+    Resource resource = newResource(pool.id(), ResourceState.HANDED_OUT);
+    bufferDao.createPools(ImmutableList.of(pool));
+    bufferDao.createResource(resource);
+
+    assertFalse(bufferDao.updateReadyResourceToDeleting(resource.id()));
+    assertEquals(ResourceState.HANDED_OUT, bufferDao.retrieveResource(resource.id()).get().state());
   }
 
   @Test

@@ -14,6 +14,7 @@ public class StairwayConfiguration {
    * Stairway creates random name after re-deploy, hence we can not recover previous PENDING flight.
    */
   private String name = "buffer-stairway";
+
   private String clusterName;
   private boolean forceCleanStart;
   private boolean migrateUpgrade;

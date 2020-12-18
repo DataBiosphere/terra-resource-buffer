@@ -30,7 +30,7 @@ public class StepUtils {
   public static void markResourceReady(BufferDao bufferDao, FlightContext flightContext) {
     FlightMap workingMap = flightContext.getWorkingMap();
     bufferDao.updateResourceAsReady(
-        ResourceId.retrieve(flightContext.getWorkingMap()),
+        ResourceId.retrieve(flightContext.getInputParameters()),
         workingMap.get(FlightMapKeys.CLOUD_RESOURCE_UID, CloudResourceUid.class));
     workingMap.put(RESOURCE_READY, true);
   }

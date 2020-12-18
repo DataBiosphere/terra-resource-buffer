@@ -1,42 +1,86 @@
 package bio.terra.buffer.service.resource;
 
-import bio.terra.buffer.common.Pool;
-import bio.terra.buffer.common.Resource;
-import bio.terra.buffer.common.ResourceType;
+import bio.terra.buffer.common.*;
+import bio.terra.buffer.db.BufferDao;
 import bio.terra.buffer.service.stairway.StairwayComponent;
 import bio.terra.stairway.Stairway;
 import bio.terra.stairway.exception.DatabaseOperationException;
 import bio.terra.stairway.exception.StairwayExecutionException;
+import java.time.Instant;
 import java.util.Optional;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /** Manages the Stairway flights to create or delete resources. */
 @Component
 public class FlightManager {
   private Logger logger = LoggerFactory.getLogger(FlightManager.class);
 
+  private final BufferDao bufferDao;
   private final FlightSubmissionFactory flightSubmissionFactory;
   private final Stairway stairway;
+  private final TransactionTemplate transactionTemplate;
 
   @Autowired
   public FlightManager(
-      FlightSubmissionFactory flightSubmissionFactory, StairwayComponent stairwayComponent) {
+      BufferDao bufferDao,
+      FlightSubmissionFactory flightSubmissionFactory,
+      StairwayComponent stairwayComponent,
+      TransactionTemplate transactionTemplate) {
+    this.bufferDao = bufferDao;
     this.flightSubmissionFactory = flightSubmissionFactory;
     this.stairway = stairwayComponent.get();
+    this.transactionTemplate = transactionTemplate;
   }
 
   /** Submit Stairway Flight to create resource. */
   public Optional<String> submitCreationFlight(Pool pool) {
-    return submitToStairway(flightSubmissionFactory.getCreationFlightSubmission(pool));
+    return transactionTemplate.execute(status -> createResourceEntityAndSubmitFlight(pool, status));
   }
 
   /** Submit Stairway Flight to delete resource. */
   public Optional<String> submitDeletionFlight(Resource resource, ResourceType resourceType) {
-    return submitToStairway(
-        flightSubmissionFactory.getDeletionFlightSubmission(resource, resourceType));
+    return transactionTemplate.execute(
+        status -> updateResourceAsDeletingAndSubmitFlight(resource, resourceType, status));
+  }
+
+  /**
+   * Create entity in resource table with CREATING and submit creation flight.
+   *
+   * <p>This should be done as a part of a transaction. The TransactionStatus is unused, but a part
+   * of the signature as a reminder.
+   */
+  private Optional<String> createResourceEntityAndSubmitFlight(
+      Pool pool, TransactionStatus unused) {
+    ResourceId resourceId = ResourceId.create(UUID.randomUUID());
+    bufferDao.createResource(
+        Resource.builder()
+            .id(resourceId)
+            .poolId(pool.id())
+            .creation(Instant.now())
+            .state(ResourceState.CREATING)
+            .build());
+    return submitToStairway(flightSubmissionFactory.getCreationFlightSubmission(pool, resourceId));
+  }
+
+  /**
+   * Update a READY resource state to DELETING and submit deletion flight.
+   *
+   * <p>This should be done as a part of a transaction. The TransactionStatus is unused, but a part
+   * of the signature as a reminder.
+   */
+  private Optional<String> updateResourceAsDeletingAndSubmitFlight(
+      Resource resource, ResourceType resourceType, TransactionStatus unused) {
+    if (bufferDao.updateReadyResourceToDeleting(resource.id())) {
+      return submitToStairway(
+          flightSubmissionFactory.getDeletionFlightSubmission(resource, resourceType));
+    }
+    return Optional.empty();
   }
 
   private Optional<String> submitToStairway(

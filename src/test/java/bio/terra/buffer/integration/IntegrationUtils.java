@@ -130,9 +130,10 @@ public class IntegrationUtils {
     }
 
     @Override
-    public FlightSubmission getCreationFlightSubmission(Pool pool) {
+    public FlightSubmission getCreationFlightSubmission(Pool pool, ResourceId resourceId) {
       FlightMap flightMap = new FlightMap();
       pool.id().store(flightMap);
+      resourceId.store(flightMap);
       flightMap.put(FlightMapKeys.RESOURCE_CONFIG, pool.resourceConfig());
       return FlightSubmission.create(flightClass, flightMap);
     }

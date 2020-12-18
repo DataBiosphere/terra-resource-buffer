@@ -60,6 +60,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -74,6 +75,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   @Autowired ServiceUsageCow serviceUsageCow;
   @Autowired FlightSubmissionFactoryImpl flightSubmissionFactoryImpl;
   @Autowired ClientConfig clientConfig;
+  @Autowired TransactionTemplate transactionTemplate;
 
   enum NetworkMonitoring {
     ENABLED,
@@ -82,7 +84,9 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
   @Test
   public void testCreateGoogleProject_basicCreation() throws Exception {
-    FlightManager manager = new FlightManager(flightSubmissionFactoryImpl, stairwayComponent);
+    FlightManager manager =
+        new FlightManager(
+            bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
     Pool pool = preparePool(bufferDao, newBasicGcpConfig());
 
     String flightId = manager.submitCreationFlight(pool).get();
@@ -103,7 +107,9 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   @Test
   public void testCreateGoogleProject_witIamBindings() throws Exception {
     // Basic GCP project with IAM Bindings
-    FlightManager manager = new FlightManager(flightSubmissionFactoryImpl, stairwayComponent);
+    FlightManager manager =
+        new FlightManager(
+            bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
     Pool pool = preparePool(bufferDao, newBasicGcpConfig().iamBindings(IAM_BINDINGS));
 
     String flightId = manager.submitCreationFlight(pool).get();
@@ -115,7 +121,9 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
   @Test
   public void testCreateGoogleProject_enableNetworkMonitoring() throws Exception {
-    FlightManager manager = new FlightManager(flightSubmissionFactoryImpl, stairwayComponent);
+    FlightManager manager =
+        new FlightManager(
+            bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
     Pool pool =
         preparePool(
             bufferDao,
@@ -138,7 +146,10 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     // Verify flight is able to finish with multiple same steps exists.
     FlightManager manager =
         new FlightManager(
-            new StubSubmissionFlightFactory(MultiInstanceStepFlight.class), stairwayComponent);
+            bufferDao,
+            new StubSubmissionFlightFactory(MultiInstanceStepFlight.class),
+            stairwayComponent,
+            transactionTemplate);
     Pool pool = preparePool(bufferDao, newFullGcpConfig());
 
     String flightId = manager.submitCreationFlight(pool).get();
@@ -155,10 +166,12 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   public void testCreateGoogleProject_errorDuringProjectCreation() throws Exception {
     // Verify flight is able to successfully rollback when project fails to create and doesn't
     // exist.
-    LatchStep.startNewLatch();
     FlightManager manager =
         new FlightManager(
-            new StubSubmissionFlightFactory(ErrorCreateProjectFlight.class), stairwayComponent);
+            bufferDao,
+            new StubSubmissionFlightFactory(ErrorCreateProjectFlight.class),
+            stairwayComponent,
+            transactionTemplate);
     Pool pool = preparePool(bufferDao, newBasicGcpConfig());
 
     String flightId = manager.submitCreationFlight(pool).get();
@@ -179,8 +192,10 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     // Verify project and db entity won't get deleted if resource id READY, even the flight fails.
     FlightManager manager =
         new FlightManager(
+            bufferDao,
             new StubSubmissionFlightFactory(ErrorAfterCreateResourceFlight.class),
-            stairwayComponent);
+            stairwayComponent,
+            transactionTemplate);
 
     Pool pool = preparePool(bufferDao, newBasicGcpConfig());
     String flightId = manager.submitCreationFlight(pool).get();
@@ -232,8 +247,6 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
           inputParameters.get(RESOURCE_CONFIG, ResourceConfig.class).getGcpProjectConfig();
       GcpProjectIdGenerator idGenerator =
           ((ApplicationContext) applicationContext).getBean(GcpProjectIdGenerator.class);
-      addStep(new GenerateResourceIdStep());
-      addStep(new CreateResourceDbEntityStep(bufferDao));
       addStep(new LatchStep());
       addStep(new GenerateProjectIdStep(gcpProjectConfig, idGenerator));
       addStep(new ErrorCreateProjectStep(rmCow, gcpProjectConfig));
@@ -260,7 +273,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
      * </ul>
      */
     private static final List<Class<? extends Step>> SKIP_DUP_CHECK_STEP_CLAZZ =
-        ImmutableList.of(CreateResourceDbEntityStep.class, CreateProjectStep.class);
+        ImmutableList.of(CreateProjectStep.class);
 
     public MultiInstanceStepFlight(FlightMap inputParameters, Object applicationContext) {
       super(inputParameters, applicationContext);
