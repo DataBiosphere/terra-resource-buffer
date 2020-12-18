@@ -251,6 +251,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
       GcpProjectIdGenerator idGenerator =
           ((ApplicationContext) applicationContext).getBean(GcpProjectIdGenerator.class);
       addStep(new LatchStep());
+      addStep(new UndoCreatingDbEntityStep(bufferDao));
       addStep(new GenerateProjectIdStep(gcpProjectConfig, idGenerator));
       addStep(new ErrorCreateProjectStep(rmCow, gcpProjectConfig));
       addStep(new FinishResourceCreationStep(bufferDao));
