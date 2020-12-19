@@ -169,6 +169,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   public void testCreateGoogleProject_errorDuringProjectCreation() throws Exception {
     // Verify flight is able to successfully rollback when project fails to create and doesn't
     // exist.
+    LatchStep.startNewLatch();
     FlightManager manager =
         new FlightManager(
             bufferDao,
@@ -176,12 +177,10 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
             stairwayComponent,
             transactionTemplate);
     Pool pool = preparePool(bufferDao, newBasicGcpConfig());
-
     String flightId = manager.submitCreationFlight(pool).get();
     // Resource is created in db
     Resource resource =
         pollUntilResourcesMatch(bufferDao, pool.id(), ResourceState.CREATING, 1).get(0);
-
     LatchStep.releaseLatch();
     extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
     // Resource is deleted.
