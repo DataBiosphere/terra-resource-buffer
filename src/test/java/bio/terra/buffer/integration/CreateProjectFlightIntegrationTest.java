@@ -177,10 +177,12 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
             stairwayComponent,
             transactionTemplate);
     Pool pool = preparePool(bufferDao, newBasicGcpConfig());
+
     String flightId = manager.submitCreationFlight(pool).get();
     // Resource is created in db
     Resource resource =
         pollUntilResourcesMatch(bufferDao, pool.id(), ResourceState.CREATING, 1).get(0);
+
     LatchStep.releaseLatch();
     extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
     // Resource is deleted.
