@@ -2,6 +2,7 @@ package bio.terra.buffer.service.resource;
 
 import bio.terra.buffer.common.Pool;
 import bio.terra.buffer.common.Resource;
+import bio.terra.buffer.common.ResourceId;
 import bio.terra.buffer.common.ResourceType;
 import bio.terra.buffer.service.resource.flight.GoogleProjectCreationFlight;
 import bio.terra.buffer.service.resource.flight.GoogleProjectDeletionFlight;
@@ -21,7 +22,7 @@ public class FlightSubmissionFactoryImpl implements FlightSubmissionFactory {
       ImmutableMap.of(ResourceType.GOOGLE_PROJECT, GoogleProjectDeletionFlight.class);
 
   @Override
-  public FlightSubmission getCreationFlightSubmission(Pool pool) {
+  public FlightSubmission getCreationFlightSubmission(Pool pool, ResourceId resourceId) {
     if (!CREATION_FLIGHT_MAP.containsKey(pool.resourceType())) {
       throw new UnsupportedOperationException(
           String.format(
@@ -30,6 +31,7 @@ public class FlightSubmissionFactoryImpl implements FlightSubmissionFactory {
     }
     FlightMap flightMap = new FlightMap();
     pool.id().store(flightMap);
+    resourceId.store(flightMap);
     flightMap.put(FlightMapKeys.RESOURCE_CONFIG, pool.resourceConfig());
     return FlightSubmission.create(CREATION_FLIGHT_MAP.get(pool.resourceType()), flightMap);
   }

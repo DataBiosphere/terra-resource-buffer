@@ -40,8 +40,7 @@ public class GoogleProjectCreationFlight extends Flight {
         inputParameters.get(RESOURCE_CONFIG, ResourceConfig.class).getGcpProjectConfig();
     GcpProjectIdGenerator idGenerator =
         ((ApplicationContext) applicationContext).getBean(GcpProjectIdGenerator.class);
-    addStep(new GenerateResourceIdStep(), INTERNAL_DEFAULT_RETRY);
-    addStep(new CreateResourceDbEntityStep(bufferDao), INTERNAL_DEFAULT_RETRY);
+    addStep(new UndoCreatingDbEntityStep(bufferDao), INTERNAL_DEFAULT_RETRY);
     addStep(new GenerateProjectIdStep(gcpProjectConfig, idGenerator), CLOUD_API_DEFAULT_RETRY);
     addStep(new CreateProjectStep(rmCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
     addStep(new SetBillingInfoStep(billingCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);

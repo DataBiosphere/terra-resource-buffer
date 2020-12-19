@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -24,15 +25,19 @@ public class DeleteProjectFlightIntegrationTest extends BaseIntegrationTest {
   @Autowired StairwayComponent stairwayComponent;
   @Autowired CloudResourceManagerCow rmCow;
   @Autowired FlightSubmissionFactoryImpl flightSubmissionFactoryImpl;
+  @Autowired TransactionTemplate transactionTemplate;
 
   @Test
   public void testDeleteGoogleProject_success() throws Exception {
-    FlightManager manager = new FlightManager(flightSubmissionFactoryImpl, stairwayComponent);
+    FlightManager manager =
+        new FlightManager(
+            bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
     Pool pool = preparePool(bufferDao, newFullGcpConfig());
 
     String createFlightId = manager.submitCreationFlight(pool).get();
-    FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, createFlightId).get();
-    ResourceId resourceId = ResourceId.retrieve(resultMap);
+    ResourceId resourceId =
+        extractResourceIdFromFlightState(
+            blockUntilFlightComplete(stairwayComponent, createFlightId));
     Project project = assertProjectExists(resourceId);
     Resource resource = bufferDao.retrieveResources(pool.id(), ResourceState.READY, 1).get(0);
 
@@ -45,19 +50,25 @@ public class DeleteProjectFlightIntegrationTest extends BaseIntegrationTest {
 
   @Test
   public void testDeleteGoogleProject_fatalIfHasError() throws Exception {
-    FlightManager manager = new FlightManager(flightSubmissionFactoryImpl, stairwayComponent);
+    FlightManager manager =
+        new FlightManager(
+            bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
     Pool pool = preparePool(bufferDao, newBasicGcpConfig());
 
     String createFlightId = manager.submitCreationFlight(pool).get();
-    FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, createFlightId).get();
-    Resource resource = bufferDao.retrieveResource(ResourceId.retrieve(resultMap)).get();
+    ResourceId resourceId =
+        extractResourceIdFromFlightState(
+            blockUntilFlightComplete(stairwayComponent, createFlightId));
+    Resource resource = bufferDao.retrieveResource(resourceId).get();
 
     // An errors occurs after resource deleted. Expect project is deleted, but we resource state is
     // READY.
     FlightManager errorManager =
         new FlightManager(
+            bufferDao,
             new StubSubmissionFlightFactory(ErrorAfterDeleteResourceFlight.class),
-            stairwayComponent);
+            stairwayComponent,
+            transactionTemplate);
     String deleteFlightId =
         errorManager.submitDeletionFlight(resource, ResourceType.GOOGLE_PROJECT).get();
     blockUntilFlightComplete(stairwayComponent, deleteFlightId);

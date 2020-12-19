@@ -5,6 +5,7 @@ import static bio.terra.buffer.app.configuration.BeanNames.OBJECT_MAPPER;
 import bio.terra.buffer.common.*;
 import bio.terra.buffer.generated.model.CloudResourceUid;
 import bio.terra.buffer.generated.model.ResourceConfig;
+import bio.terra.buffer.service.resource.flight.CreateNetworkStep;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,6 +17,8 @@ import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.CheckReturnValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
@@ -32,6 +35,8 @@ import org.springframework.transaction.annotation.Transactional;
 /** Resource Buffer Service Database data access object. */
 @Component
 public class BufferDao {
+  private final Logger logger = LoggerFactory.getLogger(CreateNetworkStep.class);
+
   private final NamedParameterJdbcTemplate jdbcTemplate;
   private final ObjectMapper objectMapper;
 
@@ -261,16 +266,24 @@ public class BufferDao {
     return jdbcTemplate.update(sql, params) == 1;
   }
 
-  /** Updates resource state to DELETING. */
+  /**
+   * Updates resource in READY state to DELETING. Returns true if previous state is READY and we
+   * successfully update its state.
+   */
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
-  public boolean updateResourceAsDeleting(ResourceId id) {
-    String sql = "UPDATE resource SET state = :state WHERE id = :id";
-
-    MapSqlParameterSource params =
-        new MapSqlParameterSource()
-            .addValue("state", ResourceState.DELETING.toString())
-            .addValue("id", id.id());
-    return jdbcTemplate.update(sql, params) == 1;
+  public boolean updateReadyResourceToDeleting(ResourceId id) {
+    Optional<Resource> resource = retrieveResource(id);
+    if (resource.isEmpty() || !resource.get().state().equals(ResourceState.READY)) {
+      logger.warn("We shouldn't mark non-READY resource {} to DELETING", resource);
+      return false;
+    } else {
+      String sql = "UPDATE resource SET state = :state WHERE id = :id";
+      MapSqlParameterSource params =
+          new MapSqlParameterSource()
+              .addValue("state", ResourceState.DELETING.toString())
+              .addValue("id", id.id());
+      return jdbcTemplate.update(sql, params) == 1;
+    }
   }
 
   /** Updates resource state and deletion timestamp after resource is deleted. */

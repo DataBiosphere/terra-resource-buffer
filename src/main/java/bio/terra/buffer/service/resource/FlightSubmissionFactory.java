@@ -2,6 +2,7 @@ package bio.terra.buffer.service.resource;
 
 import bio.terra.buffer.common.Pool;
 import bio.terra.buffer.common.Resource;
+import bio.terra.buffer.common.ResourceId;
 import bio.terra.buffer.common.ResourceType;
 import bio.terra.stairway.Flight;
 import bio.terra.stairway.FlightMap;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Component;
 /** An interface getting {@link Flight} from {@link ResourceType}. */
 @Component
 public interface FlightSubmissionFactory {
-  FlightSubmission getCreationFlightSubmission(Pool pool);
+  FlightSubmission getCreationFlightSubmission(Pool pool, ResourceId resourceId);
 
   FlightSubmission getDeletionFlightSubmission(Resource resource, ResourceType type);
 

@@ -60,6 +60,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -74,6 +75,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   @Autowired ServiceUsageCow serviceUsageCow;
   @Autowired FlightSubmissionFactoryImpl flightSubmissionFactoryImpl;
   @Autowired ClientConfig clientConfig;
+  @Autowired TransactionTemplate transactionTemplate;
 
   enum NetworkMonitoring {
     ENABLED,
@@ -82,12 +84,15 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
   @Test
   public void testCreateGoogleProject_basicCreation() throws Exception {
-    FlightManager manager = new FlightManager(flightSubmissionFactoryImpl, stairwayComponent);
+    FlightManager manager =
+        new FlightManager(
+            bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
     Pool pool = preparePool(bufferDao, newBasicGcpConfig());
 
     String flightId = manager.submitCreationFlight(pool).get();
-    FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, flightId).get();
-    Project project = assertProjectExists(ResourceId.retrieve(resultMap));
+    ResourceId resourceId =
+        extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
+    Project project = assertProjectExists(resourceId);
     assertBillingIs(project, pool.resourceConfig().getGcpProjectConfig().getBillingAccount());
     assertEnableApisContains(project, pool.resourceConfig().getGcpProjectConfig().getEnabledApis());
     assertLogStorageBucketExists(project);
@@ -103,19 +108,23 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   @Test
   public void testCreateGoogleProject_witIamBindings() throws Exception {
     // Basic GCP project with IAM Bindings
-    FlightManager manager = new FlightManager(flightSubmissionFactoryImpl, stairwayComponent);
+    FlightManager manager =
+        new FlightManager(
+            bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
     Pool pool = preparePool(bufferDao, newBasicGcpConfig().iamBindings(IAM_BINDINGS));
 
     String flightId = manager.submitCreationFlight(pool).get();
-    FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, flightId).get();
-
-    Project project = assertProjectExists(ResourceId.retrieve(resultMap));
+    ResourceId resourceId =
+        extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
+    Project project = assertProjectExists(resourceId);
     assertIamBindingsContains(project, IAM_BINDINGS);
   }
 
   @Test
   public void testCreateGoogleProject_enableNetworkMonitoring() throws Exception {
-    FlightManager manager = new FlightManager(flightSubmissionFactoryImpl, stairwayComponent);
+    FlightManager manager =
+        new FlightManager(
+            bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
     Pool pool =
         preparePool(
             bufferDao,
@@ -124,8 +133,9 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
                     new bio.terra.buffer.generated.model.Network().enableNetworkMonitoring(true)));
 
     String flightId = manager.submitCreationFlight(pool).get();
-    FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, flightId).get();
-    Project project = assertProjectExists(ResourceId.retrieve(resultMap));
+    ResourceId resourceId =
+        extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
+    Project project = assertProjectExists(resourceId);
     assertNetworkExists(project);
     assertSubnetsExist(project, NetworkMonitoring.ENABLED);
     assertRouteExists(project);
@@ -138,12 +148,16 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     // Verify flight is able to finish with multiple same steps exists.
     FlightManager manager =
         new FlightManager(
-            new StubSubmissionFlightFactory(MultiInstanceStepFlight.class), stairwayComponent);
+            bufferDao,
+            new StubSubmissionFlightFactory(MultiInstanceStepFlight.class),
+            stairwayComponent,
+            transactionTemplate);
     Pool pool = preparePool(bufferDao, newFullGcpConfig());
 
     String flightId = manager.submitCreationFlight(pool).get();
-    FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, flightId).get();
-    Project project = assertProjectExists(ResourceId.retrieve(resultMap));
+    ResourceId resourceId =
+        extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
+    Project project = assertProjectExists(resourceId);
     assertIamBindingsContains(project, IAM_BINDINGS);
     assertNetworkExists(project);
     assertSubnetsExist(project, NetworkMonitoring.ENABLED);
@@ -158,7 +172,10 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     LatchStep.startNewLatch();
     FlightManager manager =
         new FlightManager(
-            new StubSubmissionFlightFactory(ErrorCreateProjectFlight.class), stairwayComponent);
+            bufferDao,
+            new StubSubmissionFlightFactory(ErrorCreateProjectFlight.class),
+            stairwayComponent,
+            transactionTemplate);
     Pool pool = preparePool(bufferDao, newBasicGcpConfig());
 
     String flightId = manager.submitCreationFlight(pool).get();
@@ -167,7 +184,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
         pollUntilResourcesMatch(bufferDao, pool.id(), ResourceState.CREATING, 1).get(0);
 
     LatchStep.releaseLatch();
-    blockUntilFlightComplete(stairwayComponent, flightId).get();
+    extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
     // Resource is deleted.
     assertFalse(bufferDao.retrieveResource(resource.id()).isPresent());
     assertEquals(
@@ -179,12 +196,14 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     // Verify project and db entity won't get deleted if resource id READY, even the flight fails.
     FlightManager manager =
         new FlightManager(
+            bufferDao,
             new StubSubmissionFlightFactory(ErrorAfterCreateResourceFlight.class),
-            stairwayComponent);
+            stairwayComponent,
+            transactionTemplate);
 
     Pool pool = preparePool(bufferDao, newBasicGcpConfig());
     String flightId = manager.submitCreationFlight(pool).get();
-    FlightMap resultMap = blockUntilFlightComplete(stairwayComponent, flightId).get();
+    extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
 
     Resource resource = bufferDao.retrieveResources(pool.id(), ResourceState.READY, 1).get(0);
     assertEquals(
@@ -232,9 +251,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
           inputParameters.get(RESOURCE_CONFIG, ResourceConfig.class).getGcpProjectConfig();
       GcpProjectIdGenerator idGenerator =
           ((ApplicationContext) applicationContext).getBean(GcpProjectIdGenerator.class);
-      addStep(new GenerateResourceIdStep());
-      addStep(new CreateResourceDbEntityStep(bufferDao));
       addStep(new LatchStep());
+      addStep(new UndoCreatingDbEntityStep(bufferDao));
       addStep(new GenerateProjectIdStep(gcpProjectConfig, idGenerator));
       addStep(new ErrorCreateProjectStep(rmCow, gcpProjectConfig));
       addStep(new FinishResourceCreationStep(bufferDao));
@@ -260,7 +278,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
      * </ul>
      */
     private static final List<Class<? extends Step>> SKIP_DUP_CHECK_STEP_CLAZZ =
-        ImmutableList.of(CreateResourceDbEntityStep.class, CreateProjectStep.class);
+        ImmutableList.of(CreateProjectStep.class);
 
     public MultiInstanceStepFlight(FlightMap inputParameters, Object applicationContext) {
       super(inputParameters, applicationContext);
