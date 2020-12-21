@@ -3,6 +3,7 @@ package bio.terra.buffer.db;
 import static bio.terra.buffer.app.configuration.BeanNames.OBJECT_MAPPER;
 
 import bio.terra.buffer.common.*;
+import bio.terra.buffer.common.exception.InternalServerErrorException;
 import bio.terra.buffer.generated.model.CloudResourceUid;
 import bio.terra.buffer.generated.model.ResourceConfig;
 import bio.terra.buffer.service.resource.flight.CreateNetworkStep;
@@ -214,14 +215,14 @@ public class BufferDao {
         DataAccessUtils.singleResult(jdbcTemplate.query(sql, params, RESOURCE_ROW_MAPPER)));
   }
 
-  /** Retrieve resources match the {@link ResourceState}. */
+  /** Randomly retrieve resources match the {@link ResourceState}. */
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
-  public List<Resource> retrieveResources(PoolId poolId, ResourceState state, int limit) {
+  public List<Resource> retrieveResourcesRandomly(PoolId poolId, ResourceState state, int limit) {
     String sql =
         "select id, pool_id, creation, handout_time, state, request_handout_id, cloud_resource_uid, deletion "
             + "FROM resource "
             + "WHERE state = :state AND pool_id = :pool_id "
-            + "LIMIT :limit";
+            + "ORDER BY random() LIMIT :limit";
 
     MapSqlParameterSource params =
         new MapSqlParameterSource()
@@ -248,22 +249,55 @@ public class BufferDao {
   }
 
   /**
-   * Updates resource state, request_handout_id and handout_time before resource handed out to
-   * client.
+   * Pick one READY resource and handed it out to client. The steps are:
+   *
+   * <ul>
+   *   <li>Step 1: Checks if any resource uses this {@link RequestHandoutId}, if yes, return the
+   *       resource.
+   *   <li>Step 2: Randomly pick a READY entity from resource table
+   *   <li>Step 3: Update this resource state to HANDED_OUT
+   *   <li>Step 4: Return step 2's resource.
+   * </ul>
    */
-  @Transactional(propagation = Propagation.SUPPORTS)
-  public boolean updateResourceAsHandedOut(ResourceId id, RequestHandoutId requestHandoutId) {
-    String sql =
-        "UPDATE resource SET state = :state, request_handout_id = :request_handout_id, handout_time = :handout_time"
-            + " WHERE id = :id AND request_handout_id IS null";
+  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+  public Optional<Resource> updateOneReadyResourceToHandedOut(
+      PoolId poolId, RequestHandoutId requestHandoutId) {
+    Optional<Resource> existingResource = retrieveResource(poolId, requestHandoutId);
+    if (existingResource.isPresent()) {
+      if (existingResource.get().state().equals(ResourceState.HANDED_OUT)) {
+        return existingResource;
+      } else {
+        // Should never happens but we want to double check to make sure we don't handout 'bad'
+        // resource.
+        throw new InternalServerErrorException(
+            String.format(
+                "Unexpected handed out resource state found in pool: id: %s, requestHandoutId: %s",
+                poolId, requestHandoutId));
+      }
+    } else {
+      List<Resource> resources = retrieveResourcesRandomly(poolId, ResourceState.READY, 1);
+      if (resources.size() == 0) {
+        logger.warn("No resource is ready to use at this moment for pool: {}.", poolId);
+        return Optional.empty();
+      } else {
+        Resource selectedResource = resources.get(0);
+        String sql =
+            "UPDATE resource "
+                + "SET state = :state, request_handout_id = :request_handout_id, handout_time = :handout_time"
+                + " WHERE id = :id AND request_handout_id IS null";
 
-    MapSqlParameterSource params =
-        new MapSqlParameterSource()
-            .addValue("state", ResourceState.HANDED_OUT.toString())
-            .addValue("request_handout_id", requestHandoutId.id())
-            .addValue("handout_time", OffsetDateTime.now(ZoneOffset.UTC))
-            .addValue("id", id.id());
-    return jdbcTemplate.update(sql, params) == 1;
+        MapSqlParameterSource params =
+            new MapSqlParameterSource()
+                .addValue("state", ResourceState.HANDED_OUT.toString())
+                .addValue("request_handout_id", requestHandoutId.id())
+                .addValue("handout_time", OffsetDateTime.now(ZoneOffset.UTC))
+                .addValue("id", selectedResource.id().id());
+
+        return jdbcTemplate.update(sql, params) == 1
+            ? Optional.of(selectedResource)
+            : Optional.empty();
+      }
+    }
   }
 
   /**

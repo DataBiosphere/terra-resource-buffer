@@ -210,7 +210,7 @@ public class PoolServiceTest extends BaseUnitTest {
     RequestHandoutId requestHandoutId = RequestHandoutId.create("handoutId");
     newReadyPool(poolId, 2);
     List<CloudResourceUid> resourceUids =
-        bufferDao.retrieveResources(poolId, ResourceState.READY, 2).stream()
+        bufferDao.retrieveResourcesRandomly(poolId, ResourceState.READY, 2).stream()
             .map(Resource::cloudResourceUid)
             .collect(Collectors.toList());
     ResourceInfo resourceInfo = poolService.handoutResource(poolId, requestHandoutId);

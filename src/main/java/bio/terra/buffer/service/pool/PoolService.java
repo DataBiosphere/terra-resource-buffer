@@ -1,5 +1,6 @@
 package bio.terra.buffer.service.pool;
 
+import static bio.terra.buffer.db.DatabaseUtils.executeAndRetry;
 import static bio.terra.buffer.service.pool.PoolConfigLoader.loadPoolConfig;
 
 import bio.terra.buffer.app.configuration.PoolConfiguration;
@@ -15,6 +16,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Sets;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -90,37 +92,28 @@ public class PoolService {
 
   private Resource handoutResourceTransactionally(
       PoolId poolId, RequestHandoutId requestHandoutId, TransactionStatus unused) {
-    Optional<Resource> existingResource = bufferDao.retrieveResource(poolId, requestHandoutId);
     Optional<Pool> pool = bufferDao.retrievePool(poolId);
     if (!pool.isPresent() || !pool.get().status().equals(PoolStatus.ACTIVE)) {
       throw new BadRequestException(String.format("Invalid pool id: %s.", poolId));
     }
-    if (existingResource.isPresent()) {
-      if (existingResource.get().state().equals(ResourceState.HANDED_OUT)) {
-        return existingResource.get();
+    try {
+      Optional<Resource> resource =
+          executeAndRetry(
+              () -> bufferDao.updateOneReadyResourceToHandedOut(poolId, requestHandoutId),
+              Duration.ofSeconds(2),
+              10);
+      if (resource.isPresent()) {
+        return resource.get();
       } else {
-        // Should never happens.
-        throw new InternalServerErrorException(
-            String.format(
-                "Unexpected handed out resource state found in pool: id: %s, requestHandoutId: %s",
-                poolId, requestHandoutId));
-      }
-    } else {
-      List<Resource> resources = bufferDao.retrieveResources(poolId, ResourceState.READY, 1);
-      if (resources.size() == 0) {
         throw new NotFoundException(
             String.format(
                 "No resource is ready to use at this moment for pool: %s. Please try later",
                 poolId));
-      } else {
-        Resource selectedResource = resources.get(0);
-        if (!bufferDao.updateResourceAsHandedOut(selectedResource.id(), requestHandoutId)) {
-          throw new InternalServerErrorException(
-              "Error occurs when updating resource to handed out.");
-        }
-        ;
-        return selectedResource;
       }
+    } catch (InterruptedException e) {
+      throw new InternalServerErrorException(
+          String.format(
+              "Failed to update one resource state from READY to HANDED_OUT for pool {}", poolId));
     }
   }
 

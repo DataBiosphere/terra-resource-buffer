@@ -120,7 +120,8 @@ public class FlightSchedulerTest extends BaseUnitTest {
             ImmutableMultiset.of(ResourceState.READY, ResourceState.READY, ResourceState.CREATING));
 
     bufferDao.deactivatePools(ImmutableList.of(pool.id()));
-    List<Resource> resources = bufferDao.retrieveResources(pool.id(), ResourceState.READY, 2);
+    List<Resource> resources =
+        bufferDao.retrieveResourcesRandomly(pool.id(), ResourceState.READY, 2);
     initializeScheduler();
     Thread.sleep(4000);
 
@@ -178,7 +179,8 @@ public class FlightSchedulerTest extends BaseUnitTest {
                 ResourceState.CREATING));
 
     bufferDao.deactivatePools(ImmutableList.of(pool.id()));
-    List<Resource> resources = bufferDao.retrieveResources(pool.id(), ResourceState.READY, 2);
+    List<Resource> resources =
+        bufferDao.retrieveResourcesRandomly(pool.id(), ResourceState.READY, 2);
 
     PrimaryConfiguration primaryConfiguration = newPrimaryConfiguration();
     primaryConfiguration.setResourceDeletionPerPoolLimit(3);

@@ -39,7 +39,8 @@ public class DeleteProjectFlightIntegrationTest extends BaseIntegrationTest {
         extractResourceIdFromFlightState(
             blockUntilFlightComplete(stairwayComponent, createFlightId));
     Project project = assertProjectExists(resourceId);
-    Resource resource = bufferDao.retrieveResources(pool.id(), ResourceState.READY, 1).get(0);
+    Resource resource =
+        bufferDao.retrieveResourcesRandomly(pool.id(), ResourceState.READY, 1).get(0);
 
     String deleteFlightId =
         manager.submitDeletionFlight(resource, ResourceType.GOOGLE_PROJECT).get();
