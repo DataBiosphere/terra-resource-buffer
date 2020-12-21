@@ -1,14 +1,14 @@
 {
-  "name": "BasicAuthenticated",
+  "name": "EmptyPoolAndWaitForRefill",
   "description": "Fetch pool info repeatedly, concurrently. Authentication required.",
-  "serverSpecificationFile": "yyu-dev.json",
+  "serverSpecificationFile": "perf.json",
   "kubernetes": {},
   "application": {},
   "testScripts": [
     {
       "name": "HandoutResource",
-      "numberOfUserJourneyThreadsToRun": 3,
-      "userJourneyThreadPoolSize": 3,
+      "numberOfUserJourneyThreadsToRun": 1000,
+      "userJourneyThreadPoolSize": 200,
       "expectedTimeForEach": 2,
       "expectedTimeForEachUnit": "HOURS"
     }
