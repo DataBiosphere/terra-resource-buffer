@@ -35,9 +35,18 @@ To update resource configs, it is the same process as creating a new pool using 
 [Dev Buffer Service Swagger](https://buffer.dsde-dev.broadinstitute.org/swagger-ui.html)
 
 In Broad deployment, use a valid Google Service Account(created by [Terraform](https://github.com/broadinstitute/terraform-ap-modules/blob/master/buffer/sa.tf#L83)) is required for service authorization. This can be retrieved in Vault.
-Dev Buffer client service account can be found at:
+To get client service account access token:
+Step 1:
 ```
-docker run -e VAULT_TOKEN=$(cat ~/.vault-token) -it broadinstitute/dsde-toolbox:dev vault read secret/dsde/terra/kernel/dev/dev/buffer/client-sa
+docker run --rm --cap-add IPC_LOCK -e "VAULT_TOKEN=$(cat ~/.vault-token)" -e "VAULT_ADDR=https://clotho.broadinstitute.org:8200" vault:1.1.0 vault read -format json secret/dsde/terra/kernel/dev/dev/buffer/client-sa | jq -r '.data.key' | base64 --decode > buffer-client-sa.json
+```
+Step2: 
+```
+gcloud auth activate-service-account --key-file=buffer-client-sa.json
+```
+Step3:
+```
+gcloud auth print-access-token
 ```
 
 To access Buffer Service in other environment, lookup for `vault.pathPrefix` in [helmfile repo](https://github.com/broadinstitute/terra-helmfile/tree/master/terra/values/buffer) to find the correct vault path.
@@ -96,20 +105,31 @@ skaffold run
 Follow [Installing this instruction](https://cloud.google.com/sql/docs/mysql/sql-proxy#macos-64-bit)
 to install Cloud SQL Proxy 
 
-Go to cloud console to get the instance name you want to connect to, then start the proxy:
+Step 1: Go to cloud console to get the instance name you want to connect to, then start the proxy:
 ```
 ./cloud_sql_proxy -instances=<INSTANCE_CONNECTION_NAME>=tcp:5432
 ```
-Start the client session
+Step 2: Then set database password as `PGPASSWORD`:
 ```
-psql "host=127.0.0.1 sslmode=disable dbname=<DB_NAME> user=<USER_NAME>"
+export PGPASSWORD={BUFFER_DB_PASSWORD}
 ```
-Then type in the db password when prompt. 
-For Broad engineer, DB_NAME and USER_NAME can be found in vault. 
+Step 3.1: To connect to Buffer Database, run:
 ```
-docker run -e VAULT_TOKEN=$(cat ~/.vault-token) -it broadinstitute/dsde-toolbox:dev vault read secret/dsde/terra/kernel/integration/{$NAMESPACE}/buffer/postgres/{db-creds|stairway-db-creds}
+psql "host=127.0.0.1 sslmode=disable dbname=buffer user=buffer"
 ```
-The db instance name can be also found under `...buffer/postgres/instance` in vault.
+Step 3.2: To connect to Buffer Stariway Database, run:
+```
+psql "host=127.0.0.1 sslmode=disable dbname=buffer-stairway user=buffer-stairway"
+```
+#### Connect to Broad Deployment Buffer Database
+For Broad engineer, BUFFER_DB_PASSWORD can be found in vault. For example, to connect to Dev Buffer Database, run:
+```
+export PGPASSWORD=$(docker run -e VAULT_TOKEN=$(cat ~/.vault-token) -it broadinstitute/dsde-toolbox:dev vault read -field='password' secret/dsde/terra/kernel/dev/dev/buffer/postgres/db-creds)
+```
+Then:
+```
+psql "host=127.0.0.1 sslmode=disable dbname=buffer user=buffer"
+```
 
 Note that you must stop the local postgres first to free the 5432 port.
 See [this document](https://cloud.google.com/sql/docs/postgres/connect-admin-proxy) for more details.
