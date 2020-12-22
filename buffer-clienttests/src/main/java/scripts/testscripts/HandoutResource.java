@@ -25,6 +25,7 @@ public class HandoutResource extends TestScript {
   private static final Logger logger = LoggerFactory.getLogger(HandoutResource.class);
 
   private int poolSize;
+  private static int successCount;
 
   /** Public constructor so that this class can be instantiated via reflection. */
   public HandoutResource() {
@@ -55,6 +56,7 @@ public class HandoutResource extends TestScript {
               .getCloudResourceUid()
               .getGoogleProjectUid()
               .getProjectId();
+      successCount++;
       logger.info("project Id: {} for handoutRequestId: {}", projectId, handoutRequestId);
     } catch (Exception apiEx) {
       logger.info(
@@ -64,6 +66,7 @@ public class HandoutResource extends TestScript {
 
   @Override
   public void cleanup(List<TestUserSpecification> testUsers) throws Exception {
+    logger.info("Success count: {}", successCount);
     ApiClient apiClient = BufferServiceUtils.getClient(server);
     BufferApi bufferApi = new BufferApi(apiClient);
     // For now we verifies all RESOURCE_COUNT calls successfully. Not sure that is too ideal or we
