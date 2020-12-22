@@ -2,13 +2,18 @@ package bio.terra.buffer.db;
 
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
+
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.RecoverableDataAccessException;
 import org.springframework.dao.TransientDataAccessException;
 
 /** Utilities class for database operations. */
 public class DatabaseUtils {
+  private static final Logger logger = LoggerFactory.getLogger(DatabaseUtils.class);
+
   /** Executes a database operation and retries if retryable. */
   public static <T> T executeAndRetry(
       DatabaseExecute<T> execute, Duration retrySleep, int maxNumRetries)
@@ -18,9 +23,7 @@ public class DatabaseUtils {
       try {
         return execute.execute();
       } catch (DataAccessException e) {
-        System.out.println("~~~~~~~~~retry exception!!!!!!");
-        System.out.println(numRetries);
-        System.out.println(e.getLocalizedMessage());
+        logger.warn("~~~~~~~~~retry exception!!!!!!: {} times", numRetries, e);
         if (!retryQuery(e)) {
           throw e;
         }
