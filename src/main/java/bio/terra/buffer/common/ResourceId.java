@@ -22,6 +22,7 @@ public abstract class ResourceId {
 
   /** Retrieve and construct a ResourceId form {@link FlightMap}. */
   public static ResourceId retrieve(FlightMap map) {
+    // TODO(PF-316): Store UUID in flight map PF-316 after fixed
     return ResourceId.create(UUID.fromString(map.get(RESOURCE_ID_MAP_KEY, String.class)));
   }
 
