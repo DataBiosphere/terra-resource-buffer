@@ -1,7 +1,7 @@
 package bio.terra.buffer.service.pool;
 
-import static bio.terra.buffer.db.DatabaseUtils.executeAndRetry;
 import static bio.terra.buffer.service.pool.PoolConfigLoader.loadPoolConfig;
+import static bio.terra.common.db.DatabaseRetryUtils.executeAndRetry;
 
 import bio.terra.buffer.app.configuration.PoolConfiguration;
 import bio.terra.buffer.common.*;
