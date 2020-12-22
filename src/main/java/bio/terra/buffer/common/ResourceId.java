@@ -22,11 +22,11 @@ public abstract class ResourceId {
 
   /** Retrieve and construct a ResourceId form {@link FlightMap}. */
   public static ResourceId retrieve(FlightMap map) {
-    return ResourceId.create(map.get(RESOURCE_ID_MAP_KEY, UUID.class));
+    return ResourceId.create(UUID.fromString(map.get(RESOURCE_ID_MAP_KEY, String.class)));
   }
 
   /** Stores ResourceId value in {@link FlightMap}. */
   public void store(FlightMap map) {
-    map.put(RESOURCE_ID_MAP_KEY, id());
+    map.put(RESOURCE_ID_MAP_KEY, id().toString());
   }
 }

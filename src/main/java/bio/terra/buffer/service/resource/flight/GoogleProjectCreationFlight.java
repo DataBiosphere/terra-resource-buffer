@@ -42,23 +42,30 @@ public class GoogleProjectCreationFlight extends Flight {
         ((ApplicationContext) applicationContext).getBean(GcpProjectIdGenerator.class);
     addStep(new UndoCreatingDbEntityStep(bufferDao), INTERNAL_DEFAULT_RETRY);
     addStep(new GenerateProjectIdStep(gcpProjectConfig, idGenerator), CLOUD_API_DEFAULT_RETRY);
-    addStep(new CreateProjectStep(rmCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
-    addStep(new SetBillingInfoStep(billingCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
-    addStep(new EnableServicesStep(serviceUsageCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
-    addStep(new SetIamPolicyStep(rmCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
-    addStep(
-        new CreateStorageLogBucketStep(clientConfig, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
-    addStep(new DeleteDefaultServiceAccountStep(iamCow), CLOUD_API_DEFAULT_RETRY);
-    addStep(new DeleteDefaultFirewallRulesStep(cloudComputeCow), CLOUD_API_DEFAULT_RETRY);
-    addStep(
-        new DeleteDefaultNetworkStep(cloudComputeCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
-    addStep(new CreateNetworkStep(cloudComputeCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
-    addStep(new CreateRouteStep(cloudComputeCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
-    addStep(new CreateFirewallRuleStep(cloudComputeCow), CLOUD_API_DEFAULT_RETRY);
-    addStep(new CreateSubnetsStep(cloudComputeCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
-    addStep(
-        new CreateDnsZoneStep(cloudComputeCow, dnsCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
-    addStep(new CreateResourceRecordSetStep(dnsCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
+    //    addStep(new CreateProjectStep(rmCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
+    //    addStep(new SetBillingInfoStep(billingCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
+    //    addStep(new EnableServicesStep(serviceUsageCow, gcpProjectConfig),
+    // CLOUD_API_DEFAULT_RETRY);
+    //    addStep(new SetIamPolicyStep(rmCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
+    //    addStep(
+    //        new CreateStorageLogBucketStep(clientConfig, gcpProjectConfig),
+    // CLOUD_API_DEFAULT_RETRY);
+    //    addStep(new DeleteDefaultServiceAccountStep(iamCow), CLOUD_API_DEFAULT_RETRY);
+    //    addStep(new DeleteDefaultFirewallRulesStep(cloudComputeCow), CLOUD_API_DEFAULT_RETRY);
+    //    addStep(
+    //        new DeleteDefaultNetworkStep(cloudComputeCow, gcpProjectConfig),
+    // CLOUD_API_DEFAULT_RETRY);
+    //    addStep(new CreateNetworkStep(cloudComputeCow, gcpProjectConfig),
+    // CLOUD_API_DEFAULT_RETRY);
+    //    addStep(new CreateRouteStep(cloudComputeCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
+    //    addStep(new CreateFirewallRuleStep(cloudComputeCow), CLOUD_API_DEFAULT_RETRY);
+    //    addStep(new CreateSubnetsStep(cloudComputeCow, gcpProjectConfig),
+    // CLOUD_API_DEFAULT_RETRY);
+    //    addStep(
+    //        new CreateDnsZoneStep(cloudComputeCow, dnsCow, gcpProjectConfig),
+    // CLOUD_API_DEFAULT_RETRY);
+    //    addStep(new CreateResourceRecordSetStep(dnsCow, gcpProjectConfig),
+    // CLOUD_API_DEFAULT_RETRY);
     addStep(new FinishResourceCreationStep(bufferDao), INTERNAL_DEFAULT_RETRY);
   }
 }
