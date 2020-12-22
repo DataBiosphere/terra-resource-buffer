@@ -18,6 +18,9 @@ public class DatabaseUtils {
       try {
         return execute.execute();
       } catch (DataAccessException e) {
+        System.out.println("~~~~~~~~~retry exception!!!!!!");
+        System.out.println(numRetries);
+        System.out.println(e.getLocalizedMessage());
         if (!retryQuery(e)) {
           throw e;
         }

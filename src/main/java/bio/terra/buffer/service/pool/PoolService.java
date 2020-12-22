@@ -100,8 +100,8 @@ public class PoolService {
       Optional<Resource> resource =
           executeAndRetry(
               () -> bufferDao.updateOneReadyResourceToHandedOut(poolId, requestHandoutId),
-              Duration.ofSeconds(2),
-              10);
+              Duration.ofSeconds(1),
+              20);
       if (resource.isPresent()) {
         return resource.get();
       } else {
