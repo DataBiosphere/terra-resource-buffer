@@ -3,6 +3,7 @@ package bio.terra.buffer.service.resource;
 import static bio.terra.buffer.common.MetricsHelper.READY_RESOURCE_RATIO_VIEW;
 import static bio.terra.buffer.common.MetricsHelper.RESOURCE_STATE_COUNT_VIEW;
 import static bio.terra.buffer.common.testing.MetricsTestUtil.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 import bio.terra.buffer.app.configuration.PrimaryConfiguration;
@@ -18,8 +19,11 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -30,6 +34,8 @@ import org.springframework.test.annotation.DirtiesContext;
 public class FlightSchedulerTest extends BaseUnitTest {
   // Construct a FlightScheduler manually instead of Autowired for ease of testing.
   private FlightScheduler flightScheduler;
+  private final ArgumentCaptor<Resource> resourceArgumentCaptor =
+      ArgumentCaptor.forClass(Resource.class);
 
   @Autowired BufferDao bufferDao;
   @Autowired StairwayComponent stairwayComponent;
@@ -180,7 +186,7 @@ public class FlightSchedulerTest extends BaseUnitTest {
 
     bufferDao.deactivatePools(ImmutableList.of(pool.id()));
     List<Resource> resources =
-        bufferDao.retrieveResourcesRandomly(pool.id(), ResourceState.READY, 2);
+        bufferDao.retrieveResourcesRandomly(pool.id(), ResourceState.READY, 4);
 
     PrimaryConfiguration primaryConfiguration = newPrimaryConfiguration();
     primaryConfiguration.setResourceDeletionPerPoolLimit(3);
@@ -188,9 +194,11 @@ public class FlightSchedulerTest extends BaseUnitTest {
 
     Thread.sleep(4000);
 
-    resources.forEach(
-        resource ->
-            verify(flightManager).submitDeletionFlight(resource, ResourceType.GOOGLE_PROJECT));
+    verify(flightManager, times(3))
+        .submitDeletionFlight(resourceArgumentCaptor.capture(), eq(ResourceType.GOOGLE_PROJECT));
+
+    assertThat(
+        resources, (Matcher) Matchers.hasItems(resourceArgumentCaptor.getAllValues().toArray()));
     verify(flightManager, never()).submitCreationFlight(any(Pool.class));
   }
 
