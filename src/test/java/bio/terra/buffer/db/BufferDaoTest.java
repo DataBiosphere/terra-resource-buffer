@@ -262,15 +262,21 @@ public class BufferDaoTest extends BaseUnitTest {
   public void insertAndRetrieveCleanupRecord() {
     // Prepare 2 HANDED_OUT and 1 READY resources.
     Pool pool = newPool(PoolId.create("poolId"));
-    Resource handedOutR1 = newResource(pool.id(), ResourceState.READY);
-    Resource handedOutR2 = newResource(pool.id(), ResourceState.READY);
-    Resource readyR1 = newResource(pool.id(), ResourceState.READY);
+    Resource resource1 = newResource(pool.id(), ResourceState.READY);
+    Resource resource2 = newResource(pool.id(), ResourceState.READY);
+    Resource resource3 = newResource(pool.id(), ResourceState.READY);
     bufferDao.createPools(ImmutableList.of(pool));
-    bufferDao.createResource(handedOutR1);
-    bufferDao.createResource(handedOutR2);
-    bufferDao.createResource(readyR1);
-    bufferDao.updateOneReadyResourceToHandedOut(pool.id(), RequestHandoutId.create("1111"));
-    bufferDao.updateOneReadyResourceToHandedOut(pool.id(), RequestHandoutId.create("2222"));
+    bufferDao.createResource(resource1);
+    bufferDao.createResource(resource2);
+    bufferDao.createResource(resource3);
+    Resource handedOutR1 =
+        bufferDao
+            .updateOneReadyResourceToHandedOut(pool.id(), RequestHandoutId.create("1111"))
+            .get();
+    Resource handedOutR2 =
+        bufferDao
+            .updateOneReadyResourceToHandedOut(pool.id(), RequestHandoutId.create("2222"))
+            .get();
 
     // handedOutR1 is already in cleanup_record table, expect only handedOutR2 is returned.
     bufferDao.insertCleanupRecord(handedOutR1.id());
