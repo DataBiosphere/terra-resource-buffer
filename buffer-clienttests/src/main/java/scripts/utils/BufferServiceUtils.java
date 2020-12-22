@@ -3,6 +3,7 @@ package scripts.utils;
 import bio.terra.buffer.api.BufferApi;
 import bio.terra.buffer.client.ApiClient;
 import bio.terra.buffer.client.ApiException;
+import bio.terra.buffer.model.HandoutRequestBody;
 import bio.terra.buffer.model.PoolInfo;
 import bio.terra.testrunner.common.utils.AuthenticationUtils;
 import bio.terra.testrunner.runner.config.ServerSpecification;
@@ -12,6 +13,7 @@ import com.google.common.base.Strings;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,5 +90,30 @@ public class BufferServiceUtils {
       }
       Thread.sleep(POLLING_INTERVAL.toMillis());
     }
+  }
+
+  /** Retries Handout resource API if resource is no resource is available. */
+  public static String retryHandout(BufferApi bufferApi, String handoutRequestId)
+      throws InterruptedException, ApiException {
+    int numAttempts = 1;
+    int maxNumAttempts = 10;
+    while (numAttempts <= maxNumAttempts) {
+      try {
+        return bufferApi
+            .handoutResource(new HandoutRequestBody().handoutRequestId(handoutRequestId), POOL_ID)
+            .getCloudResourceUid()
+            .getGoogleProjectUid()
+            .getProjectId();
+      } catch (ApiException e) {
+        // Only retry when resource is not available (404).
+        if (e.getCode() != 404) {
+          throw e;
+        }
+        logger.info("No resource available, retrying... Attempts so far: {}", numAttempts, e);
+      }
+      ++numAttempts;
+      TimeUnit.SECONDS.sleep(5);
+    }
+    throw new InterruptedException("Exceeds maximum number of retries.");
   }
 }

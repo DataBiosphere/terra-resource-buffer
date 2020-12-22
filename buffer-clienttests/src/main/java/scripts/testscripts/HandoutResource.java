@@ -6,7 +6,6 @@ import static scripts.utils.BufferServiceUtils.*;
 
 import bio.terra.buffer.api.BufferApi;
 import bio.terra.buffer.client.ApiClient;
-import bio.terra.buffer.model.HandoutRequestBody;
 import bio.terra.buffer.model.PoolInfo;
 import bio.terra.testrunner.runner.TestScript;
 import bio.terra.testrunner.runner.config.TestUserSpecification;
@@ -49,19 +48,9 @@ public class HandoutResource extends TestScript {
     BufferApi bufferApi = new BufferApi(apiClient);
     String handoutRequestId = UUID.randomUUID().toString();
     logger.info("Generated handoutRequestId: {}", handoutRequestId);
-    try {
-      String projectId =
-          bufferApi
-              .handoutResource(new HandoutRequestBody().handoutRequestId(handoutRequestId), POOL_ID)
-              .getCloudResourceUid()
-              .getGoogleProjectUid()
-              .getProjectId();
-      successCount++;
-      logger.info("project Id: {} for handoutRequestId: {}", projectId, handoutRequestId);
-    } catch (Exception apiEx) {
-      logger.info(
-          "Caught exception requesting resource, handoutRequestId: {}", handoutRequestId, apiEx);
-    }
+    String projectId = retryHandout(bufferApi, handoutRequestId);
+    successCount++;
+    logger.info("project Id: {} for handoutRequestId: {}", projectId, handoutRequestId);
   }
 
   @Override
