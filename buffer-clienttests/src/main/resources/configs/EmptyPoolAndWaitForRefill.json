@@ -1,0 +1,17 @@
+{
+  "name": "EmptyPoolAndWaitForRefill",
+  "description": "Fetch pool info repeatedly, concurrently. Authentication required.",
+  "serverSpecificationFile": "perf.json",
+  "kubernetes": {},
+  "application": {},
+  "testScripts": [
+    {
+      "name": "HandoutResource",
+      "numberOfUserJourneyThreadsToRun": 200,
+      "userJourneyThreadPoolSize": 1000,
+      "expectedTimeForEach": 2,
+      "expectedTimeForEachUnit": "HOURS"
+    }
+  ],
+  "testUserFiles": []
+}

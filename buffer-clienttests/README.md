@@ -7,7 +7,7 @@ how to write and execute tests.
 #### Run a test
 From the buffer-clienttests directory:
 ```
-./gradlew  runTest --args="configs/BasicAuthenticated.json /tmp/TR"
+./gradlew runTest --args="configs/BasicAuthenticated.json /tmp/TR"
 ```
 
 The default server that this test will run against is specified in the resources/configs/BasicAuthenticated.json file.

@@ -7,6 +7,7 @@
   "samResourceIdForDatarepo": "broad-jade-dev",
   "bufferUri": "https://buffer.mmedlock.integ.envs.broadinstitute.org",
   "bufferClientServiceAccountFile": "mmedlock-buffer-client-sa.json",
+  "bufferPoolId": "resource_toolsalpha_v1",
 
   "cluster": {},
   "deploymentScript": {},
