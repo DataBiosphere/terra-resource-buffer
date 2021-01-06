@@ -1,6 +1,5 @@
 package bio.terra.buffer.db;
 
-import static bio.terra.buffer.common.ResourceState.HANDED_OUT;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -117,7 +116,7 @@ public class BufferDaoTest extends BaseUnitTest {
     bufferDao.createResource(newResource(pool1.id(), ResourceState.READY));
     bufferDao.createResource(newResource(pool1.id(), ResourceState.READY));
     bufferDao.createResource(newResource(pool2.id(), ResourceState.READY));
-    bufferDao.createResource(newResource(pool2.id(), HANDED_OUT));
+    bufferDao.createResource(newResource(pool2.id(), ResourceState.HANDED_OUT));
 
     PoolAndResourceStates pool1State =
         PoolAndResourceStates.builder()
@@ -133,7 +132,7 @@ public class BufferDaoTest extends BaseUnitTest {
             PoolAndResourceStates.builder()
                 .setPool(pool2)
                 .setResourceStateCount(ResourceState.READY, 1)
-                .setResourceStateCount(HANDED_OUT, 1)
+                .setResourceStateCount(ResourceState.HANDED_OUT, 1)
                 .build(),
             PoolAndResourceStates.builder().setPool(pool3).build()));
 
@@ -204,7 +203,7 @@ public class BufferDaoTest extends BaseUnitTest {
 
     Resource handedOutResource = bufferDao.retrieveResource(resource.id()).get();
     assertEquals(requestHandoutId, handedOutResource.requestHandoutId());
-    assertEquals(HANDED_OUT, handedOutResource.state());
+    assertEquals(ResourceState.HANDED_OUT, handedOutResource.state());
 
     // Now use the same requestHandoutId again, expect getting the same resource back.
     assertEquals(
@@ -236,12 +235,12 @@ public class BufferDaoTest extends BaseUnitTest {
   @Test
   public void updateReadyResourceAsDeleting_currentStateIsNotReady() {
     Pool pool = newPool(PoolId.create("poolId"));
-    Resource resource = newResource(pool.id(), HANDED_OUT);
+    Resource resource = newResource(pool.id(), ResourceState.HANDED_OUT);
     bufferDao.createPools(ImmutableList.of(pool));
     bufferDao.createResource(resource);
 
     assertFalse(bufferDao.updateReadyResourceToDeleting(resource.id()));
-    assertEquals(HANDED_OUT, bufferDao.retrieveResource(resource.id()).get().state());
+    assertEquals(ResourceState.HANDED_OUT, bufferDao.retrieveResource(resource.id()).get().state());
   }
 
   @Test

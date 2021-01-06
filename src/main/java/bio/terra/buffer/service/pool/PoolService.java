@@ -90,6 +90,7 @@ public class PoolService {
             ResourceState.HANDED_OUT.name(), resourceStates.count(ResourceState.HANDED_OUT));
   }
 
+  /** Process handout resource in on transcation(anything failure will cause database rollback). */
   private Resource handoutResourceTransactionally(
       PoolId poolId, RequestHandoutId requestHandoutId, TransactionStatus unused) {
     Optional<Pool> pool = bufferDao.retrievePool(poolId);
@@ -97,11 +98,12 @@ public class PoolService {
       throw new BadRequestException(String.format("Invalid pool id: %s.", poolId));
     }
     try {
+      // Retry 20 times of 2 seconds each.
       Optional<Resource> resource =
           executeAndRetry(
               () -> bufferDao.updateOneReadyResourceToHandedOut(poolId, requestHandoutId),
               Duration.ofSeconds(2),
-              10);
+              20);
       if (resource.isPresent()) {
         return resource.get();
       } else {

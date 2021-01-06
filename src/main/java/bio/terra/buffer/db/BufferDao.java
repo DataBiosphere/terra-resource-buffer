@@ -265,6 +265,10 @@ public class BufferDao {
     Optional<Resource> existingResource = retrieveResource(poolId, requestHandoutId);
     if (existingResource.isPresent()) {
       if (existingResource.get().state().equals(ResourceState.HANDED_OUT)) {
+        logger.info(
+            "Resource {}, requestHandoutId {} already handed out. Handing out again...",
+            existingResource.get().id(),
+            requestHandoutId);
         return existingResource;
       } else {
         // Should never happens but we want to double check to make sure we don't handout 'bad'
@@ -284,15 +288,17 @@ public class BufferDao {
         String sql =
             "UPDATE resource "
                 + "SET state = :state, request_handout_id = :request_handout_id, handout_time = :handout_time"
-                + " WHERE id = :id AND request_handout_id IS null";
+                + " WHERE id = :id AND state = :previous_state AND request_handout_id IS null";
 
         MapSqlParameterSource params =
             new MapSqlParameterSource()
                 .addValue("state", ResourceState.HANDED_OUT.toString())
+                .addValue("previous_state", ResourceState.READY.toString())
                 .addValue("request_handout_id", requestHandoutId.id())
                 .addValue("handout_time", OffsetDateTime.now(ZoneOffset.UTC))
                 .addValue("id", selectedResource.id().id());
 
+        // Return the selectedResource if update successfully. Otherwise return empty.
         return jdbcTemplate.update(sql, params) == 1
             ? Optional.of(selectedResource)
             : Optional.empty();
