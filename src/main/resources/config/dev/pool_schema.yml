@@ -4,11 +4,11 @@ poolConfigs:
   # Pool for GCP projects to be used by workspaces in the AoU test environment. Rawls is the proximal owner of these
   # projects; AoU sits as a layer atop Rawls.
   - poolId: "aou_ws_test_v1"
-    size: 10
+    size: 20
     resourceConfigName: "aou_ws_resource_test_v1"
   - poolId: "cwb_ws_dev_v1"
-    size: 10
+    size: 20
     resourceConfigName: "cwb_ws_resource_dev_v1"
   - poolId: "workspace_manager_v1"
-    size: 10
+    size: 20
     resourceConfigName: "workspace_manager_v1"
