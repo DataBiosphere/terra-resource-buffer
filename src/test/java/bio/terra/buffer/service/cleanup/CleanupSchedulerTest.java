@@ -102,7 +102,7 @@ public class CleanupSchedulerTest extends BaseUnitTest {
     bufferDao.createPools(ImmutableList.of(pool));
     bufferDao.createResource(resource);
     bufferDao.updateResourceAsReady(resource.id(), cloudResourceUid);
-    bufferDao.updateResourceAsHandedOut(resource.id(), RequestHandoutId.create("1111"));
+    bufferDao.updateOneReadyResourceToHandedOut(pool.id(), RequestHandoutId.create("1111"));
     assertEquals(1, bufferDao.retrieveResourceToCleanup(10).size());
 
     cleanupScheduler.initialize();

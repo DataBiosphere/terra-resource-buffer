@@ -184,24 +184,41 @@ public class BufferDaoTest extends BaseUnitTest {
     bufferDao.createResource(ready2);
     bufferDao.createResource(ready3);
 
-    List<Resource> resources = bufferDao.retrieveResources(pool.id(), ResourceState.READY, 2);
+    List<Resource> resources =
+        bufferDao.retrieveResourcesRandomly(pool.id(), ResourceState.READY, 2);
     assertEquals(2, resources.size());
     assertThat(ImmutableList.of(ready1, ready2, ready3), Matchers.hasItems(resources.toArray()));
   }
 
   @Test
-  public void updateResourceAsHandedOut() {
+  public void updateOneReadyResourceToHandedOut() {
     Pool pool = newPool(PoolId.create("poolId"));
     RequestHandoutId requestHandoutId = RequestHandoutId.create("handoutId");
 
     Resource ready = newResource(pool.id(), ResourceState.READY);
     bufferDao.createPools(ImmutableList.of(pool));
     bufferDao.createResource(ready);
-    bufferDao.updateResourceAsHandedOut(ready.id(), requestHandoutId);
+    Resource resource =
+        bufferDao.updateOneReadyResourceToHandedOut(pool.id(), requestHandoutId).get();
 
-    List<Resource> resources = bufferDao.retrieveResources(pool.id(), ResourceState.HANDED_OUT, 1);
-    assertEquals(1, resources.size());
-    assertEquals(requestHandoutId, resources.get(0).requestHandoutId());
+    Resource handedOutResource = bufferDao.retrieveResource(resource.id()).get();
+    assertEquals(requestHandoutId, handedOutResource.requestHandoutId());
+    assertEquals(ResourceState.HANDED_OUT, handedOutResource.state());
+
+    // Now use the same requestHandoutId again, expect getting the same resource back.
+    assertEquals(
+        handedOutResource,
+        bufferDao.updateOneReadyResourceToHandedOut(pool.id(), requestHandoutId).get());
+  }
+
+  @Test
+  public void updateOneReadyResourceToHandedOut_noResourceAvailable() {
+    Pool pool = newPool(PoolId.create("poolId"));
+    RequestHandoutId requestHandoutId = RequestHandoutId.create("handoutId");
+
+    bufferDao.createPools(ImmutableList.of(pool));
+    assertFalse(
+        bufferDao.updateOneReadyResourceToHandedOut(pool.id(), requestHandoutId).isPresent());
   }
 
   @Test
@@ -244,15 +261,21 @@ public class BufferDaoTest extends BaseUnitTest {
   public void insertAndRetrieveCleanupRecord() {
     // Prepare 2 HANDED_OUT and 1 READY resources.
     Pool pool = newPool(PoolId.create("poolId"));
-    Resource handedOutR1 = newResource(pool.id(), ResourceState.READY);
-    Resource handedOutR2 = newResource(pool.id(), ResourceState.READY);
-    Resource readyR1 = newResource(pool.id(), ResourceState.READY);
+    Resource resource1 = newResource(pool.id(), ResourceState.READY);
+    Resource resource2 = newResource(pool.id(), ResourceState.READY);
+    Resource resource3 = newResource(pool.id(), ResourceState.READY);
     bufferDao.createPools(ImmutableList.of(pool));
-    bufferDao.createResource(handedOutR1);
-    bufferDao.createResource(handedOutR2);
-    bufferDao.createResource(readyR1);
-    bufferDao.updateResourceAsHandedOut(handedOutR1.id(), RequestHandoutId.create("1111"));
-    bufferDao.updateResourceAsHandedOut(handedOutR2.id(), RequestHandoutId.create("2222"));
+    bufferDao.createResource(resource1);
+    bufferDao.createResource(resource2);
+    bufferDao.createResource(resource3);
+    Resource handedOutR1 =
+        bufferDao
+            .updateOneReadyResourceToHandedOut(pool.id(), RequestHandoutId.create("1111"))
+            .get();
+    Resource handedOutR2 =
+        bufferDao
+            .updateOneReadyResourceToHandedOut(pool.id(), RequestHandoutId.create("2222"))
+            .get();
 
     // handedOutR1 is already in cleanup_record table, expect only handedOutR2 is returned.
     bufferDao.insertCleanupRecord(handedOutR1.id());

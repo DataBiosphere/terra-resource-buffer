@@ -205,7 +205,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     String flightId = manager.submitCreationFlight(pool).get();
     extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
 
-    Resource resource = bufferDao.retrieveResources(pool.id(), ResourceState.READY, 1).get(0);
+    Resource resource =
+        bufferDao.retrieveResourcesRandomly(pool.id(), ResourceState.READY, 1).get(0);
     assertEquals(
         "ACTIVE",
         rmCow

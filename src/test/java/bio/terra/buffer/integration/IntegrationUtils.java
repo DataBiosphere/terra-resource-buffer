@@ -56,7 +56,7 @@ public class IntegrationUtils {
     while (numPolls < MAX_POLL_NUM) {
       TimeUnit.MILLISECONDS.sleep(PERIOD.toMillis());
       List<Resource> resources =
-          bufferDao.retrieveResources(poolId, state, 10).stream()
+          bufferDao.retrieveResourcesRandomly(poolId, state, 10).stream()
               .filter(r -> r.poolId().equals(poolId))
               .collect(Collectors.toList());
       if (resources.size() == expectedResourceNum) {
@@ -112,8 +112,8 @@ public class IntegrationUtils {
             .creation(Instant.now())
             .build();
     bufferDao.createPools(ImmutableList.of(pool));
-    assertTrue(bufferDao.retrieveResources(pool.id(), ResourceState.CREATING, 1).isEmpty());
-    assertTrue(bufferDao.retrieveResources(pool.id(), ResourceState.READY, 1).isEmpty());
+    assertTrue(bufferDao.retrieveResourcesRandomly(pool.id(), ResourceState.CREATING, 1).isEmpty());
+    assertTrue(bufferDao.retrieveResourcesRandomly(pool.id(), ResourceState.READY, 1).isEmpty());
     return pool;
   }
 

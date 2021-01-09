@@ -136,7 +136,7 @@ public class FlightScheduler {
         flightToSchedule);
 
     List<Resource> resources =
-        bufferDao.retrieveResources(pool.id(), ResourceState.READY, flightToSchedule);
+        bufferDao.retrieveResourcesRandomly(pool.id(), ResourceState.READY, flightToSchedule);
     int successSubmitNum = 0;
     for (Resource resource : resources) {
       boolean submissionSuccessful =
