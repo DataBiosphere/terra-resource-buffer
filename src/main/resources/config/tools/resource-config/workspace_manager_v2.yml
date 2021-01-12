@@ -1,11 +1,11 @@
 # Workspace Manager buffered workspace template
 ---
-configName: "workspace_manager_v1"
+configName: "workspace_manager_v2"
 gcpProjectConfig:
   projectIdSchema:
-    prefix: "terra-wsm-dev"
+    prefix: "terra-wsm-test"
     scheme: "RANDOM_CHAR"
-  parentFolderId: "968850521993"
+  parentFolderId: "349305557301"
   billingAccount: "01A82E-CA8A14-367457"
   enabledApis:
   - "bigquery-json.googleapis.com"
@@ -20,9 +20,11 @@ gcpProjectConfig:
   - "dataproc.googleapis.com"
   - "dns.googleapis.com"
   - "genomics.googleapis.com"
+  - "lifesciences.googleapis.com"
   - "logging.googleapis.com"
   - "monitoring.googleapis.com"
   - "storage-api.googleapis.com"
   - "storage-component.googleapis.com"
   network:
     enableNetworkMonitoring: "true"
+

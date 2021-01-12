@@ -1,12 +1,12 @@
-# Resource template for running buffer service performance test
+# Community Workbench buffered workspace template
 ---
-configName: "resource_perf_v1"
+configName: "cwb_ws_resource_dev_v2"
 gcpProjectConfig:
   projectIdSchema:
-    prefix: "terra-perf"
+    prefix: "terra-dev"
     scheme: "RANDOM_CHAR"
-  # RBS Testing
-  parentFolderId: "637867149294"
+  # test.firecloud.org/dev/CommunityWorkbench
+  parentFolderId: "803412578462"
   billingAccount: "01A82E-CA8A14-367457"
   enabledApis:
     - "bigquery-json.googleapis.com"
@@ -21,14 +21,10 @@ gcpProjectConfig:
     - "dataproc.googleapis.com"
     - "dns.googleapis.com"
     - "genomics.googleapis.com"
+    - "lifesciences.googleapis.com"
     - "logging.googleapis.com"
     - "monitoring.googleapis.com"
     - "storage-api.googleapis.com"
     - "storage-component.googleapis.com"
-  iamBindings:
-    - members: ["group:terra-rbs-test@broadinstitute.org"]
-      role: "roles/editor"
-    - members: ["group:terra-rbs-viewer-test@broadinstitute.org"]
-      role: "roles/viewer"
   network:
-    enableNetworkMonitoring: "true"
+    enableNetworkMonitoring: "false"

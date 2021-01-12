@@ -1,9 +1,9 @@
-# Resource template for running buffer service performance test
+# Resource template for local testing and personal environment on GKE
 ---
-configName: "resource_perf_v1"
+configName: "resource_toolsalpha_v2"
 gcpProjectConfig:
   projectIdSchema:
-    prefix: "terra-perf"
+    prefix: "terra-toolsalpha"
     scheme: "RANDOM_CHAR"
   # RBS Testing
   parentFolderId: "637867149294"
@@ -21,6 +21,7 @@ gcpProjectConfig:
     - "dataproc.googleapis.com"
     - "dns.googleapis.com"
     - "genomics.googleapis.com"
+    - "lifesciences.googleapis.com"
     - "logging.googleapis.com"
     - "monitoring.googleapis.com"
     - "storage-api.googleapis.com"
