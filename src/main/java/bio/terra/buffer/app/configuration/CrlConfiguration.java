@@ -231,6 +231,7 @@ public class CrlConfiguration {
       requestInitializer.initialize(httpRequest);
       httpRequest.setConnectTimeout(5 * 60000); // 5 minutes connect timeout
       httpRequest.setReadTimeout(5 * 60000); // 5 minutes read timeout
+      httpRequest.setReadTimeout(5 * 60000); // 5 minutes read timeout
     };
   }
 }
