@@ -40,13 +40,30 @@ public class FlightManager {
 
   /** Submit Stairway Flight to create resource. */
   public Optional<String> submitCreationFlight(Pool pool) {
-    return transactionTemplate.execute(status -> createResourceEntityAndSubmitFlight(pool, status));
+    try {
+      return transactionTemplate.execute(
+          status -> createResourceEntityAndSubmitFlight(pool, status));
+    } catch (RuntimeException e) {
+      logger.error("Failed to submit creation flight for pool {}", pool.id());
+      return Optional.empty();
+    }
+  }
+
+  /** Submit Stairway Flight to create resource. */
+  public Optional<String> submitCreationFlightWithTryCatch(Pool pool) {
+    return transactionTemplate.execute(
+        status -> createResourceEntityAndSubmitFlightWithTryCatch(pool, status));
   }
 
   /** Submit Stairway Flight to delete resource. */
   public Optional<String> submitDeletionFlight(Resource resource, ResourceType resourceType) {
-    return transactionTemplate.execute(
-        status -> updateResourceAsDeletingAndSubmitFlight(resource, resourceType, status));
+    try {
+      return transactionTemplate.execute(
+          status -> updateResourceAsDeletingAndSubmitFlight(resource, resourceType, status));
+    } catch (RuntimeException e) {
+      logger.error("Failed to submit deletion flight for resource {}", resource.id());
+      return Optional.empty();
+    }
   }
 
   /**
@@ -70,6 +87,27 @@ public class FlightManager {
   }
 
   /**
+   * Create entity in resource table with CREATING and submit creation flight.
+   *
+   * <p>This should be done as a part of a transaction because we don't want resource state update
+   * without submitting a flight. The TransactionStatus is unused, but a part of the signature as a
+   * reminder.
+   */
+  private Optional<String> createResourceEntityAndSubmitFlightWithTryCatch(
+      Pool pool, TransactionStatus unused) {
+    ResourceId resourceId = ResourceId.create(UUID.randomUUID());
+    bufferDao.createResource(
+        Resource.builder()
+            .id(resourceId)
+            .poolId(pool.id())
+            .creation(Instant.now())
+            .state(ResourceState.CREATING)
+            .build());
+    return submitToStairwayWithTryCatch(
+        flightSubmissionFactory.getCreationFlightSubmission(pool, resourceId));
+  }
+
+  /**
    * Update a READY resource state to DELETING and submit deletion flight.
    *
    * <p>This should be done as a part of a transaction because we don't want resource state update
@@ -87,6 +125,19 @@ public class FlightManager {
   }
 
   private Optional<String> submitToStairway(
+      FlightSubmissionFactory.FlightSubmission flightSubmission) {
+    String flightId = stairway.createFlightId();
+    try {
+      stairway.submitToQueue(
+          flightId, flightSubmission.clazz(), flightSubmission.inputParameters());
+      return Optional.of(flightId);
+    } catch (DatabaseOperationException | StairwayExecutionException | InterruptedException e) {
+      logger.error("Error submitting flight id: {}", flightId, e);
+      throw new RuntimeException(String.format("Error submitting flight id: %s", flightId), e);
+    }
+  }
+
+  private Optional<String> submitToStairwayWithTryCatch(
       FlightSubmissionFactory.FlightSubmission flightSubmission) {
     String flightId = stairway.createFlightId();
     try {
