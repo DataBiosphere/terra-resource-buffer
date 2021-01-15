@@ -47,22 +47,6 @@ public class FlightManagerTest extends BaseUnitTest {
 
   @Test
   public void submitStairwayFail_rollbackResourceFromDB() throws Exception {
-    Pool pool = newPool();
-    assertFalse(flightManager.submitCreationFlight(pool).isPresent());
-    // Resource is delete from database.
-    assertTrue(bufferDao.retrieveResourcesRandomly(pool.id(), ResourceState.CREATING, 1).isEmpty());
-  }
-
-  @Test
-  public void submitStairwayFail_withTryCatch_expectNoRollback() throws Exception {
-    Pool pool = newPool();
-    assertFalse(flightManager.submitCreationFlightWithTryCatch(pool).isPresent());
-    // No rollback
-    assertEquals(
-        1, bufferDao.retrieveResourcesRandomly(pool.id(), ResourceState.CREATING, 1).size());
-  }
-
-  private Pool newPool() {
     Pool pool =
         Pool.builder()
             .creation(Instant.now())
@@ -74,6 +58,8 @@ public class FlightManagerTest extends BaseUnitTest {
             .build();
     bufferDao.createPools(ImmutableList.of(pool));
 
-    return pool;
+    assertFalse(flightManager.submitCreationFlight(pool).isPresent());
+    // Resource is delete from database.
+    assertTrue(bufferDao.retrieveResourcesRandomly(pool.id(), ResourceState.CREATING, 1).isEmpty());
   }
 }

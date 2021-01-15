@@ -43,12 +43,6 @@ public class FlightManager {
     return transactionTemplate.execute(status -> createResourceEntityAndSubmitFlight(pool, status));
   }
 
-  /** Submit Stairway Flight to create resource. TODO: Remove before submit. */
-  public Optional<String> submitCreationFlightWithTryCatch(Pool pool) {
-    return transactionTemplate.execute(
-        status -> createResourceEntityAndSubmitFlightWithTryCatch(pool, status));
-  }
-
   /** Submit Stairway Flight to delete resource. */
   public Optional<String> submitDeletionFlight(Resource resource, ResourceType resourceType) {
     return transactionTemplate.execute(
@@ -73,29 +67,6 @@ public class FlightManager {
             .state(ResourceState.CREATING)
             .build());
     return submitToStairway(
-        flightSubmissionFactory.getCreationFlightSubmission(pool, resourceId), status);
-  }
-
-  /**
-   * Create entity in resource table with CREATING and submit creation flight.
-   *
-   * <p>This should be done as a part of a transaction because we don't want resource state update
-   * without submitting a flight. The TransactionStatus is unused, but a part of the signature as a
-   * reminder.
-   *
-   * <p>TODO: Remove before submit.
-   */
-  private Optional<String> createResourceEntityAndSubmitFlightWithTryCatch(
-      Pool pool, TransactionStatus status) {
-    ResourceId resourceId = ResourceId.create(UUID.randomUUID());
-    bufferDao.createResource(
-        Resource.builder()
-            .id(resourceId)
-            .poolId(pool.id())
-            .creation(Instant.now())
-            .state(ResourceState.CREATING)
-            .build());
-    return submitToStairwayWithTryCatch(
         flightSubmissionFactory.getCreationFlightSubmission(pool, resourceId), status);
   }
 
@@ -126,20 +97,6 @@ public class FlightManager {
     } catch (DatabaseOperationException | StairwayExecutionException | InterruptedException e) {
       logger.error("Error submitting flight id: {}", flightId, e);
       status.setRollbackOnly();
-      return Optional.empty();
-    }
-  }
-
-  /** TODO: Remove before submit. */
-  private Optional<String> submitToStairwayWithTryCatch(
-      FlightSubmissionFactory.FlightSubmission flightSubmission, TransactionStatus status) {
-    String flightId = stairway.createFlightId();
-    try {
-      stairway.submitToQueue(
-          flightId, flightSubmission.clazz(), flightSubmission.inputParameters());
-      return Optional.of(flightId);
-    } catch (DatabaseOperationException | StairwayExecutionException | InterruptedException e) {
-      logger.error("Error submitting flight id: {}", flightId, e);
       return Optional.empty();
     }
   }

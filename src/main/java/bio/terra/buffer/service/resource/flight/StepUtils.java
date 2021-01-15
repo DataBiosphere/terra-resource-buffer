@@ -17,14 +17,14 @@ public class StepUtils {
    * outrage, and other unknown issues.
    */
   public static final RetryRuleFixedInterval CLOUD_API_DEFAULT_RETRY =
-      new RetryRuleFixedInterval(/* intervalSeconds =*/ 60, /* maxCount =*/ 10);
+      new RetryRuleFixedInterval(/* intervalSeconds =*/ 90, /* maxCount =*/ 5);
 
   /**
    * The stairway retry rule for Buffer service internal operations. Use shorter wait time because
    * they all internal operations, e.g. DB write/read. And we are able to retry right away.
    */
   public static final RetryRuleFixedInterval INTERNAL_DEFAULT_RETRY =
-      new RetryRuleFixedInterval(/* intervalSeconds =*/ 5, /* maxCount =*/ 10);
+      new RetryRuleFixedInterval(/* intervalSeconds =*/ 5, /* maxCount =*/ 5);
 
   /** Update resource state to READY and update working map's RESOURCE_READY boolean value. */
   public static void markResourceReady(BufferDao bufferDao, FlightContext flightContext) {
