@@ -47,7 +47,7 @@ public class FlightManagerTest extends BaseUnitTest {
 
   @Test
   public void submitStairwayFail_rollbackResourceFromDB() throws Exception {
-    Pool pool = createPool();
+    Pool pool = newPool();
     assertFalse(flightManager.submitCreationFlight(pool).isPresent());
     // Resource is delete from database.
     assertTrue(bufferDao.retrieveResourcesRandomly(pool.id(), ResourceState.CREATING, 1).isEmpty());
@@ -55,20 +55,18 @@ public class FlightManagerTest extends BaseUnitTest {
 
   @Test
   public void submitStairwayFail_withTryCatch_expectNoRollback() throws Exception {
-    Pool pool = createPool();
+    Pool pool = newPool();
     assertFalse(flightManager.submitCreationFlightWithTryCatch(pool).isPresent());
     // No rollback
     assertEquals(
         1, bufferDao.retrieveResourcesRandomly(pool.id(), ResourceState.CREATING, 1).size());
   }
 
-  /** Creates a pool with resources with given {@code resourceStates}. */
-  private Pool createPool() {
-    PoolId poolId = PoolId.create(UUID.randomUUID().toString());
+  private Pool newPool() {
     Pool pool =
         Pool.builder()
             .creation(Instant.now())
-            .id(poolId)
+            .id(PoolId.create(UUID.randomUUID().toString()))
             .resourceType(ResourceType.GOOGLE_PROJECT)
             .size(10)
             .resourceConfig(new ResourceConfig().configName("resourceName"))

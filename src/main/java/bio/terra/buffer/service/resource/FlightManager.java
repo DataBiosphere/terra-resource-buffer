@@ -49,7 +49,7 @@ public class FlightManager {
     }
   }
 
-  /** Submit Stairway Flight to create resource. */
+  /** Submit Stairway Flight to create resource.  TODO: Remove before submit. */
   public Optional<String> submitCreationFlightWithTryCatch(Pool pool) {
     return transactionTemplate.execute(
         status -> createResourceEntityAndSubmitFlightWithTryCatch(pool, status));
@@ -92,6 +92,8 @@ public class FlightManager {
    * <p>This should be done as a part of a transaction because we don't want resource state update
    * without submitting a flight. The TransactionStatus is unused, but a part of the signature as a
    * reminder.
+   *
+   * TODO: Remove before submit.
    */
   private Optional<String> createResourceEntityAndSubmitFlightWithTryCatch(
       Pool pool, TransactionStatus unused) {
@@ -137,6 +139,7 @@ public class FlightManager {
     }
   }
 
+  /** TODO: Remove before submit. */
   private Optional<String> submitToStairwayWithTryCatch(
       FlightSubmissionFactory.FlightSubmission flightSubmission) {
     String flightId = stairway.createFlightId();
