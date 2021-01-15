@@ -26,9 +26,9 @@ public class FlightManagerTest extends BaseUnitTest {
   @Mock private final StairwayComponent mockStairwayComponent = mock(StairwayComponent.class);
   @Mock private final Stairway mockStairway = mock(Stairway.class);
 
-  @Autowired BufferDao bufferDao;
-  @Autowired FlightSubmissionFactory flightSubmissionFactory;
-  @Autowired TransactionTemplate transactionTemplate;
+  @Autowired private BufferDao bufferDao;
+  @Autowired private FlightSubmissionFactory flightSubmissionFactory;
+  @Autowired private TransactionTemplate transactionTemplate;
 
   private FlightManager flightManager;
 
