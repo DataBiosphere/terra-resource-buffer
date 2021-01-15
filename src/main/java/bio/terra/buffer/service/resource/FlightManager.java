@@ -96,6 +96,8 @@ public class FlightManager {
       return Optional.of(flightId);
     } catch (DatabaseOperationException | StairwayExecutionException | InterruptedException e) {
       logger.error("Error submitting flight id: {}", flightId, e);
+      // Let TranscationTemplate rollback the previous DB commit if failed to submit a flight. Here we try-catch
+      // checked exception and we need to manually set it up.
       status.setRollbackOnly();
       return Optional.empty();
     }
