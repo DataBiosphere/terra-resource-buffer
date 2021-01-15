@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  * submitting flight success but updating DB fails.
  */
 public class AssertResourceCreatingInDbStep implements Step {
-  private final Logger logger = LoggerFactory.getLogger(CreateDnsZoneStep.class);
+  private final Logger logger = LoggerFactory.getLogger(AssertResourceCreatingInDbStep.class);
 
   private final BufferDao bufferDao;
 

@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  * submitting flight success but updating DB fails.
  */
 public class AssertResourceDeletingInDbStep implements Step {
-  private final Logger logger = LoggerFactory.getLogger(CreateDnsZoneStep.class);
+  private final Logger logger = LoggerFactory.getLogger(AssertResourceDeletingInDbStep.class);
 
   private final BufferDao bufferDao;
 
@@ -30,7 +30,7 @@ public class AssertResourceDeletingInDbStep implements Step {
     // Do nothing. We just use this step's undo method.
     Optional<Resource> resource =
         bufferDao.retrieveResource(ResourceId.retrieve(flightContext.getInputParameters()));
-    if (resource.isPresent() && resource.get().state().equals(ResourceState.DELETED)) {
+    if (resource.isPresent() && resource.get().state().equals(ResourceState.DELETING)) {
       return StepResult.getStepResultSuccess();
     }
     logger.warn("Resource {} does not exist or not in DELETING state", resource);
