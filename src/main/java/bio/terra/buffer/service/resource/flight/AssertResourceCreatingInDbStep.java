@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Checks if resource exists and in DELETING state before the actual deletion. It may happen when
- * submitting flight success but updating DB fail.
+ * submitting flight success but updating DB fails.
  */
 public class AssertResourceCreatingInDbStep implements Step {
   private final Logger logger = LoggerFactory.getLogger(CreateDnsZoneStep.class);
