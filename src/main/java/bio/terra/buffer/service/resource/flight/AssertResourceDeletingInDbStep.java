@@ -16,12 +16,12 @@ import org.slf4j.LoggerFactory;
  * Checks if resource exists and in DELETING state before the actual deletion. It may happen when
  * submitting flight success but updating DB fail.
  */
-public class AssertResourceCreatingInDbStep implements Step {
+public class AssertResourceDeletingInDbStep implements Step {
   private final Logger logger = LoggerFactory.getLogger(CreateDnsZoneStep.class);
 
   private final BufferDao bufferDao;
 
-  public AssertResourceCreatingInDbStep(BufferDao bufferDao) {
+  public AssertResourceDeletingInDbStep(BufferDao bufferDao) {
     this.bufferDao = bufferDao;
   }
 
@@ -30,10 +30,10 @@ public class AssertResourceCreatingInDbStep implements Step {
     // Do nothing. We just use this step's undo method.
     Optional<Resource> resource =
         bufferDao.retrieveResource(ResourceId.retrieve(flightContext.getInputParameters()));
-    if (resource.isPresent() && resource.get().state().equals(ResourceState.CREATING)) {
+    if (resource.isPresent() && resource.get().state().equals(ResourceState.DELETED)) {
       return StepResult.getStepResultSuccess();
     }
-    logger.warn("Resource {} does not exist or not in CREATING state", resource);
+    logger.warn("Resource {} does not exist or not in DELETING state", resource);
     return new StepResult(StepStatus.STEP_RESULT_FAILURE_FATAL);
   }
 
