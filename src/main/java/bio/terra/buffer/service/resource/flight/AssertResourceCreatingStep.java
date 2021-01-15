@@ -13,28 +13,30 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Checks if resource exists and in DELETING state before the actual deletion. It may happen when
+ * Checks if resource exists and in CREATING state before the actual creation. It may happen when
  * submitting flight success but updating DB fails.
  */
-public class AssertResourceDeletingInDbStep implements Step {
-  private final Logger logger = LoggerFactory.getLogger(AssertResourceDeletingInDbStep.class);
+public class AssertResourceCreatingStep implements Step {
+  private final Logger logger = LoggerFactory.getLogger(AssertResourceCreatingStep.class);
 
   private final BufferDao bufferDao;
 
-  public AssertResourceDeletingInDbStep(BufferDao bufferDao) {
+  public AssertResourceCreatingStep(BufferDao bufferDao) {
     this.bufferDao = bufferDao;
   }
 
   @Override
   public StepResult doStep(FlightContext flightContext) {
-    // Do nothing. We just use this step's undo method.
     Optional<Resource> resource =
         bufferDao.retrieveResource(ResourceId.retrieve(flightContext.getInputParameters()));
-    if (resource.isPresent() && resource.get().state().equals(ResourceState.DELETING)) {
+    if (resource.isPresent() && resource.get().state().equals(ResourceState.CREATING)) {
       return StepResult.getStepResultSuccess();
     }
-    logger.warn("Resource {} does not exist or not in DELETING state", resource);
-    return new StepResult(StepStatus.STEP_RESULT_FAILURE_FATAL);
+    logger.warn("Resource {} does not exist or not in CREATING state", resource);
+    // Retry this steps to avoid the potential race that "submitting Flight and update DB"
+    // transaction does not complete
+    // but the flight begins and it reaches here.
+    return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY);
   }
 
   @Override
