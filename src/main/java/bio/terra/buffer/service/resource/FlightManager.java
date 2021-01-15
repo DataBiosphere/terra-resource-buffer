@@ -44,7 +44,7 @@ public class FlightManager {
       return transactionTemplate.execute(
           status -> createResourceEntityAndSubmitFlight(pool, status));
     } catch (RuntimeException e) {
-      logger.error("Failed to submit creation flight for pool {}", pool.id());
+      logger.error("Failed to submit creation flight for pool {}", pool.id(), e);
       return Optional.empty();
     }
   }
