@@ -4,3 +4,6 @@ poolConfigs:
   - poolId: "resource_perf_v1"
     size: 1500
     resourceConfigName: "resource_perf_v1"
+  - poolId: "resource_perf_v2"
+    size: 1500
+    resourceConfigName: "resource_perf_v2"

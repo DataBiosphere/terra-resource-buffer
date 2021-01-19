@@ -1,4 +1,4 @@
-# Resource Buffer Service Pools Schema in dev encironment
+# Resource Buffer Service Pools Schema in dev environment
 ---
 poolConfigs:
   # Pool for GCP projects to be used by workspaces in the AoU test environment. Rawls is the proximal owner of these
@@ -12,3 +12,12 @@ poolConfigs:
   - poolId: "workspace_manager_v1"
     size: 20
     resourceConfigName: "workspace_manager_v1"
+  - poolId: "aou_ws_test_v2"
+    size: 100
+    resourceConfigName: "aou_ws_resource_test_v2"
+  - poolId: "cwb_ws_dev_v2"
+    size: 20
+    resourceConfigName: "cwb_ws_resource_dev_v2"
+  - poolId: "workspace_manager_v2"
+    size: 20
+    resourceConfigName: "workspace_manager_v2"

@@ -4,3 +4,6 @@ poolConfigs:
   - poolId: "ws_test_v1"
     size: 2
     resourceConfigName: "ws_resource_v1"
+  - poolId: "ws_test_v2"
+    size: 2
+    resourceConfigName: "ws_resource_v2"
