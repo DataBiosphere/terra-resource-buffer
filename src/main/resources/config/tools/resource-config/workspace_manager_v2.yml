@@ -5,7 +5,7 @@ gcpProjectConfig:
   projectIdSchema:
     prefix: "terra-wsm-test"
     scheme: "RANDOM_CHAR"
-  parentFolderId: "349305557301"
+  parentFolderId: "375605435272" #test.firecloud.org/tools/buffer-tools/workspace_manager
   billingAccount: "01A82E-CA8A14-367457"
   enabledApis:
   - "bigquery-json.googleapis.com"
