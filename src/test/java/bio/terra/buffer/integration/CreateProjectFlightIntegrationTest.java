@@ -288,7 +288,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     }
   }
 
-  /** A {@link Flight} that will stop before {@link AssertResourceCreatingStep}. */
+  /** A {@link Flight} that has a {@link LatchStep} before {@link AssertResourceCreatingStep}. */
   public static class LatchBeforeAssertResourceStep extends GoogleProjectCreationFlight {
     public LatchBeforeAssertResourceStep(FlightMap inputParameters, Object applicationContext) {
       super(inputParameters, applicationContext);
