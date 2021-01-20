@@ -52,10 +52,9 @@ public class FlightManager {
   /**
    * Create entity in resource table with CREATING and submit creation flight.
    *
-   * <p>This should be done as a part of a transaction because we don't want resource state update
-   * without submitting a flight. It will still work when Stairway submission succeeds but DB update
-   * failed. Because in Stairway flight, we check DB state and will abort the flight if DB entity in
-   * bad state.
+   * <p>If the Stairway submission fails, the transaction will be rolled back. If the Stairway
+   * submission succeeds but the DB update transaction fails, the flight checks the DB state and
+   * aborts if the state is bad.
    */
   private Optional<String> createResourceEntityAndSubmitFlight(
       Pool pool, TransactionStatus status) {
@@ -74,10 +73,9 @@ public class FlightManager {
   /**
    * Update a READY resource state to DELETING and submit deletion flight.
    *
-   * <p>This should be done as a part of a transaction because we don't want resource state update
-   * without submitting a flight. It will still work when Stairway submission succeeds but DB update
-   * failed. Because in Stairway flight, we check DB state and will abort the flight if DB entity in
-   * bad state.
+   * <p>If the Stairway submission fails, the transaction will be rolled back. If the Stairway
+   * submission succeeds but the DB update transaction fails, the flight checks the DB state and
+   * aborts if the state is bad.
    */
   private Optional<String> updateResourceAsDeletingAndSubmitFlight(
       Resource resource, ResourceType resourceType, TransactionStatus status) {
@@ -98,9 +96,7 @@ public class FlightManager {
       return Optional.of(flightId);
     } catch (DatabaseOperationException | StairwayExecutionException | InterruptedException e) {
       logger.error("Error submitting flight id: {}", flightId, e);
-      // Let TranscationTemplate rollback the previous DB commit if failed to submit a flight. Here
-      // we try-catch
-      // checked exception and we need to manually set it up.
+      // If the flight submission fails, set the transaction to be rolled back.
       status.setRollbackOnly();
       return Optional.empty();
     }
