@@ -30,7 +30,6 @@ public class LatchStep implements Step {
   @Override
   public StepResult doStep(FlightContext flightContext) throws InterruptedException {
     latch.await();
-    System.out.println("~~~~~~~LatchStep");
     return StepResult.getStepResultSuccess();
   }
 
