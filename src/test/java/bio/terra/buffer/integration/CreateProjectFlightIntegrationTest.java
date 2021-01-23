@@ -241,6 +241,34 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
                 + "1234567890"));
   }
 
+  @Test
+  public void testCreateGoogleProject_errorWhenResourceStateChange() throws Exception {
+    LatchStep.startNewLatch();
+    FlightManager manager =
+        new FlightManager(
+            bufferDao,
+            new StubSubmissionFlightFactory(LatchBeforeAssertResourceStep.class),
+            stairwayComponent,
+            transactionTemplate);
+    Pool pool = preparePool(bufferDao, newBasicGcpConfig());
+
+    String flightId = manager.submitCreationFlight(pool).get();
+    // Resource is created in db
+    Resource resource =
+        pollUntilResourcesMatch(bufferDao, pool.id(), ResourceState.CREATING, 1).get(0);
+
+    // Delete the resource from DB.
+    assertTrue(bufferDao.deleteResource(resource.id()));
+
+    // Release the latch, and resume the flight, assert flight failed.
+    LatchStep.releaseLatch();
+    extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
+    // Resource is deleted.
+    assertFalse(bufferDao.retrieveResource(resource.id()).isPresent());
+    assertEquals(
+        FlightStatus.ERROR, stairwayComponent.get().getFlightState(flightId).getFlightStatus());
+  }
+
   /** A {@link Flight} that will fail to create Google Project. */
   public static class ErrorCreateProjectFlight extends Flight {
     public ErrorCreateProjectFlight(FlightMap inputParameters, Object applicationContext) {
@@ -257,6 +285,21 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
       addStep(new GenerateProjectIdStep(gcpProjectConfig, idGenerator));
       addStep(new ErrorCreateProjectStep(rmCow, gcpProjectConfig));
       addStep(new FinishResourceCreationStep(bufferDao));
+    }
+  }
+
+  /** A {@link Flight} that has a {@link LatchStep} before {@link AssertResourceCreatingStep}. */
+  public static class LatchBeforeAssertResourceStep extends GoogleProjectCreationFlight {
+    public LatchBeforeAssertResourceStep(FlightMap inputParameters, Object applicationContext) {
+      super(inputParameters, applicationContext);
+    }
+
+    @Override
+    protected void addStep(Step step, RetryRule retryRule) {
+      if (step instanceof AssertResourceCreatingStep) {
+        addStep(new LatchStep());
+      }
+      super.addStep(step);
     }
   }
 
@@ -286,11 +329,11 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     }
 
     @Override
-    protected void addStep(Step step) {
-      super.addStep(step);
+    protected void addStep(Step step, RetryRule retryRule) {
+      super.addStep(step, retryRule);
 
       if (!SKIP_DUP_CHECK_STEP_CLAZZ.stream().anyMatch(clazz -> clazz.isInstance(step))) {
-        super.addStep(step);
+        super.addStep(step, retryRule);
       }
     }
   }

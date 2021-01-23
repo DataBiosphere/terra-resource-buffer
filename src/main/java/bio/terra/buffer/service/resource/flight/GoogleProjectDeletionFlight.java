@@ -16,6 +16,7 @@ public class GoogleProjectDeletionFlight extends Flight {
     BufferDao bufferDao = ((ApplicationContext) applicationContext).getBean(BufferDao.class);
     CloudResourceManagerCow rmCow =
         ((ApplicationContext) applicationContext).getBean(CloudResourceManagerCow.class);
+    addStep(new AssertResourceDeletingStep(bufferDao), INTERNAL_DEFAULT_RETRY);
     addStep(new DeleteProjectStep(rmCow), CLOUD_API_DEFAULT_RETRY);
     addStep(new UpdateResourceAsDeletedStep(bufferDao), INTERNAL_DEFAULT_RETRY);
   }

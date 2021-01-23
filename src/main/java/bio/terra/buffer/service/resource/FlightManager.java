@@ -52,12 +52,12 @@ public class FlightManager {
   /**
    * Create entity in resource table with CREATING and submit creation flight.
    *
-   * <p>This should be done as a part of a transaction because we don't want resource state update
-   * without submitting a flight. The TransactionStatus is unused, but a part of the signature as a
-   * reminder.
+   * <p>If the Stairway submission fails, the transaction will be rolled back. If the Stairway
+   * submission succeeds but the DB update transaction fails, the flight checks the DB state and
+   * aborts if the state is bad.
    */
   private Optional<String> createResourceEntityAndSubmitFlight(
-      Pool pool, TransactionStatus unused) {
+      Pool pool, TransactionStatus status) {
     ResourceId resourceId = ResourceId.create(UUID.randomUUID());
     bufferDao.createResource(
         Resource.builder()
@@ -66,28 +66,29 @@ public class FlightManager {
             .creation(Instant.now())
             .state(ResourceState.CREATING)
             .build());
-    return submitToStairway(flightSubmissionFactory.getCreationFlightSubmission(pool, resourceId));
+    return submitToStairway(
+        flightSubmissionFactory.getCreationFlightSubmission(pool, resourceId), status);
   }
 
   /**
    * Update a READY resource state to DELETING and submit deletion flight.
    *
-   * <p>This should be done as a part of a transaction because we don't want resource state update
-   * without submitting a flight. The TransactionStatus is unused, but a part of the signature as a
-   * reminder.
+   * <p>If the Stairway submission fails, the transaction will be rolled back. If the Stairway
+   * submission succeeds but the DB update transaction fails, the flight checks the DB state and
+   * aborts if the state is bad.
    */
   private Optional<String> updateResourceAsDeletingAndSubmitFlight(
-      Resource resource, ResourceType resourceType, TransactionStatus unused) {
+      Resource resource, ResourceType resourceType, TransactionStatus status) {
     if (bufferDao.updateReadyResourceToDeleting(resource.id())) {
       return submitToStairway(
-          flightSubmissionFactory.getDeletionFlightSubmission(resource, resourceType));
+          flightSubmissionFactory.getDeletionFlightSubmission(resource, resourceType), status);
     }
     logger.info("Failed to submit resource deletion flight for resource{}", resource.id());
     return Optional.empty();
   }
 
   private Optional<String> submitToStairway(
-      FlightSubmissionFactory.FlightSubmission flightSubmission) {
+      FlightSubmissionFactory.FlightSubmission flightSubmission, TransactionStatus status) {
     String flightId = stairway.createFlightId();
     try {
       stairway.submitToQueue(
@@ -95,6 +96,8 @@ public class FlightManager {
       return Optional.of(flightId);
     } catch (DatabaseOperationException | StairwayExecutionException | InterruptedException e) {
       logger.error("Error submitting flight id: {}", flightId, e);
+      // If the flight submission fails, set the transaction to be rolled back.
+      status.setRollbackOnly();
       return Optional.empty();
     }
   }
