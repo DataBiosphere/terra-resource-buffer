@@ -6,6 +6,7 @@ import bio.terra.cloudres.google.api.services.common.OperationUtils;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.stairway.exception.RetryException;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.services.cloudresourcemanager.model.Project;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
@@ -23,6 +24,12 @@ public class GoogleUtils {
 
   /** All project will use the same sub network name. */
   @VisibleForTesting public static final String SUBNETWORK_NAME = "subnetwork";
+
+  /**
+   * A caller-specified project for quota and billing purposes. The caller must have
+   * serviceusage.services.use permission on the project.
+   */
+  private static final String USER_PROJECT_HEADER_NAME = "X-Goog-User-Project";
 
   /**
    * Poll until the Google Service API operation has completed. Throws any error or timeouts as a
@@ -121,5 +128,14 @@ public class GoogleUtils {
   @FunctionalInterface
   public interface CloudExecute<R> {
     R execute() throws IOException;
+  }
+
+  /** Sets X-Goog-User-Project in request header to let Google use quota project. */
+  public static HttpRequestInitializer setUserProject(
+      final HttpRequestInitializer requestInitializer, String projectId) {
+    return httpRequest -> {
+      requestInitializer.initialize(httpRequest);
+      httpRequest.getResponseHeaders().set(USER_PROJECT_HEADER_NAME, projectId);
+    };
   }
 }

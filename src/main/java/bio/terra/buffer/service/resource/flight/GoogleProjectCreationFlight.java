@@ -45,7 +45,7 @@ public class GoogleProjectCreationFlight extends Flight {
     addStep(new GenerateProjectIdStep(gcpProjectConfig, idGenerator), CLOUD_API_DEFAULT_RETRY);
     addStep(new CreateProjectStep(rmCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
     addStep(new SetBillingInfoStep(billingCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
-    addStep(new EnableServicesStep(serviceUsageCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
+    addStep(new EnableServicesStep(gcpProjectConfig, clientConfig), CLOUD_API_DEFAULT_RETRY);
     addStep(new SetIamPolicyStep(rmCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
     addStep(
         new CreateStorageLogBucketStep(clientConfig, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
