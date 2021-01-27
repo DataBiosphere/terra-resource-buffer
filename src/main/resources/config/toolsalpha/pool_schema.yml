@@ -7,6 +7,4 @@ poolConfigs:
   - poolId: "resource_toolsalpha_v2"
     size: 3
     resourceConfigName: "resource_toolsalpha_v2"
-  - poolId: "yyu_resource_toolsalpha_v2"
-    size: 2000
-    resourceConfigName: "yyu_resource_toolsalpha_v2"
+
