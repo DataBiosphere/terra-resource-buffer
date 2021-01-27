@@ -13,7 +13,9 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  * default, it is 20/100s. Here is how we estimate the time: A Creation flight takes 600~900
  * seconds. If scheduler runs every 10 seconds, in 900 seconds it schedulers runs 70 times. If we
  * have 4 pools, it schedules ({@code resourceCreationPerPoolLimit} * 4) = 4 flights. In total 70
- * times run, 280 flights is scheduled,
+ * times run, 280 flights is scheduled.
+ * We estimate this number should works when pool number is 1~10. If we see more errors, we will comeback and rewise
+ * those configs.
  */
 @Component
 @EnableConfigurationProperties
