@@ -7,3 +7,6 @@ poolConfigs:
   - poolId: "resource_perf_v2"
     size: 1500
     resourceConfigName: "resource_perf_v2"
+  - poolId: "workspace_manager_v3"
+    size: 20
+    resourceConfigName: "workspace_manager_v3"
