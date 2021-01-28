@@ -6,6 +6,16 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+/**
+ * This configuration is to rate limit on project creation/deletion.
+ *
+ * <p>Rate limiting: The bottleneck for GCP quota comes from ServiceUsage.batchEnable API. By
+ * default, it is 20/100s. Here is how we estimate the time: A Creation flight takes 600~900
+ * seconds. If scheduler runs every 10 seconds, in 900 seconds it schedulers runs 70 times. If we
+ * have 4 pools, it schedules ({@code resourceCreationPerPoolLimit} * 4) = 4 flights. In total 70
+ * times run, 280 flights is scheduled. We estimate this number should works when pool number is
+ * 1~10. If we see more errors, we will comeback and revise those configs.
+ */
 @Component
 @EnableConfigurationProperties
 @EnableTransactionManagement
@@ -15,19 +25,19 @@ public class PrimaryConfiguration {
   private boolean schedulerEnabled;
 
   /** How often to query for flights to submit. */
-  private Duration flightSubmissionPeriod = Duration.ofSeconds(90);
+  private Duration flightSubmissionPeriod = Duration.ofSeconds(10);
 
   /**
    * How many resource creation flights for a pool to process simultaneously because because we
    * don't want a pool eats all flights.
    */
-  private int resourceCreationPerPoolLimit = 80;
+  private int resourceCreationPerPoolLimit = 1;
 
   /**
    * How many resource deletion flights for a pool to process simultaneously because we don't want a
    * pool eats all flights.
    */
-  private int resourceDeletionPerPoolLimit = 50;
+  private int resourceDeletionPerPoolLimit = 1;
 
   public boolean isSchedulerEnabled() {
     return schedulerEnabled;

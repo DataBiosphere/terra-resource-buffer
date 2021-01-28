@@ -35,7 +35,7 @@ public class AssertResourceDeletingStep implements Step {
     logger.warn("Resource {} does not exist or not in DELETING state", resource);
     // Retry this steps to avoid the potential race that "submitting Flight and update DB"
     // transaction does not complete but the flight begins and it reaches here.
-    return new StepResult(StepStatus.STEP_RESULT_FAILURE_FATAL);
+    return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY);
   }
 
   @Override
