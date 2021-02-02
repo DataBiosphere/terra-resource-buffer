@@ -4,21 +4,33 @@ import static bio.terra.buffer.service.pool.PoolConfigLoader.loadPoolConfig;
 import static bio.terra.common.db.DatabaseRetryUtils.executeAndRetry;
 
 import bio.terra.buffer.app.configuration.PoolConfiguration;
-import bio.terra.buffer.common.*;
-import bio.terra.buffer.common.exception.BadRequestException;
-import bio.terra.buffer.common.exception.InternalServerErrorException;
+import bio.terra.buffer.common.Pool;
+import bio.terra.buffer.common.PoolAndResourceStates;
+import bio.terra.buffer.common.PoolId;
+import bio.terra.buffer.common.PoolStatus;
+import bio.terra.buffer.common.RequestHandoutId;
+import bio.terra.buffer.common.Resource;
+import bio.terra.buffer.common.ResourceConfigVisitor;
+import bio.terra.buffer.common.ResourceState;
 import bio.terra.buffer.common.exception.NotFoundException;
-import bio.terra.buffer.db.*;
+import bio.terra.buffer.db.BufferDao;
 import bio.terra.buffer.generated.model.PoolConfig;
 import bio.terra.buffer.generated.model.PoolInfo;
 import bio.terra.buffer.generated.model.ResourceInfo;
+import bio.terra.common.exception.BadRequestException;
+import bio.terra.common.exception.InternalServerErrorException;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Sets;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,8 +78,8 @@ public class PoolService {
 
   /** Gets pool information by given {@link PoolId}. */
   public PoolInfo getPoolInfo(PoolId poolId) {
-    Optional<PoolAndResourceStates> poolAndResourceStates =
-        bufferDao.retrievePoolAndResourceStatesById(poolId);
+    Optional<PoolAndResourceStates> poolAndResourceStates = 
+      bufferDao.retrievePoolAndResourceStatesById(poolId);
     if (!poolAndResourceStates.isPresent()) {
       throw new NotFoundException(String.format("Pool %s not found", poolId));
     }

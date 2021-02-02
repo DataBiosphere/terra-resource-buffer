@@ -1,5 +1,6 @@
 package bio.terra.buffer.common.exception;
 
+import bio.terra.common.exception.ErrorReportException;
 import org.springframework.http.HttpStatus;
 
 /** This exception maps to HttpStatus.NOT_FOUND in the GlobalExceptionHandler. */
