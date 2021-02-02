@@ -78,8 +78,7 @@ public class PoolService {
 
   /** Gets pool information by given {@link PoolId}. */
   public PoolInfo getPoolInfo(PoolId poolId) {
-    Optional<PoolAndResourceStates> poolAndResourceStates;
-    poolAndResourceStates = bufferDao.retrievePoolAndResourceStatesById(poolId);
+    Optional<PoolAndResourceStates> poolAndResourceStates = bufferDao.retrievePoolAndResourceStatesById(poolId);
     if (!poolAndResourceStates.isPresent()) {
       throw new NotFoundException(String.format("Pool %s not found", poolId));
     }
