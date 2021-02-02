@@ -1,0 +1,14 @@
+{
+  "name": "yyu-dev",
+  "description": "Developer namespace (yyu) in terra-integration cluster.",
+
+  "bufferUri": "https://buffer.yyu.integ.envs.broadinstitute.org",
+  "bufferClientServiceAccountFile": "yyu-buffer-client-sa.json",
+
+  "cluster": {},
+  "deploymentScript": {},
+  "testRunnerServiceAccountFile": "yyu-buffer-client-sa.json",
+
+  "skipDeployment": true,
+  "skipKubernetes": true
+}
