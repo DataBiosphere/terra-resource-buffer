@@ -30,10 +30,7 @@ jobs:
           echo ::add-mask::$VAULT_TOKEN
       - name: Render configs for Test Runner
         run: |
-          cd ${GITHUB_WORKSPACE}/${workingDir}/buffer-clienttests
-          chmod +x render-config.sh
-          ./render-config.sh ${{ steps.vault-token-step.outputs.vault-token }}
-          chmod +r rendered
+          buffer-clienttests/tools/render-config.sh perf
       - name: Cache Gradle packages
         uses: actions/cache@v2
         with:
