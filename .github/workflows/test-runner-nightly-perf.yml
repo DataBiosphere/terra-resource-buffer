@@ -1,9 +1,9 @@
 name: Test Runner Nightly Perf Tests
 
-on: push
-#  workflow_dispatch: {}
-#  schedule:
-#    - cron: '0 6 * * *' # run at 6 AM UTC, 1 AM ET.
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: '0 6 * * *' # run at 6 AM UTC, 1 AM ET.
 
 jobs:
   test-runner-integration:
@@ -42,7 +42,7 @@ jobs:
       - name: Run the Perf test suite
         run: |
           cd buffer-clienttests
-          TEST_RUNNER_SERVER_SPECIFICATION_FILE="perf.json" ./gradlew  runTest --args="configs/BasicAuthenticated.json build/reports"
+          TEST_RUNNER_SERVER_SPECIFICATION_FILE="perf.json" ./gradlew  runTest --args="configs/EmptyPoolAndWaitForRefill.json build/reports"
       - name: Upload Test Reports
         if: always()
         uses: actions/upload-artifact@v1
