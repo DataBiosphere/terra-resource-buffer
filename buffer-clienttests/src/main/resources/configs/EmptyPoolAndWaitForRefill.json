@@ -8,7 +8,7 @@
     {
       "name": "HandoutResource",
       "numberOfUserJourneyThreadsToRun": 200,
-      "userJourneyThreadPoolSize": 1000,
+      "userJourneyThreadPoolSize": 500,
       "expectedTimeForEach": 2,
       "expectedTimeForEachUnit": "HOURS"
     }
