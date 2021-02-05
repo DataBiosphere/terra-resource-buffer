@@ -31,7 +31,7 @@ public class BufferServiceUtils {
    * The pool id to get projects from. Pool config can be found at src/resources/config/perf folder
    * under Buffer Service repo.
    */
-  public static final String POOL_ID = "resource_perf_v1";
+  public static final String POOL_ID = "resource_perf_v2";
 
   /** How ofter to poll from buffer service. */
   public static final Duration POLLING_INTERVAL = Duration.ofMinutes(1);
