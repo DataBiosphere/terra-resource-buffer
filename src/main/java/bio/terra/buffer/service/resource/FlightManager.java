@@ -8,9 +8,7 @@ import bio.terra.buffer.common.ResourceType;
 import bio.terra.buffer.db.BufferDao;
 import bio.terra.buffer.service.stairway.StairwayComponent;
 import bio.terra.stairway.Stairway;
-import bio.terra.stairway.exception.DatabaseOperationException;
-import bio.terra.stairway.exception.DuplicateFlightIdSubmittedException;
-import bio.terra.stairway.exception.StairwayExecutionException;
+import bio.terra.stairway.exception.StairwayException;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
@@ -99,10 +97,7 @@ public class FlightManager {
       stairway.submitToQueue(
           flightId, flightSubmission.clazz(), flightSubmission.inputParameters());
       return Optional.of(flightId);
-    } catch (DatabaseOperationException
-        | StairwayExecutionException
-        | DuplicateFlightIdSubmittedException
-        | InterruptedException e) {
+    } catch (StairwayException | InterruptedException e) {
       logger.error("Error submitting flight id: {}", flightId, e);
       // If the flight submission fails, set the transaction to be rolled back.
       status.setRollbackOnly();
