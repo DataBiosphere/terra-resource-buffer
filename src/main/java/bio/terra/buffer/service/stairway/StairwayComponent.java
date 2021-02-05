@@ -55,7 +55,6 @@ public class StairwayComponent {
             .stairwayClusterName(stairwayConfiguration.getClusterName())
             .stairwayHook(new TracingHook());
     try {
-      try {
       stairway = builder.build();
     } catch (StairwayExecutionException e) {
       throw new IllegalArgumentException("Failed to build Stairway.", e);
