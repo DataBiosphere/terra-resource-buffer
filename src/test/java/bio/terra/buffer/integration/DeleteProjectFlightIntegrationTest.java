@@ -1,16 +1,35 @@
 package bio.terra.buffer.integration;
 
-import static bio.terra.buffer.integration.IntegrationUtils.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static bio.terra.buffer.integration.IntegrationUtils.StubSubmissionFlightFactory;
+import static bio.terra.buffer.integration.IntegrationUtils.blockUntilFlightComplete;
+import static bio.terra.buffer.integration.IntegrationUtils.extractResourceIdFromFlightState;
+import static bio.terra.buffer.integration.IntegrationUtils.newBasicGcpConfig;
+import static bio.terra.buffer.integration.IntegrationUtils.newFullGcpConfig;
+import static bio.terra.buffer.integration.IntegrationUtils.preparePool;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.buffer.common.*;
+import bio.terra.buffer.common.BaseIntegrationTest;
+import bio.terra.buffer.common.Pool;
+import bio.terra.buffer.common.Resource;
+import bio.terra.buffer.common.ResourceId;
+import bio.terra.buffer.common.ResourceState;
+import bio.terra.buffer.common.ResourceType;
 import bio.terra.buffer.db.BufferDao;
 import bio.terra.buffer.service.resource.FlightManager;
 import bio.terra.buffer.service.resource.FlightSubmissionFactoryImpl;
-import bio.terra.buffer.service.resource.flight.*;
+import bio.terra.buffer.service.resource.flight.AssertResourceDeletingStep;
+import bio.terra.buffer.service.resource.flight.ErrorStep;
+import bio.terra.buffer.service.resource.flight.GoogleProjectDeletionFlight;
+import bio.terra.buffer.service.resource.flight.LatchStep;
 import bio.terra.buffer.service.stairway.StairwayComponent;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
-import bio.terra.stairway.*;
+import bio.terra.stairway.Flight;
+import bio.terra.stairway.FlightMap;
+import bio.terra.stairway.FlightStatus;
+import bio.terra.stairway.RetryRule;
+import bio.terra.stairway.Step;
 import com.google.api.services.cloudresourcemanager.model.Project;
 import java.time.Instant;
 import java.util.UUID;
@@ -152,7 +171,7 @@ public class DeleteProjectFlightIntegrationTest extends BaseIntegrationTest {
       if (step instanceof AssertResourceDeletingStep) {
         addStep(new LatchStep());
       }
-      super.addStep(step);
+      super.addStep(step, retryRule);
     }
   }
 }

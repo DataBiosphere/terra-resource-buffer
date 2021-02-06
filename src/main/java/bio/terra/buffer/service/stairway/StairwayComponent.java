@@ -2,6 +2,7 @@ package bio.terra.buffer.service.stairway;
 
 import bio.terra.buffer.app.configuration.StairwayConfiguration;
 import bio.terra.buffer.app.configuration.StairwayJdbcConfiguration;
+import bio.terra.common.stairway.TracingHook;
 import bio.terra.stairway.Stairway;
 import bio.terra.stairway.exception.StairwayException;
 import bio.terra.stairway.exception.StairwayExecutionException;
@@ -41,7 +42,7 @@ public class StairwayComponent {
 
     logger.info(
         "Creating Stairway: name: [{}]  cluster name: [{}]",
-        stairwayConfiguration.getClusterName(),
+        stairwayConfiguration.getName(),
         stairwayConfiguration.getClusterName());
     // TODO(PF-161): Configure the workqueue pubsub subscription and topic for multi-instance.
     // TODO(PF-314): Cleanup old flightlogs.
@@ -51,7 +52,8 @@ public class StairwayComponent {
             .applicationContext(applicationContext)
             .keepFlightLog(true)
             .stairwayName(stairwayConfiguration.getName())
-            .stairwayClusterName(stairwayConfiguration.getClusterName());
+            .stairwayClusterName(stairwayConfiguration.getClusterName())
+            .stairwayHook(new TracingHook());
     try {
       stairway = builder.build();
     } catch (StairwayExecutionException e) {
