@@ -1,9 +1,10 @@
 name: Test Runner Nightly Perf Tests
 
 on:
-  workflow_dispatch: {}
-  schedule:
-    - cron: '0 6 * * *' # run at 6 AM UTC, 1 AM ET.
+  [push]
+#  workflow_dispatch: {}
+#  schedule:
+#    - cron: '0 6 * * *' # run at 6 AM UTC, 1 AM ET.
 
 jobs:
   test-runner-integration:
@@ -30,7 +31,7 @@ jobs:
           echo ::add-mask::$VAULT_TOKEN
       - name: Render configs for Test Runner
         run: |
-          buffer-clienttests/tools/render-config.sh perf
+          buffer-clienttests/tools/render-config.sh perf ${{ steps.vault-token-step.outputs.vault-token }}
       - name: Cache Gradle packages
         uses: actions/cache@v2
         with:
