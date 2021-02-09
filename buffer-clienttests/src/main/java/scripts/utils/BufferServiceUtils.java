@@ -73,8 +73,11 @@ public class BufferServiceUtils {
    * Poll poll info from Buffer Service until the pool is full. Throws any error or timeouts as a
    * {@link InterruptedException}.
    */
-  public static PoolInfo pollUntilPoolFull(BufferApi bufferApi, Duration timeout, int poolSize)
-      throws InterruptedException, ApiException {
+  public static PoolInfo pollUntilPoolFull(
+      ServerSpecification server, Duration timeout, int poolSize)
+      throws InterruptedException, ApiException, IOException {
+    ApiClient apiClient = BufferServiceUtils.getClient(server);
+    BufferApi bufferApi = new BufferApi(apiClient);
     Instant deadline = Instant.now().plus(timeout);
     int count = 0;
     while (true) {
