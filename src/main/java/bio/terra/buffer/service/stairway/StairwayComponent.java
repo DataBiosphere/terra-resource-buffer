@@ -73,7 +73,8 @@ public class StairwayComponent {
   }
 
   public void initialize() {
-    logger.warn("stairway username {}", stairwayJdbcConfiguration.getUsername());
+    logger.info("Initializing Stairway...");
+    logger.info("stairway username {}", stairwayJdbcConfiguration.getUsername());
     try {
       // TODO(PF-161): Determine if Stairway and buffer database migrations need to be coordinated.
       List<String> recordedStairways =
@@ -100,6 +101,8 @@ public class StairwayComponent {
       // Stairway to recover the flights we were working on before being restarted.
       obsoleteStairways.add(kubeService.getPodName());
 
+      logger.info("existingStairways: {}", existingStairways);
+      logger.info("obsoleteStairways: {}", obsoleteStairways);
       // Recover and start stairway - step 3 of the stairway startup sequence
       stairway.recoverAndStart(obsoleteStairways);
     } catch (StairwayException | InterruptedException e) {
