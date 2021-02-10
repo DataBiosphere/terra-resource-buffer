@@ -76,11 +76,11 @@ public class BufferServiceUtils {
   public static PoolInfo pollUntilPoolFull(
       ServerSpecification server, Duration timeout, int poolSize)
       throws InterruptedException, ApiException, IOException {
-    ApiClient apiClient = BufferServiceUtils.getClient(server);
-    BufferApi bufferApi = new BufferApi(apiClient);
     Instant deadline = Instant.now().plus(timeout);
     int count = 0;
     while (true) {
+      ApiClient apiClient = BufferServiceUtils.getClient(server);
+      BufferApi bufferApi = new BufferApi(apiClient);
       count++;
       PoolInfo poolInfo = bufferApi.getPoolInfo(POOL_ID);
       logger.info("Total polling count: {}, poolInfo: {}", count, poolInfo);
