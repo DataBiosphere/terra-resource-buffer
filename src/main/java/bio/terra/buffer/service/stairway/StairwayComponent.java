@@ -101,8 +101,8 @@ public class StairwayComponent {
       // Stairway to recover the flights we were working on before being restarted.
       obsoleteStairways.add(kubeService.getPodName());
 
-      logger.info("existingStairways: {}", existingStairways);
-      logger.info("obsoleteStairways: {}", obsoleteStairways);
+      logger.info(
+          "existingStairways: {}. obsoleteStairways: {}", existingStairways, obsoleteStairways);
       // Recover and start stairway - step 3 of the stairway startup sequence
       stairway.recoverAndStart(obsoleteStairways);
     } catch (StairwayException | InterruptedException e) {
