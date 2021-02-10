@@ -9,26 +9,11 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties
 @ConfigurationProperties(prefix = "buffer.stairway")
 public class StairwayConfiguration {
-  /**
-   * Using a fixed Stairway name helps us keep the same record of Stairway instance. Otherwise,
-   * Stairway creates random name after re-deploy, hence we can not recover previous PENDING flight.
-   */
-  private String name = "buffer-stairway";
-
-  private String clusterName;
   private boolean forceCleanStart;
   private boolean migrateUpgrade;
   private int maxParallelFlights;
   private Duration quietDownTimeout;
   private Duration terminateTimeout;
-
-  public String getName() {
-    return name;
-  }
-
-  public String getClusterName() {
-    return clusterName;
-  }
 
   public boolean isForceCleanStart() {
     return forceCleanStart;
@@ -48,14 +33,6 @@ public class StairwayConfiguration {
 
   public Duration getTerminateTimeout() {
     return terminateTimeout;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public void setClusterName(String clusterName) {
-    this.clusterName = clusterName;
   }
 
   public void setForceCleanStart(boolean forceCleanStart) {
