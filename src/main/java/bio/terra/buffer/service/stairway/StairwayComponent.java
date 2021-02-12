@@ -86,7 +86,7 @@ public class StairwayComponent {
       kubeService.startPodListener(stairway);
 
       // Lookup all of the stairway instances we know about
-      Set<String> existingStairways = kubeService.getPodList();
+      Set<String> existingStairways = kubeService.getPodSet();
       List<String> obsoleteStairways = new LinkedList<>();
 
       // Any instances that stairway knows about, but we cannot see are obsolete.
