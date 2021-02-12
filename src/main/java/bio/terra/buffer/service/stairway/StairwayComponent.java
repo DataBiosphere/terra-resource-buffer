@@ -63,7 +63,8 @@ public class StairwayComponent {
             .applicationContext(applicationContext)
             .keepFlightLog(true)
             .stairwayName(kubernetesConfiguration.getPodName())
-            .stairwayClusterName(stairwayClusterName)
+            .stairwayClusterName(stairwayConfiguration.getClusterName())
+            .workQueueProjectId(stairwayConfiguration.getProjectId())
             .stairwayHook(new TracingHook());
     try {
       stairway = builder.build();
