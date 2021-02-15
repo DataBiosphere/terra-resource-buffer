@@ -45,17 +45,17 @@ public class StairwayComponent {
       KubernetesConfiguration kubernetesConfiguration) {
     this.stairwayConfiguration = stairwayConfiguration;
     this.stairwayJdbcConfiguration = stairwayJdbcConfiguration;
-
     this.kubeService =
         new KubeService(
             kubernetesConfiguration.getPodName(),
             kubernetesConfiguration.isInKubernetes(),
             kubernetesConfiguration.getPodNameFilter());
-    String stairwayClusterName = kubeService.getNamespace() + "-stairwaycluster";
+    String stairwayClusterName = kubeService.getNamespace() + "buffer--stairwaycluster";
     logger.info(
         "Creating Stairway: name: [{}]  cluster name: [{}]",
         kubernetesConfiguration.getPodName(),
         stairwayClusterName);
+
     // TODO(PF-314): Cleanup old flightlogs.
     Stairway.Builder builder =
         Stairway.newBuilder()
@@ -64,7 +64,8 @@ public class StairwayComponent {
             .keepFlightLog(true)
             .stairwayName(kubernetesConfiguration.getPodName())
             .stairwayClusterName(stairwayConfiguration.getClusterName())
-            .workQueueProjectId(stairwayConfiguration.getProjectId())
+            .workQueueProjectId(com.google.cloud.ServiceOptions.getDefaultProjectId())
+            .enableWorkQueue(kubernetesConfiguration.isInKubernetes())
             .stairwayHook(new TracingHook());
     try {
       stairway = builder.build();

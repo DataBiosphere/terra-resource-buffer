@@ -5,9 +5,6 @@ buffer:
     update-db-on-start: true
     uri: jdbc:postgresql://127.0.0.1:5432/${BUFFER_DATABASE_NAME}
     username:
-  kubernetes:
-    pod-name: buffer-test-pod
-    in-kubernetes: false
   primary:
     scheduler-enabled: true
   pool:
