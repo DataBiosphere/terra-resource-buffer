@@ -1,5 +1,9 @@
 name: dsp-appsec-trivy
-on: [pull_request]
+on: 
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ '**' ]
 
 jobs:
   appsec-trivy:
