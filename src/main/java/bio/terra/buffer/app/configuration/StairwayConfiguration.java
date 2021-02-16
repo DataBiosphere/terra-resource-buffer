@@ -9,17 +9,12 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties
 @ConfigurationProperties(prefix = "buffer.stairway")
 public class StairwayConfiguration {
-  private String clusterName;
   private String projectId;
   private boolean forceCleanStart;
   private boolean migrateUpgrade;
   private int maxParallelFlights;
   private Duration quietDownTimeout;
   private Duration terminateTimeout;
-
-  public String getClusterName() {
-    return clusterName;
-  }
 
   public String getProjectId() {
     return projectId;
@@ -43,10 +38,6 @@ public class StairwayConfiguration {
 
   public Duration getTerminateTimeout() {
     return terminateTimeout;
-  }
-
-  public void setClusterName(String clusterName) {
-    this.clusterName = clusterName;
   }
 
   public void getProjectId(String projectId) {

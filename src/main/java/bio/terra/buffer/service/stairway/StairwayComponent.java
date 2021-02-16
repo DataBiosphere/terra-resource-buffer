@@ -63,7 +63,7 @@ public class StairwayComponent {
             .applicationContext(applicationContext)
             .keepFlightLog(true)
             .stairwayName(kubernetesConfiguration.getPodName())
-            .stairwayClusterName(stairwayConfiguration.getClusterName())
+            .stairwayClusterName(stairwayClusterName)
             .workQueueProjectId(com.google.cloud.ServiceOptions.getDefaultProjectId())
             .enableWorkQueue(kubernetesConfiguration.isInKubernetes())
             .stairwayHook(new TracingHook());
