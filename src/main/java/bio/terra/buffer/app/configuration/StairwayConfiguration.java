@@ -9,16 +9,11 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties
 @ConfigurationProperties(prefix = "buffer.stairway")
 public class StairwayConfiguration {
-  private String projectId;
   private boolean forceCleanStart;
   private boolean migrateUpgrade;
   private int maxParallelFlights;
   private Duration quietDownTimeout;
   private Duration terminateTimeout;
-
-  public String getProjectId() {
-    return projectId;
-  }
 
   public boolean isForceCleanStart() {
     return forceCleanStart;
@@ -38,10 +33,6 @@ public class StairwayConfiguration {
 
   public Duration getTerminateTimeout() {
     return terminateTimeout;
-  }
-
-  public void getProjectId(String projectId) {
-    this.projectId = projectId;
   }
 
   public void setForceCleanStart(boolean forceCleanStart) {

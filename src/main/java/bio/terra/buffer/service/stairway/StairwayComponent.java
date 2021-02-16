@@ -1,5 +1,7 @@
 package bio.terra.buffer.service.stairway;
 
+import static com.google.cloud.ServiceOptions.getDefaultProjectId;
+
 import bio.terra.buffer.app.configuration.KubernetesConfiguration;
 import bio.terra.buffer.app.configuration.StairwayConfiguration;
 import bio.terra.buffer.app.configuration.StairwayJdbcConfiguration;
@@ -57,6 +59,7 @@ public class StairwayComponent {
         stairwayClusterName);
 
     // TODO(PF-314): Cleanup old flightlogs.
+    // TODO(PF-456):
     Stairway.Builder builder =
         Stairway.newBuilder()
             .maxParallelFlights(stairwayConfiguration.getMaxParallelFlights())
@@ -64,7 +67,7 @@ public class StairwayComponent {
             .keepFlightLog(true)
             .stairwayName(kubernetesConfiguration.getPodName())
             .stairwayClusterName(stairwayClusterName)
-            .workQueueProjectId(com.google.cloud.ServiceOptions.getDefaultProjectId())
+            .workQueueProjectId(getDefaultProjectId())
             .enableWorkQueue(kubernetesConfiguration.isInKubernetes())
             .stairwayHook(new TracingHook());
     try {
