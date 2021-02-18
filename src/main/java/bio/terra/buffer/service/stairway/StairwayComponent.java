@@ -38,7 +38,7 @@ public class StairwayComponent {
     SHUTDOWN,
   }
 
-  AtomicReference<Status> status = new AtomicReference<>(Status.INITIALIZING);
+  private AtomicReference<Status> status = new AtomicReference<>(Status.INITIALIZING);
 
   @Autowired
   public StairwayComponent(
