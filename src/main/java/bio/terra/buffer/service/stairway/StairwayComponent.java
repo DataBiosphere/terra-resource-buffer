@@ -14,6 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,7 @@ public class StairwayComponent {
     SHUTDOWN,
   }
 
-  private Status status = Status.INITIALIZING;
+  AtomicReference<Status> status = new AtomicReference<>(Status.INITIALIZING);
 
   @Autowired
   public StairwayComponent(
@@ -111,15 +112,15 @@ public class StairwayComponent {
       // Recover and start stairway - step 3 of the stairway startup sequence
       stairway.recoverAndStart(obsoleteStairways);
     } catch (StairwayException | InterruptedException e) {
-      status = Status.ERROR;
+      status.compareAndSet(Status.INITIALIZING, Status.ERROR);
       throw new RuntimeException("Error starting Stairway", e);
     }
-    status = Status.OK;
+    status.compareAndSet(Status.INITIALIZING, Status.OK);
   }
 
   /** Stop accepting jobs and shutdown stairway. Returns true if successful. */
   public boolean shutdown() throws InterruptedException {
-    status = Status.SHUTDOWN;
+    status.set(Status.SHUTDOWN);
     logger.info("Request Stairway shutdown");
     boolean shutdownSuccess =
         stairway.quietDown(
@@ -139,6 +140,6 @@ public class StairwayComponent {
   }
 
   public StairwayComponent.Status getStatus() {
-    return status;
+    return status.get();
   }
 }
