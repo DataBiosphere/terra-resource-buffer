@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "buffer.kubernetes")
 public class KubernetesConfiguration {
   // The pod that host the Buffer service app.
-  private String podNameFilter = "buffer-service";
+  private String podNameFilter;
 
   // Name of the Kubernetes pods we are running in. We uses common library uses this to list all
   // pods in the deployment, then uses podNameFilter to find the pod that host the app.
