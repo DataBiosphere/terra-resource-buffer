@@ -5,6 +5,9 @@ buffer:
     update-db-on-start: true
     uri: jdbc:postgresql://127.0.0.1:5432/testdb
     username: dbuser
+  kubernetes:
+    pod-name: buffer-test-pod
+    in-kubernetes: false
   primary:
     # Disable this for test to avoid all tests invoking submit flights and making cloud calls.
     scheduler-enabled: false
