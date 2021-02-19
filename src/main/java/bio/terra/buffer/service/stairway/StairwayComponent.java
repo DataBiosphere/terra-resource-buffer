@@ -2,9 +2,9 @@ package bio.terra.buffer.service.stairway;
 
 import static com.google.cloud.ServiceOptions.getDefaultProjectId;
 
-import bio.terra.buffer.app.configuration.KubernetesConfiguration;
 import bio.terra.buffer.app.configuration.StairwayConfiguration;
 import bio.terra.buffer.app.configuration.StairwayJdbcConfiguration;
+import bio.terra.buffer.service.kubernetes.KubernetesComponent;
 import bio.terra.common.kubernetes.KubeService;
 import bio.terra.common.stairway.TracingHook;
 import bio.terra.stairway.Stairway;
@@ -38,25 +38,21 @@ public class StairwayComponent {
     SHUTDOWN,
   }
 
-  private AtomicReference<Status> status = new AtomicReference<>(Status.INITIALIZING);
+  private final AtomicReference<Status> status = new AtomicReference<>(Status.INITIALIZING);
 
   @Autowired
   public StairwayComponent(
       ApplicationContext applicationContext,
       StairwayConfiguration stairwayConfiguration,
       StairwayJdbcConfiguration stairwayJdbcConfiguration,
-      KubernetesConfiguration kubernetesConfiguration) {
+      KubernetesComponent kubernetesComponent) {
     this.stairwayConfiguration = stairwayConfiguration;
     this.stairwayJdbcConfiguration = stairwayJdbcConfiguration;
-    this.kubeService =
-        new KubeService(
-            kubernetesConfiguration.getPodName(),
-            kubernetesConfiguration.isInKubernetes(),
-            kubernetesConfiguration.getPodNameFilter());
+    this.kubeService = kubernetesComponent.get();
     String stairwayClusterName = kubeService.getNamespace() + "buffer--stairwaycluster";
     logger.info(
         "Creating Stairway: name: [{}]  cluster name: [{}]",
-        kubernetesConfiguration.getPodName(),
+        kubeService.getPodName(),
         stairwayClusterName);
 
     // TODO(PF-314): Cleanup old flightlogs.
@@ -66,10 +62,10 @@ public class StairwayComponent {
             .maxParallelFlights(stairwayConfiguration.getMaxParallelFlights())
             .applicationContext(applicationContext)
             .keepFlightLog(true)
-            .stairwayName(kubernetesConfiguration.getPodName())
+            .stairwayName(kubeService.getPodName())
             .stairwayClusterName(stairwayClusterName)
             .workQueueProjectId(getDefaultProjectId())
-            .enableWorkQueue(kubernetesConfiguration.isInKubernetes())
+            .enableWorkQueue(kubernetesComponent.isInKubernetes())
             .stairwayHook(new TracingHook());
     try {
       stairway = builder.build();
