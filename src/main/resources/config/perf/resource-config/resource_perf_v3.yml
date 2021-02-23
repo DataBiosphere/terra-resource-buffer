@@ -1,0 +1,37 @@
+# Resource template for running buffer service performance test
+---
+configName: "resource_perf_v3"
+gcpProjectConfig:
+  projectIdSchema:
+    prefix: "terra-perf"
+    scheme: "RANDOM_CHAR"
+  # RBS Testing
+  parentFolderId: "637867149294"
+  billingAccount: "01A82E-CA8A14-367457"
+  enabledApis:
+    - "bigquery-json.googleapis.com"
+    - "compute.googleapis.com"
+    - "container.googleapis.com"
+    - "cloudbilling.googleapis.com"
+    - "clouderrorreporting.googleapis.com"
+    - "cloudkms.googleapis.com"
+    - "cloudtrace.googleapis.com"
+    - "containerregistry.googleapis.com"
+    - "dataflow.googleapis.com"
+    - "dataproc.googleapis.com"
+    - "dns.googleapis.com"
+    - "genomics.googleapis.com"
+    - "lifesciences.googleapis.com"
+    - "logging.googleapis.com"
+    - "monitoring.googleapis.com"
+    - "storage-api.googleapis.com"
+    - "storage-component.googleapis.com"
+  iamBindings:
+    - members: ["group:terra-rbs-test@broadinstitute.org"]
+      role: "roles/editor"
+    - members: ["group:terra-rbs-viewer-test@broadinstitute.org"]
+      role: "roles/viewer"
+    - members: [ "group:terra-billing@test.firecloud.org", "group:firecloud-project-owners@test.firecloud.org" ]
+      role: "roles/owner"
+  network:
+    enableNetworkMonitoring: "true"

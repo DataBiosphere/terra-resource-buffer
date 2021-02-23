@@ -16,3 +16,6 @@ poolConfigs:
   - poolId: "workspace_manager_v5"
     size: 20
     resourceConfigName: "workspace_manager_v5"
+  - poolId: "resource_perf_v3"
+    size: 1500
+    resourceConfigName: "resource_perf_v3"
