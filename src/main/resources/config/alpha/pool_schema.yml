@@ -1,0 +1,6 @@
+# Resource Buffer Service Pools Schema in alpha environment
+---
+poolConfigs:
+- poolId: "cwb_ws_alpha_v1"
+  size: 200
+  resourceConfigName: "cwb_ws_resource_alpha_v1"
