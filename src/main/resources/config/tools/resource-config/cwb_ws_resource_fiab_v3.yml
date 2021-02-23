@@ -27,7 +27,8 @@ gcpProjectConfig:
     - "storage-api.googleapis.com"
     - "storage-component.googleapis.com"
   iamBindings:
-    - members: [ "group:terra-billing@test.firecloud.org", "group:firecloud-project-owners@test.firecloud.org" ]
+    - members: [ "group:terra-billing@test.firecloud.org", "group:firecloud-project-owners@test.firecloud.org",
+                 "group:terra-billing@quality.firecloud.org", "group:firecloud-project-owners@quality.firecloud.org" ]
       role: "roles/owner"
   network:
     enableNetworkMonitoring: "false"
