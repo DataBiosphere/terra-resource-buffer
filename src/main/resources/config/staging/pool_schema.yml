@@ -1,0 +1,6 @@
+# Resource Buffer Service Pools Schema in staging environment
+---
+poolConfigs:
+- poolId: "cwb_ws_staging_v1"
+  size: 100
+  resourceConfigName: "cwb_ws_resource_staging_v1"
