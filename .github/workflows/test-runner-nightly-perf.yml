@@ -41,6 +41,7 @@ jobs:
         key: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}-${{ hashFiles('**/*.gradle') }}
         restore-keys: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}
     - name: Run the Perf test suite
+      id: perf-test
       run: |
         cd buffer-clienttests
         TEST_RUNNER_SERVER_SPECIFICATION_FILE="perf.json" ./gradlew  runTest --args="configs/EmptyPoolAndWaitForRefill.json build/reports"
@@ -51,7 +52,8 @@ jobs:
         name: Test Reports
         path: buffer-clienttests/build/reports
     - name: "Notify QA Slack"
-      if: ${{ github.event_name != 'workflow_dispatch' && always() }}
+      #  Always notify #dsde-qa when test finishes, and it is not manually triggered(workflow_dispatch).
+      if: github.event_name != 'workflow_dispatch' && always()
       uses: broadinstitute/action-slack@v3.8.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -61,4 +63,16 @@ jobs:
         channel: "#dsde-qa"
         username: "Resource Buffer tests"
         text: "Perf tests"
+        fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
+    - name: "Notify PF team when perf test fails"
+      if: steps.perf-test.outputs.status == 'failure'
+      uses: broadinstitute/action-slack@v3.8.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      with:
+        status: ${{ job.status }}
+        channel: "#platform-foundation-alerts"
+        username: "Resource Buffer tests"
+        text: "Perf tests fail"
         fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
