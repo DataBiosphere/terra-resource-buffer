@@ -65,7 +65,7 @@ jobs:
         text: "Perf tests"
         fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
     - name: "Notify PF team when perf test fails"
-      if: steps.perf-test.outputs.status == 'failure'
+      if: steps.perf-test.outputs.isFailure == 'true'
       uses: broadinstitute/action-slack@v3.8.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
