@@ -44,7 +44,7 @@ jobs:
       id: perf-test
       run: |
         cd buffer-clienttests
-        TEST_RUNNER_SERVER_SPECIFICATION_FILE="perf.json" ./gradlew  runTest --args="configs/EmptyPoolAndWaitForRefill.json build/reports"
+        TEST_RUNNER_SERVER_SPECIFICATION_FILE="perf.json" ./gradlew  runTest --scan --args="configs/EmptyPoolAndWaitForRefill.json build/reports"
     - name: Upload Test Reports
       if: always()
       uses: actions/upload-artifact@v1
