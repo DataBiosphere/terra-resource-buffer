@@ -22,8 +22,7 @@ import static bio.terra.buffer.service.resource.flight.CreateResourceRecordSetSt
 import static bio.terra.buffer.service.resource.flight.CreateRouteStep.DEFAULT_GATEWAY;
 import static bio.terra.buffer.service.resource.flight.CreateRouteStep.DESTINATION_RANGE;
 import static bio.terra.buffer.service.resource.flight.CreateRouteStep.ROUTE_NAME;
-import static bio.terra.buffer.service.resource.flight.CreateStorageLogBucketStep.STORAGE_LOGS_LIFECYCLE_RULE;
-import static bio.terra.buffer.service.resource.flight.CreateStorageLogBucketStep.STORAGE_LOGS_WRITE_ACL;
+import static bio.terra.buffer.service.resource.flight.CreateStorageLogBucketStep.STORAGE_LOGS_IDENTITY;
 import static bio.terra.buffer.service.resource.flight.CreateSubnetsStep.LOG_CONFIG;
 import static bio.terra.buffer.service.resource.flight.CreateSubnetsStep.REGION_TO_IP_RANGE;
 import static bio.terra.buffer.service.resource.flight.DeleteDefaultFirewallRulesStep.DEFAULT_FIREWALL_NAMES;
@@ -86,8 +85,10 @@ import com.google.api.services.compute.model.Subnetwork;
 import com.google.api.services.dns.model.ManagedZone;
 import com.google.api.services.dns.model.ResourceRecordSet;
 import com.google.api.services.serviceusage.v1.model.GoogleApiServiceusageV1Service;
+import com.google.cloud.Policy;
 import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.StorageOptions;
+import com.google.cloud.storage.StorageRoles;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
@@ -465,14 +466,12 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     BucketInfo bucketInfo = storageCow.get(bucketName).getBucketInfo();
     // There might be multiple ACLs as we didn't remove the default ACLs. Only need to verify the
     // one we just add exists.
-    assertEquals(
-        bucketInfo.getAcl().stream()
-            .filter(acl -> acl.getEntity().equals(STORAGE_LOGS_WRITE_ACL.getEntity()))
-            .findAny()
-            .get()
-            .getRole(),
-        STORAGE_LOGS_WRITE_ACL.getRole());
-    assertThat(bucketInfo.getLifecycleRules(), Matchers.contains(STORAGE_LOGS_LIFECYCLE_RULE));
+    Policy policy = storageCow.getIamPolicy(bucketName);
+    assertTrue(
+        policy
+            .getBindings()
+            .get(StorageRoles.legacyBucketWriter())
+            .contains(STORAGE_LOGS_IDENTITY));
   }
 
   private void assertNetworkExists(Project project) throws Exception {

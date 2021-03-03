@@ -26,6 +26,7 @@ dependencies {
         kubernetesClient = "8.0.2"
         logback = "1.2.3"
         slf4j = "1.7.25"
+        slf4j = "1.7.25"
         hamcrest = "2.1"
 
         googleOauth2 = "0.20.0"
@@ -74,7 +75,7 @@ spotbugs {
     effort = 'max'
     // This makes the "html" reports come out in plain text so you can just open the file in IntelliJ
     // and look at your bugs instead of having to switch to a browser.
-    extraArgs = [ '-emacs']
+    extraArgs = ['-emacs']
 }
 spotbugsMain {
     reports {
