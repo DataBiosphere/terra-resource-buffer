@@ -33,7 +33,6 @@ public class CreateFirewallRuleStep implements Step {
   @VisibleForTesting
   public static final Firewall ALLOW_INTERNAL =
       new Firewall()
-          .setName(ALLOW_INTERNAL_RULE_NAME)
           .setDescription("Allow internal traffic on the network.")
           .setDirection("INGRESS")
           .setSourceRanges(ImmutableList.of("10.128.0.0/9"))
@@ -50,7 +49,6 @@ public class CreateFirewallRuleStep implements Step {
   @VisibleForTesting
   public static final Firewall LEONARDO_SSL =
       new Firewall()
-          .setName(LEONARDO_SSL_RULE_NAME)
           .setDescription("Allow SSL traffic from Leonardo-managed VMs.")
           .setDirection("INGRESS")
           .setSourceRanges(ImmutableList.of("0.0.0.0/0"))
@@ -63,8 +61,23 @@ public class CreateFirewallRuleStep implements Step {
   private final Logger logger = LoggerFactory.getLogger(CreateFirewallRuleStep.class);
   private final CloudComputeCow computeCow;
 
+  /** Optional prefix for the firewall rule name. */
+  private final String ruleNamePrefix;
+
   public CreateFirewallRuleStep(CloudComputeCow computeCow) {
+    this(computeCow, ""); // no prefix is the default
+  }
+
+  /**
+   * Constructor that allows specifying a prefix for the firewall rule names. This is useful for
+   * creating identical firewall rules for different networks (e.g. prefix = network name).
+   *
+   * @param computeCow cloud compute wrapper object
+   * @param ruleNamePrefix prefix for firewall rule names
+   */
+  public CreateFirewallRuleStep(CloudComputeCow computeCow, String ruleNamePrefix) {
     this.computeCow = computeCow;
+    this.ruleNamePrefix = ruleNamePrefix;
   }
 
   @Override
@@ -82,7 +95,11 @@ public class CreateFirewallRuleStep implements Step {
               () ->
                   computeCow
                       .firewalls()
-                      .insert(projectId, ALLOW_INTERNAL.setNetwork(network.getSelfLink()))
+                      .insert(
+                          projectId,
+                          ALLOW_INTERNAL
+                              .setNetwork(network.getSelfLink())
+                              .setName(ruleNamePrefix + ALLOW_INTERNAL_RULE_NAME))
                       .execute())
           .ifPresent(
               insertOperation ->
@@ -92,7 +109,11 @@ public class CreateFirewallRuleStep implements Step {
               () ->
                   computeCow
                       .firewalls()
-                      .insert(projectId, LEONARDO_SSL.setNetwork(network.getSelfLink()))
+                      .insert(
+                          projectId,
+                          LEONARDO_SSL
+                              .setNetwork(network.getSelfLink())
+                              .setName(ruleNamePrefix + LEONARDO_SSL_RULE_NAME))
                       .execute())
           .ifPresent(
               insertOperation ->

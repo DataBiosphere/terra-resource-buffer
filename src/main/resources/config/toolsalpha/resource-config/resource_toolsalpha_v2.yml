@@ -33,3 +33,4 @@ gcpProjectConfig:
       role: "roles/viewer"
   network:
     enableNetworkMonitoring: "true"
+    keepDefaultNetwork: "false"
