@@ -61,23 +61,34 @@ public class CreateFirewallRuleStep implements Step {
   private final Logger logger = LoggerFactory.getLogger(CreateFirewallRuleStep.class);
   private final CloudComputeCow computeCow;
 
-  /** Optional prefix for the firewall rule name. */
-  private final String ruleNamePrefix;
+  /** Name of the network to add the firewall rule for. */
+  private final String networkName;
+
+  /** Name of the "allow-internal" firewall rule. */
+  private final String allowInternalRuleName;
+
+  /** Name of the "leonardo-ssl" firewall rule. */
+  private final String leonardoSslRuleName;
 
   public CreateFirewallRuleStep(CloudComputeCow computeCow) {
-    this(computeCow, ""); // no prefix is the default
+    this.computeCow = computeCow;
+    this.networkName = NETWORK_NAME;
+    this.allowInternalRuleName = ALLOW_INTERNAL_RULE_NAME;
+    this.leonardoSslRuleName = LEONARDO_SSL_RULE_NAME;
   }
 
   /**
-   * Constructor that allows specifying a prefix for the firewall rule names. This is useful for
-   * creating identical firewall rules for different networks (e.g. prefix = network name).
+   * Constructor that allows specifying the network name. Firewall rule names will be prefixed with
+   * the network name. This is useful for creating identical firewall rules for different networks.
    *
    * @param computeCow cloud compute wrapper object
-   * @param ruleNamePrefix prefix for firewall rule names
+   * @param networkName name of the network
    */
-  public CreateFirewallRuleStep(CloudComputeCow computeCow, String ruleNamePrefix) {
+  public CreateFirewallRuleStep(CloudComputeCow computeCow, String networkName) {
     this.computeCow = computeCow;
-    this.ruleNamePrefix = ruleNamePrefix;
+    this.networkName = networkName;
+    this.allowInternalRuleName = networkName + "-" + ALLOW_INTERNAL_RULE_NAME;
+    this.leonardoSslRuleName = networkName + "-" + LEONARDO_SSL_RULE_NAME;
   }
 
   @Override
@@ -87,8 +98,7 @@ public class CreateFirewallRuleStep implements Step {
       // Network is already created and checked in previous step so here won't be empty.
       // If we got NPE, that means something went wrong with GCP, fine to just throw NPE here.
       Network network =
-          getResource(() -> computeCow.networks().get(projectId, NETWORK_NAME).execute(), 404)
-              .get();
+          getResource(() -> computeCow.networks().get(projectId, networkName).execute(), 404).get();
 
       List<OperationCow<?>> operationsToPoll = new ArrayList<>();
       createResourceAndIgnoreConflict(
@@ -99,7 +109,7 @@ public class CreateFirewallRuleStep implements Step {
                           projectId,
                           ALLOW_INTERNAL
                               .setNetwork(network.getSelfLink())
-                              .setName(ruleNamePrefix + ALLOW_INTERNAL_RULE_NAME))
+                              .setName(allowInternalRuleName))
                       .execute())
           .ifPresent(
               insertOperation ->
@@ -113,7 +123,7 @@ public class CreateFirewallRuleStep implements Step {
                           projectId,
                           LEONARDO_SSL
                               .setNetwork(network.getSelfLink())
-                              .setName(ruleNamePrefix + LEONARDO_SSL_RULE_NAME))
+                              .setName(leonardoSslRuleName))
                       .execute())
           .ifPresent(
               insertOperation ->

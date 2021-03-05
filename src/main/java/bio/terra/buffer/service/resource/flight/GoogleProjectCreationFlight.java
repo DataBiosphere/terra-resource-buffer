@@ -51,7 +51,8 @@ public class GoogleProjectCreationFlight extends Flight {
         new CreateStorageLogBucketStep(clientConfig, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
 
     // project config determines whether we want to keep the Compute Engine default service account
-    if (gcpProjectConfig.getComputeEngine().isDeleteDefaultServiceAccount()) {
+    if (gcpProjectConfig.getComputeEngine() != null
+        && gcpProjectConfig.getComputeEngine().isDeleteDefaultServiceAccount()) {
       addStep(new DeleteDefaultServiceAccountStep(iamCow), CLOUD_API_DEFAULT_RETRY);
     }
 
@@ -67,7 +68,7 @@ public class GoogleProjectCreationFlight extends Flight {
       // name (i.e. "default-").
       addStep(
           new CreateFirewallRuleStep(
-              cloudComputeCow, DeleteDefaultNetworkStep.DEFAULT_NETWORK_NAME + "-"),
+              cloudComputeCow, DeleteDefaultNetworkStep.DEFAULT_NETWORK_NAME),
           CLOUD_API_DEFAULT_RETRY);
     }
 
