@@ -8,9 +8,11 @@ import bio.terra.cloudres.google.storage.StorageCow;
 import bio.terra.stairway.FlightContext;
 import bio.terra.stairway.Step;
 import bio.terra.stairway.StepResult;
-import com.google.cloud.storage.Acl;
+import com.google.cloud.Identity;
+import com.google.cloud.Policy;
 import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.StorageOptions;
+import com.google.cloud.storage.StorageRoles;
 import com.google.common.collect.ImmutableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,9 +26,9 @@ import org.slf4j.LoggerFactory;
 public class CreateStorageLogBucketStep implements Step {
   private final Logger logger = LoggerFactory.getLogger(CreateStorageLogBucketStep.class);
 
-  /** Assigns Cloud Storage writer role for storage log bucket. */
-  public static final Acl STORAGE_LOGS_WRITE_ACL =
-      Acl.newBuilder(new Acl.Group("cloud-storage-analytics@google.com"), Acl.Role.WRITER).build();
+  /** The group that need the bucket access. */
+  public static final Identity STORAGE_LOGS_IDENTITY =
+      Identity.group("cloud-storage-analytics@google.com");
 
   /** Delete after 180 days. */
   public static final BucketInfo.LifecycleRule STORAGE_LOGS_LIFECYCLE_RULE =
@@ -55,8 +57,14 @@ public class CreateStorageLogBucketStep implements Step {
         BucketInfo.newBuilder(bucketName)
             .setLifecycleRules(ImmutableList.of(STORAGE_LOGS_LIFECYCLE_RULE))
             .build());
-    // Set Acl as a separate call so bucket gets default permissions plus this one.
-    storageCow.updateAcl(bucketName, STORAGE_LOGS_WRITE_ACL);
+
+    Policy originalPolicy = storageCow.getIamPolicy(bucketName);
+    storageCow.setIamPolicy(
+        bucketName,
+        originalPolicy.toBuilder()
+            .addIdentity(StorageRoles.legacyBucketWriter(), STORAGE_LOGS_IDENTITY)
+            .build());
+
     return StepResult.getStepResultSuccess();
   }
 
