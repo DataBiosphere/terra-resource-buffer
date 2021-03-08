@@ -2,7 +2,7 @@ package bio.terra.buffer.service.resource.flight;
 
 import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.DEFAULT_NETWORK_NAME;
-import static bio.terra.buffer.service.resource.flight.GoogleUtils.isDeleteDefaultNetwork;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.keepDefaultNetwork;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.pollUntilSuccess;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.resourceExists;
 
@@ -32,7 +32,7 @@ public class DeleteDefaultNetworkStep implements Step {
 
   @Override
   public StepResult doStep(FlightContext flightContext) throws RetryException {
-    if (!isDeleteDefaultNetwork(gcpProjectConfig)) {
+    if (keepDefaultNetwork(gcpProjectConfig)) {
       logger.info("Skipping deletion of default network");
       return StepResult.getStepResultSuccess();
     }

@@ -24,8 +24,20 @@ import org.slf4j.LoggerFactory;
 
 /** Creates firewall rules for the GCP project. */
 public class CreateFirewallRuleStep implements Step {
-  private static final String ALLOW_INTERNAL_RULE_NAME = "allow-internal";
-  private static final String LEONARDO_SSL_RULE_NAME = "leonardo-ssl";
+  /** Names for firewall rules on the high-security network (called 'network'). */
+  @VisibleForTesting
+  public static final String ALLOW_INTERNAL_RULE_NAME_FOR_NETWORK = "allow-internal";
+
+  @VisibleForTesting public static final String LEONARDO_SSL_RULE_NAME_FOR_NETWORK = "leonardo-ssl";
+
+  /** Names for firewall rules on the default network (called 'default'). */
+  @VisibleForTesting
+  public static final String ALLOW_INTERNAL_RULE_NAME_FOR_DEFAULT =
+      DEFAULT_NETWORK_NAME + "-vpc-" + ALLOW_INTERNAL_RULE_NAME_FOR_NETWORK;
+
+  @VisibleForTesting
+  public static final String LEONARDO_SSL_RULE_NAME_FOR_DEFAULT =
+      DEFAULT_NETWORK_NAME + "-vpc-" + LEONARDO_SSL_RULE_NAME_FOR_NETWORK;
 
   /**
    * See <a
@@ -34,7 +46,6 @@ public class CreateFirewallRuleStep implements Step {
   @VisibleForTesting
   public static final Firewall ALLOW_INTERNAL =
       new Firewall()
-          .setName(ALLOW_INTERNAL_RULE_NAME)
           .setDescription("Allow internal traffic on the network.")
           .setDirection("INGRESS")
           .setSourceRanges(ImmutableList.of("10.128.0.0/9"))
@@ -51,7 +62,6 @@ public class CreateFirewallRuleStep implements Step {
   @VisibleForTesting
   public static final Firewall LEONARDO_SSL =
       new Firewall()
-          .setName(LEONARDO_SSL_RULE_NAME)
           .setDescription("Allow SSL traffic from Leonardo-managed VMs.")
           .setDirection("INGRESS")
           .setSourceRanges(ImmutableList.of("0.0.0.0/0"))
@@ -81,11 +91,17 @@ public class CreateFirewallRuleStep implements Step {
       Network highSecurityNetwork =
           getResource(() -> computeCow.networks().get(projectId, NETWORK_NAME).execute(), 404)
               .get();
-      addFirewallRule(ALLOW_INTERNAL.setNetwork(highSecurityNetwork.getSelfLink()));
-      addFirewallRule(LEONARDO_SSL.setNetwork(highSecurityNetwork.getSelfLink()));
+      addFirewallRule(
+          ALLOW_INTERNAL
+              .setNetwork(highSecurityNetwork.getSelfLink())
+              .setName(ALLOW_INTERNAL_RULE_NAME_FOR_NETWORK));
+      addFirewallRule(
+          LEONARDO_SSL
+              .setNetwork(highSecurityNetwork.getSelfLink())
+              .setName(LEONARDO_SSL_RULE_NAME_FOR_NETWORK));
 
       // If the default network was not deleted, then create identical firewall rules for it.
-      if (!isDeleteDefaultNetwork(gcpProjectConfig)) {
+      if (keepDefaultNetwork(gcpProjectConfig)) {
         Network defaultNetwork =
             getResource(
                     () -> computeCow.networks().get(projectId, DEFAULT_NETWORK_NAME).execute(), 404)
@@ -95,11 +111,11 @@ public class CreateFirewallRuleStep implements Step {
         addFirewallRule(
             ALLOW_INTERNAL
                 .setNetwork(defaultNetwork.getSelfLink())
-                .setName(DEFAULT_NETWORK_NAME + "-" + ALLOW_INTERNAL_RULE_NAME));
+                .setName(ALLOW_INTERNAL_RULE_NAME_FOR_DEFAULT));
         addFirewallRule(
             LEONARDO_SSL
                 .setNetwork(defaultNetwork.getSelfLink())
-                .setName(DEFAULT_NETWORK_NAME + "-" + LEONARDO_SSL_RULE_NAME));
+                .setName(LEONARDO_SSL_RULE_NAME_FOR_DEFAULT));
       }
 
       for (OperationCow<?> operation : operationsToPoll) {

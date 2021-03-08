@@ -12,7 +12,11 @@ import static bio.terra.buffer.integration.IntegrationUtils.preparePool;
 import static bio.terra.buffer.service.resource.FlightMapKeys.RESOURCE_CONFIG;
 import static bio.terra.buffer.service.resource.flight.CreateDnsZoneStep.MANAGED_ZONE_TEMPLATE;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INTERNAL;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INTERNAL_RULE_NAME_FOR_DEFAULT;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INTERNAL_RULE_NAME_FOR_NETWORK;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.LEONARDO_SSL;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.LEONARDO_SSL_RULE_NAME_FOR_DEFAULT;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.LEONARDO_SSL_RULE_NAME_FOR_NETWORK;
 import static bio.terra.buffer.service.resource.flight.CreateProjectStep.CONFIG_NAME_LABEL_LEY;
 import static bio.terra.buffer.service.resource.flight.CreateProjectStep.NETWORK_LABEL_KEY;
 import static bio.terra.buffer.service.resource.flight.CreateProjectStep.SUB_NETWORK_LABEL_KEY;
@@ -45,6 +49,7 @@ import bio.terra.buffer.common.Resource;
 import bio.terra.buffer.common.ResourceId;
 import bio.terra.buffer.common.ResourceState;
 import bio.terra.buffer.db.BufferDao;
+import bio.terra.buffer.generated.model.ComputeEngine;
 import bio.terra.buffer.generated.model.GcpProjectConfig;
 import bio.terra.buffer.generated.model.IamBinding;
 import bio.terra.buffer.generated.model.ResourceConfig;
@@ -85,6 +90,7 @@ import com.google.api.services.compute.model.Route;
 import com.google.api.services.compute.model.Subnetwork;
 import com.google.api.services.dns.model.ManagedZone;
 import com.google.api.services.dns.model.ResourceRecordSet;
+import com.google.api.services.iam.v1.model.ServiceAccount;
 import com.google.api.services.serviceusage.v1.model.GoogleApiServiceusageV1Service;
 import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.StorageOptions;
@@ -181,6 +187,44 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertRouteExists(project);
     assertDnsExists(project);
     assertDefaultVpcNotExists(project);
+  }
+
+  @Test
+  public void testCreateGoogleProject_keepDefaultComputeEngineServiceAcct() throws Exception {
+    FlightManager manager =
+        new FlightManager(
+            bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
+    Pool pool =
+        preparePool(
+            bufferDao,
+            newBasicGcpConfig().computeEngine(new ComputeEngine().keepDefaultServiceAcct(true)));
+
+    String flightId = manager.submitCreationFlight(pool).get();
+    ResourceId resourceId =
+        extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
+    Project project = assertProjectExists(resourceId);
+    assertDefaultServiceAccountExists(project);
+  }
+
+  @Test
+  public void testCreateGoogleProject_keepDefaultNetwork() throws Exception {
+    FlightManager manager =
+        new FlightManager(
+            bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
+    Pool pool =
+        preparePool(
+            bufferDao,
+            newBasicGcpConfig()
+                .network(new bio.terra.buffer.generated.model.Network().keepDefaultNetwork(true)));
+
+    String flightId = manager.submitCreationFlight(pool).get();
+    ResourceId resourceId =
+        extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
+    Project project = assertProjectExists(resourceId);
+    assertNetworkExists(project);
+    assertFirewallRulesExist(project);
+    assertDefaultVpcExists(project);
+    assertFirewallRulesExistForDefaultVpc(project);
   }
 
   @Test
@@ -484,8 +528,22 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     String projectId = project.getProjectId();
     Network network = computeCow.networks().get(project.getProjectId(), NETWORK_NAME).execute();
     Firewall allowInternal =
-        computeCow.firewalls().get(projectId, ALLOW_INTERNAL.getName()).execute();
-    Firewall leonardoSsl = computeCow.firewalls().get(projectId, LEONARDO_SSL.getName()).execute();
+        computeCow.firewalls().get(projectId, ALLOW_INTERNAL_RULE_NAME_FOR_NETWORK).execute();
+    Firewall leonardoSsl =
+        computeCow.firewalls().get(projectId, LEONARDO_SSL_RULE_NAME_FOR_NETWORK).execute();
+
+    assertFirewallRuleMatch(ALLOW_INTERNAL.setNetwork(network.getSelfLink()), allowInternal);
+    assertFirewallRuleMatch(LEONARDO_SSL.setNetwork(network.getSelfLink()), leonardoSsl);
+  }
+
+  private void assertFirewallRulesExistForDefaultVpc(Project project) throws Exception {
+    String projectId = project.getProjectId();
+    Network network =
+        computeCow.networks().get(project.getProjectId(), DEFAULT_NETWORK_NAME).execute();
+    Firewall allowInternal =
+        computeCow.firewalls().get(projectId, ALLOW_INTERNAL_RULE_NAME_FOR_DEFAULT).execute();
+    Firewall leonardoSsl =
+        computeCow.firewalls().get(projectId, LEONARDO_SSL_RULE_NAME_FOR_DEFAULT).execute();
 
     assertFirewallRuleMatch(ALLOW_INTERNAL.setNetwork(network.getSelfLink()), allowInternal);
     assertFirewallRuleMatch(LEONARDO_SSL.setNetwork(network.getSelfLink()), leonardoSsl);
@@ -571,6 +629,20 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertEquals(expected.getTtl(), actual.getTtl());
   }
 
+  private void assertDefaultVpcExists(Project project) throws Exception {
+    // Check default VPC network exists
+    Network network =
+        computeCow.networks().get(project.getProjectId(), DEFAULT_NETWORK_NAME).execute();
+    assertTrue(network.getAutoCreateSubnetworks());
+
+    // And that the default firewall rules do not.
+    for (String firewall : DEFAULT_FIREWALL_NAMES) {
+      assertFalse(
+          resourceExists(
+              () -> computeCow.firewalls().get(project.getProjectId(), firewall).execute(), 404));
+    }
+  }
+
   private void assertDefaultVpcNotExists(Project project) throws Exception {
     for (String firewall : DEFAULT_FIREWALL_NAMES) {
       assertFalse(
@@ -581,6 +653,21 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
         resourceExists(
             () -> computeCow.networks().get(project.getProjectId(), DEFAULT_NETWORK_NAME).execute(),
             404));
+  }
+
+  private void assertDefaultServiceAccountExists(Project project) throws Exception {
+    List<ServiceAccount> serviceAccounts =
+        iamCow
+            .projects()
+            .serviceAccounts()
+            .list("projects/" + project.getProjectId())
+            .execute()
+            .getAccounts();
+    assertEquals(1, serviceAccounts.size());
+    assertEquals("Compute Engine default service account", serviceAccounts.get(0).getDisplayName());
+    assertThat(
+        serviceAccounts.get(0).getEmail(),
+        Matchers.containsString("-compute@developer.gserviceaccount.com"));
   }
 
   private void assertDefaultServiceAccountNotExists(Project project) throws Exception {

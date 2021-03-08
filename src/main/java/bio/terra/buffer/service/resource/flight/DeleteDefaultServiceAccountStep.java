@@ -32,7 +32,7 @@ public class DeleteDefaultServiceAccountStep implements Step {
 
   @Override
   public StepResult doStep(FlightContext flightContext) throws RetryException {
-    if (!isDeleteComputeEngineServiceAcct(gcpProjectConfig)) {
+    if (keepComputeEngineServiceAcct(gcpProjectConfig)) {
       logger.info("Skipping deletion of default compute engine service account");
       return StepResult.getStepResultSuccess();
     }

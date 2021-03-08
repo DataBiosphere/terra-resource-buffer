@@ -72,20 +72,22 @@ public class GoogleUtils {
         && gcpProjectConfig.getNetwork().isEnableNetworkMonitoring();
   }
 
-  /** Checks if we should delete the default network from config. */
-  public static boolean isDeleteDefaultNetwork(GcpProjectConfig gcpProjectConfig) {
-    // If network object or deleteDefaultNetwork flag are not defined, then use default value =
-    // true.
-    return gcpProjectConfig.getNetwork() == null
-        || gcpProjectConfig.getNetwork().isDeleteDefaultNetwork() == null
-        || gcpProjectConfig.getNetwork().isDeleteDefaultNetwork();
+  /** Checks the config to see if we should keep the default network. */
+  public static boolean keepDefaultNetwork(GcpProjectConfig gcpProjectConfig) {
+    // If network object or keepDefaultNetwork flag are not defined, then use default value =
+    // false.
+    return gcpProjectConfig.getNetwork() != null
+        && gcpProjectConfig.getNetwork().isKeepDefaultNetwork() != null
+        && gcpProjectConfig.getNetwork().isKeepDefaultNetwork();
   }
 
-  /** Checks if we should delete the default compute engine service account from config. */
-  public static boolean isDeleteComputeEngineServiceAcct(GcpProjectConfig gcpProjectConfig) {
-    // If flag is not defined, then use default value = true;
-    return gcpProjectConfig.isDeleteComputeEngineServiceAcct() == null
-        && gcpProjectConfig.isDeleteComputeEngineServiceAcct();
+  /** Checks the config to see if we should keep the default compute engine service account. */
+  public static boolean keepComputeEngineServiceAcct(GcpProjectConfig gcpProjectConfig) {
+    // If computeEngine object or keepDefaultServiceAcct flag are not defined, then use default
+    // value = false.
+    return gcpProjectConfig.getComputeEngine() != null
+        && gcpProjectConfig.getComputeEngine().isKeepDefaultServiceAcct() != null
+        && gcpProjectConfig.getComputeEngine().isKeepDefaultServiceAcct();
   }
 
   /**

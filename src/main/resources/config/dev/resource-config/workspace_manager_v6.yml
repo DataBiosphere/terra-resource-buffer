@@ -29,4 +29,5 @@ gcpProjectConfig:
   network:
     enableNetworkMonitoring: "true"
     deleteDefaultNetwork: "false"
-  deleteComputeEngineServiceAcct: "false"
+  computeEngine:
+    deleteDefaultServiceAcct: "false"
