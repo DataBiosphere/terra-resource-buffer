@@ -28,6 +28,6 @@ gcpProjectConfig:
     - "storage-component.googleapis.com"
   network:
     enableNetworkMonitoring: "true"
-    deleteDefaultNetwork: "false"
+    keepDefaultNetwork: "true"
   computeEngine:
-    deleteDefaultServiceAcct: "false"
+    keepDefaultServiceAcct: "true"
