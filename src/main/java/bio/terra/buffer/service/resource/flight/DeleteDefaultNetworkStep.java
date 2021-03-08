@@ -31,7 +31,8 @@ public class DeleteDefaultNetworkStep implements Step {
 
   @Override
   public StepResult doStep(FlightContext flightContext) throws RetryException {
-    if (!gcpProjectConfig.getNetwork().isDeleteDefaultNetwork()) {
+    Boolean deleteDefaultNetwork = gcpProjectConfig.getNetwork().isDeleteDefaultNetwork();
+    if (deleteDefaultNetwork != null && !deleteDefaultNetwork) {
       logger.info("Skipping deletion of default network");
       return StepResult.getStepResultSuccess();
     }
