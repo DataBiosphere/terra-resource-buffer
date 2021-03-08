@@ -1,12 +1,11 @@
-# Resource template for local testing and personal environment on GKE
+# Workspace Manager buffered workspace template
 ---
-configName: "resource_toolsalpha_v2"
+configName: "workspace_manager_v5"
 gcpProjectConfig:
   projectIdSchema:
-    prefix: "terra-toolsalpha"
+    prefix: "terra-wsm-test"
     scheme: "RANDOM_CHAR"
-  # RBS Testing
-  parentFolderId: "637867149294"
+  parentFolderId: "375605435272" #test.firecloud.org/tools/buffer-tools/workspace_manager
   billingAccount: "01A82E-CA8A14-367457"
   enabledApis:
     - "bigquery-json.googleapis.com"
@@ -24,12 +23,10 @@ gcpProjectConfig:
     - "lifesciences.googleapis.com"
     - "logging.googleapis.com"
     - "monitoring.googleapis.com"
+    - "notebooks.googleapis.com"
     - "storage-api.googleapis.com"
     - "storage-component.googleapis.com"
-  iamBindings:
-    - members: ["group:terra-rbs-test@broadinstitute.org"]
-      role: "roles/editor"
-    - members: ["group:terra-rbs-viewer-test@broadinstitute.org"]
-      role: "roles/viewer"
   network:
     enableNetworkMonitoring: "true"
+    deleteDefaultNetwork: "false"
+  deleteComputeEngineServiceAcct: "false"
