@@ -10,6 +10,8 @@ import org.springframework.context.annotation.ComponentScan;
     basePackages = {
       // Scan for Liquibase migration components & configs
       "bio.terra.common.migrate",
+      // Scan for tracing-related components & configs
+      "bio.terra.common.tracing",
       // Scan all service-specific packages beneath the current package
       "bio.terra.buffer"
     })
