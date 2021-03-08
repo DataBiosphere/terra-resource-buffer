@@ -72,6 +72,22 @@ public class GoogleUtils {
         && gcpProjectConfig.getNetwork().isEnableNetworkMonitoring();
   }
 
+  /** Checks if we should delete the default network from config. */
+  public static boolean isDeleteDefaultNetwork(GcpProjectConfig gcpProjectConfig) {
+    // If network object or deleteDefaultNetwork flag are not defined, then use default value =
+    // true.
+    return gcpProjectConfig.getNetwork() == null
+        || gcpProjectConfig.getNetwork().isDeleteDefaultNetwork() == null
+        || gcpProjectConfig.getNetwork().isDeleteDefaultNetwork();
+  }
+
+  /** Checks if we should delete the default compute engine service account from config. */
+  public static boolean isDeleteComputeEngineServiceAcct(GcpProjectConfig gcpProjectConfig) {
+    // If flag is not defined, then use default value = true;
+    return gcpProjectConfig.isDeleteComputeEngineServiceAcct() == null
+        && gcpProjectConfig.isDeleteComputeEngineServiceAcct();
+  }
+
   /**
    * Checks if cloudObject already exists.
    *

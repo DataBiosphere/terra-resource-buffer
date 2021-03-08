@@ -85,8 +85,7 @@ public class CreateFirewallRuleStep implements Step {
       addFirewallRule(LEONARDO_SSL.setNetwork(highSecurityNetwork.getSelfLink()));
 
       // If the default network was not deleted, then create identical firewall rules for it.
-      Boolean deleteDefaultNetwork = gcpProjectConfig.getNetwork().isDeleteDefaultNetwork();
-      if (deleteDefaultNetwork != null && !deleteDefaultNetwork) {
+      if (!isDeleteDefaultNetwork(gcpProjectConfig)) {
         Network defaultNetwork =
             getResource(
                     () -> computeCow.networks().get(projectId, DEFAULT_NETWORK_NAME).execute(), 404)
