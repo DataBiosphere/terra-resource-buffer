@@ -27,7 +27,7 @@ import static bio.terra.buffer.service.resource.flight.CreateStorageLogBucketSte
 import static bio.terra.buffer.service.resource.flight.CreateSubnetsStep.LOG_CONFIG;
 import static bio.terra.buffer.service.resource.flight.CreateSubnetsStep.REGION_TO_IP_RANGE;
 import static bio.terra.buffer.service.resource.flight.DeleteDefaultFirewallRulesStep.DEFAULT_FIREWALL_NAMES;
-import static bio.terra.buffer.service.resource.flight.DeleteDefaultNetworkStep.DEFAULT_NETWORK_NAME;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.DEFAULT_NETWORK_NAME;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.MANAGED_ZONE_NAME;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.NETWORK_NAME;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.SUBNETWORK_NAME;

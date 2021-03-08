@@ -1,6 +1,7 @@
 package bio.terra.buffer.service.resource.flight;
 
 import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.DEFAULT_NETWORK_NAME;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.pollUntilSuccess;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.resourceExists;
 
@@ -19,9 +20,6 @@ import org.slf4j.LoggerFactory;
 
 /** Delete the default network because we will manually create it later. */
 public class DeleteDefaultNetworkStep implements Step {
-  /** The name of GCP default network. */
-  public static final String DEFAULT_NETWORK_NAME = "default";
-
   private final Logger logger = LoggerFactory.getLogger(DeleteDefaultNetworkStep.class);
   private final CloudComputeCow computeCow;
   private final GcpProjectConfig gcpProjectConfig;
@@ -33,6 +31,11 @@ public class DeleteDefaultNetworkStep implements Step {
 
   @Override
   public StepResult doStep(FlightContext flightContext) throws RetryException {
+    if (!gcpProjectConfig.getNetwork().isDeleteDefaultNetwork()) {
+      logger.info("Skipping deletion of default network");
+      return StepResult.getStepResultSuccess();
+    }
+
     String projectId = flightContext.getWorkingMap().get(GOOGLE_PROJECT_ID, String.class);
     try {
       // Skip this steps if network already exists. This may happen when previous step's polling

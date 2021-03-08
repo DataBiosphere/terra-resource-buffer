@@ -24,6 +24,9 @@ public class GoogleUtils {
   /** All project will use the same sub network name. */
   @VisibleForTesting public static final String SUBNETWORK_NAME = "subnetwork";
 
+  /** The name of the default network that exists in the project. */
+  public static final String DEFAULT_NETWORK_NAME = "default";
+
   /**
    * Poll until the Google Service API operation has completed. Throws any error or timeouts as a
    * {@link RetryException}.

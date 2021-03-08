@@ -49,32 +49,13 @@ public class GoogleProjectCreationFlight extends Flight {
     addStep(new SetIamPolicyStep(rmCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
     addStep(
         new CreateStorageLogBucketStep(clientConfig, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
-
-    // project config determines whether we want to keep the Compute Engine default service account
-    if (gcpProjectConfig.getComputeEngine() != null
-        && gcpProjectConfig.getComputeEngine().isDeleteDefaultServiceAccount()) {
-      addStep(new DeleteDefaultServiceAccountStep(iamCow), CLOUD_API_DEFAULT_RETRY);
-    }
-
+    addStep(new DeleteDefaultServiceAccountStep(iamCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
     addStep(new DeleteDefaultFirewallRulesStep(cloudComputeCow), CLOUD_API_DEFAULT_RETRY);
-
-    // project config determines whether we want to keep the default VPC network
-    if (gcpProjectConfig.getNetwork().isDeleteDefaultNetwork()) {
-      addStep(
-          new DeleteDefaultNetworkStep(cloudComputeCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
-    } else {
-      // if we don't delete the default network, then create firewall rules for it that are
-      // identical to the ones for the second network below. prefix these rules with the network
-      // name (i.e. "default-").
-      addStep(
-          new CreateFirewallRuleStep(
-              cloudComputeCow, DeleteDefaultNetworkStep.DEFAULT_NETWORK_NAME),
-          CLOUD_API_DEFAULT_RETRY);
-    }
-
+    addStep(
+        new DeleteDefaultNetworkStep(cloudComputeCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
     addStep(new CreateNetworkStep(cloudComputeCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
     addStep(new CreateRouteStep(cloudComputeCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
-    addStep(new CreateFirewallRuleStep(cloudComputeCow), CLOUD_API_DEFAULT_RETRY);
+    addStep(new CreateFirewallRuleStep(cloudComputeCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
     addStep(new CreateSubnetsStep(cloudComputeCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
     addStep(
         new CreateDnsZoneStep(cloudComputeCow, dnsCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);

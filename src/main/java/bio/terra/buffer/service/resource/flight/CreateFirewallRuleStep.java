@@ -3,6 +3,7 @@ package bio.terra.buffer.service.resource.flight;
 import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.*;
 
+import bio.terra.buffer.generated.model.GcpProjectConfig;
 import bio.terra.cloudres.google.api.services.common.OperationCow;
 import bio.terra.cloudres.google.compute.CloudComputeCow;
 import bio.terra.stairway.FlightContext;
@@ -33,6 +34,7 @@ public class CreateFirewallRuleStep implements Step {
   @VisibleForTesting
   public static final Firewall ALLOW_INTERNAL =
       new Firewall()
+          .setName(ALLOW_INTERNAL_RULE_NAME)
           .setDescription("Allow internal traffic on the network.")
           .setDirection("INGRESS")
           .setSourceRanges(ImmutableList.of("10.128.0.0/9"))
@@ -49,6 +51,7 @@ public class CreateFirewallRuleStep implements Step {
   @VisibleForTesting
   public static final Firewall LEONARDO_SSL =
       new Firewall()
+          .setName(LEONARDO_SSL_RULE_NAME)
           .setDescription("Allow SSL traffic from Leonardo-managed VMs.")
           .setDirection("INGRESS")
           .setSourceRanges(ImmutableList.of("0.0.0.0/0"))
@@ -60,75 +63,44 @@ public class CreateFirewallRuleStep implements Step {
 
   private final Logger logger = LoggerFactory.getLogger(CreateFirewallRuleStep.class);
   private final CloudComputeCow computeCow;
+  private final GcpProjectConfig gcpProjectConfig;
+  private String projectId;
+  private List<OperationCow<?>> operationsToPoll = new ArrayList<>();
 
-  /** Name of the network to add the firewall rule for. */
-  private final String networkName;
-
-  /** Name of the "allow-internal" firewall rule. */
-  private final String allowInternalRuleName;
-
-  /** Name of the "leonardo-ssl" firewall rule. */
-  private final String leonardoSslRuleName;
-
-  public CreateFirewallRuleStep(CloudComputeCow computeCow) {
+  public CreateFirewallRuleStep(CloudComputeCow computeCow, GcpProjectConfig gcpProjectConfig) {
     this.computeCow = computeCow;
-    this.networkName = NETWORK_NAME;
-    this.allowInternalRuleName = ALLOW_INTERNAL_RULE_NAME;
-    this.leonardoSslRuleName = LEONARDO_SSL_RULE_NAME;
-  }
-
-  /**
-   * Constructor that allows specifying the network name. Firewall rule names will be prefixed with
-   * the network name. This is useful for creating identical firewall rules for different networks.
-   *
-   * @param computeCow cloud compute wrapper object
-   * @param networkName name of the network
-   */
-  public CreateFirewallRuleStep(CloudComputeCow computeCow, String networkName) {
-    this.computeCow = computeCow;
-    this.networkName = networkName;
-    this.allowInternalRuleName = networkName + "-" + ALLOW_INTERNAL_RULE_NAME;
-    this.leonardoSslRuleName = networkName + "-" + LEONARDO_SSL_RULE_NAME;
+    this.gcpProjectConfig = gcpProjectConfig;
   }
 
   @Override
   public StepResult doStep(FlightContext flightContext) throws RetryException {
-    String projectId = flightContext.getWorkingMap().get(GOOGLE_PROJECT_ID, String.class);
+    projectId = flightContext.getWorkingMap().get(GOOGLE_PROJECT_ID, String.class);
     try {
       // Network is already created and checked in previous step so here won't be empty.
       // If we got NPE, that means something went wrong with GCP, fine to just throw NPE here.
-      Network network =
-          getResource(() -> computeCow.networks().get(projectId, networkName).execute(), 404).get();
+      Network highSecurityNetwork =
+          getResource(() -> computeCow.networks().get(projectId, NETWORK_NAME).execute(), 404)
+              .get();
+      addFirewallRule(ALLOW_INTERNAL.setNetwork(highSecurityNetwork.getSelfLink()));
+      addFirewallRule(LEONARDO_SSL.setNetwork(highSecurityNetwork.getSelfLink()));
 
-      List<OperationCow<?>> operationsToPoll = new ArrayList<>();
-      createResourceAndIgnoreConflict(
-              () ->
-                  computeCow
-                      .firewalls()
-                      .insert(
-                          projectId,
-                          ALLOW_INTERNAL
-                              .setNetwork(network.getSelfLink())
-                              .setName(allowInternalRuleName))
-                      .execute())
-          .ifPresent(
-              insertOperation ->
-                  operationsToPoll.add(
-                      computeCow.globalOperations().operationCow(projectId, insertOperation)));
-      createResourceAndIgnoreConflict(
-              () ->
-                  computeCow
-                      .firewalls()
-                      .insert(
-                          projectId,
-                          LEONARDO_SSL
-                              .setNetwork(network.getSelfLink())
-                              .setName(leonardoSslRuleName))
-                      .execute())
-          .ifPresent(
-              insertOperation ->
-                  operationsToPoll.add(
-                      computeCow.globalOperations().operationCow(projectId, insertOperation)));
+      // If the default network was not deleted, then create identical firewall rules for it.
+      if (!gcpProjectConfig.getNetwork().isDeleteDefaultNetwork()) {
+        Network defaultNetwork =
+            getResource(
+                    () -> computeCow.networks().get(projectId, DEFAULT_NETWORK_NAME).execute(), 404)
+                .get();
+        // Rule names must be unique within a project, so prefix these rule names with the network
+        // name.
+        addFirewallRule(
+            ALLOW_INTERNAL
+                .setNetwork(defaultNetwork.getSelfLink())
+                .setName(DEFAULT_NETWORK_NAME + "-" + ALLOW_INTERNAL_RULE_NAME));
+        addFirewallRule(
+            LEONARDO_SSL
+                .setNetwork(defaultNetwork.getSelfLink())
+                .setName(DEFAULT_NETWORK_NAME + "-" + LEONARDO_SSL_RULE_NAME));
+      }
 
       for (OperationCow<?> operation : operationsToPoll) {
         pollUntilSuccess(operation, Duration.ofSeconds(3), Duration.ofMinutes(5));
@@ -144,5 +116,17 @@ public class CreateFirewallRuleStep implements Step {
   public StepResult undoStep(FlightContext flightContext) {
     // Flight undo will just need to delete the project on GCP.
     return StepResult.getStepResultSuccess();
+  }
+
+  /**
+   * Helper method to add a firewall rule to the project. Ignores conflicts if the rule already
+   * exists.
+   */
+  private void addFirewallRule(Firewall rule) throws IOException {
+    createResourceAndIgnoreConflict(() -> computeCow.firewalls().insert(projectId, rule).execute())
+        .ifPresent(
+            insertOperation ->
+                operationsToPoll.add(
+                    computeCow.globalOperations().operationCow(projectId, insertOperation)));
   }
 }

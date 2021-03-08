@@ -58,8 +58,11 @@ components:
             $ref: '#/components/schemas/IamBinding'
         network:
           $ref: '#/components/schemas/Network'
-        computeEngine:
-          $ref: '#/components/schemas/ComputeEngine'
+        deleteComputeEngineServiceAcct:
+          description: |-
+            Delete the default Compute Engine service account if this flag is true, keep it if false.
+          type: boolean
+          default: true
       type: object
 
     ProjectIdSchema:
@@ -109,16 +112,6 @@ components:
         deleteDefaultNetwork:
           description: |-
             Delete the default VPC network if this flag is true, keep it if false.
-          type: boolean
-          default: true
-      type: object
-
-    ComputeEngine:
-      description: Compute Engine setup for the project.
-      properties:
-        deleteDefaultServiceAccount:
-          description: |-
-            Delete the default Compute Engine service account if this flag is true, keep it if false.
           type: boolean
           default: true
       type: object
