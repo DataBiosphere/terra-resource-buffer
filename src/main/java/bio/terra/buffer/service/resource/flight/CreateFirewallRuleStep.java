@@ -30,7 +30,10 @@ public class CreateFirewallRuleStep implements Step {
 
   @VisibleForTesting public static final String LEONARDO_SSL_RULE_NAME_FOR_NETWORK = "leonardo-ssl";
 
-  /** Names for firewall rules on the default network (called 'default'). */
+  /**
+   * Names for firewall rules on the default network (called 'default'). Rule names must be unique
+   * within a project, so prefix these rule names with 'default-vpc'.
+   */
   @VisibleForTesting
   public static final String ALLOW_INTERNAL_RULE_NAME_FOR_DEFAULT =
       DEFAULT_NETWORK_NAME + "-vpc-" + ALLOW_INTERNAL_RULE_NAME_FOR_NETWORK;
@@ -106,8 +109,6 @@ public class CreateFirewallRuleStep implements Step {
             getResource(
                     () -> computeCow.networks().get(projectId, DEFAULT_NETWORK_NAME).execute(), 404)
                 .get();
-        // Rule names must be unique within a project, so prefix these rule names with the network
-        // name.
         addFirewallRule(
             ALLOW_INTERNAL
                 .setNetwork(defaultNetwork.getSelfLink())
