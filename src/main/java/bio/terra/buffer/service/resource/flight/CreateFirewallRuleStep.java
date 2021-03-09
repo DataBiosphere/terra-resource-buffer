@@ -1,6 +1,7 @@
 package bio.terra.buffer.service.resource.flight;
 
 import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
+import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.keepDefaultNetwork;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.*;
 
 import bio.terra.buffer.generated.model.GcpProjectConfig;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,43 +44,9 @@ public class CreateFirewallRuleStep implements Step {
   public static final String LEONARDO_SSL_RULE_NAME_FOR_DEFAULT =
       DEFAULT_NETWORK_NAME + "-vpc-" + LEONARDO_SSL_RULE_NAME_FOR_NETWORK;
 
-  /**
-   * See <a
-   * href="https://cloud.google.com/vpc/docs/firewalls#more_rules_default_vpc">default-allow-internal</a>.
-   */
-  @VisibleForTesting
-  public static final Firewall ALLOW_INTERNAL =
-      new Firewall()
-          .setDescription("Allow internal traffic on the network.")
-          .setDirection("INGRESS")
-          .setSourceRanges(ImmutableList.of("10.128.0.0/9"))
-          .setPriority(65534)
-          .setAllowed(
-              ImmutableList.of(
-                  new Firewall.Allowed().setIPProtocol("icmp"),
-                  new Firewall.Allowed().setIPProtocol("tcp").setPorts(ImmutableList.of("0-65535")),
-                  new Firewall.Allowed()
-                      .setIPProtocol("udp")
-                      .setPorts(ImmutableList.of("0-65535"))));
-
-  /** Allow SSL traffic from Leonardo-managed VMs. */
-  @VisibleForTesting
-  public static final Firewall LEONARDO_SSL =
-      new Firewall()
-          .setDescription("Allow SSL traffic from Leonardo-managed VMs.")
-          .setDirection("INGRESS")
-          .setSourceRanges(ImmutableList.of("0.0.0.0/0"))
-          .setTargetTags(ImmutableList.of("leonardo"))
-          .setPriority(65534)
-          .setAllowed(
-              ImmutableList.of(
-                  new Firewall.Allowed().setIPProtocol("tcp").setPorts(ImmutableList.of("443"))));
-
   private final Logger logger = LoggerFactory.getLogger(CreateFirewallRuleStep.class);
   private final CloudComputeCow computeCow;
   private final GcpProjectConfig gcpProjectConfig;
-  private String projectId;
-  private List<OperationCow<?>> operationsToPoll = new ArrayList<>();
 
   public CreateFirewallRuleStep(CloudComputeCow computeCow, GcpProjectConfig gcpProjectConfig) {
     this.computeCow = computeCow;
@@ -87,36 +55,37 @@ public class CreateFirewallRuleStep implements Step {
 
   @Override
   public StepResult doStep(FlightContext flightContext) throws RetryException {
-    projectId = flightContext.getWorkingMap().get(GOOGLE_PROJECT_ID, String.class);
+    String projectId = flightContext.getWorkingMap().get(GOOGLE_PROJECT_ID, String.class);
     try {
+      // Keep track of operations to poll for completion.
+      List<OperationCow<?>> operationsToPoll = new ArrayList<>();
+
       // Network is already created and checked in previous step so here won't be empty.
       // If we got NPE, that means something went wrong with GCP, fine to just throw NPE here.
       Network highSecurityNetwork =
           getResource(() -> computeCow.networks().get(projectId, NETWORK_NAME).execute(), 404)
               .get();
-      addFirewallRule(
-          ALLOW_INTERNAL
-              .setNetwork(highSecurityNetwork.getSelfLink())
-              .setName(ALLOW_INTERNAL_RULE_NAME_FOR_NETWORK));
-      addFirewallRule(
-          LEONARDO_SSL
-              .setNetwork(highSecurityNetwork.getSelfLink())
-              .setName(LEONARDO_SSL_RULE_NAME_FOR_NETWORK));
+      Firewall allowInternalRuleForNetwork =
+          buildAllowInternalFirewallRule(highSecurityNetwork, ALLOW_INTERNAL_RULE_NAME_FOR_NETWORK);
+      Firewall leonardoSslRuleForNetwork =
+          buildLeonardoSslFirewallRule(highSecurityNetwork, LEONARDO_SSL_RULE_NAME_FOR_NETWORK);
+      addFirewallRule(projectId, allowInternalRuleForNetwork).ifPresent(operationsToPoll::add);
+      addFirewallRule(projectId, leonardoSslRuleForNetwork).ifPresent(operationsToPoll::add);
 
+      // TODO: revisit whether we still need this flag after NF allows specifying a network
+      // https://broadworkbench.atlassian.net/browse/PF-538
       // If the default network was not deleted, then create identical firewall rules for it.
       if (keepDefaultNetwork(gcpProjectConfig)) {
         Network defaultNetwork =
             getResource(
                     () -> computeCow.networks().get(projectId, DEFAULT_NETWORK_NAME).execute(), 404)
                 .get();
-        addFirewallRule(
-            ALLOW_INTERNAL
-                .setNetwork(defaultNetwork.getSelfLink())
-                .setName(ALLOW_INTERNAL_RULE_NAME_FOR_DEFAULT));
-        addFirewallRule(
-            LEONARDO_SSL
-                .setNetwork(defaultNetwork.getSelfLink())
-                .setName(LEONARDO_SSL_RULE_NAME_FOR_DEFAULT));
+        Firewall allowInternalRuleForDefault =
+            buildAllowInternalFirewallRule(defaultNetwork, ALLOW_INTERNAL_RULE_NAME_FOR_DEFAULT);
+        Firewall leonardoSslRuleForDefault =
+            buildLeonardoSslFirewallRule(defaultNetwork, LEONARDO_SSL_RULE_NAME_FOR_DEFAULT);
+        addFirewallRule(projectId, allowInternalRuleForDefault).ifPresent(operationsToPoll::add);
+        addFirewallRule(projectId, leonardoSslRuleForDefault).ifPresent(operationsToPoll::add);
       }
 
       for (OperationCow<?> operation : operationsToPoll) {
@@ -138,12 +107,64 @@ public class CreateFirewallRuleStep implements Step {
   /**
    * Helper method to add a firewall rule to the project. Ignores conflicts if the rule already
    * exists.
+   *
+   * @param projectId project where the network lives
+   * @param rule firewall rule object to add to the project
+   * @return pointer to the operation to poll for completion
    */
-  private void addFirewallRule(Firewall rule) throws IOException {
-    createResourceAndIgnoreConflict(() -> computeCow.firewalls().insert(projectId, rule).execute())
-        .ifPresent(
+  private Optional<OperationCow<?>> addFirewallRule(String projectId, Firewall rule)
+      throws IOException {
+    return createResourceAndIgnoreConflict(
+            () -> computeCow.firewalls().insert(projectId, rule).execute())
+        .map(
             insertOperation ->
-                operationsToPoll.add(
-                    computeCow.globalOperations().operationCow(projectId, insertOperation)));
+                computeCow.globalOperations().operationCow(projectId, insertOperation));
+  }
+
+  /**
+   * Helper method to build a firewall rule that allows internal traffic on the network. See <a
+   * href="https://cloud.google.com/vpc/docs/firewalls#more_rules_default_vpc">default-allow-internal</a>.
+   *
+   * @param network the network to add the firewall rule to
+   * @param ruleName name of the firewall rule (unique within a project)
+   * @return firewall rule object
+   */
+  @VisibleForTesting
+  public static Firewall buildAllowInternalFirewallRule(Network network, String ruleName) {
+    return new Firewall()
+        .setNetwork(network.getSelfLink())
+        .setName(ruleName)
+        .setDescription("Allow internal traffic on the network.")
+        .setDirection("INGRESS")
+        .setSourceRanges(ImmutableList.of("10.128.0.0/9"))
+        .setPriority(65534)
+        .setAllowed(
+            ImmutableList.of(
+                new Firewall.Allowed().setIPProtocol("icmp"),
+                new Firewall.Allowed().setIPProtocol("tcp").setPorts(ImmutableList.of("0-65535")),
+                new Firewall.Allowed().setIPProtocol("udp").setPorts(ImmutableList.of("0-65535"))));
+  }
+
+  /**
+   * Helper method to build a firewall rule that allows SSL traffic from Leonardo-managed VMs on the
+   * network.
+   *
+   * @param network the network to add the firewall rule to
+   * @param ruleName name of the firewall rule (unique within a project)
+   * @return firewall rule object
+   */
+  @VisibleForTesting
+  public static Firewall buildLeonardoSslFirewallRule(Network network, String ruleName) {
+    return new Firewall()
+        .setNetwork(network.getSelfLink())
+        .setName(ruleName)
+        .setDescription("Allow SSL traffic from Leonardo-managed VMs.")
+        .setDirection("INGRESS")
+        .setSourceRanges(ImmutableList.of("0.0.0.0/0"))
+        .setTargetTags(ImmutableList.of("leonardo"))
+        .setPriority(65534)
+        .setAllowed(
+            ImmutableList.of(
+                new Firewall.Allowed().setIPProtocol("tcp").setPorts(ImmutableList.of("443"))));
   }
 }

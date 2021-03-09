@@ -1,8 +1,8 @@
 package bio.terra.buffer.service.resource.flight;
 
 import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
+import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.keepDefaultNetwork;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.DEFAULT_NETWORK_NAME;
-import static bio.terra.buffer.service.resource.flight.GoogleUtils.keepDefaultNetwork;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.pollUntilSuccess;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.resourceExists;
 
@@ -32,6 +32,8 @@ public class DeleteDefaultNetworkStep implements Step {
 
   @Override
   public StepResult doStep(FlightContext flightContext) throws RetryException {
+    // TODO: revisit whether we still need this flag after NF allows specifying a network
+    // https://broadworkbench.atlassian.net/browse/PF-538
     if (keepDefaultNetwork(gcpProjectConfig)) {
       logger.info("Skipping deletion of default network");
       return StepResult.getStepResultSuccess();

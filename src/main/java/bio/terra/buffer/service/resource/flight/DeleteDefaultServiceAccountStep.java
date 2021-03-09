@@ -2,7 +2,7 @@ package bio.terra.buffer.service.resource.flight;
 
 import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
 import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_NUMBER;
-import static bio.terra.buffer.service.resource.flight.GoogleUtils.*;
+import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.keepComputeEngineServiceAcct;
 
 import bio.terra.buffer.generated.model.GcpProjectConfig;
 import bio.terra.cloudres.google.iam.IamCow;
@@ -32,6 +32,8 @@ public class DeleteDefaultServiceAccountStep implements Step {
 
   @Override
   public StepResult doStep(FlightContext flightContext) throws RetryException {
+    // TODO: revisit whether we still need this flag after NF allows specifying a SA
+    // https://broadworkbench.atlassian.net/browse/PF-537
     if (keepComputeEngineServiceAcct(gcpProjectConfig)) {
       logger.info("Skipping deletion of default compute engine service account");
       return StepResult.getStepResultSuccess();

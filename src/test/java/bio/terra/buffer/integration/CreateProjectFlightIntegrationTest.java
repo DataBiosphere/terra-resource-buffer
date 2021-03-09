@@ -11,12 +11,12 @@ import static bio.terra.buffer.integration.IntegrationUtils.pollUntilResourcesMa
 import static bio.terra.buffer.integration.IntegrationUtils.preparePool;
 import static bio.terra.buffer.service.resource.FlightMapKeys.RESOURCE_CONFIG;
 import static bio.terra.buffer.service.resource.flight.CreateDnsZoneStep.MANAGED_ZONE_TEMPLATE;
-import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INTERNAL;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INTERNAL_RULE_NAME_FOR_DEFAULT;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INTERNAL_RULE_NAME_FOR_NETWORK;
-import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.LEONARDO_SSL;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.LEONARDO_SSL_RULE_NAME_FOR_DEFAULT;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.LEONARDO_SSL_RULE_NAME_FOR_NETWORK;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.buildAllowInternalFirewallRule;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.buildLeonardoSslFirewallRule;
 import static bio.terra.buffer.service.resource.flight.CreateProjectStep.CONFIG_NAME_LABEL_LEY;
 import static bio.terra.buffer.service.resource.flight.CreateProjectStep.NETWORK_LABEL_KEY;
 import static bio.terra.buffer.service.resource.flight.CreateProjectStep.SUB_NETWORK_LABEL_KEY;
@@ -532,8 +532,13 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     Firewall leonardoSsl =
         computeCow.firewalls().get(projectId, LEONARDO_SSL_RULE_NAME_FOR_NETWORK).execute();
 
-    assertFirewallRuleMatch(ALLOW_INTERNAL.setNetwork(network.getSelfLink()), allowInternal);
-    assertFirewallRuleMatch(LEONARDO_SSL.setNetwork(network.getSelfLink()), leonardoSsl);
+    Firewall allowInternalExpected =
+        buildAllowInternalFirewallRule(network, ALLOW_INTERNAL_RULE_NAME_FOR_NETWORK);
+    Firewall leonardoSslExpected =
+        buildLeonardoSslFirewallRule(network, LEONARDO_SSL_RULE_NAME_FOR_NETWORK);
+
+    assertFirewallRuleMatch(allowInternalExpected, allowInternal);
+    assertFirewallRuleMatch(leonardoSslExpected, leonardoSsl);
   }
 
   private void assertFirewallRulesExistForDefaultVpc(Project project) throws Exception {
@@ -545,8 +550,13 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     Firewall leonardoSsl =
         computeCow.firewalls().get(projectId, LEONARDO_SSL_RULE_NAME_FOR_DEFAULT).execute();
 
-    assertFirewallRuleMatch(ALLOW_INTERNAL.setNetwork(network.getSelfLink()), allowInternal);
-    assertFirewallRuleMatch(LEONARDO_SSL.setNetwork(network.getSelfLink()), leonardoSsl);
+    Firewall allowInternalExpected =
+        buildAllowInternalFirewallRule(network, ALLOW_INTERNAL_RULE_NAME_FOR_DEFAULT);
+    Firewall leonardoSslExpected =
+        buildLeonardoSslFirewallRule(network, LEONARDO_SSL_RULE_NAME_FOR_DEFAULT);
+
+    assertFirewallRuleMatch(allowInternalExpected, allowInternal);
+    assertFirewallRuleMatch(leonardoSslExpected, leonardoSsl);
   }
 
   private void assertFirewallRuleMatch(Firewall expected, Firewall actual) {
