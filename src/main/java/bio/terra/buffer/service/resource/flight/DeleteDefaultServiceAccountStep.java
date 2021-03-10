@@ -2,7 +2,9 @@ package bio.terra.buffer.service.resource.flight;
 
 import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
 import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_NUMBER;
+import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.keepComputeEngineServiceAcct;
 
+import bio.terra.buffer.generated.model.GcpProjectConfig;
 import bio.terra.cloudres.google.iam.IamCow;
 import bio.terra.stairway.FlightContext;
 import bio.terra.stairway.Step;
@@ -21,13 +23,21 @@ import org.slf4j.LoggerFactory;
 public class DeleteDefaultServiceAccountStep implements Step {
   private final Logger logger = LoggerFactory.getLogger(DeleteDefaultServiceAccountStep.class);
   private final IamCow iamCow;
+  private final GcpProjectConfig gcpProjectConfig;
 
-  public DeleteDefaultServiceAccountStep(IamCow iamCow) {
+  public DeleteDefaultServiceAccountStep(IamCow iamCow, GcpProjectConfig gcpProjectConfig) {
     this.iamCow = iamCow;
+    this.gcpProjectConfig = gcpProjectConfig;
   }
 
   @Override
   public StepResult doStep(FlightContext flightContext) throws RetryException {
+    // TODO(PF-537): revisit whether we still need this flag after NF allows specifying a SA
+    if (keepComputeEngineServiceAcct(gcpProjectConfig)) {
+      logger.info("Skipping deletion of default compute engine service account");
+      return StepResult.getStepResultSuccess();
+    }
+
     String projectId = flightContext.getWorkingMap().get(GOOGLE_PROJECT_ID, String.class);
     Long projectNumber = flightContext.getWorkingMap().get(GOOGLE_PROJECT_NUMBER, Long.class);
     try {

@@ -1,6 +1,5 @@
 package bio.terra.buffer.service.resource.flight;
 
-import bio.terra.buffer.generated.model.GcpProjectConfig;
 import bio.terra.cloudres.google.api.services.common.OperationCow;
 import bio.terra.cloudres.google.api.services.common.OperationUtils;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
@@ -23,6 +22,9 @@ public class GoogleUtils {
 
   /** All project will use the same sub network name. */
   @VisibleForTesting public static final String SUBNETWORK_NAME = "subnetwork";
+
+  /** The name of the default network that exists in the project. */
+  public static final String DEFAULT_NETWORK_NAME = "default";
 
   /**
    * Poll until the Google Service API operation has completed. Throws any error or timeouts as a
@@ -60,13 +62,6 @@ public class GoogleUtils {
   /** Converts project id to name. */
   public static String projectIdToName(String projectId) {
     return "projects/" + projectId;
-  }
-
-  /** Checks if network monitoring is enabled from config. */
-  public static boolean isNetworkMonitoringEnabled(GcpProjectConfig gcpProjectConfig) {
-    return gcpProjectConfig.getNetwork() != null
-        && gcpProjectConfig.getNetwork().isEnableNetworkMonitoring() != null
-        && gcpProjectConfig.getNetwork().isEnableNetworkMonitoring();
   }
 
   /**
