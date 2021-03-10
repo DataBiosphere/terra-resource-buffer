@@ -72,8 +72,7 @@ public class CreateFirewallRuleStep implements Step {
       addFirewallRule(projectId, allowInternalRuleForNetwork).ifPresent(operationsToPoll::add);
       addFirewallRule(projectId, leonardoSslRuleForNetwork).ifPresent(operationsToPoll::add);
 
-      // TODO: revisit whether we still need this flag after NF allows specifying a network
-      // https://broadworkbench.atlassian.net/browse/PF-538
+      // TODO(PF-538): revisit whether we still need this flag after NF allows specifying a network
       // If the default network was not deleted, then create identical firewall rules for it.
       if (keepDefaultNetwork(gcpProjectConfig)) {
         Network defaultNetwork =

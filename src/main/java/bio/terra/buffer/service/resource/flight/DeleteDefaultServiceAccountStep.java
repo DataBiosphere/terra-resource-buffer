@@ -32,8 +32,7 @@ public class DeleteDefaultServiceAccountStep implements Step {
 
   @Override
   public StepResult doStep(FlightContext flightContext) throws RetryException {
-    // TODO: revisit whether we still need this flag after NF allows specifying a SA
-    // https://broadworkbench.atlassian.net/browse/PF-537
+    // TODO(PF-537): revisit whether we still need this flag after NF allows specifying a SA
     if (keepComputeEngineServiceAcct(gcpProjectConfig)) {
       logger.info("Skipping deletion of default compute engine service account");
       return StepResult.getStepResultSuccess();

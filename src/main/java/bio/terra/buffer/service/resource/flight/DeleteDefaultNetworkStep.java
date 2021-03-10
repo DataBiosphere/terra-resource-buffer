@@ -32,8 +32,7 @@ public class DeleteDefaultNetworkStep implements Step {
 
   @Override
   public StepResult doStep(FlightContext flightContext) throws RetryException {
-    // TODO: revisit whether we still need this flag after NF allows specifying a network
-    // https://broadworkbench.atlassian.net/browse/PF-538
+    // TODO(PF-538): revisit whether we still need this flag after NF allows specifying a network
     if (keepDefaultNetwork(gcpProjectConfig)) {
       logger.info("Skipping deletion of default network");
       return StepResult.getStepResultSuccess();
