@@ -49,13 +49,13 @@ public class GoogleProjectCreationFlight extends Flight {
     addStep(new SetIamPolicyStep(rmCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
     addStep(
         new CreateStorageLogBucketStep(clientConfig, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
-    addStep(new DeleteDefaultServiceAccountStep(iamCow), CLOUD_API_DEFAULT_RETRY);
+    addStep(new DeleteDefaultServiceAccountStep(iamCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
     addStep(new DeleteDefaultFirewallRulesStep(cloudComputeCow), CLOUD_API_DEFAULT_RETRY);
     addStep(
         new DeleteDefaultNetworkStep(cloudComputeCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
     addStep(new CreateNetworkStep(cloudComputeCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
     addStep(new CreateRouteStep(cloudComputeCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
-    addStep(new CreateFirewallRuleStep(cloudComputeCow), CLOUD_API_DEFAULT_RETRY);
+    addStep(new CreateFirewallRuleStep(cloudComputeCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
     addStep(new CreateSubnetsStep(cloudComputeCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
     addStep(
         new CreateDnsZoneStep(cloudComputeCow, dnsCow, gcpProjectConfig), CLOUD_API_DEFAULT_RETRY);
