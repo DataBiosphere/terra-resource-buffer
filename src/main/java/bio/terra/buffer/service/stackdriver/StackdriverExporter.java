@@ -28,7 +28,7 @@ public class StackdriverExporter {
     try {
       StackdriverStatsExporter.createAndRegister();
     } catch (IOException e) {
-      logger.error("Unable to initialize Stackdriver exporting.", e);
+      logger.error("Unable to initialize Stackdriver stats exporting.", e);
     }
   }
 }
