@@ -25,7 +25,7 @@ public class KubernetesComponent {
     return kubeService;
   }
 
-  /** Returns {@link true} if in Kubernetes. */
+  /** Returns {@code true} if in Kubernetes. */
   public boolean isInKubernetes() {
     return kubernetesConfiguration.isInKubernetes();
   }
