@@ -57,8 +57,6 @@ allprojects {
 
 repositories {
     mavenCentral()
-    // TODO DO NOT SUBMIT consider what to do for maven local
-    mavenLocal()
     maven {
         url 'https://broadinstitute.jfrog.io/broadinstitute/libs-release/'
     }
@@ -70,8 +68,7 @@ repositories {
 dependencies {
     // Terra deps
     implementation group: 'bio.terra', name: 'stairway', version: '0.0.38-SNAPSHOT'
-    // TODO DO NOT SUBMIT Update version isntead of using local jar.
-    implementation group: "bio.terra", name: "terra-common-lib", version: "0.0.23-LOCAL"
+    implementation group: "bio.terra", name: "terra-common-lib", version: "0.0.25-SNAPSHOT"
     implementation group: 'bio.terra.cloud-resource-lib', name: 'cloud-resource-schema'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-billing', version: '0.4.0'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-cloudresourcemanager', version: '0.4.0'
