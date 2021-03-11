@@ -23,4 +23,8 @@ buffer:
     force-clean-start: true
     migrate-upgrade: true
 
+terra.common:
+  tracing:
+    stackdriverExportEnabled: false
+
 spring.profiles.include: human-readable-logging
