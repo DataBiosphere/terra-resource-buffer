@@ -6,7 +6,7 @@ import bio.terra.buffer.common.ResourceId;
 import bio.terra.buffer.common.ResourceState;
 import bio.terra.buffer.common.ResourceType;
 import bio.terra.buffer.db.BufferDao;
-import bio.terra.buffer.service.stairway.StairwayComponent;
+import bio.terra.common.stairway.StairwayComponent;
 import bio.terra.stairway.Stairway;
 import bio.terra.stairway.exception.StairwayException;
 import java.time.Instant;

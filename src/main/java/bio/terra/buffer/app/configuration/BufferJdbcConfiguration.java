@@ -1,5 +1,6 @@
 package bio.terra.buffer.app.configuration;
 
+import bio.terra.common.db.JdbcConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;

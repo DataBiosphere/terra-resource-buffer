@@ -9,7 +9,7 @@ import bio.terra.buffer.db.BufferDao;
 import bio.terra.buffer.generated.model.*;
 import bio.terra.buffer.service.resource.FlightMapKeys;
 import bio.terra.buffer.service.resource.FlightSubmissionFactory;
-import bio.terra.buffer.service.stairway.StairwayComponent;
+import bio.terra.common.stairway.StairwayComponent;
 import bio.terra.stairway.Flight;
 import bio.terra.stairway.FlightMap;
 import bio.terra.stairway.FlightState;

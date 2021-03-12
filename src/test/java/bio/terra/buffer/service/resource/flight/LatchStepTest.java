@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.buffer.common.BaseUnitTest;
-import bio.terra.buffer.service.stairway.StairwayComponent;
+import bio.terra.common.stairway.StairwayComponent;
 import bio.terra.stairway.Flight;
 import bio.terra.stairway.FlightMap;
 import java.util.concurrent.TimeUnit;

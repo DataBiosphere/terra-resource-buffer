@@ -4,7 +4,7 @@ import bio.terra.buffer.app.configuration.BufferJdbcConfiguration;
 import bio.terra.buffer.generated.controller.UnauthenticatedApi;
 import bio.terra.buffer.generated.model.SystemStatus;
 import bio.terra.buffer.generated.model.SystemStatusSystems;
-import bio.terra.buffer.service.stairway.StairwayComponent;
+import bio.terra.common.stairway.StairwayComponent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.Connection;
 import java.util.Optional;

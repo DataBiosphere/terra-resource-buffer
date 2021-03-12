@@ -10,7 +10,7 @@ import bio.terra.buffer.generated.model.HandoutRequestBody;
 import bio.terra.buffer.generated.model.PoolInfo;
 import bio.terra.buffer.generated.model.ResourceInfo;
 import bio.terra.buffer.service.pool.PoolService;
-import bio.terra.buffer.service.stairway.StairwayComponent;
+import bio.terra.common.stairway.StairwayComponent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
