@@ -10,6 +10,7 @@ public class PoolIdTest extends BaseUnitTest {
   public void storeAndRetrieveFromFlightMap() throws Exception {
     PoolId id = PoolId.create("poolId");
     FlightMap flightMap = new FlightMap();
+    flightMap.put("key", 123);
     id.store(flightMap);
     assertEquals(id, PoolId.retrieve(flightMap));
   }
