@@ -27,6 +27,9 @@ buffer:
     quiet-down-timeout: 20s
     terminate-timeout: 5s
 
+# Turn on debug-level logs for CRL, to include all CRL operation payloads.
+logging.level.bio.terra.cloudres: DEBUG
+
 server:
   compression:
     enabled: true
