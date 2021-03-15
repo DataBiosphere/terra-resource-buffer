@@ -15,6 +15,7 @@ buffer:
     update-pool-on-start: false
   stackdriver:
     enabled: false
+common:
   stairway:
     db:
       password: dbpwd_stairway
