@@ -14,20 +14,20 @@ buffer:
     # Whether to update pool when config changes during server startup.
     # Might be useful to avoid potential backward compatibility caused by config change and make tests easier.
     update-pool-on-start: true
-#terra:
-common:
-  stairway:
-    db:
-      password:
-      uri: jdbc:postgresql://127.0.0.1:5432/${BUFFER_STAIRWAY_DATABASE_NAME}
-      username:
-    force-clean-start: false
-    # This decides how soon we can fill a pool. Example: if total pools size is 3000 and each flight takes 10 minutes.
-    # having 500 here means it takes 3000 resources / 500 threads * 10minute = 60 minutes to create this pool
-    max-parallel-flights: 500
-    migrate-upgrade: true
-    quiet-down-timeout: 20s
-    terminate-timeout: 5s
+terra:
+  common:
+    stairway:
+      db:
+        password:
+        uri: jdbc:postgresql://127.0.0.1:5432/${BUFFER_STAIRWAY_DATABASE_NAME}
+        username:
+      force-clean-start: false
+      # This decides how soon we can fill a pool. Example: if total pools size is 3000 and each flight takes 10 minutes.
+      # having 500 here means it takes 3000 resources / 500 threads * 10minute = 60 minutes to create this pool
+      max-parallel-flights: 500
+      migrate-upgrade: true
+      quiet-down-timeout: 20s
+      terminate-timeout: 5s
 
 server:
   compression:

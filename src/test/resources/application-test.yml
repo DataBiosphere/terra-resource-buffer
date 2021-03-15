@@ -15,13 +15,14 @@ buffer:
     update-pool-on-start: false
   stackdriver:
     enabled: false
-common:
-  stairway:
-    db:
-      password: dbpwd_stairway
-      uri: jdbc:postgresql://127.0.0.1:5432/testdb_stairway
-      username: dbuser_stairway
-    force-clean-start: true
-    migrate-upgrade: true
+terra:
+  common:
+    stairway:
+      db:
+        password: dbpwd_stairway
+        uri: jdbc:postgresql://127.0.0.1:5432/testdb_stairway
+        username: dbuser_stairway
+      force-clean-start: true
+      migrate-upgrade: true
 
 spring.profiles.include: human-readable-logging
