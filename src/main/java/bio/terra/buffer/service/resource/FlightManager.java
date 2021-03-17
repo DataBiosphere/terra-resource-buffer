@@ -6,7 +6,7 @@ import bio.terra.buffer.common.ResourceId;
 import bio.terra.buffer.common.ResourceState;
 import bio.terra.buffer.common.ResourceType;
 import bio.terra.buffer.db.BufferDao;
-import bio.terra.common.stairway.StairwayComponent;
+import bio.terra.common.stairway.StairwayLifecycleManager;
 import bio.terra.stairway.Stairway;
 import bio.terra.stairway.exception.StairwayException;
 import java.time.Instant;
@@ -33,11 +33,11 @@ public class FlightManager {
   public FlightManager(
       BufferDao bufferDao,
       FlightSubmissionFactory flightSubmissionFactory,
-      StairwayComponent stairwayComponent,
+      StairwayLifecycleManager stairwayLifecycleManager,
       TransactionTemplate transactionTemplate) {
     this.bufferDao = bufferDao;
     this.flightSubmissionFactory = flightSubmissionFactory;
-    this.stairway = stairwayComponent.get();
+    this.stairway = stairwayLifecycleManager.get();
     this.transactionTemplate = transactionTemplate;
   }
 

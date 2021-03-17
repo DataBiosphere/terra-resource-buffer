@@ -10,7 +10,7 @@ import bio.terra.buffer.generated.model.HandoutRequestBody;
 import bio.terra.buffer.generated.model.PoolInfo;
 import bio.terra.buffer.generated.model.ResourceInfo;
 import bio.terra.buffer.service.pool.PoolService;
-import bio.terra.common.stairway.StairwayComponent;
+import bio.terra.common.stairway.StairwayLifecycleManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
@@ -23,16 +23,16 @@ import org.springframework.stereotype.Controller;
 @Controller
 public class BufferApiController implements BufferApi {
   private final NamedParameterJdbcTemplate jdbcTemplate;
-  private final StairwayComponent stairwayComponent;
+  private final StairwayLifecycleManager stairwayLifecycleManager;
   private final PoolService poolService;
 
   @Autowired
   BufferApiController(
       BufferJdbcConfiguration jdbcConfiguration,
-      StairwayComponent stairwayComponent,
+      StairwayLifecycleManager stairwayLifecycleManager,
       PoolService poolService) {
     this.jdbcTemplate = new NamedParameterJdbcTemplate(jdbcConfiguration.getDataSource());
-    this.stairwayComponent = stairwayComponent;
+    this.stairwayLifecycleManager = stairwayLifecycleManager;
     this.poolService = poolService;
   }
 

@@ -6,7 +6,7 @@ import static org.mockito.Mockito.*;
 import bio.terra.buffer.common.*;
 import bio.terra.buffer.db.BufferDao;
 import bio.terra.buffer.generated.model.ResourceConfig;
-import bio.terra.common.stairway.StairwayComponent;
+import bio.terra.common.stairway.StairwayLifecycleManager;
 import bio.terra.stairway.Stairway;
 import bio.terra.stairway.exception.StairwayExecutionException;
 import com.google.common.collect.ImmutableList;
@@ -23,7 +23,10 @@ import org.springframework.transaction.support.TransactionTemplate;
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class FlightManagerTest extends BaseUnitTest {
-  @Mock private final StairwayComponent mockStairwayComponent = mock(StairwayComponent.class);
+  @Mock
+  private final StairwayLifecycleManager mockStairwayLifecycleManager =
+      mock(StairwayLifecycleManager.class);
+
   @Mock private final Stairway mockStairway = mock(Stairway.class);
 
   @Autowired private BufferDao bufferDao;
@@ -34,7 +37,7 @@ public class FlightManagerTest extends BaseUnitTest {
 
   @BeforeEach
   public void setup() throws Exception {
-    when(mockStairwayComponent.get()).thenReturn(mockStairway);
+    when(mockStairwayLifecycleManager.get()).thenReturn(mockStairway);
     when(mockStairway.createFlightId()).thenReturn("flightId");
     doThrow(new StairwayExecutionException("test"))
         .when(mockStairway)
@@ -42,7 +45,7 @@ public class FlightManagerTest extends BaseUnitTest {
 
     flightManager =
         new FlightManager(
-            bufferDao, flightSubmissionFactory, mockStairwayComponent, transactionTemplate);
+            bufferDao, flightSubmissionFactory, mockStairwayLifecycleManager, transactionTemplate);
   }
 
   @Test

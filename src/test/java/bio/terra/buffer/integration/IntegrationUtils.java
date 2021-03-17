@@ -9,7 +9,7 @@ import bio.terra.buffer.db.BufferDao;
 import bio.terra.buffer.generated.model.*;
 import bio.terra.buffer.service.resource.FlightMapKeys;
 import bio.terra.buffer.service.resource.FlightSubmissionFactory;
-import bio.terra.common.stairway.StairwayComponent;
+import bio.terra.common.stairway.StairwayLifecycleManager;
 import bio.terra.stairway.Flight;
 import bio.terra.stairway.FlightMap;
 import bio.terra.stairway.FlightState;
@@ -69,13 +69,13 @@ public class IntegrationUtils {
 
   /** Poll until flight finished, and return {@link FlightState}. */
   public static FlightState blockUntilFlightComplete(
-      StairwayComponent stairwayComponent, String flightId)
+      StairwayLifecycleManager stairwayLifecycleManager, String flightId)
       throws InterruptedException, DatabaseOperationException {
     Duration maxWait = Duration.ofSeconds(500);
     Duration waited = Duration.ZERO;
     while (waited.compareTo(maxWait) < 0) {
-      if (!stairwayComponent.get().getFlightState(flightId).isActive()) {
-        return stairwayComponent.get().getFlightState(flightId);
+      if (!stairwayLifecycleManager.get().getFlightState(flightId).isActive()) {
+        return stairwayLifecycleManager.get().getFlightState(flightId);
       }
       Duration poll = Duration.ofMillis(4000);
       waited = waited.plus(Duration.ofMillis(poll.toMillis()));

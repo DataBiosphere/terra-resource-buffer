@@ -24,7 +24,7 @@ import bio.terra.buffer.service.resource.flight.ErrorStep;
 import bio.terra.buffer.service.resource.flight.GoogleProjectDeletionFlight;
 import bio.terra.buffer.service.resource.flight.LatchStep;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
-import bio.terra.common.stairway.StairwayComponent;
+import bio.terra.common.stairway.StairwayLifecycleManager;
 import bio.terra.stairway.Flight;
 import bio.terra.stairway.FlightMap;
 import bio.terra.stairway.FlightStatus;
@@ -43,7 +43,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class DeleteProjectFlightIntegrationTest extends BaseIntegrationTest {
   @Autowired BufferDao bufferDao;
-  @Autowired StairwayComponent stairwayComponent;
+  @Autowired StairwayLifecycleManager stairwayLifecycleManager;
   @Autowired CloudResourceManagerCow rmCow;
   @Autowired FlightSubmissionFactoryImpl flightSubmissionFactoryImpl;
   @Autowired TransactionTemplate transactionTemplate;
@@ -52,20 +52,20 @@ public class DeleteProjectFlightIntegrationTest extends BaseIntegrationTest {
   public void testDeleteGoogleProject_success() throws Exception {
     FlightManager manager =
         new FlightManager(
-            bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
+            bufferDao, flightSubmissionFactoryImpl, stairwayLifecycleManager, transactionTemplate);
     Pool pool = preparePool(bufferDao, newFullGcpConfig());
 
     String createFlightId = manager.submitCreationFlight(pool).get();
     ResourceId resourceId =
         extractResourceIdFromFlightState(
-            blockUntilFlightComplete(stairwayComponent, createFlightId));
+            blockUntilFlightComplete(stairwayLifecycleManager, createFlightId));
     Project project = assertProjectExists(resourceId);
     Resource resource =
         bufferDao.retrieveResourcesRandomly(pool.id(), ResourceState.READY, 1).get(0);
 
     String deleteFlightId =
         manager.submitDeletionFlight(resource, ResourceType.GOOGLE_PROJECT).get();
-    blockUntilFlightComplete(stairwayComponent, deleteFlightId);
+    blockUntilFlightComplete(stairwayLifecycleManager, deleteFlightId);
 
     assertProjectDeleting(project.getProjectId());
   }
@@ -74,13 +74,13 @@ public class DeleteProjectFlightIntegrationTest extends BaseIntegrationTest {
   public void testDeleteGoogleProject_fatalIfHasError() throws Exception {
     FlightManager manager =
         new FlightManager(
-            bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
+            bufferDao, flightSubmissionFactoryImpl, stairwayLifecycleManager, transactionTemplate);
     Pool pool = preparePool(bufferDao, newBasicGcpConfig());
 
     String createFlightId = manager.submitCreationFlight(pool).get();
     ResourceId resourceId =
         extractResourceIdFromFlightState(
-            blockUntilFlightComplete(stairwayComponent, createFlightId));
+            blockUntilFlightComplete(stairwayLifecycleManager, createFlightId));
     Resource resource = bufferDao.retrieveResource(resourceId).get();
 
     // An errors occurs after resource deleted. Expect project is deleted, but we resource state is
@@ -89,14 +89,14 @@ public class DeleteProjectFlightIntegrationTest extends BaseIntegrationTest {
         new FlightManager(
             bufferDao,
             new StubSubmissionFlightFactory(ErrorAfterDeleteResourceFlight.class),
-            stairwayComponent,
+            stairwayLifecycleManager,
             transactionTemplate);
     String deleteFlightId =
         errorManager.submitDeletionFlight(resource, ResourceType.GOOGLE_PROJECT).get();
-    blockUntilFlightComplete(stairwayComponent, deleteFlightId);
+    blockUntilFlightComplete(stairwayLifecycleManager, deleteFlightId);
     assertEquals(
         FlightStatus.FATAL,
-        stairwayComponent.get().getFlightState(deleteFlightId).getFlightStatus());
+        stairwayLifecycleManager.get().getFlightState(deleteFlightId).getFlightStatus());
   }
 
   @Test
@@ -117,7 +117,7 @@ public class DeleteProjectFlightIntegrationTest extends BaseIntegrationTest {
         new FlightManager(
             bufferDao,
             new StubSubmissionFlightFactory(LatchBeforeAssertResourceStep.class),
-            stairwayComponent,
+            stairwayLifecycleManager,
             transactionTemplate);
     String deleteFlightId =
         manager.submitDeletionFlight(resource, ResourceType.GOOGLE_PROJECT).get();
@@ -127,12 +127,13 @@ public class DeleteProjectFlightIntegrationTest extends BaseIntegrationTest {
 
     // Release the latch, and resume the flight, assert flight failed.
     LatchStep.releaseLatch();
-    extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, deleteFlightId));
+    extractResourceIdFromFlightState(
+        blockUntilFlightComplete(stairwayLifecycleManager, deleteFlightId));
     // Resource is deleted.
     assertFalse(bufferDao.retrieveResource(resource.id()).isPresent());
     assertEquals(
         FlightStatus.ERROR,
-        stairwayComponent.get().getFlightState(deleteFlightId).getFlightStatus());
+        stairwayLifecycleManager.get().getFlightState(deleteFlightId).getFlightStatus());
   }
 
   private Project assertProjectExists(ResourceId resourceId) throws Exception {

@@ -6,7 +6,7 @@ import bio.terra.buffer.service.pool.PoolService;
 import bio.terra.buffer.service.resource.FlightScheduler;
 import bio.terra.buffer.service.stackdriver.StackdriverExporter;
 import bio.terra.common.migrate.LiquibaseMigrator;
-import bio.terra.common.stairway.StairwayComponent;
+import bio.terra.common.stairway.StairwayLifecycleManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -31,7 +31,7 @@ public final class StartupInitializer {
     } else if (bufferJdbcConfiguration.isUpdateDbOnStart()) {
       migrateService.upgrade(changelogPath, bufferJdbcConfiguration.getDataSource());
     }
-    applicationContext.getBean(StairwayComponent.class).initialize();
+    applicationContext.getBean(StairwayLifecycleManager.class).initialize();
     applicationContext.getBean(PoolService.class).initialize();
     applicationContext.getBean(FlightScheduler.class).initialize();
     applicationContext.getBean(CleanupScheduler.class).initialize();

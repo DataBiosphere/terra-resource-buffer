@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.buffer.common.BaseUnitTest;
-import bio.terra.common.stairway.StairwayComponent;
+import bio.terra.common.stairway.StairwayLifecycleManager;
 import bio.terra.stairway.Flight;
 import bio.terra.stairway.FlightMap;
 import java.util.concurrent.TimeUnit;
@@ -20,20 +20,20 @@ import org.springframework.test.annotation.DirtiesContext;
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class LatchStepTest extends BaseUnitTest {
-  @Autowired StairwayComponent stairwayComponent;
+  @Autowired StairwayLifecycleManager stairwayLifecycleManager;
 
   @Test
   public void latchBlocksUntilReleased() throws Exception {
-    String flightId = stairwayComponent.get().createFlightId();
-    stairwayComponent.get().submit(flightId, LatchFlight.class, new FlightMap());
+    String flightId = stairwayLifecycleManager.get().createFlightId();
+    stairwayLifecycleManager.get().submit(flightId, LatchFlight.class, new FlightMap());
 
     LatchStep.startNewLatch();
     TimeUnit.SECONDS.sleep(2);
-    assertTrue(stairwayComponent.get().getFlightState(flightId).isActive());
+    assertTrue(stairwayLifecycleManager.get().getFlightState(flightId).isActive());
 
     LatchStep.releaseLatch();
     TimeUnit.SECONDS.sleep(2);
-    assertFalse(stairwayComponent.get().getFlightState(flightId).isActive());
+    assertFalse(stairwayLifecycleManager.get().getFlightState(flightId).isActive());
   }
 
   public static class LatchFlight extends Flight {

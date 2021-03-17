@@ -11,7 +11,7 @@ import bio.terra.buffer.common.*;
 import bio.terra.buffer.common.testing.MetricsTestUtil;
 import bio.terra.buffer.db.*;
 import bio.terra.buffer.generated.model.ResourceConfig;
-import bio.terra.common.stairway.StairwayComponent;
+import bio.terra.common.stairway.StairwayLifecycleManager;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultiset;
 import com.google.common.collect.Multiset;
@@ -38,7 +38,7 @@ public class FlightSchedulerTest extends BaseUnitTest {
       ArgumentCaptor.forClass(Resource.class);
 
   @Autowired BufferDao bufferDao;
-  @Autowired StairwayComponent stairwayComponent;
+  @Autowired StairwayLifecycleManager stairwayLifecycleManager;
   @MockBean FlightManager flightManager;
 
   private void initializeScheduler() {
@@ -47,7 +47,8 @@ public class FlightSchedulerTest extends BaseUnitTest {
 
   private void initializeScheduler(PrimaryConfiguration primaryConfiguration) {
     flightScheduler =
-        new FlightScheduler(flightManager, primaryConfiguration, stairwayComponent, bufferDao);
+        new FlightScheduler(
+            flightManager, primaryConfiguration, stairwayLifecycleManager, bufferDao);
     flightScheduler.initialize();
   }
 
