@@ -20,7 +20,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 @Configuration
 public class ApplicationConfiguration {
   @Bean(JDBC_TEMPLATE)
-  public NamedParameterJdbcTemplate getNamedParameterJdbcTemplate(BufferJdbcConfiguration config) {
+  public NamedParameterJdbcTemplate getNamedParameterJdbcTemplate(BufferJdbcThing config) {
     return new NamedParameterJdbcTemplate(config.getDataSource());
   }
 

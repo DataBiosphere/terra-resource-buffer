@@ -1,6 +1,6 @@
 package bio.terra.buffer.app;
 
-import bio.terra.buffer.app.configuration.BufferJdbcConfiguration;
+import bio.terra.buffer.app.configuration.BufferJdbcThing;
 import bio.terra.buffer.service.cleanup.CleanupScheduler;
 import bio.terra.buffer.service.pool.PoolService;
 import bio.terra.buffer.service.resource.FlightScheduler;
@@ -23,8 +23,8 @@ public final class StartupInitializer {
     applicationContext.getBean(StackdriverExporter.class).initialize();
     // Initialize or upgrade the database depending on the configuration
     LiquibaseMigrator migrateService = applicationContext.getBean(LiquibaseMigrator.class);
-    BufferJdbcConfiguration bufferJdbcConfiguration =
-        applicationContext.getBean(BufferJdbcConfiguration.class);
+    BufferJdbcThing bufferJdbcConfiguration =
+        applicationContext.getBean(BufferJdbcThing.class);
 
     if (bufferJdbcConfiguration.isRecreateDbOnStart()) {
       migrateService.initialize(changelogPath, bufferJdbcConfiguration.getDataSource());

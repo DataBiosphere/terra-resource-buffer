@@ -1,6 +1,7 @@
 package bio.terra.buffer.app.configuration;
 
-import bio.terra.common.db.JdbcConfiguration;
+import bio.terra.common.db.JdbcConfig;
+import bio.terra.common.db.JdbcProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -13,7 +14,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableConfigurationProperties
 @EnableTransactionManagement
 @ConfigurationProperties(prefix = "buffer.db")
-public class BufferJdbcConfiguration extends JdbcConfiguration {
+public class BufferJdbcThing extends JdbcProperties {
   // These properties control code in the StartupInitializer. We would not use these in production,
   // but they are handy to set for development and testing. There are only three interesting states:
   // 1. recreateDbOnStart is true; updateDbOnStart is irrelevant - initialize and recreate an empty
