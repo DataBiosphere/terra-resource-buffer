@@ -11,6 +11,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
 import java.util.*;
+import org.apache.commons.dbcp2.PoolableConnection;
+import org.apache.commons.dbcp2.PoolingDataSource;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,15 +24,14 @@ import org.springframework.test.annotation.DirtiesContext;
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class BufferDaoTest extends BaseUnitTest {
-  @Autowired
-  BufferJdbcThing jdbcConfiguration;
+  @Autowired BufferJdbcThing jdbcConfiguration;
   @Autowired BufferDao bufferDao;
-
+  @Autowired PoolingDataSource<PoolableConnection> dataSource;
   private NamedParameterJdbcTemplate jdbcTemplate;
 
   @BeforeEach
   public void setup() {
-    jdbcTemplate = new NamedParameterJdbcTemplate(jdbcConfiguration.getDataSource());
+    jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
   }
 
   private static Pool newPool(PoolId poolId) {

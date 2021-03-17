@@ -14,6 +14,8 @@ import bio.terra.common.stairway.StairwayLifecycleManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.dbcp2.PoolableConnection;
+import org.apache.commons.dbcp2.PoolingDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,8 +32,9 @@ public class BufferApiController implements BufferApi {
   BufferApiController(
       BufferJdbcThing jdbcConfiguration,
       StairwayLifecycleManager stairwayLifecycleManager,
-      PoolService poolService) {
-    this.jdbcTemplate = new NamedParameterJdbcTemplate(jdbcConfiguration.getDataSource());
+      PoolService poolService,
+      PoolingDataSource<PoolableConnection> dataSource) {
+    this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     this.stairwayLifecycleManager = stairwayLifecycleManager;
     this.poolService = poolService;
   }

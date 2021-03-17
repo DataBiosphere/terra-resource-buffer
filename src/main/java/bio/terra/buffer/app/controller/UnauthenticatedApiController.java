@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.Connection;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.dbcp2.PoolableConnection;
+import org.apache.commons.dbcp2.PoolingDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,8 +25,9 @@ public class UnauthenticatedApiController implements UnauthenticatedApi {
   @Autowired
   UnauthenticatedApiController(
       BufferJdbcThing jdbcConfiguration,
-      StairwayLifecycleManager StairwayLifecycleManager) {
-    this.jdbcTemplate = new NamedParameterJdbcTemplate(jdbcConfiguration.getDataSource());
+      StairwayLifecycleManager StairwayLifecycleManager,
+      PoolingDataSource<PoolableConnection> dataSource) {
+    this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     this.stairwayLifecycleManager = StairwayLifecycleManager;
   }
 
