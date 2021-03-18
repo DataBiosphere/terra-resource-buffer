@@ -3,9 +3,9 @@ package bio.terra.buffer.service.stairway;
 import static com.google.cloud.ServiceOptions.getDefaultProjectId;
 
 import bio.terra.buffer.app.configuration.StairwayConfiguration;
-import bio.terra.buffer.app.configuration.StairwayJdbcConfiguration;
 import bio.terra.buffer.service.kubernetes.KubernetesComponent;
 import bio.terra.common.kubernetes.KubeService;
+import bio.terra.common.stairway.StairwayJdbcConfiguration;
 import bio.terra.common.stairway.TracingHook;
 import bio.terra.stairway.Stairway;
 import bio.terra.stairway.exception.StairwayException;
@@ -76,7 +76,8 @@ public class StairwayComponent {
 
   public void initialize() {
     logger.info("Initializing Stairway...");
-    logger.info("stairway username {}", stairwayJdbcConfiguration.getUsername());
+    logger.info(
+        "stairway username {}", stairwayJdbcConfiguration.getJdbcProperties().getUsername());
     try {
       // TODO(PF-161): Determine if Stairway and buffer database migrations need to be coordinated.
       List<String> recordedStairways =

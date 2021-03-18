@@ -1,14 +1,18 @@
 package bio.terra.buffer.app.configuration;
 
 import java.util.Properties;
-import org.apache.commons.dbcp2.*;
+import org.apache.commons.dbcp2.ConnectionFactory;
+import org.apache.commons.dbcp2.DriverManagerConnectionFactory;
+import org.apache.commons.dbcp2.PoolableConnection;
+import org.apache.commons.dbcp2.PoolableConnectionFactory;
+import org.apache.commons.dbcp2.PoolingDataSource;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.commons.pool2.ObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 
 /** Base class for accessing JDBC configuration properties. */
-public class JdbcConfiguration {
+public class JdbcConfiguration2 {
   private String uri;
   private String username;
   private String password;
