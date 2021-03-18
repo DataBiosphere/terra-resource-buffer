@@ -3,7 +3,7 @@ package bio.terra.buffer.db;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-import bio.terra.buffer.app.configuration.BufferJdbcThing;
+import bio.terra.buffer.app.configuration.BufferJdbcConfiguration;
 import bio.terra.buffer.common.*;
 import bio.terra.buffer.common.PoolStatus;
 import bio.terra.buffer.generated.model.*;
@@ -24,7 +24,7 @@ import org.springframework.test.annotation.DirtiesContext;
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class BufferDaoTest extends BaseUnitTest {
-  @Autowired BufferJdbcThing jdbcConfiguration;
+  @Autowired BufferJdbcConfiguration jdbcConfiguration;
   @Autowired BufferDao bufferDao;
   @Autowired PoolingDataSource<PoolableConnection> dataSource;
   private NamedParameterJdbcTemplate jdbcTemplate;

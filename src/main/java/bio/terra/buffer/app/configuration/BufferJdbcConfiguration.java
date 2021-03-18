@@ -1,6 +1,5 @@
 package bio.terra.buffer.app.configuration;
 
-import bio.terra.common.db.JdbcProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -10,7 +9,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableConfigurationProperties
 @EnableTransactionManagement
 @ConfigurationProperties(prefix = "buffer.db")
-public class BufferJdbcThing extends JdbcProperties {
+public class BufferJdbcConfiguration {
   // These properties control code in the StartupInitializer. We would not use these in production,
   // but they are handy to set for development and testing. There are only three interesting states:
   // 1. recreateDbOnStart is true; updateDbOnStart is irrelevant - initialize and recreate an empty
@@ -36,11 +35,4 @@ public class BufferJdbcThing extends JdbcProperties {
   public void setUpdateDbOnStart(boolean updateDbOnStart) {
     this.updateDbOnStart = updateDbOnStart;
   }
-
-  // This bean plus the @EnableTransactionManagement annotation above enables the use of the
-  // @Transaction annotation to control the transaction properties of the data source.
-  //  @Bean("transactionManager")
-  //  public PlatformTransactionManager getTransactionManager() {
-  //    return new DataSourceTransactionManager(getDataSource());
-  //  }
 }
