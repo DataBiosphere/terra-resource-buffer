@@ -1,5 +1,6 @@
 package bio.terra.buffer.db;
 
+import static bio.terra.buffer.app.configuration.BeanNames.BUFFER_DB_DATA_SOURCE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -26,10 +27,12 @@ import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+import javax.sql.DataSource;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
@@ -40,11 +43,15 @@ public class BufferDaoTest extends BaseUnitTest {
   @Autowired BufferDatabaseConfiguration jdbcConfiguration;
   @Autowired BufferDao bufferDao;
 
+  @Autowired
+  @Qualifier(BUFFER_DB_DATA_SOURCE)
+  DataSource dataSource;
+
   private NamedParameterJdbcTemplate jdbcTemplate;
 
   @BeforeEach
   public void setup() {
-    jdbcTemplate = new NamedParameterJdbcTemplate(jdbcConfiguration.getDataSource());
+    jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
   }
 
   private static Pool newPool(PoolId poolId) {

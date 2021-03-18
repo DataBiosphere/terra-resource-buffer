@@ -1,6 +1,6 @@
 package bio.terra.buffer.app.configuration;
 
-import static bio.terra.buffer.app.configuration.BeanNames.BUFFER_DB_DATA_SOURCE;
+import static bio.terra.buffer.app.configuration.BeanNames.STAIRWAY_DB_DATA_SOURCE;
 
 import bio.terra.common.db.DataSourceInitializer;
 import javax.sql.DataSource;
@@ -17,7 +17,7 @@ public class StairwayDatabaseConfiguration {
     this.databaseProperties = databaseProperties;
   }
 
-  @Bean(BUFFER_DB_DATA_SOURCE)
+  @Bean(STAIRWAY_DB_DATA_SOURCE)
   public DataSource getStairwayDbDataSource() {
     return DataSourceInitializer.initializeDataSource(databaseProperties);
   }
