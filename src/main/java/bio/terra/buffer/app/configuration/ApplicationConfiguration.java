@@ -25,6 +25,13 @@ public class ApplicationConfiguration {
   @Bean(JDBC_TEMPLATE)
   public NamedParameterJdbcTemplate getNamedParameterJdbcTemplate(
       @Qualifier(BUFFER_DB_DATA_SOURCE) DataSource dataSource) {
+    System.out.println("~~~~~~~~~~~~222");
+    System.out.println("~~~~~~~~~~~~222");
+    System.out.println("~~~~~~~~~~~~2222");
+    System.out.println("~~~~~~~~~~~~222");
+    System.out.println("~~~~~~~~~~~~22222");
+    System.out.println(dataSource);
+    System.out.println(dataSource.toString());
     return new NamedParameterJdbcTemplate(dataSource);
   }
 

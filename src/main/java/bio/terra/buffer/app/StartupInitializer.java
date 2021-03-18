@@ -31,6 +31,12 @@ public final class StartupInitializer {
     DataSource bufferDbDataSource =
         applicationContext.getBeansOfType(DataSource.class).get(BUFFER_DB_DATA_SOURCE);
 
+    System.out.println("!!!!!!!!!!~~~~~~~");
+    System.out.println("!!!!!!!!!!~~~~~~~");
+    System.out.println("!!!!!!!!!!~~~~~~~");
+    System.out.println("!!!!!!!!!!~~~~~~~");
+    System.out.println(bufferDbDataSource);
+    System.out.println(bufferDbDataSource.toString());
     if (bufferDatabaseConfiguration.isRecreateDbOnStart()) {
       migrateService.initialize(changelogPath, bufferDbDataSource);
     } else if (bufferDatabaseConfiguration.isUpdateDbOnStart()) {
