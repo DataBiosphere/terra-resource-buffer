@@ -48,8 +48,6 @@ allprojects {
 }
 
 repositories {
-//  Uncomment to read from the local Maven cache.
-//	mavenLocal()
     mavenCentral()
     maven {
         url 'https://broadinstitute.jfrog.io/broadinstitute/libs-release/'
