@@ -25,4 +25,13 @@ buffer:
         uri: jdbc:postgresql://127.0.0.1:5432/testdb_stairway
         username: dbuser_stairway
 
+terra.common:
+  tracing:
+    stackdriverExportEnabled: false
+  stairway:
+    db:
+      password: dbpwd_stairway
+      uri: jdbc:postgresql://127.0.0.1:5432/testdb_stairway
+      username: dbuser_stairway
+
 spring.profiles.include: human-readable-logging
