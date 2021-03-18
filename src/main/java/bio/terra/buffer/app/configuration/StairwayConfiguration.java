@@ -9,9 +9,19 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties
 @ConfigurationProperties(prefix = "buffer.stairway")
 public class StairwayConfiguration {
+  private boolean forceCleanStart;
+  private boolean migrateUpgrade;
   private int maxParallelFlights;
   private Duration quietDownTimeout;
   private Duration terminateTimeout;
+
+  public boolean isForceCleanStart() {
+    return forceCleanStart;
+  }
+
+  public boolean isMigrateUpgrade() {
+    return migrateUpgrade;
+  }
 
   public int getMaxParallelFlights() {
     return maxParallelFlights;
@@ -23,6 +33,14 @@ public class StairwayConfiguration {
 
   public Duration getTerminateTimeout() {
     return terminateTimeout;
+  }
+
+  public void setForceCleanStart(boolean forceCleanStart) {
+    this.forceCleanStart = forceCleanStart;
+  }
+
+  public void setMigrateUpgrade(boolean migrateUpgrade) {
+    this.migrateUpgrade = migrateUpgrade;
   }
 
   public void setMaxParallelFlights(int maxParallelFlights) {

@@ -1,11 +1,12 @@
 package bio.terra.buffer.service.stairway;
 
+import static bio.terra.buffer.app.configuration.BeanNames.STAIRWAY_DB_DATA_SOURCE;
 import static com.google.cloud.ServiceOptions.getDefaultProjectId;
 
 import bio.terra.buffer.app.configuration.StairwayConfiguration;
+import bio.terra.buffer.app.configuration.StairwayDatabaseProperties;
 import bio.terra.buffer.service.kubernetes.KubernetesComponent;
 import bio.terra.common.kubernetes.KubeService;
-import bio.terra.common.stairway.StairwayDatabaseConfiguration;
 import bio.terra.common.stairway.TracingHook;
 import bio.terra.stairway.Stairway;
 import bio.terra.stairway.exception.StairwayException;
@@ -15,9 +16,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
@@ -27,7 +30,8 @@ public class StairwayComponent {
   private final Logger logger = LoggerFactory.getLogger(StairwayComponent.class);
 
   private final StairwayConfiguration stairwayConfiguration;
-  private final StairwayDatabaseConfiguration stairwayDatabaseConfiguration;
+  private final StairwayDatabaseProperties stairwayDatabaseProperties;
+  private final DataSource dataSource;
   private final Stairway stairway;
   private final KubeService kubeService;
 
@@ -44,10 +48,12 @@ public class StairwayComponent {
   public StairwayComponent(
       ApplicationContext applicationContext,
       StairwayConfiguration stairwayConfiguration,
-      StairwayDatabaseConfiguration stairwayDatabaseConfiguration,
+      @Qualifier(STAIRWAY_DB_DATA_SOURCE) DataSource dataSource,
+      StairwayDatabaseProperties stairwayDatabaseProperties,
       KubernetesComponent kubernetesComponent) {
     this.stairwayConfiguration = stairwayConfiguration;
-    this.stairwayDatabaseConfiguration = stairwayDatabaseConfiguration;
+    this.stairwayDatabaseProperties = stairwayDatabaseProperties;
+    this.dataSource = dataSource;
     this.kubeService = kubernetesComponent.get();
     String stairwayClusterName = kubeService.getNamespace() + "buffer--stairwaycluster";
     logger.info(
@@ -76,16 +82,14 @@ public class StairwayComponent {
 
   public void initialize() {
     logger.info("Initializing Stairway...");
-    logger.info(
-        "stairway username {}",
-        stairwayDatabaseConfiguration.getDatabaseProperties().getUsername());
+    logger.info("stairway username {}", stairwayDatabaseProperties.getUsername());
     try {
       // TODO(PF-161): Determine if Stairway and buffer database migrations need to be coordinated.
       List<String> recordedStairways =
           stairway.initialize(
-              stairwayDatabaseConfiguration.getDataSource(),
-              stairwayDatabaseConfiguration.getDatabaseProperties().isInitializeOnStart(),
-              stairwayDatabaseConfiguration.getDatabaseProperties().isUpgradeOnStart());
+              dataSource,
+              stairwayConfiguration.isForceCleanStart(),
+              stairwayConfiguration.isMigrateUpgrade());
 
       kubeService.startPodListener(stairway);
 
