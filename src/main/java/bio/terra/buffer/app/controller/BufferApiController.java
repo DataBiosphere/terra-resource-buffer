@@ -1,5 +1,6 @@
 package bio.terra.buffer.app.controller;
 
+import static bio.terra.buffer.app.configuration.BeanNames.BUFFER_DB_DATA_SOURCE;
 import static bio.terra.buffer.common.MetricsHelper.recordHandoutResourceRequest;
 
 import bio.terra.buffer.app.configuration.BufferDatabaseConfiguration;
@@ -14,7 +15,9 @@ import bio.terra.buffer.service.stairway.StairwayComponent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
+import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -30,8 +33,9 @@ public class BufferApiController implements BufferApi {
   BufferApiController(
       BufferDatabaseConfiguration jdbcConfiguration,
       StairwayComponent stairwayComponent,
+      @Qualifier(BUFFER_DB_DATA_SOURCE) DataSource bufferDbDataSource,
       PoolService poolService) {
-    this.jdbcTemplate = new NamedParameterJdbcTemplate(jdbcConfiguration.getDataSource());
+    this.jdbcTemplate = new NamedParameterJdbcTemplate(bufferDbDataSource);
     this.stairwayComponent = stairwayComponent;
     this.poolService = poolService;
   }
