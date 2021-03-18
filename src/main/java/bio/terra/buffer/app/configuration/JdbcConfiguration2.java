@@ -6,8 +6,6 @@ import org.apache.commons.dbcp2.DriverManagerConnectionFactory;
 import org.apache.commons.dbcp2.PoolableConnection;
 import org.apache.commons.dbcp2.PoolableConnectionFactory;
 import org.apache.commons.dbcp2.PoolingDataSource;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.commons.pool2.ObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 
@@ -71,13 +69,5 @@ public class JdbcConfiguration2 {
     poolableConnectionFactory.setPool(connectionPool);
 
     dataSource = new PoolingDataSource<>(connectionPool);
-  }
-
-  @Override
-  public String toString() {
-    return new ToStringBuilder(this, ToStringStyle.JSON_STYLE)
-        .append("uri", uri)
-        .append("username", username)
-        .toString();
   }
 }

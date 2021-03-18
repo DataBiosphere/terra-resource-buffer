@@ -1,10 +1,10 @@
 buffer:
   db:
     password: dbpwd
-    recreate-db-on-start: true
-    update-db-on-start: true
     uri: jdbc:postgresql://127.0.0.1:5432/testdb
     username: dbuser
+    initialize-on-start: true
+    migrate-upgrade: true
   kubernetes:
     pod-name: buffer-test-pod
     in-kubernetes: false
@@ -15,9 +15,6 @@ buffer:
     update-pool-on-start: false
   stackdriver:
     enabled: false
-  stairway:
-    force-clean-start: true
-    migrate-upgrade: true
 
 terra.common:
   tracing:
@@ -27,5 +24,7 @@ terra.common:
       password: dbpwd_stairway
       uri: jdbc:postgresql://127.0.0.1:5432/testdb_stairway
       username: dbuser_stairway
+      initialize-on-start: true
+      migrate-upgrade: true
 
 spring.profiles.include: human-readable-logging

@@ -5,7 +5,7 @@ import static com.google.cloud.ServiceOptions.getDefaultProjectId;
 import bio.terra.buffer.app.configuration.StairwayConfiguration;
 import bio.terra.buffer.service.kubernetes.KubernetesComponent;
 import bio.terra.common.kubernetes.KubeService;
-import bio.terra.common.stairway.StairwayJdbcConfiguration;
+import bio.terra.common.stairway.StairwayDatabaseConfiguration;
 import bio.terra.common.stairway.TracingHook;
 import bio.terra.stairway.Stairway;
 import bio.terra.stairway.exception.StairwayException;
@@ -27,7 +27,7 @@ public class StairwayComponent {
   private final Logger logger = LoggerFactory.getLogger(StairwayComponent.class);
 
   private final StairwayConfiguration stairwayConfiguration;
-  private final StairwayJdbcConfiguration stairwayJdbcConfiguration;
+  private final StairwayDatabaseConfiguration stairwayDatabaseConfiguration;
   private final Stairway stairway;
   private final KubeService kubeService;
 
@@ -44,10 +44,10 @@ public class StairwayComponent {
   public StairwayComponent(
       ApplicationContext applicationContext,
       StairwayConfiguration stairwayConfiguration,
-      StairwayJdbcConfiguration stairwayJdbcConfiguration,
+      StairwayDatabaseConfiguration stairwayDatabaseConfiguration,
       KubernetesComponent kubernetesComponent) {
     this.stairwayConfiguration = stairwayConfiguration;
-    this.stairwayJdbcConfiguration = stairwayJdbcConfiguration;
+    this.stairwayDatabaseConfiguration = stairwayDatabaseConfiguration;
     this.kubeService = kubernetesComponent.get();
     String stairwayClusterName = kubeService.getNamespace() + "buffer--stairwaycluster";
     logger.info(
@@ -77,14 +77,15 @@ public class StairwayComponent {
   public void initialize() {
     logger.info("Initializing Stairway...");
     logger.info(
-        "stairway username {}", stairwayJdbcConfiguration.getJdbcProperties().getUsername());
+        "stairway username {}",
+        stairwayDatabaseConfiguration.getDatabaseProperties().getUsername());
     try {
       // TODO(PF-161): Determine if Stairway and buffer database migrations need to be coordinated.
       List<String> recordedStairways =
           stairway.initialize(
-              stairwayJdbcConfiguration.getDataSource(),
-              stairwayConfiguration.isForceCleanStart(),
-              stairwayConfiguration.isMigrateUpgrade());
+              stairwayDatabaseConfiguration.getDataSource(),
+              stairwayDatabaseConfiguration.getDatabaseProperties().isInitializeOnStart(),
+              stairwayDatabaseConfiguration.getDatabaseProperties().isUpgradeOnStart());
 
       kubeService.startPodListener(stairway);
 

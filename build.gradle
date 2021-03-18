@@ -48,6 +48,7 @@ allprojects {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
     maven {
         url 'https://broadinstitute.jfrog.io/broadinstitute/libs-release/'
@@ -60,8 +61,7 @@ repositories {
 dependencies {
     // Terra deps
     implementation group: 'bio.terra', name: 'stairway', version: '0.0.41-SNAPSHOT'
-    implementation files('/Users/yonghao/IdeaProjects/terra-common-lib/build/libs/terra-common-lib-0.0.22.1-SNAPSHOT.jar')
-    //  implementation group: "bio.terra", name: 'terra-common-lib', version: "0.0.17-SNAPSHOT"
+    implementation group: 'bio.terra', name: 'terra-common-lib', version: '0.0.22.2-SNAPSHOT'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'cloud-resource-schema'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-billing', version: '0.4.0'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-cloudresourcemanager', version: '0.4.0'

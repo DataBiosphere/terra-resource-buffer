@@ -1,6 +1,6 @@
 package bio.terra.buffer.app.controller;
 
-import bio.terra.buffer.app.configuration.BufferJdbcConfiguration;
+import bio.terra.buffer.app.configuration.BufferDatabaseConfiguration;
 import bio.terra.buffer.generated.controller.UnauthenticatedApi;
 import bio.terra.buffer.generated.model.SystemStatus;
 import bio.terra.buffer.generated.model.SystemStatusSystems;
@@ -22,7 +22,7 @@ public class UnauthenticatedApiController implements UnauthenticatedApi {
 
   @Autowired
   UnauthenticatedApiController(
-      BufferJdbcConfiguration jdbcConfiguration, StairwayComponent stairwayComponent) {
+      BufferDatabaseConfiguration jdbcConfiguration, StairwayComponent stairwayComponent) {
     this.jdbcTemplate = new NamedParameterJdbcTemplate(jdbcConfiguration.getDataSource());
     this.stairwayComponent = stairwayComponent;
   }
