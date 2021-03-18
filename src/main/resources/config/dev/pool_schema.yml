@@ -30,3 +30,6 @@ poolConfigs:
   - poolId: "workspace_manager_v5"
     size: 20
     resourceConfigName: "workspace_manager_v5"
+  - poolId: "workspace_manager_v6"
+    size: 20
+    resourceConfigName: "workspace_manager_v6"
