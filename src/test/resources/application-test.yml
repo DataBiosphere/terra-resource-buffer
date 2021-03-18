@@ -18,12 +18,6 @@ buffer:
   stairway:
     force-clean-start: true
     migrate-upgrade: true
-  common:
-    stairway:
-      db:
-        password: dbpwd_stairway
-        uri: jdbc:postgresql://127.0.0.1:5432/testdb_stairway
-        username: dbuser_stairway
 
 terra.common:
   tracing:
