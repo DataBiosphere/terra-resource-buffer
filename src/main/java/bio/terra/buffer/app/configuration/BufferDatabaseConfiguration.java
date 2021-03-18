@@ -27,6 +27,8 @@ public class BufferDatabaseConfiguration {
   private boolean updateDbOnStart;
 
   public BufferDatabaseConfiguration(BufferDatabaseProperties databaseProperties) {
+    System.out.println("~~~~~~~~~~");
+    System.out.println(databaseProperties.getUri());
     this.databaseProperties = databaseProperties;
   }
 
