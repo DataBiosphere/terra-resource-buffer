@@ -13,6 +13,8 @@ public abstract class BaseDataBaseConfiguration {
     dataSource = DataSourceInitializer.initializeDataSource(databaseProperties);
   }
 
+  // The DataSource is nested inside this configuration, not directly injectable.
+  // TODO(PF-594): Make DataSource a bean instead of a variable inside a configuration.
   public DataSource getDataSource() {
     return dataSource;
   }
