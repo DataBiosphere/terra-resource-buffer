@@ -4,7 +4,8 @@ import bio.terra.common.db.BaseDatabaseProperties;
 import bio.terra.common.db.DataSourceInitializer;
 import javax.sql.DataSource;
 
-public abstract class BaseDataBaseConfiguration {
+/** Base class for accessing JDBC configuration properties. */
+public class BaseDataBaseConfiguration {
   private final BaseDatabaseProperties databaseProperties;
   private final DataSource dataSource;
 
