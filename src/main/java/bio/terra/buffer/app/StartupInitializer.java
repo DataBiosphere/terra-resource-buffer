@@ -1,6 +1,7 @@
 package bio.terra.buffer.app;
 
 import bio.terra.buffer.app.configuration.BufferDatabaseConfiguration;
+import bio.terra.buffer.app.configuration.BufferDatabaseProperties;
 import bio.terra.buffer.service.cleanup.CleanupScheduler;
 import bio.terra.buffer.service.pool.PoolService;
 import bio.terra.buffer.service.resource.FlightScheduler;
@@ -25,10 +26,12 @@ public final class StartupInitializer {
     LiquibaseMigrator migrateService = applicationContext.getBean(LiquibaseMigrator.class);
     BufferDatabaseConfiguration bufferDatabaseConfiguration =
         applicationContext.getBean(BufferDatabaseConfiguration.class);
+    BufferDatabaseProperties bufferDatabaseProperties =
+        applicationContext.getBean(BufferDatabaseProperties.class);
 
-    if (bufferDatabaseConfiguration.isRecreateDbOnStart()) {
+    if (bufferDatabaseProperties.isRecreateDbOnStart()) {
       migrateService.initialize(changelogPath, bufferDatabaseConfiguration.getDataSource());
-    } else if (bufferDatabaseConfiguration.isUpdateDbOnStart()) {
+    } else if (bufferDatabaseProperties.isUpdateDbOnStart()) {
       migrateService.upgrade(changelogPath, bufferDatabaseConfiguration.getDataSource());
     }
     applicationContext.getBean(StairwayComponent.class).initialize();
