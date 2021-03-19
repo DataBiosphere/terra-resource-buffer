@@ -44,3 +44,6 @@ spring:
       max-age: 0
       must-revalidate: true
     static-locations: classpath:/api/
+logging:
+  level.: DEBUG
+debug: true
