@@ -18,8 +18,6 @@ public class BufferDatabaseConfiguration {
   private final BufferDatabaseProperties databaseProperties;
 
   public BufferDatabaseConfiguration(BufferDatabaseProperties databaseProperties) {
-    System.out.println("~~~~~~~~~~");
-    System.out.println(databaseProperties.getUri());
     this.databaseProperties = databaseProperties;
   }
 
