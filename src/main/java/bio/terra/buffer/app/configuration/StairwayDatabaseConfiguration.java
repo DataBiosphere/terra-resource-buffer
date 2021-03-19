@@ -2,13 +2,11 @@ package bio.terra.buffer.app.configuration;
 
 import bio.terra.common.db.DataSourceInitializer;
 import javax.sql.DataSource;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableConfigurationProperties
-@ConfigurationProperties(prefix = "buffer.stairway.db")
+@EnableConfigurationProperties(value = StairwayDatabaseProperties.class)
 public class StairwayDatabaseConfiguration {
   private DataSource dataSource;
   private final StairwayDatabaseProperties databaseProperties;
