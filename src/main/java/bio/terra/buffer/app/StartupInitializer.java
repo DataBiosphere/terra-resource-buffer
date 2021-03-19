@@ -21,6 +21,7 @@ public final class StartupInitializer {
   private static final String changelogPath = "db/changelog.xml";
 
   public static void initialize(ApplicationContext applicationContext) {
+    logger.info("Initializing the application after the application is setup");
     applicationContext.getBean(StackdriverExporter.class).initialize();
     // Initialize or upgrade the database depending on the configuration
     LiquibaseMigrator migrateService = applicationContext.getBean(LiquibaseMigrator.class);
@@ -29,6 +30,8 @@ public final class StartupInitializer {
     BufferDatabaseProperties bufferDatabaseProperties =
         applicationContext.getBean(BufferDatabaseProperties.class);
 
+    // TODO(PF-595): This seems to be a common pattern, and we should let migrateService takes care
+    // of this if-else block.
     if (bufferDatabaseProperties.isRecreateDbOnStart()) {
       migrateService.initialize(changelogPath, bufferDatabaseConfiguration.getDataSource());
     } else if (bufferDatabaseProperties.isUpdateDbOnStart()) {

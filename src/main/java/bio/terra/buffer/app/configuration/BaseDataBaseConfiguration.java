@@ -6,11 +6,9 @@ import javax.sql.DataSource;
 
 /** Base class for accessing JDBC configuration properties. */
 public class BaseDataBaseConfiguration {
-  private final BaseDatabaseProperties databaseProperties;
   private final DataSource dataSource;
 
   public BaseDataBaseConfiguration(BaseDatabaseProperties databaseProperties) {
-    this.databaseProperties = databaseProperties;
     dataSource = DataSourceInitializer.initializeDataSource(databaseProperties);
   }
 
