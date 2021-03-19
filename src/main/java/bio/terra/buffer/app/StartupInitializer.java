@@ -1,6 +1,6 @@
 package bio.terra.buffer.app;
 
-import bio.terra.buffer.app.configuration.BufferJdbcConfiguration;
+import bio.terra.buffer.app.configuration.BufferDatabaseConfiguration;
 import bio.terra.buffer.service.cleanup.CleanupScheduler;
 import bio.terra.buffer.service.pool.PoolService;
 import bio.terra.buffer.service.resource.FlightScheduler;
@@ -23,13 +23,13 @@ public final class StartupInitializer {
     applicationContext.getBean(StackdriverExporter.class).initialize();
     // Initialize or upgrade the database depending on the configuration
     LiquibaseMigrator migrateService = applicationContext.getBean(LiquibaseMigrator.class);
-    BufferJdbcConfiguration bufferJdbcConfiguration =
-        applicationContext.getBean(BufferJdbcConfiguration.class);
+    BufferDatabaseConfiguration bufferDatabaseConfiguration =
+        applicationContext.getBean(BufferDatabaseConfiguration.class);
 
-    if (bufferJdbcConfiguration.isRecreateDbOnStart()) {
-      migrateService.initialize(changelogPath, bufferJdbcConfiguration.getDataSource());
-    } else if (bufferJdbcConfiguration.isUpdateDbOnStart()) {
-      migrateService.upgrade(changelogPath, bufferJdbcConfiguration.getDataSource());
+    if (bufferDatabaseConfiguration.isRecreateDbOnStart()) {
+      migrateService.initialize(changelogPath, bufferDatabaseConfiguration.getDataSource());
+    } else if (bufferDatabaseConfiguration.isUpdateDbOnStart()) {
+      migrateService.upgrade(changelogPath, bufferDatabaseConfiguration.getDataSource());
     }
     applicationContext.getBean(StairwayComponent.class).initialize();
     applicationContext.getBean(PoolService.class).initialize();
