@@ -1,6 +1,6 @@
 package bio.terra.buffer.app.configuration;
 
-import static bio.terra.buffer.app.configuration.BeanNames.JDBC_TEMPLATE;
+import static bio.terra.buffer.app.configuration.BeanNames.BUFFER_JDBC_TEMPLATE;
 import static bio.terra.buffer.app.configuration.BeanNames.OBJECT_MAPPER;
 
 import bio.terra.buffer.app.StartupInitializer;
@@ -19,7 +19,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 @Configuration
 public class ApplicationConfiguration {
-  @Bean(JDBC_TEMPLATE)
+  @Bean(BUFFER_JDBC_TEMPLATE)
   public NamedParameterJdbcTemplate getNamedParameterJdbcTemplate(
       BufferDatabaseConfiguration config) {
     return new NamedParameterJdbcTemplate(config.getDataSource());

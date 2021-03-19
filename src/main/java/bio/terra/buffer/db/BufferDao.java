@@ -1,5 +1,6 @@
 package bio.terra.buffer.db;
 
+import static bio.terra.buffer.app.configuration.BeanNames.BUFFER_JDBC_TEMPLATE;
 import static bio.terra.buffer.app.configuration.BeanNames.OBJECT_MAPPER;
 
 import bio.terra.buffer.common.Pool;
@@ -55,7 +56,7 @@ public class BufferDao {
 
   @Autowired
   public BufferDao(
-      NamedParameterJdbcTemplate jdbcTemplate,
+      @Qualifier(BUFFER_JDBC_TEMPLATE) NamedParameterJdbcTemplate jdbcTemplate,
       @Qualifier(OBJECT_MAPPER) ObjectMapper objectMapper) {
     this.jdbcTemplate = jdbcTemplate;
     this.objectMapper = objectMapper;
