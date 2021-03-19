@@ -1,6 +1,6 @@
 package bio.terra.buffer.db;
 
-import static bio.terra.buffer.app.configuration.BeanNames.JDBC_TEMPLATE;
+import static bio.terra.buffer.app.configuration.BeanNames.BUFFER_JDBC_TEMPLATE;
 import static bio.terra.buffer.app.configuration.BeanNames.OBJECT_MAPPER;
 
 import bio.terra.buffer.common.Pool;
@@ -51,14 +51,16 @@ import org.springframework.transaction.annotation.Transactional;
 public class BufferDao {
   private final Logger logger = LoggerFactory.getLogger(CreateNetworkStep.class);
 
-  private final NamedParameterJdbcTemplate jdbcTemplate;
+  private final NamedParameterJdbcTemplate bufferJdbcTemplate;
   private final ObjectMapper objectMapper;
 
   @Autowired
   public BufferDao(
-      @Qualifier(JDBC_TEMPLATE) NamedParameterJdbcTemplate jdbcTemplate,
-      @Qualifier(OBJECT_MAPPER) ObjectMapper objectMapper) {
-    this.jdbcTemplate = jdbcTemplate;
+      @Qualifier(OBJECT_MAPPER) ObjectMapper objectMapper,
+      @Qualifier(BUFFER_JDBC_TEMPLATE) NamedParameterJdbcTemplate bufferJdbcTemplate) {
+    logger.warn("~~~~~~~~BUFFER_DB_DATA_SOURCE");
+    logger.warn(bufferJdbcTemplate.toString());
+    this.bufferJdbcTemplate = bufferJdbcTemplate;
     this.objectMapper = objectMapper;
   }
 
@@ -86,7 +88,7 @@ public class BufferDao {
                         .addValue("status", pool.status().toString()))
             .toArray(MapSqlParameterSource[]::new);
 
-    jdbcTemplate.batchUpdate(sql, sqlParameterSourceList);
+    bufferJdbcTemplate.batchUpdate(sql, sqlParameterSourceList);
   }
 
   /** Retrieves all pools. */
@@ -97,7 +99,7 @@ public class BufferDao {
         "select p.id, p.resource_config, p.resource_type, p.creation, p.size, p.status "
             + "FROM pool p ";
 
-    return jdbcTemplate.query(sql, POOL_ROW_MAPPER);
+    return bufferJdbcTemplate.query(sql, POOL_ROW_MAPPER);
   }
 
   /** Retrieves a pool with id. */
@@ -110,7 +112,7 @@ public class BufferDao {
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", poolId.id());
 
     return Optional.ofNullable(
-        DataAccessUtils.singleResult(jdbcTemplate.query(sql, params, POOL_ROW_MAPPER)));
+        DataAccessUtils.singleResult(bufferJdbcTemplate.query(sql, params, POOL_ROW_MAPPER)));
   }
 
   /** Retrieves all pools and resource count for each state. */
@@ -123,7 +125,7 @@ public class BufferDao {
             + "LEFT JOIN resource r on r.pool_id = p.id "
             + "GROUP BY p.id, r.state";
 
-    return jdbcTemplate.query(sql, new PoolAndResourceStatesExtractor());
+    return bufferJdbcTemplate.query(sql, new PoolAndResourceStatesExtractor());
   }
 
   /** Retrieves one pool's and resource count for each state. */
@@ -140,7 +142,7 @@ public class BufferDao {
 
     return Optional.ofNullable(
         DataAccessUtils.singleResult(
-            jdbcTemplate.query(sql, params, new PoolAndResourceStatesExtractor())));
+            bufferJdbcTemplate.query(sql, params, new PoolAndResourceStatesExtractor())));
   }
 
   /** Updates list of pools' status to DEACTIVATED. */
@@ -158,7 +160,7 @@ public class BufferDao {
                         .addValue("expiration", OffsetDateTime.now(ZoneOffset.UTC)))
             .toArray(MapSqlParameterSource[]::new);
 
-    jdbcTemplate.batchUpdate(sql, sqlParameterSourceList);
+    bufferJdbcTemplate.batchUpdate(sql, sqlParameterSourceList);
   }
 
   /** Updates list of pools' size. */
@@ -175,7 +177,7 @@ public class BufferDao {
                         .addValue("size", entry.getValue()))
             .toArray(MapSqlParameterSource[]::new);
 
-    jdbcTemplate.batchUpdate(sql, sqlParameterSourceList);
+    bufferJdbcTemplate.batchUpdate(sql, sqlParameterSourceList);
   }
 
   /** Updates list of pools' size. */
@@ -191,7 +193,7 @@ public class BufferDao {
             .addValue("creation", resource.creation().atOffset(ZoneOffset.UTC))
             .addValue("state", resource.state().toString());
 
-    jdbcTemplate.update(sql, params);
+    bufferJdbcTemplate.update(sql, params);
   }
 
   /** Retrieve a resource by id. */
@@ -205,7 +207,7 @@ public class BufferDao {
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", resourceId.id());
 
     return Optional.ofNullable(
-        DataAccessUtils.singleResult(jdbcTemplate.query(sql, params, RESOURCE_ROW_MAPPER)));
+        DataAccessUtils.singleResult(bufferJdbcTemplate.query(sql, params, RESOURCE_ROW_MAPPER)));
   }
 
   /**
@@ -225,7 +227,7 @@ public class BufferDao {
             .addValue("request_handout_id", requestHandoutId.id());
 
     return Optional.ofNullable(
-        DataAccessUtils.singleResult(jdbcTemplate.query(sql, params, RESOURCE_ROW_MAPPER)));
+        DataAccessUtils.singleResult(bufferJdbcTemplate.query(sql, params, RESOURCE_ROW_MAPPER)));
   }
 
   /** Randomly retrieve resources match the {@link ResourceState}. */
@@ -243,7 +245,7 @@ public class BufferDao {
             .addValue("pool_id", poolId.id())
             .addValue("limit", limit);
 
-    return jdbcTemplate.query(sql, params, RESOURCE_ROW_MAPPER);
+    return bufferJdbcTemplate.query(sql, params, RESOURCE_ROW_MAPPER);
   }
 
   /** Updates resource state and resource uid after resource is created. */
@@ -258,7 +260,7 @@ public class BufferDao {
             .addValue("state", ResourceState.READY.toString())
             .addValue("cloud_resource_uid", serializeResourceUid(resourceUid))
             .addValue("id", id.id());
-    return jdbcTemplate.update(sql, params) == 1;
+    return bufferJdbcTemplate.update(sql, params) == 1;
   }
 
   /**
@@ -312,7 +314,7 @@ public class BufferDao {
                 .addValue("id", selectedResource.id().id());
 
         // Return the selectedResource if update successfully. Otherwise return empty.
-        return jdbcTemplate.update(sql, params) == 1
+        return bufferJdbcTemplate.update(sql, params) == 1
             ? Optional.of(selectedResource)
             : Optional.empty();
       }
@@ -335,7 +337,7 @@ public class BufferDao {
           new MapSqlParameterSource()
               .addValue("state", ResourceState.DELETING.toString())
               .addValue("id", id.id());
-      return jdbcTemplate.update(sql, params) == 1;
+      return bufferJdbcTemplate.update(sql, params) == 1;
     }
   }
 
@@ -349,7 +351,7 @@ public class BufferDao {
             .addValue("state", ResourceState.DELETED.toString())
             .addValue("deletion", OffsetDateTime.ofInstant(deletedTime, ZoneOffset.UTC))
             .addValue("id", id.id());
-    return jdbcTemplate.update(sql, params) == 1;
+    return bufferJdbcTemplate.update(sql, params) == 1;
   }
 
   /** Delete the resource match the {@link ResourceId}. */
@@ -358,7 +360,7 @@ public class BufferDao {
     String sql = "DELETE FROM resource WHERE id = :id";
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", id.id());
 
-    return jdbcTemplate.update(sql, params) == 1;
+    return bufferJdbcTemplate.update(sql, params) == 1;
   }
 
   /**
@@ -372,7 +374,7 @@ public class BufferDao {
     MapSqlParameterSource params =
         new MapSqlParameterSource().addValue("resource_id", resourceId.id());
 
-    jdbcTemplate.update(sql, params);
+    bufferJdbcTemplate.update(sql, params);
   }
 
   /**
@@ -399,7 +401,7 @@ public class BufferDao {
             .addValue("state", ResourceState.HANDED_OUT.toString())
             .addValue("limit", limit);
 
-    return jdbcTemplate.query(sql, params, RESOURCE_ROW_MAPPER);
+    return bufferJdbcTemplate.query(sql, params, RESOURCE_ROW_MAPPER);
   }
 
   private static final RowMapper<Pool> POOL_ROW_MAPPER =

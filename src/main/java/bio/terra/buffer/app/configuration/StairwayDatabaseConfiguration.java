@@ -19,6 +19,9 @@ public class StairwayDatabaseConfiguration {
 
   @Bean(STAIRWAY_DB_DATA_SOURCE)
   public DataSource getStairwayDbDataSource() {
-    return DataSourceInitializer.initializeDataSource(databaseProperties);
+    DataSource dataSource = DataSourceInitializer.initializeDataSource(databaseProperties);
+    System.out.println("~~~~~~~stairwayClusterName11111111111");
+    System.out.println(dataSource.toString());
+    return dataSource;
   }
 }

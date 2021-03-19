@@ -1,6 +1,7 @@
 package bio.terra.buffer.app.controller;
 
 import static bio.terra.buffer.app.configuration.BeanNames.BUFFER_DB_DATA_SOURCE;
+import static bio.terra.buffer.app.configuration.BeanNames.BUFFER_JDBC_TEMPLATE;
 import static bio.terra.buffer.common.MetricsHelper.recordHandoutResourceRequest;
 
 import bio.terra.buffer.app.configuration.BufferDatabaseConfiguration;
@@ -34,6 +35,7 @@ public class BufferApiController implements BufferApi {
       BufferDatabaseConfiguration jdbcConfiguration,
       StairwayComponent stairwayComponent,
       @Qualifier(BUFFER_DB_DATA_SOURCE) DataSource bufferDbDataSource,
+      @Qualifier(BUFFER_JDBC_TEMPLATE) NamedParameterJdbcTemplate jdbcTemplate,
       PoolService poolService) {
     this.jdbcTemplate = new NamedParameterJdbcTemplate(bufferDbDataSource);
     this.stairwayComponent = stairwayComponent;

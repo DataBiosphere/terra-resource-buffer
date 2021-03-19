@@ -1,23 +1,27 @@
 package bio.terra.buffer.app;
 
-import org.springframework.boot.SpringApplication;
+import bio.terra.common.logging.LoggingInitializer;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.ComponentScan;
 
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
+@SpringBootApplication(
+    exclude = {DataSourceAutoConfiguration.class, JdbcTemplateAutoConfiguration.class})
 @ComponentScan(
     basePackages = {
-      // Scan for Liquibase migration components & configs
-      "bio.terra.common.migrate",
-      // Scan for tracing-related components & configs
-      "bio.terra.common.tracing",
       // Scan all service-specific packages beneath the current package
-      "bio.terra.buffer"
+      "bio.terra.buffer",
+      // Logging components & configs
+      "bio.terra.common.logging",
+      // Liquibase migration components & configs
+      "bio.terra.common.migrate",
+      // Tracing-related components & configs
+      "bio.terra.common.tracing",
     })
-@ComponentScan(basePackages = {"bio.terra.buffer", "bio.terra.common"})
 public class Main {
   public static void main(String[] args) {
-    SpringApplication.run(Main.class, args);
+    new SpringApplicationBuilder(Main.class).initializers(new LoggingInitializer()).run(args);
   }
 }

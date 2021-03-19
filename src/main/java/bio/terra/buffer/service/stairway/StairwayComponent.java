@@ -61,6 +61,9 @@ public class StairwayComponent {
         kubeService.getPodName(),
         stairwayClusterName);
 
+    System.out.println("~~~~~~~stairwayClusterName");
+    System.out.println(dataSource.toString());
+
     // TODO(PF-314): Cleanup old flightlogs.
     // TODO(PF-456):
     Stairway.Builder builder =

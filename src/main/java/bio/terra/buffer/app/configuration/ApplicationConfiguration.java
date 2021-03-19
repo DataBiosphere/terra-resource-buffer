@@ -1,7 +1,5 @@
 package bio.terra.buffer.app.configuration;
 
-import static bio.terra.buffer.app.configuration.BeanNames.BUFFER_DB_DATA_SOURCE;
-import static bio.terra.buffer.app.configuration.BeanNames.JDBC_TEMPLATE;
 import static bio.terra.buffer.app.configuration.BeanNames.OBJECT_MAPPER;
 
 import bio.terra.buffer.app.StartupInitializer;
@@ -12,28 +10,28 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import java.time.Clock;
-import javax.sql.DataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.SmartInitializingSingleton;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 @Configuration
+@EnableConfigurationProperties
 public class ApplicationConfiguration {
-  @Bean(JDBC_TEMPLATE)
-  public NamedParameterJdbcTemplate getNamedParameterJdbcTemplate(
-      @Qualifier(BUFFER_DB_DATA_SOURCE) DataSource dataSource) {
-    System.out.println("~~~~~~~~~~~~222");
-    System.out.println("~~~~~~~~~~~~222");
-    System.out.println("~~~~~~~~~~~~2222");
-    System.out.println("~~~~~~~~~~~~222");
-    System.out.println("~~~~~~~~~~~~22222");
-    System.out.println(dataSource);
-    System.out.println(dataSource.toString());
-    return new NamedParameterJdbcTemplate(dataSource);
-  }
+  private final Logger logger = LoggerFactory.getLogger(ApplicationConfiguration.class);
+
+  //  @Bean(BUFFER_JDBC_TEMPLATE)
+  //  public NamedParameterJdbcTemplate getNamedParameterJdbcTemplate(
+  //      @Qualifier(BUFFER_DB_DATA_SOURCE) DataSource dataSource) {
+  //    logger.warn("~~~~~~~~BUFFER_DB_DATA_SOURCE");
+  //    logger.warn(dataSource.toString());
+  //    System.out.println(dataSource);
+  //    System.out.println(dataSource.toString());
+  //    return new NamedParameterJdbcTemplate(dataSource);
+  //  }
 
   @Bean(OBJECT_MAPPER)
   public ObjectMapper objectMapper() {
