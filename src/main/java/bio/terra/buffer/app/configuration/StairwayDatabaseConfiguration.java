@@ -13,7 +13,7 @@ public class StairwayDatabaseConfiguration {
   private DataSource dataSource;
   private final StairwayDatabaseProperties databaseProperties;
 
-  private StairwayDatabaseConfiguration(StairwayDatabaseProperties databaseProperties) {
+  public StairwayDatabaseConfiguration(StairwayDatabaseProperties databaseProperties) {
     this.databaseProperties = databaseProperties;
     dataSource = DataSourceInitializer.initializeDataSource(databaseProperties);
   }

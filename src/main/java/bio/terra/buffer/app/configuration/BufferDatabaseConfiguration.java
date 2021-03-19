@@ -25,7 +25,7 @@ public class BufferDatabaseConfiguration {
   private DataSource dataSource;
   private final BufferDatabaseProperties databaseProperties;
 
-  private BufferDatabaseConfiguration(BufferDatabaseProperties databaseProperties) {
+  public BufferDatabaseConfiguration(BufferDatabaseProperties databaseProperties) {
     this.databaseProperties = databaseProperties;
     dataSource = DataSourceInitializer.initializeDataSource(databaseProperties);
   }
