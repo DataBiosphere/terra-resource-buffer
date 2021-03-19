@@ -9,6 +9,8 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
 @ComponentScan(
     basePackages = {
+      "bio.terra.common.db",
+      "bio.terra.common.stairway",
       // Logging components & configs
       "bio.terra.common.logging",
       // Liquibase migration components & configs
