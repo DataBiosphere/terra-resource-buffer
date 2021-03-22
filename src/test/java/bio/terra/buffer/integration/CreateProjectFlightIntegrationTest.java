@@ -196,7 +196,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   public void testCreateGoogleProject_keepDefaultComputeEngineServiceAcct() throws Exception {
     FlightManager manager =
         new FlightManager(
-            bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
+            bufferDao, flightSubmissionFactoryImpl, stairwayLifecycleManager, transactionTemplate);
     Pool pool =
         preparePool(
             bufferDao,
@@ -204,7 +204,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
     String flightId = manager.submitCreationFlight(pool).get();
     ResourceId resourceId =
-        extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
+        extractResourceIdFromFlightState(
+            blockUntilFlightComplete(stairwayLifecycleManager, flightId));
     Project project = assertProjectExists(resourceId);
     assertDefaultServiceAccountExists(project);
   }
@@ -213,7 +214,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   public void testCreateGoogleProject_keepDefaultNetwork() throws Exception {
     FlightManager manager =
         new FlightManager(
-            bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
+            bufferDao, flightSubmissionFactoryImpl, stairwayLifecycleManager, transactionTemplate);
     Pool pool =
         preparePool(
             bufferDao,
@@ -222,7 +223,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
     String flightId = manager.submitCreationFlight(pool).get();
     ResourceId resourceId =
-        extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
+        extractResourceIdFromFlightState(
+            blockUntilFlightComplete(stairwayLifecycleManager, flightId));
     Project project = assertProjectExists(resourceId);
     assertNetworkExists(project);
     assertFirewallRulesExist(project);

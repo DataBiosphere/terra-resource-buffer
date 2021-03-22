@@ -10,6 +10,7 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan(
     basePackages = {
       "bio.terra.common.db",
+      "bio.terra.common.kubernetes",
       "bio.terra.common.stairway",
       // Logging components & configs
       "bio.terra.common.logging",
