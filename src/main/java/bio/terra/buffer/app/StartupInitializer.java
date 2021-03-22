@@ -1,7 +1,8 @@
 package bio.terra.buffer.app;
 
-import bio.terra.buffer.app.configuration.BufferDatabaseDatabaseConfiguration;
+import bio.terra.buffer.app.configuration.BufferDatabaseConfiguration;
 import bio.terra.buffer.app.configuration.BufferDatabaseProperties;
+import bio.terra.buffer.app.configuration.StairwayDatabaseConfiguration;
 import bio.terra.buffer.service.cleanup.CleanupScheduler;
 import bio.terra.buffer.service.pool.PoolService;
 import bio.terra.buffer.service.resource.FlightScheduler;
@@ -27,8 +28,8 @@ public final class StartupInitializer {
     applicationContext.getBean(StackdriverExporter.class).initialize();
     // Initialize or upgrade the database depending on the configuration
     LiquibaseMigrator migrateService = applicationContext.getBean(LiquibaseMigrator.class);
-    BufferDatabaseDatabaseConfiguration bufferDatabaseConfiguration =
-        applicationContext.getBean(BufferDatabaseDatabaseConfiguration.class);
+    BufferDatabaseConfiguration bufferDatabaseConfiguration =
+        applicationContext.getBean(BufferDatabaseConfiguration.class);
     BufferDatabaseProperties bufferDatabaseProperties =
         applicationContext.getBean(BufferDatabaseProperties.class);
 
@@ -39,11 +40,22 @@ public final class StartupInitializer {
     } else if (bufferDatabaseProperties.isUpdateDbOnStart()) {
       migrateService.upgrade(changelogPath, bufferDatabaseConfiguration.getDataSource());
     }
-    applicationContext
-        .getBean(StairwayComponent.class)
-        .initialize(applicationContext, ImmutableList.of(new TracingHook()));
+    initializeStairwayComponent(applicationContext);
     applicationContext.getBean(PoolService.class).initialize();
     applicationContext.getBean(FlightScheduler.class).initialize();
     applicationContext.getBean(CleanupScheduler.class).initialize();
+  }
+
+  // Initialize StairwayComponent's DataSource. This is necessary because the data source is
+  // not yet a bean.
+  private static void initializeStairwayComponent(ApplicationContext applicationContext) {
+    final StairwayDatabaseConfiguration stairwayDatabaseConfiguration =
+        applicationContext.getBean(StairwayDatabaseConfiguration.class);
+    applicationContext
+        .getBean(StairwayComponent.class)
+        .initialize(
+            stairwayDatabaseConfiguration.getDataSource(),
+            applicationContext,
+            ImmutableList.of(new TracingHook()));
   }
 }
