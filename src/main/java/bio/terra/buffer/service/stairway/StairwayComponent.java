@@ -3,7 +3,8 @@ package bio.terra.buffer.service.stairway;
 import static com.google.cloud.ServiceOptions.getDefaultProjectId;
 
 import bio.terra.buffer.app.configuration.StairwayConfiguration;
-import bio.terra.buffer.app.configuration.StairwayJdbcConfiguration;
+import bio.terra.buffer.app.configuration.StairwayDatabaseDatabaseConfiguration;
+import bio.terra.buffer.app.configuration.StairwayDatabaseProperties;
 import bio.terra.buffer.service.kubernetes.KubernetesComponent;
 import bio.terra.common.kubernetes.KubeService;
 import bio.terra.common.stairway.TracingHook;
@@ -27,7 +28,8 @@ public class StairwayComponent {
   private final Logger logger = LoggerFactory.getLogger(StairwayComponent.class);
 
   private final StairwayConfiguration stairwayConfiguration;
-  private final StairwayJdbcConfiguration stairwayJdbcConfiguration;
+  private final StairwayDatabaseDatabaseConfiguration stairwayDatabaseConfiguration;
+  private final StairwayDatabaseProperties stairwayDatabaseProperties;
   private final Stairway stairway;
   private final KubeService kubeService;
 
@@ -44,10 +46,12 @@ public class StairwayComponent {
   public StairwayComponent(
       ApplicationContext applicationContext,
       StairwayConfiguration stairwayConfiguration,
-      StairwayJdbcConfiguration stairwayJdbcConfiguration,
+      StairwayDatabaseDatabaseConfiguration stairwayDatabaseConfiguration,
+      StairwayDatabaseProperties stairwayDatabaseProperties,
       KubernetesComponent kubernetesComponent) {
     this.stairwayConfiguration = stairwayConfiguration;
-    this.stairwayJdbcConfiguration = stairwayJdbcConfiguration;
+    this.stairwayDatabaseConfiguration = stairwayDatabaseConfiguration;
+    this.stairwayDatabaseProperties = stairwayDatabaseProperties;
     this.kubeService = kubernetesComponent.get();
     String stairwayClusterName = kubeService.getNamespace() + "buffer--stairwaycluster";
     logger.info(
@@ -76,12 +80,12 @@ public class StairwayComponent {
 
   public void initialize() {
     logger.info("Initializing Stairway...");
-    logger.info("stairway username {}", stairwayJdbcConfiguration.getUsername());
+    logger.info("stairway username {}", stairwayDatabaseProperties.getUsername());
     try {
       // TODO(PF-161): Determine if Stairway and buffer database migrations need to be coordinated.
       List<String> recordedStairways =
           stairway.initialize(
-              stairwayJdbcConfiguration.getDataSource(),
+              stairwayDatabaseConfiguration.getDataSource(),
               stairwayConfiguration.isForceCleanStart(),
               stairwayConfiguration.isMigrateUpgrade());
 

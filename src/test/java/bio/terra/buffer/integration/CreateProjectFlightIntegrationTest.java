@@ -96,7 +96,6 @@ import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.StorageOptions;
 import com.google.cloud.storage.StorageRoles;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -439,15 +438,13 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
             .get(resource.cloudResourceUid().getGoogleProjectUid().getProjectId())
             .execute();
     assertEquals("ACTIVE", project.getLifecycleState());
-    assertEquals(
-        ImmutableMap.of(
-            NETWORK_LABEL_KEY,
-            NETWORK_NAME,
-            SUB_NETWORK_LABEL_KEY,
-            SUBNETWORK_NAME,
-            CONFIG_NAME_LABEL_LEY,
-            TEST_CONFIG_NAME),
-        project.getLabels());
+
+    assertThat(
+        project.getLabels().entrySet(),
+        Matchers.hasItems(
+            Map.entry(NETWORK_LABEL_KEY, NETWORK_NAME),
+            Map.entry(SUB_NETWORK_LABEL_KEY, SUBNETWORK_NAME),
+            Map.entry(CONFIG_NAME_LABEL_LEY, TEST_CONFIG_NAME)));
     return project;
   }
 
