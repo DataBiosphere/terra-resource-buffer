@@ -8,6 +8,7 @@ import bio.terra.buffer.service.stackdriver.StackdriverExporter;
 import bio.terra.common.migrate.LiquibaseMigrator;
 import bio.terra.common.stairway.StairwayLifecycleManager;
 import bio.terra.common.stairway.TracingHook;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import org.apache.commons.dbcp2.PoolableConnection;
 import org.apache.commons.dbcp2.PoolingDataSource;
@@ -31,25 +32,14 @@ public final class StartupInitializer {
     LiquibaseMigrator migrateService = applicationContext.getBean(LiquibaseMigrator.class);
     BufferJdbcConfiguration bufferJdbcConfiguration =
         applicationContext.getBean(BufferJdbcConfiguration.class);
-
-    String[] beanNames =
-        applicationContext.getBeanNamesForType(
-            ResolvableType.forType(
-                new ParameterizedTypeReference<PoolingDataSource<PoolableConnection>>() {}));
-    final PoolingDataSource<PoolableConnection> dataSource;
-    if (beanNames.length > 0) {
-      dataSource = (PoolingDataSource<PoolableConnection>) applicationContext.getBean(beanNames[0]);
-    } else {
-      dataSource = null; // FIXME
-    }
     if (bufferJdbcConfiguration.isRecreateDbOnStart()) {
-      migrateService.initialize(changelogPath, dataSource);
+      migrateService.initialize(changelogPath, bufferJdbcConfiguration.getDataSource());
     } else if (bufferJdbcConfiguration.isUpdateDbOnStart()) {
-      migrateService.upgrade(changelogPath, dataSource);
+      migrateService.upgrade(changelogPath, bufferJdbcConfiguration.getDataSource());
     }
     applicationContext
         .getBean(StairwayLifecycleManager.class)
-        .initialize(applicationContext, dataSource, ImmutableSet.of(new TracingHook()));
+        .initialize(applicationContext, ImmutableList.of(new TracingHook()));
     applicationContext.getBean(PoolService.class).initialize();
     applicationContext.getBean(FlightScheduler.class).initialize();
     applicationContext.getBean(CleanupScheduler.class).initialize();
