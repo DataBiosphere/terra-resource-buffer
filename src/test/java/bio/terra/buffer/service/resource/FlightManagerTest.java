@@ -23,9 +23,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class FlightManagerTest extends BaseUnitTest {
-  @Mock
-  private final StairwayComponent mockStairwayComponent =
-      mock(StairwayComponent.class);
+  @Mock private final StairwayComponent mockStairwayComponent = mock(StairwayComponent.class);
 
   @Mock private final Stairway mockStairway = mock(Stairway.class);
 

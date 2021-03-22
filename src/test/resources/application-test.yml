@@ -4,8 +4,11 @@ buffer:
     recreate-db-on-start: true
     update-db-on-start: true
     uri: jdbc:postgresql://127.0.0.1:5432/testdb
-    username: dbuser
-#  kubernetes:
+    username: dbuser= false
+    pool-max-total: 8
+    pool-max-idle: 8
+    jmx-enabled: false
+  #  kubernetes:
 #    pod-name: buffer-test-pod
 #    in-kubernetes: false
   primary:
@@ -15,6 +18,15 @@ buffer:
     update-pool-on-start: false
   stackdriver:
     enabled: false
+  stairway:
+    db:
+      jmx-enabled: false
+      password: dbpwd_stairway
+      uri: jdbc:postgresql://127.0.0.1:5432/testdb_stairway
+      username: dbuser_stairway
+      pool-max-total: 8
+      pool-max-idle: 8
+
 terra:
   common:
     kubernetes:
@@ -22,13 +34,13 @@ terra:
       in-kubernetes: false
       namespace-suffix: buffer
     stairway:
-      db:
-        jmx_enabled: false
-        password: dbpwd_stairway
-        uri: jdbc:postgresql://127.0.0.1:5432/testdb_stairway
-        username: dbuser_stairway
-        pool_max_total: 100
-        pool_max_idle: 25
+#      db:
+#        jmx-enabled: false
+#        password: dbpwd_stairway
+#        uri: jdbc:postgresql://127.0.0.1:5432/testdb_stairway
+#        username: dbuser_stairway
+#        pool-max-total: 8
+#        pool-max-idle: 8
       force-clean-start: true
       migrate-upgrade: true
 

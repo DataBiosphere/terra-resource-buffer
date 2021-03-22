@@ -137,8 +137,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
     String flightId = manager.submitCreationFlight(pool).get();
     ResourceId resourceId =
-        extractResourceIdFromFlightState(
-            blockUntilFlightComplete(stairwayComponent, flightId));
+        extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
     Project project = assertProjectExists(resourceId);
     assertBillingIs(project, pool.resourceConfig().getGcpProjectConfig().getBillingAccount());
     assertEnableApisContains(project, pool.resourceConfig().getGcpProjectConfig().getEnabledApis());
@@ -162,8 +161,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
     String flightId = manager.submitCreationFlight(pool).get();
     ResourceId resourceId =
-        extractResourceIdFromFlightState(
-            blockUntilFlightComplete(stairwayComponent, flightId));
+        extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
     Project project = assertProjectExists(resourceId);
     assertIamBindingsContains(project, IAM_BINDINGS);
   }
@@ -182,8 +180,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
     String flightId = manager.submitCreationFlight(pool).get();
     ResourceId resourceId =
-        extractResourceIdFromFlightState(
-            blockUntilFlightComplete(stairwayComponent, flightId));
+        extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
     Project project = assertProjectExists(resourceId);
     assertNetworkExists(project);
     assertSubnetsExist(project, NetworkMonitoring.ENABLED);
@@ -204,8 +201,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
     String flightId = manager.submitCreationFlight(pool).get();
     ResourceId resourceId =
-        extractResourceIdFromFlightState(
-            blockUntilFlightComplete(stairwayComponent, flightId));
+        extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
     Project project = assertProjectExists(resourceId);
     assertDefaultServiceAccountExists(project);
   }
@@ -223,8 +219,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
     String flightId = manager.submitCreationFlight(pool).get();
     ResourceId resourceId =
-        extractResourceIdFromFlightState(
-            blockUntilFlightComplete(stairwayComponent, flightId));
+        extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
     Project project = assertProjectExists(resourceId);
     assertNetworkExists(project);
     assertFirewallRulesExist(project);
@@ -245,8 +240,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
     String flightId = manager.submitCreationFlight(pool).get();
     ResourceId resourceId =
-        extractResourceIdFromFlightState(
-            blockUntilFlightComplete(stairwayComponent, flightId));
+        extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
     Project project = assertProjectExists(resourceId);
     assertIamBindingsContains(project, IAM_BINDINGS);
     assertNetworkExists(project);
@@ -278,8 +272,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     // Resource is deleted.
     assertFalse(bufferDao.retrieveResource(resource.id()).isPresent());
     assertEquals(
-        FlightStatus.ERROR,
-        stairwayComponent.get().getFlightState(flightId).getFlightStatus());
+        FlightStatus.ERROR, stairwayComponent.get().getFlightState(flightId).getFlightStatus());
   }
 
   @Test
@@ -306,8 +299,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
             .execute()
             .getLifecycleState());
     assertEquals(
-        FlightStatus.ERROR,
-        stairwayComponent.get().getFlightState(flightId).getFlightStatus());
+        FlightStatus.ERROR, stairwayComponent.get().getFlightState(flightId).getFlightStatus());
   }
 
   @Test
@@ -358,8 +350,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     // Resource is deleted.
     assertFalse(bufferDao.retrieveResource(resource.id()).isPresent());
     assertEquals(
-        FlightStatus.ERROR,
-        stairwayComponent.get().getFlightState(flightId).getFlightStatus());
+        FlightStatus.ERROR, stairwayComponent.get().getFlightState(flightId).getFlightStatus());
   }
 
   /** A {@link Flight} that will fail to create Google Project. */

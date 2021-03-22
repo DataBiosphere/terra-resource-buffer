@@ -22,8 +22,7 @@ public class UnauthenticatedApiController implements UnauthenticatedApi {
 
   @Autowired
   UnauthenticatedApiController(
-      BufferDatabaseDatabaseConfiguration jdbcConfiguration,
-      StairwayComponent stairwayComponent) {
+      BufferDatabaseDatabaseConfiguration jdbcConfiguration, StairwayComponent stairwayComponent) {
     this.jdbcTemplate = new NamedParameterJdbcTemplate(jdbcConfiguration.getDataSource());
     this.stairwayComponent = stairwayComponent;
   }

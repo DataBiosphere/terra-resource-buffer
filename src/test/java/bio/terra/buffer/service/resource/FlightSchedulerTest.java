@@ -47,8 +47,7 @@ public class FlightSchedulerTest extends BaseUnitTest {
 
   private void initializeScheduler(PrimaryConfiguration primaryConfiguration) {
     flightScheduler =
-        new FlightScheduler(
-            flightManager, primaryConfiguration, stairwayComponent, bufferDao);
+        new FlightScheduler(flightManager, primaryConfiguration, stairwayComponent, bufferDao);
     flightScheduler.initialize();
   }
 

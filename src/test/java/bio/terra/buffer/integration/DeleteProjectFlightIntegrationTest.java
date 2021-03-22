@@ -127,8 +127,7 @@ public class DeleteProjectFlightIntegrationTest extends BaseIntegrationTest {
 
     // Release the latch, and resume the flight, assert flight failed.
     LatchStep.releaseLatch();
-    extractResourceIdFromFlightState(
-        blockUntilFlightComplete(stairwayComponent, deleteFlightId));
+    extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, deleteFlightId));
     // Resource is deleted.
     assertFalse(bufferDao.retrieveResource(resource.id()).isPresent());
     assertEquals(
