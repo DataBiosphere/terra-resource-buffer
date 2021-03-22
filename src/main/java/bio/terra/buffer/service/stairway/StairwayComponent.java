@@ -3,7 +3,7 @@ package bio.terra.buffer.service.stairway;
 import static com.google.cloud.ServiceOptions.getDefaultProjectId;
 
 import bio.terra.buffer.app.configuration.StairwayConfiguration;
-import bio.terra.buffer.app.configuration.StairwayDatabaseConfiguration;
+import bio.terra.buffer.app.configuration.StairwayDatabaseDatabaseConfiguration;
 import bio.terra.buffer.app.configuration.StairwayDatabaseProperties;
 import bio.terra.buffer.service.kubernetes.KubernetesComponent;
 import bio.terra.common.kubernetes.KubeService;
@@ -28,7 +28,7 @@ public class StairwayComponent {
   private final Logger logger = LoggerFactory.getLogger(StairwayComponent.class);
 
   private final StairwayConfiguration stairwayConfiguration;
-  private final StairwayDatabaseConfiguration stairwayDatabaseConfiguration;
+  private final StairwayDatabaseDatabaseConfiguration stairwayDatabaseConfiguration;
   private final StairwayDatabaseProperties stairwayDatabaseProperties;
   private final Stairway stairway;
   private final KubeService kubeService;
@@ -46,7 +46,7 @@ public class StairwayComponent {
   public StairwayComponent(
       ApplicationContext applicationContext,
       StairwayConfiguration stairwayConfiguration,
-      StairwayDatabaseConfiguration stairwayDatabaseConfiguration,
+      StairwayDatabaseDatabaseConfiguration stairwayDatabaseConfiguration,
       StairwayDatabaseProperties stairwayDatabaseProperties,
       KubernetesComponent kubernetesComponent) {
     this.stairwayConfiguration = stairwayConfiguration;

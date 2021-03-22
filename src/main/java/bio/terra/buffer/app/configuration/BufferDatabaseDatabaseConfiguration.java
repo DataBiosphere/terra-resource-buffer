@@ -13,8 +13,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Configuration
 @EnableConfigurationProperties(value = BufferDatabaseProperties.class)
 @EnableTransactionManagement
-public class BufferDatabaseConfiguration extends BaseDataBaseConfiguration {
-  public BufferDatabaseConfiguration(BufferDatabaseProperties databaseProperties) {
+public class BufferDatabaseDatabaseConfiguration extends BaseDatabaseConfiguration {
+  public BufferDatabaseDatabaseConfiguration(BufferDatabaseProperties databaseProperties) {
     super(databaseProperties);
   }
 

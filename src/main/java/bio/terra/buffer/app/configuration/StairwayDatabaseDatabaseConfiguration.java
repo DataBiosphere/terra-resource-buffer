@@ -5,8 +5,8 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EnableConfigurationProperties(value = StairwayDatabaseProperties.class)
-public class StairwayDatabaseConfiguration extends BaseDataBaseConfiguration {
-  public StairwayDatabaseConfiguration(StairwayDatabaseProperties databaseProperties) {
+public class StairwayDatabaseDatabaseConfiguration extends BaseDatabaseConfiguration {
+  public StairwayDatabaseDatabaseConfiguration(StairwayDatabaseProperties databaseProperties) {
     super(databaseProperties);
   }
 }
