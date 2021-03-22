@@ -1,18 +1,31 @@
 package bio.terra.buffer.db;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.buffer.app.configuration.BufferJdbcConfiguration;
-import bio.terra.buffer.common.*;
+import bio.terra.buffer.app.configuration.BufferDatabaseDatabaseConfiguration;
+import bio.terra.buffer.common.BaseUnitTest;
+import bio.terra.buffer.common.Pool;
+import bio.terra.buffer.common.PoolAndResourceStates;
+import bio.terra.buffer.common.PoolId;
 import bio.terra.buffer.common.PoolStatus;
-import bio.terra.buffer.generated.model.*;
+import bio.terra.buffer.common.RequestHandoutId;
+import bio.terra.buffer.common.Resource;
+import bio.terra.buffer.common.ResourceId;
+import bio.terra.buffer.common.ResourceState;
+import bio.terra.buffer.common.ResourceType;
+import bio.terra.buffer.generated.model.CloudResourceUid;
+import bio.terra.buffer.generated.model.GcpProjectConfig;
+import bio.terra.buffer.generated.model.GoogleProjectUid;
+import bio.terra.buffer.generated.model.ProjectIdSchema;
+import bio.terra.buffer.generated.model.ResourceConfig;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
-import java.util.*;
-import org.apache.commons.dbcp2.PoolableConnection;
-import org.apache.commons.dbcp2.PoolingDataSource;
+import java.util.List;
+import java.util.UUID;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,14 +37,14 @@ import org.springframework.test.annotation.DirtiesContext;
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class BufferDaoTest extends BaseUnitTest {
-  @Autowired BufferJdbcConfiguration jdbcConfiguration;
+  @Autowired BufferDatabaseDatabaseConfiguration jdbcConfiguration;
   @Autowired BufferDao bufferDao;
-  @Autowired PoolingDataSource<PoolableConnection> dataSource;
+
   private NamedParameterJdbcTemplate jdbcTemplate;
 
   @BeforeEach
   public void setup() {
-    jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+    jdbcTemplate = new NamedParameterJdbcTemplate(jdbcConfiguration.getDataSource());
   }
 
   private static Pool newPool(PoolId poolId) {

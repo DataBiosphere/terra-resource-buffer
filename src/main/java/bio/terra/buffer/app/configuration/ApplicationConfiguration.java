@@ -1,6 +1,5 @@
 package bio.terra.buffer.app.configuration;
 
-import static bio.terra.buffer.app.configuration.BeanNames.JDBC_TEMPLATE;
 import static bio.terra.buffer.app.configuration.BeanNames.OBJECT_MAPPER;
 
 import bio.terra.buffer.app.StartupInitializer;
@@ -17,16 +16,9 @@ import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 @Configuration
 public class ApplicationConfiguration {
-  @Bean(JDBC_TEMPLATE)
-  public NamedParameterJdbcTemplate getNamedParameterJdbcTemplate(
-      PoolingDataSource<PoolableConnection> dataSource) {
-    return new NamedParameterJdbcTemplate(dataSource);
-  }
-
   @Bean(OBJECT_MAPPER)
   public ObjectMapper objectMapper() {
     return new ObjectMapper()

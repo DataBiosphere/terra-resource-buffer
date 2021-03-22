@@ -2,7 +2,7 @@ package bio.terra.buffer.app.controller;
 
 import static bio.terra.buffer.common.MetricsHelper.recordHandoutResourceRequest;
 
-import bio.terra.buffer.app.configuration.BufferJdbcConfiguration;
+import bio.terra.buffer.app.configuration.BufferDatabaseDatabaseConfiguration;
 import bio.terra.buffer.common.PoolId;
 import bio.terra.buffer.common.RequestHandoutId;
 import bio.terra.buffer.generated.controller.BufferApi;
@@ -30,12 +30,11 @@ public class BufferApiController implements BufferApi {
 
   @Autowired
   BufferApiController(
-      BufferJdbcConfiguration jdbcConfiguration,
-      StairwayLifecycleManager stairwayLifecycleManager,
-      PoolService poolService,
-      PoolingDataSource<PoolableConnection> dataSource) {
-    this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-    this.stairwayLifecycleManager = stairwayLifecycleManager;
+      BufferDatabaseDatabaseConfiguration jdbcConfiguration,
+      StairwayComponent stairwayComponent,
+      PoolService poolService) {
+    this.jdbcTemplate = new NamedParameterJdbcTemplate(jdbcConfiguration.getDataSource());
+    this.stairwayComponent = stairwayComponent;
     this.poolService = poolService;
   }
 
