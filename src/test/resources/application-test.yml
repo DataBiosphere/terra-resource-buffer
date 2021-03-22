@@ -23,9 +23,12 @@ terra:
       namespace-suffix: buffer
     stairway:
       db:
+        jmx_enabled: false
         password: dbpwd_stairway
         uri: jdbc:postgresql://127.0.0.1:5432/testdb_stairway
         username: dbuser_stairway
+        pool_max_total: 100
+        pool_max_idle: 25
       force-clean-start: true
       migrate-upgrade: true
 
