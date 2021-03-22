@@ -5,7 +5,7 @@ import static bio.terra.buffer.common.MetricsHelper.recordResourceStateCount;
 import bio.terra.buffer.app.configuration.PrimaryConfiguration;
 import bio.terra.buffer.common.*;
 import bio.terra.buffer.db.*;
-import bio.terra.common.stairway.StairwayLifecycleManager;
+import bio.terra.common.stairway.StairwayComponent;
 import com.google.common.base.Preconditions;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
@@ -29,29 +29,29 @@ public class FlightScheduler {
 
   private final FlightManager flightManager;
   private final PrimaryConfiguration primaryConfiguration;
-  private final StairwayLifecycleManager stairwayLifecycleManager;
+  private final StairwayComponent stairwayComponent;
   private final BufferDao bufferDao;
 
   @Autowired
   public FlightScheduler(
       FlightManager flightManager,
       PrimaryConfiguration primaryConfiguration,
-      StairwayLifecycleManager stairwayLifecycleManager,
+      StairwayComponent stairwayComponent,
       BufferDao bufferDao) {
     this.flightManager = flightManager;
     this.primaryConfiguration = primaryConfiguration;
-    this.stairwayLifecycleManager = stairwayLifecycleManager;
+    this.stairwayComponent = stairwayComponent;
     this.bufferDao = bufferDao;
   }
 
   /**
    * Initialize the FlightScheduler, kicking off its tasks.
    *
-   * <p>The StairwayLifecycleManager must be ready before calling this function.
+   * <p>The StairwayComponent must be ready before calling this function.
    */
   public void initialize() {
     Preconditions.checkState(
-        stairwayLifecycleManager.getStatus().equals(StairwayLifecycleManager.Status.OK),
+        stairwayComponent.getStatus().equals(StairwayComponent.Status.OK),
         "Stairway must be ready before FlightScheduler can be initialized.");
     if (primaryConfiguration.isSchedulerEnabled()) {
       logger.info("Buffer scheduling enabled.");

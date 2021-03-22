@@ -4,7 +4,7 @@ import bio.terra.buffer.app.configuration.BufferDatabaseDatabaseConfiguration;
 import bio.terra.buffer.generated.controller.UnauthenticatedApi;
 import bio.terra.buffer.generated.model.SystemStatus;
 import bio.terra.buffer.generated.model.SystemStatusSystems;
-import bio.terra.common.stairway.StairwayLifecycleManager;
+import bio.terra.common.stairway.StairwayComponent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.Connection;
 import java.util.Optional;
@@ -18,14 +18,14 @@ import org.springframework.stereotype.Controller;
 @Controller
 public class UnauthenticatedApiController implements UnauthenticatedApi {
   private final NamedParameterJdbcTemplate jdbcTemplate;
-  private final StairwayLifecycleManager stairwayLifecycleManager;
+  private final StairwayComponent stairwayComponent;
 
   @Autowired
   UnauthenticatedApiController(
       BufferDatabaseDatabaseConfiguration jdbcConfiguration,
-      StairwayLifecycleManager stairwayLifecycleManager) {
+      StairwayComponent stairwayComponent) {
     this.jdbcTemplate = new NamedParameterJdbcTemplate(jdbcConfiguration.getDataSource());
-    this.stairwayLifecycleManager = stairwayLifecycleManager;
+    this.stairwayComponent = stairwayComponent;
   }
 
   @Override
@@ -36,8 +36,8 @@ public class UnauthenticatedApiController implements UnauthenticatedApi {
         jdbcTemplate.getJdbcTemplate().execute((Connection connection) -> connection.isValid(0));
     systemStatus.putSystemsItem("postgres", new SystemStatusSystems().ok(postgresOk));
 
-    StairwayLifecycleManager.Status stairwayStatus = stairwayLifecycleManager.getStatus();
-    final boolean stairwayOk = stairwayStatus.equals(StairwayLifecycleManager.Status.OK);
+    StairwayComponent.Status stairwayStatus = stairwayComponent.getStatus();
+    final boolean stairwayOk = stairwayStatus.equals(StairwayComponent.Status.OK);
     systemStatus.putSystemsItem(
         "stairway",
         new SystemStatusSystems().ok(stairwayOk).addMessagesItem(stairwayStatus.toString()));

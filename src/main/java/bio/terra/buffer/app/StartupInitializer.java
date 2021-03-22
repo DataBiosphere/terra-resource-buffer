@@ -7,7 +7,7 @@ import bio.terra.buffer.service.pool.PoolService;
 import bio.terra.buffer.service.resource.FlightScheduler;
 import bio.terra.buffer.service.stackdriver.StackdriverExporter;
 import bio.terra.common.migrate.LiquibaseMigrator;
-import bio.terra.common.stairway.StairwayLifecycleManager;
+import bio.terra.common.stairway.StairwayComponent;
 import bio.terra.common.stairway.TracingHook;
 import com.google.common.collect.ImmutableList;
 import org.slf4j.Logger;
@@ -40,7 +40,7 @@ public final class StartupInitializer {
       migrateService.upgrade(changelogPath, bufferDatabaseConfiguration.getDataSource());
     }
     applicationContext
-        .getBean(StairwayLifecycleManager.class)
+        .getBean(StairwayComponent.class)
         .initialize(applicationContext, ImmutableList.of(new TracingHook()));
     applicationContext.getBean(PoolService.class).initialize();
     applicationContext.getBean(FlightScheduler.class).initialize();

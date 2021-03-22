@@ -71,7 +71,7 @@ import bio.terra.cloudres.google.dns.DnsCow;
 import bio.terra.cloudres.google.iam.IamCow;
 import bio.terra.cloudres.google.serviceusage.ServiceUsageCow;
 import bio.terra.cloudres.google.storage.StorageCow;
-import bio.terra.common.stairway.StairwayLifecycleManager;
+import bio.terra.common.stairway.StairwayComponent;
 import bio.terra.stairway.Flight;
 import bio.terra.stairway.FlightContext;
 import bio.terra.stairway.FlightMap;
@@ -112,7 +112,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   @Autowired BufferDao bufferDao;
-  @Autowired StairwayLifecycleManager stairwayLifecycleManager;
+  @Autowired StairwayComponent stairwayComponent;
   @Autowired CloudComputeCow computeCow;
   @Autowired CloudResourceManagerCow rmCow;
   @Autowired CloudBillingClientCow billingCow;
@@ -132,13 +132,13 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   public void testCreateGoogleProject_basicCreation() throws Exception {
     FlightManager manager =
         new FlightManager(
-            bufferDao, flightSubmissionFactoryImpl, stairwayLifecycleManager, transactionTemplate);
+            bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
     Pool pool = preparePool(bufferDao, newBasicGcpConfig());
 
     String flightId = manager.submitCreationFlight(pool).get();
     ResourceId resourceId =
         extractResourceIdFromFlightState(
-            blockUntilFlightComplete(stairwayLifecycleManager, flightId));
+            blockUntilFlightComplete(stairwayComponent, flightId));
     Project project = assertProjectExists(resourceId);
     assertBillingIs(project, pool.resourceConfig().getGcpProjectConfig().getBillingAccount());
     assertEnableApisContains(project, pool.resourceConfig().getGcpProjectConfig().getEnabledApis());
@@ -157,13 +157,13 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     // Basic GCP project with IAM Bindings
     FlightManager manager =
         new FlightManager(
-            bufferDao, flightSubmissionFactoryImpl, stairwayLifecycleManager, transactionTemplate);
+            bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
     Pool pool = preparePool(bufferDao, newBasicGcpConfig().iamBindings(IAM_BINDINGS));
 
     String flightId = manager.submitCreationFlight(pool).get();
     ResourceId resourceId =
         extractResourceIdFromFlightState(
-            blockUntilFlightComplete(stairwayLifecycleManager, flightId));
+            blockUntilFlightComplete(stairwayComponent, flightId));
     Project project = assertProjectExists(resourceId);
     assertIamBindingsContains(project, IAM_BINDINGS);
   }
@@ -172,7 +172,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   public void testCreateGoogleProject_enableNetworkMonitoring() throws Exception {
     FlightManager manager =
         new FlightManager(
-            bufferDao, flightSubmissionFactoryImpl, stairwayLifecycleManager, transactionTemplate);
+            bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
     Pool pool =
         preparePool(
             bufferDao,
@@ -183,7 +183,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     String flightId = manager.submitCreationFlight(pool).get();
     ResourceId resourceId =
         extractResourceIdFromFlightState(
-            blockUntilFlightComplete(stairwayLifecycleManager, flightId));
+            blockUntilFlightComplete(stairwayComponent, flightId));
     Project project = assertProjectExists(resourceId);
     assertNetworkExists(project);
     assertSubnetsExist(project, NetworkMonitoring.ENABLED);
@@ -196,7 +196,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   public void testCreateGoogleProject_keepDefaultComputeEngineServiceAcct() throws Exception {
     FlightManager manager =
         new FlightManager(
-            bufferDao, flightSubmissionFactoryImpl, stairwayLifecycleManager, transactionTemplate);
+            bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
     Pool pool =
         preparePool(
             bufferDao,
@@ -205,7 +205,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     String flightId = manager.submitCreationFlight(pool).get();
     ResourceId resourceId =
         extractResourceIdFromFlightState(
-            blockUntilFlightComplete(stairwayLifecycleManager, flightId));
+            blockUntilFlightComplete(stairwayComponent, flightId));
     Project project = assertProjectExists(resourceId);
     assertDefaultServiceAccountExists(project);
   }
@@ -214,7 +214,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   public void testCreateGoogleProject_keepDefaultNetwork() throws Exception {
     FlightManager manager =
         new FlightManager(
-            bufferDao, flightSubmissionFactoryImpl, stairwayLifecycleManager, transactionTemplate);
+            bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
     Pool pool =
         preparePool(
             bufferDao,
@@ -224,7 +224,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     String flightId = manager.submitCreationFlight(pool).get();
     ResourceId resourceId =
         extractResourceIdFromFlightState(
-            blockUntilFlightComplete(stairwayLifecycleManager, flightId));
+            blockUntilFlightComplete(stairwayComponent, flightId));
     Project project = assertProjectExists(resourceId);
     assertNetworkExists(project);
     assertFirewallRulesExist(project);
@@ -239,14 +239,14 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
         new FlightManager(
             bufferDao,
             new StubSubmissionFlightFactory(MultiInstanceStepFlight.class),
-            stairwayLifecycleManager,
+            stairwayComponent,
             transactionTemplate);
     Pool pool = preparePool(bufferDao, newFullGcpConfig());
 
     String flightId = manager.submitCreationFlight(pool).get();
     ResourceId resourceId =
         extractResourceIdFromFlightState(
-            blockUntilFlightComplete(stairwayLifecycleManager, flightId));
+            blockUntilFlightComplete(stairwayComponent, flightId));
     Project project = assertProjectExists(resourceId);
     assertIamBindingsContains(project, IAM_BINDINGS);
     assertNetworkExists(project);
@@ -264,7 +264,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
         new FlightManager(
             bufferDao,
             new StubSubmissionFlightFactory(ErrorCreateProjectFlight.class),
-            stairwayLifecycleManager,
+            stairwayComponent,
             transactionTemplate);
     Pool pool = preparePool(bufferDao, newBasicGcpConfig());
 
@@ -274,12 +274,12 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
         pollUntilResourcesMatch(bufferDao, pool.id(), ResourceState.CREATING, 1).get(0);
 
     LatchStep.releaseLatch();
-    extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayLifecycleManager, flightId));
+    extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
     // Resource is deleted.
     assertFalse(bufferDao.retrieveResource(resource.id()).isPresent());
     assertEquals(
         FlightStatus.ERROR,
-        stairwayLifecycleManager.get().getFlightState(flightId).getFlightStatus());
+        stairwayComponent.get().getFlightState(flightId).getFlightStatus());
   }
 
   @Test
@@ -289,12 +289,12 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
         new FlightManager(
             bufferDao,
             new StubSubmissionFlightFactory(ErrorAfterCreateResourceFlight.class),
-            stairwayLifecycleManager,
+            stairwayComponent,
             transactionTemplate);
 
     Pool pool = preparePool(bufferDao, newBasicGcpConfig());
     String flightId = manager.submitCreationFlight(pool).get();
-    extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayLifecycleManager, flightId));
+    extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
 
     Resource resource =
         bufferDao.retrieveResourcesRandomly(pool.id(), ResourceState.READY, 1).get(0);
@@ -307,7 +307,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
             .getLifecycleState());
     assertEquals(
         FlightStatus.ERROR,
-        stairwayLifecycleManager.get().getFlightState(flightId).getFlightStatus());
+        stairwayComponent.get().getFlightState(flightId).getFlightStatus());
   }
 
   @Test
@@ -340,7 +340,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
         new FlightManager(
             bufferDao,
             new StubSubmissionFlightFactory(LatchBeforeAssertResourceStep.class),
-            stairwayLifecycleManager,
+            stairwayComponent,
             transactionTemplate);
     Pool pool = preparePool(bufferDao, newBasicGcpConfig());
 
@@ -354,12 +354,12 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
     // Release the latch, and resume the flight, assert flight failed.
     LatchStep.releaseLatch();
-    extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayLifecycleManager, flightId));
+    extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
     // Resource is deleted.
     assertFalse(bufferDao.retrieveResource(resource.id()).isPresent());
     assertEquals(
         FlightStatus.ERROR,
-        stairwayLifecycleManager.get().getFlightState(flightId).getFlightStatus());
+        stairwayComponent.get().getFlightState(flightId).getFlightStatus());
   }
 
   /** A {@link Flight} that will fail to create Google Project. */
