@@ -5,8 +5,8 @@ gcpProjectConfig:
   projectIdSchema:
     prefix: "terra-perf"
     scheme: "RANDOM_CHAR"
-  # qulity.firecloud.org/quality/CommunityWorkbench
-  parentFolderId: "180789000311"
+  # test.firecloud.org/perf/CommunityWorkbench
+  parentFolderId: "246142551922"
   billingAccount: "01A82E-CA8A14-367457"
   enabledApis:
     - "bigquery-json.googleapis.com"
