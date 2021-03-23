@@ -3,10 +3,10 @@
 configName: "resource_buffer_test_v1"
 gcpProjectConfig:
   projectIdSchema:
-    prefix: "terra-buffer-test"
+    prefix: "buffer-test"
     scheme: "RANDOM_CHAR"
-  # RBS Testing
-  parentFolderId: "637867149294"
+  # test.firecloud.org/tools/buffertest
+  parentFolderId: "339691735869"
   billingAccount: "01A82E-CA8A14-367457"
   enabledApis:
     - "bigquery-json.googleapis.com"
