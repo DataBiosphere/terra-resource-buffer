@@ -1,18 +1,18 @@
 # Resource Buffer Service Pools Schema in prod environment
 ---
 poolConfigs:
-- poolId: "cwb_ws_prod_v1"
-  size: 200
-  resourceConfigName: "cwb_ws_resource_prod_v1"
-- poolId: "aou_ws_prod_v1"
-  size: 200
-  resourceConfigName: "aou_ws_resource_prod_v1"
-- poolId: "aou_ws_preprod_v1"
-  size: 100
-  resourceConfigName: "aou_ws_resource_preprod_v1"
-- poolId: "aou_ws_stable_v1"
-  size: 100
-  resourceConfigName: "aou_ws_resource_stable_v1"
-- poolId: "aou_ws_staging_v1"
-  size: 100
-  resourceConfigName: "aou_ws_resource_staging_v1"
+  - poolId: "cwb_ws_prod_v1"
+    size: 500
+    resourceConfigName: "cwb_ws_resource_prod_v1"
+  - poolId: "aou_ws_prod_v1"
+    size: 300
+    resourceConfigName: "aou_ws_resource_prod_v1"
+  - poolId: "aou_ws_preprod_v1"
+    size: 100
+    resourceConfigName: "aou_ws_resource_preprod_v1"
+  - poolId: "aou_ws_stable_v1"
+    size: 100
+    resourceConfigName: "aou_ws_resource_stable_v1"
+  - poolId: "aou_ws_staging_v1"
+    size: 100
+    resourceConfigName: "aou_ws_resource_staging_v1"

@@ -1,24 +1,24 @@
 # RBS Pools Schema for running buffer service performance test.
 ---
 poolConfigs:
-- poolId: "resource_perf_v1"
-  size: 1500
-  resourceConfigName: "resource_perf_v1"
-- poolId: "resource_perf_v2"
-  size: 1500
-  resourceConfigName: "resource_perf_v2"
-- poolId: "workspace_manager_v3"
-  size: 20
-  resourceConfigName: "workspace_manager_v3"
-- poolId: "workspace_manager_v4"
-  size: 20
-  resourceConfigName: "workspace_manager_v4"
-- poolId: "workspace_manager_v5"
-  size: 20
-  resourceConfigName: "workspace_manager_v5"
-- poolId: "cwb_ws_perf_v1"
-  size: 200
-  resourceConfigName: "cwb_ws_resource_perf_v1"
-- poolId: "aou_ws_perf_v1"
-  size: 100
-  resourceConfigName: "aou_ws_resource_perf_v1"
+  - poolId: "resource_perf_v1"
+    size: 1500
+    resourceConfigName: "resource_perf_v1"
+  - poolId: "resource_perf_v2"
+    size: 1500
+    resourceConfigName: "resource_perf_v2"
+  - poolId: "workspace_manager_v3"
+    size: 20
+    resourceConfigName: "workspace_manager_v3"
+  - poolId: "workspace_manager_v4"
+    size: 20
+    resourceConfigName: "workspace_manager_v4"
+  - poolId: "workspace_manager_v5"
+    size: 20
+    resourceConfigName: "workspace_manager_v5"
+  - poolId: "cwb_ws_perf_v1"
+    size: 200
+    resourceConfigName: "cwb_ws_resource_perf_v1"
+  - poolId: "aou_ws_perf_v1"
+    size: 300
+    resourceConfigName: "aou_ws_resource_perf_v1"
