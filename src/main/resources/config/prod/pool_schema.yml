@@ -14,5 +14,5 @@ poolConfigs:
     size: 100
     resourceConfigName: "aou_ws_stable_v1"
   - poolId: "aou_ws_staging_v1"
-    size: 100
+    size: 200
     resourceConfigName: "aou_ws_staging_v1"
