@@ -31,14 +31,14 @@ terra:
       in-kubernetes: false
       namespace-suffix: buffer
     stairway:
-      jmx-enabled: false
-      pool-max-total: 8
-      pool-max-idle: 8
+      cluster-name-suffix: buffer-stairwaycluster
       force-clean-start: true
+      max-parallel-flights: 10
       migrate-upgrade: true
-      cluster-name: buffer-cluster # FIXME
-terra.common:
-  tracing:
-    stackdriverExportEnabled: false
+      quiet-down-timeout: 30s
+      terminate-timeout: 60s
+      tracing-enabled: true
+    tracing:
+      stackdriverExportEnabled: false
 
 spring.profiles.include: human-readable-logging
