@@ -26,7 +26,7 @@ public class FlightManager {
 
   private final BufferDao bufferDao;
   private final FlightSubmissionFactory flightSubmissionFactory;
-  private final Stairway stairway;
+  private final StairwayComponent stairwayComponent;
   private final TransactionTemplate transactionTemplate;
 
   @Autowired
@@ -37,7 +37,7 @@ public class FlightManager {
       TransactionTemplate transactionTemplate) {
     this.bufferDao = bufferDao;
     this.flightSubmissionFactory = flightSubmissionFactory;
-    this.stairway = stairwayComponent.get();
+    this.stairwayComponent = stairwayComponent;
     this.transactionTemplate = transactionTemplate;
   }
 
@@ -92,10 +92,14 @@ public class FlightManager {
 
   private Optional<String> submitToStairway(
       FlightSubmissionFactory.FlightSubmission flightSubmission, TransactionStatus status) {
-    String flightId = stairway.createFlightId();
+    String flightId =
+        Optional.ofNullable(stairwayComponent.get())
+            .map(Stairway::createFlightId)
+            .orElseThrow(() -> new IllegalStateException("StairwayComponent is not initialized."));
     try {
-      stairway.submitToQueue(
-          flightId, flightSubmission.clazz(), flightSubmission.inputParameters());
+      stairwayComponent
+          .get()
+          .submitToQueue(flightId, flightSubmission.clazz(), flightSubmission.inputParameters());
       return Optional.of(flightId);
     } catch (StairwayException | InterruptedException e) {
       logger.error("Error submitting flight id: {}", flightId, e);
