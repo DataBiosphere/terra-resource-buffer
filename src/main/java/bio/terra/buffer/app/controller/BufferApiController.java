@@ -2,7 +2,6 @@ package bio.terra.buffer.app.controller;
 
 import static bio.terra.buffer.common.MetricsHelper.recordHandoutResourceRequest;
 
-import bio.terra.buffer.app.configuration.BufferDatabaseDatabaseConfiguration;
 import bio.terra.buffer.common.PoolId;
 import bio.terra.buffer.common.RequestHandoutId;
 import bio.terra.buffer.generated.controller.BufferApi;
@@ -10,29 +9,20 @@ import bio.terra.buffer.generated.model.HandoutRequestBody;
 import bio.terra.buffer.generated.model.PoolInfo;
 import bio.terra.buffer.generated.model.ResourceInfo;
 import bio.terra.buffer.service.pool.PoolService;
-import bio.terra.buffer.service.stairway.StairwayComponent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Controller;
 
 @Controller
 public class BufferApiController implements BufferApi {
-  private final NamedParameterJdbcTemplate jdbcTemplate;
-  private final StairwayComponent stairwayComponent;
   private final PoolService poolService;
 
   @Autowired
-  BufferApiController(
-      BufferDatabaseDatabaseConfiguration jdbcConfiguration,
-      StairwayComponent stairwayComponent,
-      PoolService poolService) {
-    this.jdbcTemplate = new NamedParameterJdbcTemplate(jdbcConfiguration.getDataSource());
-    this.stairwayComponent = stairwayComponent;
+  BufferApiController(PoolService poolService) {
     this.poolService = poolService;
   }
 

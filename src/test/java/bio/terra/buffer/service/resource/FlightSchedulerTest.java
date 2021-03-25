@@ -11,7 +11,7 @@ import bio.terra.buffer.common.*;
 import bio.terra.buffer.common.testing.MetricsTestUtil;
 import bio.terra.buffer.db.*;
 import bio.terra.buffer.generated.model.ResourceConfig;
-import bio.terra.buffer.service.stairway.StairwayComponent;
+import bio.terra.common.stairway.StairwayComponent;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultiset;
 import com.google.common.collect.Multiset;

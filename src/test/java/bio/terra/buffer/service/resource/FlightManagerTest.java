@@ -6,7 +6,7 @@ import static org.mockito.Mockito.*;
 import bio.terra.buffer.common.*;
 import bio.terra.buffer.db.BufferDao;
 import bio.terra.buffer.generated.model.ResourceConfig;
-import bio.terra.buffer.service.stairway.StairwayComponent;
+import bio.terra.common.stairway.StairwayComponent;
 import bio.terra.stairway.Stairway;
 import bio.terra.stairway.exception.StairwayExecutionException;
 import com.google.common.collect.ImmutableList;
