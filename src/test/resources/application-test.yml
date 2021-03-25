@@ -28,6 +28,7 @@ terra:
       in-kubernetes: false
     stairway:
       force-clean-start: true
+      tracing-enabled: false
     tracing:
       stackdriverExportEnabled: false
 
