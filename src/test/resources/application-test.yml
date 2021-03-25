@@ -21,23 +21,13 @@ buffer:
       password: dbpwd_stairway
       uri: jdbc:postgresql://127.0.0.1:5432/testdb_stairway
       username: dbuser_stairway
-      pool-max-total: 8
-      pool-max-idle: 8
-
 terra:
   common:
     kubernetes:
       pod-name: buffer-test-pod
       in-kubernetes: false
-      namespace-suffix: buffer
     stairway:
-      cluster-name-suffix: buffer-stairwaycluster
       force-clean-start: true
-      max-parallel-flights: 10
-      migrate-upgrade: true
-      quiet-down-timeout: 30s
-      terminate-timeout: 60s
-      tracing-enabled: true
     tracing:
       stackdriverExportEnabled: false
 

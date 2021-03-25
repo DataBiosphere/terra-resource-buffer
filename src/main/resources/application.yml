@@ -29,7 +29,8 @@ terra:
       migrate-upgrade: true
       quiet-down-timeout: 20s
       terminate-timeout: 5s
-
+      cluster-name-suffix: buffer-stairwaycluster
+      tracing-enabled: true
 # Turn on debug-level logs for CRL, to include all CRL operation payloads.
 logging.level.bio.terra.cloudres: DEBUG
 
