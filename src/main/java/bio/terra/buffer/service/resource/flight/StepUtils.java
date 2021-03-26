@@ -12,19 +12,22 @@ import bio.terra.stairway.RetryRuleFixedInterval;
 
 /** Utilities used in Stairway steps. */
 public class StepUtils {
+
   /**
    * The stairway retry rule for GCP API calls. Use longer wait time because cloud API quota,
    * outrage, and other unknown issues.
    */
-  public static final RetryRuleFixedInterval CLOUD_API_DEFAULT_RETRY =
-      new RetryRuleFixedInterval(/* intervalSeconds =*/ 60, /* maxCount =*/ 10);
+  public static RetryRuleFixedInterval newCloudApiDefaultRetryRule() {
+    return new RetryRuleFixedInterval(/* intervalSeconds =*/ 60, /* maxCount =*/ 10);
+  }
 
   /**
    * The stairway retry rule for Buffer service internal operations. Use shorter wait time because
    * they all internal operations, e.g. DB write/read. And we are able to retry right away.
    */
-  public static final RetryRuleFixedInterval INTERNAL_DEFAULT_RETRY =
-      new RetryRuleFixedInterval(/* intervalSeconds =*/ 5, /* maxCount =*/ 10);
+  public static RetryRuleFixedInterval newInternalDefaultRetryRule() {
+    return new RetryRuleFixedInterval(/* intervalSeconds =*/ 5, /* maxCount =*/ 10);
+  }
 
   /** Update resource state to READY and update working map's RESOURCE_READY boolean value. */
   public static void markResourceReady(BufferDao bufferDao, FlightContext flightContext) {
@@ -34,6 +37,7 @@ public class StepUtils {
         workingMap.get(FlightMapKeys.CLOUD_RESOURCE_UID, CloudResourceUid.class));
     workingMap.put(RESOURCE_READY, true);
   }
+
   /** Check resource is already marked as READY. This can prevent a READY resource got rollback. */
   public static boolean isResourceReady(FlightContext flightContext) {
     FlightMap workingMap = flightContext.getWorkingMap();
