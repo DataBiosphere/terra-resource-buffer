@@ -5,7 +5,7 @@ import static bio.terra.buffer.common.MetricsHelper.recordResourceStateCount;
 import bio.terra.buffer.app.configuration.PrimaryConfiguration;
 import bio.terra.buffer.common.*;
 import bio.terra.buffer.db.*;
-import bio.terra.buffer.service.stairway.StairwayComponent;
+import bio.terra.common.stairway.StairwayComponent;
 import com.google.common.base.Preconditions;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;

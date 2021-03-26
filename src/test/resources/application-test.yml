@@ -5,9 +5,9 @@ buffer:
     update-db-on-start: true
     uri: jdbc:postgresql://127.0.0.1:5432/testdb
     username: dbuser
-  kubernetes:
-    pod-name: buffer-test-pod
-    in-kubernetes: false
+    pool-max-total: 8
+    pool-max-idle: 8
+    jmx-enabled: false
   primary:
     # Disable this for test to avoid all tests invoking submit flights and making cloud calls.
     scheduler-enabled: false
@@ -17,14 +17,19 @@ buffer:
     enabled: false
   stairway:
     db:
+      jmx-enabled: false
       password: dbpwd_stairway
       uri: jdbc:postgresql://127.0.0.1:5432/testdb_stairway
       username: dbuser_stairway
-    force-clean-start: true
-    migrate-upgrade: true
-
-terra.common:
-  tracing:
-    stackdriverExportEnabled: false
+terra:
+  common:
+    kubernetes:
+      pod-name: buffer-test-pod
+      in-kubernetes: false
+    stairway:
+      force-clean-start: true
+      tracing-enabled: false
+    tracing:
+      stackdriverExportEnabled: false
 
 spring.profiles.include: human-readable-logging

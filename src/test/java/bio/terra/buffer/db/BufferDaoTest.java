@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.buffer.app.configuration.BufferDatabaseDatabaseConfiguration;
+import bio.terra.buffer.app.configuration.BufferDatabaseConfiguration;
 import bio.terra.buffer.common.BaseUnitTest;
 import bio.terra.buffer.common.Pool;
 import bio.terra.buffer.common.PoolAndResourceStates;
@@ -37,7 +37,7 @@ import org.springframework.test.annotation.DirtiesContext;
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class BufferDaoTest extends BaseUnitTest {
-  @Autowired BufferDatabaseDatabaseConfiguration jdbcConfiguration;
+  @Autowired BufferDatabaseConfiguration jdbcConfiguration;
   @Autowired BufferDao bufferDao;
 
   private NamedParameterJdbcTemplate jdbcTemplate;
