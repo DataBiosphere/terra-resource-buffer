@@ -3,3 +3,4 @@ buffer:
     # Enable scheduler service which will submit flight by scanning db.
     scheduler-enabled: true
     flight-submission-period: 5s
+    delete-excess-resources: true

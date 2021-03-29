@@ -2,14 +2,28 @@ package bio.terra.buffer.service.resource;
 
 import static bio.terra.buffer.common.MetricsHelper.READY_RESOURCE_RATIO_VIEW;
 import static bio.terra.buffer.common.MetricsHelper.RESOURCE_STATE_COUNT_VIEW;
-import static bio.terra.buffer.common.testing.MetricsTestUtil.*;
+import static bio.terra.buffer.common.testing.MetricsTestUtil.assertLastValueDoubleIs;
+import static bio.terra.buffer.common.testing.MetricsTestUtil.getPoolIdTag;
+import static bio.terra.buffer.common.testing.MetricsTestUtil.getResourceCountTags;
+import static bio.terra.buffer.common.testing.MetricsTestUtil.sleepForSpansExport;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import bio.terra.buffer.app.configuration.PrimaryConfiguration;
-import bio.terra.buffer.common.*;
+import bio.terra.buffer.common.BaseUnitTest;
+import bio.terra.buffer.common.Pool;
+import bio.terra.buffer.common.PoolId;
+import bio.terra.buffer.common.PoolStatus;
+import bio.terra.buffer.common.Resource;
+import bio.terra.buffer.common.ResourceId;
+import bio.terra.buffer.common.ResourceState;
+import bio.terra.buffer.common.ResourceType;
 import bio.terra.buffer.common.testing.MetricsTestUtil;
-import bio.terra.buffer.db.*;
+import bio.terra.buffer.db.BufferDao;
 import bio.terra.buffer.generated.model.ResourceConfig;
 import bio.terra.common.stairway.StairwayComponent;
 import com.google.common.collect.ImmutableList;
@@ -19,6 +33,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
@@ -32,6 +47,7 @@ import org.springframework.test.annotation.DirtiesContext;
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class FlightSchedulerTest extends BaseUnitTest {
+
   // Construct a FlightScheduler manually instead of Autowired for ease of testing.
   private FlightScheduler flightScheduler;
   private final ArgumentCaptor<Resource> resourceArgumentCaptor =
@@ -64,8 +80,9 @@ public class FlightSchedulerTest extends BaseUnitTest {
     primaryConfiguration.setSchedulerEnabled(true);
     primaryConfiguration.setResourceCreationPerPoolLimit(10);
     primaryConfiguration.setResourceDeletionPerPoolLimit(10);
+    primaryConfiguration.setDeleteExcessResources(false);
     // Sets submissionPeriod to a big number to make sure it is only runs once.
-    primaryConfiguration.setFlightSubmissionPeriod(Duration.ofSeconds(2000));
+    primaryConfiguration.setFlightSubmissionPeriod(Duration.ofHours(2));
     return primaryConfiguration;
   }
 
@@ -109,7 +126,8 @@ public class FlightSchedulerTest extends BaseUnitTest {
             ImmutableMultiset.of(ResourceState.READY, ResourceState.READY, ResourceState.CREATING));
 
     initializeScheduler();
-    Thread.sleep(4000);
+
+    TimeUnit.SECONDS.sleep(4);
 
     verify(flightManager, times(2)).submitCreationFlight(pool1);
     verify(flightManager, never()).submitCreationFlight(pool2);
@@ -129,7 +147,7 @@ public class FlightSchedulerTest extends BaseUnitTest {
     List<Resource> resources =
         bufferDao.retrieveResourcesRandomly(pool.id(), ResourceState.READY, 2);
     initializeScheduler();
-    Thread.sleep(4000);
+    TimeUnit.SECONDS.sleep(4);
 
     resources.forEach(
         resource ->
@@ -138,13 +156,40 @@ public class FlightSchedulerTest extends BaseUnitTest {
   }
 
   @Test
-  public void scheduleDeactivationFlights_poolSizeReduced() throws Exception {
+  public void scheduleDeactivationFlights_enableDeletion() throws Exception {
+    newPoolWithResourceCount(1, ImmutableMultiset.of(ResourceState.READY, ResourceState.READY));
+
+    PrimaryConfiguration primaryConfiguration = newPrimaryConfiguration();
+    primaryConfiguration.setDeleteExcessResources(true);
+    initializeScheduler(primaryConfiguration);
+
+    TimeUnit.SECONDS.sleep(4);
+
+    verify(flightManager)
+        .submitDeletionFlight(any(Resource.class), eq(ResourceType.GOOGLE_PROJECT));
+  }
+
+  @Test
+  public void notScheduleDeactivationFlights_enableDeletionButReadyCountEqualToPoolSize()
+      throws Exception {
     // Pool size 1, with 1 ready one creation. Shouldn't deactivate any resources since we only
     // count READY one.
     newPoolWithResourceCount(1, ImmutableMultiset.of(ResourceState.READY, ResourceState.CREATING));
 
     initializeScheduler();
-    Thread.sleep(4000);
+    TimeUnit.SECONDS.sleep(4);
+
+    verify(flightManager, never())
+        .submitDeletionFlight(any(Resource.class), eq(ResourceType.GOOGLE_PROJECT));
+    verify(flightManager, never()).submitCreationFlight(any(Pool.class));
+  }
+
+  @Test
+  public void notScheduleDeactivationFlights_disableDeletion() throws Exception {
+    newPoolWithResourceCount(1, ImmutableMultiset.of(ResourceState.READY, ResourceState.READY));
+
+    initializeScheduler();
+    TimeUnit.SECONDS.sleep(4);
 
     verify(flightManager, never())
         .submitDeletionFlight(any(Resource.class), eq(ResourceType.GOOGLE_PROJECT));
@@ -163,7 +208,7 @@ public class FlightSchedulerTest extends BaseUnitTest {
     PrimaryConfiguration primaryConfiguration = newPrimaryConfiguration();
     primaryConfiguration.setResourceCreationPerPoolLimit(5);
     initializeScheduler(primaryConfiguration);
-    Thread.sleep(4000);
+    TimeUnit.SECONDS.sleep(4);
 
     verify(flightManager, times(5)).submitCreationFlight(pool);
     verify(flightManager, never())
@@ -192,7 +237,7 @@ public class FlightSchedulerTest extends BaseUnitTest {
     primaryConfiguration.setResourceDeletionPerPoolLimit(3);
     initializeScheduler(primaryConfiguration);
 
-    Thread.sleep(4000);
+    TimeUnit.SECONDS.sleep(4);
 
     verify(flightManager, times(3))
         .submitDeletionFlight(resourceArgumentCaptor.capture(), eq(ResourceType.GOOGLE_PROJECT));
