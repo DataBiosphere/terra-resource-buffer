@@ -6,6 +6,8 @@ buffer:
     uri: jdbc:postgresql://127.0.0.1:5432/${BUFFER_DATABASE_NAME}
     username:
   primary:
+    # Don't delete resource when ready resource count exceeds pool size.
+    delete-exceed-pool-size-resource: false
     scheduler-enabled: true
   pool:
     # The Folder to have all Resource Buffer Service configs.

@@ -44,7 +44,7 @@ public class PrimaryConfiguration {
    * is no use case that we need to actively reduce pool size. Resource is only need to be deleted
    * when pool is inactivated.
    */
-  private boolean deleteExceedPoolSizeResource = false;
+  private boolean deleteExceedPoolSizeResource;
 
   /**
    * How many resource creation flights for a pool to process simultaneously because because we
