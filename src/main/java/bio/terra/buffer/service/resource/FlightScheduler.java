@@ -3,8 +3,12 @@ package bio.terra.buffer.service.resource;
 import static bio.terra.buffer.common.MetricsHelper.recordResourceStateCount;
 
 import bio.terra.buffer.app.configuration.PrimaryConfiguration;
-import bio.terra.buffer.common.*;
-import bio.terra.buffer.db.*;
+import bio.terra.buffer.common.Pool;
+import bio.terra.buffer.common.PoolAndResourceStates;
+import bio.terra.buffer.common.PoolStatus;
+import bio.terra.buffer.common.Resource;
+import bio.terra.buffer.common.ResourceState;
+import bio.terra.buffer.db.BufferDao;
 import bio.terra.common.stairway.StairwayComponent;
 import com.google.common.base.Preconditions;
 import java.util.List;
@@ -22,9 +26,12 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class FlightScheduler {
+
   private final Logger logger = LoggerFactory.getLogger(FlightScheduler.class);
 
-  /** Only need as many threads as we have scheduled tasks. */
+  /**
+   * Only need as many threads as we have scheduled tasks.
+   */
   private final ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(1);
 
   private final FlightManager flightManager;
@@ -91,7 +98,8 @@ public class FlightScheduler {
             readyAndCreatingCount);
         if (size > readyAndCreatingCount) {
           scheduleCreationFlights(poolAndResources.pool(), size - readyAndCreatingCount);
-        } else if (poolAndResources.resourceStates().count(ResourceState.READY) > size) {
+        } else if (primaryConfiguration.isDeleteExceedPoolSizeResource()
+            && poolAndResources.resourceStates().count(ResourceState.READY) > size) {
           // Only deletion READY resource, we hope future schedule runs will deletion resources
           // just turns to READY from CREATING.
           scheduleDeletionFlights(
@@ -107,7 +115,9 @@ public class FlightScheduler {
     }
   }
 
-  /** Schedules up to {@code number} of resources creation flight for a pool. */
+  /**
+   * Schedules up to {@code number} of resources creation flight for a pool.
+   */
   private void scheduleCreationFlights(Pool pool, int number) {
     int flightToSchedule = Math.min(primaryConfiguration.getResourceCreationPerPoolLimit(), number);
     logger.info(
@@ -127,7 +137,9 @@ public class FlightScheduler {
         pool.id());
   }
 
-  /** Schedules up to {@code number} of resources creation flight for a pool. */
+  /**
+   * Schedules up to {@code number} of resources creation flight for a pool.
+   */
   private void scheduleDeletionFlights(Pool pool, int number) {
     int flightToSchedule = Math.min(primaryConfiguration.getResourceDeletionPerPoolLimit(), number);
     logger.info(
@@ -163,6 +175,7 @@ public class FlightScheduler {
    * <p>ScheduledExecutorService scheduled tasks that throw errors stop executing.
    */
   private class LogThrowables implements Runnable {
+
     private final Runnable task;
 
     private LogThrowables(Runnable task) {

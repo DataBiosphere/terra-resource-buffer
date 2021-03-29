@@ -11,21 +11,40 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  *
  * <p>Rate limiting: The bottleneck for GCP quota comes from ServiceUsage.batchEnable API. By
  * default, it is 20/100s. Here is how we estimate the time: A Creation flight takes 600~900
- * seconds. If scheduler runs every 10 seconds, in 900 seconds it schedulers runs 70 times. If we
+ * seconds. If a scheduler runs every 10 seconds, in 900 seconds it schedulers runs 70 times. If we
  * have 4 pools, it schedules ({@code resourceCreationPerPoolLimit} * 4) = 4 flights. In total 70
  * times run, 280 flights is scheduled. We estimate this number should works when pool number is
- * 1~10. If we see more errors, we will comeback and revise those configs.
+ * 1~10. If we see more errors, we will comeback and revise those configs. TODO(PF-617): The current
+ * 'primary' scheduling service is actually running in all instances, figure out a way to make this
+ * only runs in one pod.
  */
 @Component
 @EnableConfigurationProperties
 @EnableTransactionManagement
 @ConfigurationProperties(prefix = "buffer.primary")
 public class PrimaryConfiguration {
-  /** Whether to run the scheduler to periodically. */
+
+  /**
+   * Whether to run the scheduler to periodically.
+   */
   private boolean schedulerEnabled;
 
-  /** How often to query for flights to submit. */
-  private Duration flightSubmissionPeriod = Duration.ofSeconds(10);
+  /**
+   * How often to query for flights to submit.
+   *
+   * <p> Sets this to be a larger number because most of the service is deployed in a
+   * multi-instance world, and there will be more than one scheduling service running.
+   */
+  private Duration flightSubmissionPeriod = Duration.ofSeconds(20);
+
+  /**
+   * Whether to delete resource when resource count exceeds the pool size.
+   *
+   * <p>This to prevent multiple instances concurrent scheduler deleting extra resources. Also this
+   * is no use case that we need to actively reduce pool size. Resource is only need to be deleted
+   * when pool is inactivated.
+   */
+  private boolean deleteExceedPoolSizeResource = false;
 
   /**
    * How many resource creation flights for a pool to process simultaneously because because we
@@ -69,5 +88,13 @@ public class PrimaryConfiguration {
 
   public void setResourceDeletionPerPoolLimit(int resourceDeletionPerPoolLimit) {
     this.resourceDeletionPerPoolLimit = resourceDeletionPerPoolLimit;
+  }
+
+  public boolean isDeleteExceedPoolSizeResource() {
+    return deleteExceedPoolSizeResource;
+  }
+
+  public void setDeleteExceedPoolSizeResource(boolean deleteExceedPoolSizeResource) {
+    this.deleteExceedPoolSizeResource = deleteExceedPoolSizeResource;
   }
 }
