@@ -29,9 +29,7 @@ public class FlightScheduler {
 
   private final Logger logger = LoggerFactory.getLogger(FlightScheduler.class);
 
-  /**
-   * Only need as many threads as we have scheduled tasks.
-   */
+  /** Only need as many threads as we have scheduled tasks. */
   private final ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(1);
 
   private final FlightManager flightManager;
@@ -98,7 +96,7 @@ public class FlightScheduler {
             readyAndCreatingCount);
         if (size > readyAndCreatingCount) {
           scheduleCreationFlights(poolAndResources.pool(), size - readyAndCreatingCount);
-        } else if (primaryConfiguration.isDeleteExceedPoolSizeResource()
+        } else if (primaryConfiguration.isDeleteExcessResources()
             && poolAndResources.resourceStates().count(ResourceState.READY) > size) {
           // Only deletion READY resource, we hope future schedule runs will deletion resources
           // just turns to READY from CREATING.
@@ -115,9 +113,7 @@ public class FlightScheduler {
     }
   }
 
-  /**
-   * Schedules up to {@code number} of resources creation flight for a pool.
-   */
+  /** Schedules up to {@code number} of resources creation flight for a pool. */
   private void scheduleCreationFlights(Pool pool, int number) {
     int flightToSchedule = Math.min(primaryConfiguration.getResourceCreationPerPoolLimit(), number);
     logger.info(
@@ -137,9 +133,7 @@ public class FlightScheduler {
         pool.id());
   }
 
-  /**
-   * Schedules up to {@code number} of resources creation flight for a pool.
-   */
+  /** Schedules up to {@code number} of resources creation flight for a pool. */
   private void scheduleDeletionFlights(Pool pool, int number) {
     int flightToSchedule = Math.min(primaryConfiguration.getResourceDeletionPerPoolLimit(), number);
     logger.info(

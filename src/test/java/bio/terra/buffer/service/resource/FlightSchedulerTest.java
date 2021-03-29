@@ -33,6 +33,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
@@ -52,12 +53,9 @@ public class FlightSchedulerTest extends BaseUnitTest {
   private final ArgumentCaptor<Resource> resourceArgumentCaptor =
       ArgumentCaptor.forClass(Resource.class);
 
-  @Autowired
-  BufferDao bufferDao;
-  @Autowired
-  StairwayComponent stairwayComponent;
-  @MockBean
-  FlightManager flightManager;
+  @Autowired BufferDao bufferDao;
+  @Autowired StairwayComponent stairwayComponent;
+  @MockBean FlightManager flightManager;
 
   private void initializeScheduler() {
     initializeScheduler(newPrimaryConfiguration());
@@ -82,15 +80,13 @@ public class FlightSchedulerTest extends BaseUnitTest {
     primaryConfiguration.setSchedulerEnabled(true);
     primaryConfiguration.setResourceCreationPerPoolLimit(10);
     primaryConfiguration.setResourceDeletionPerPoolLimit(10);
-    primaryConfiguration.setDeleteExceedPoolSizeResource(false);
+    primaryConfiguration.setDeleteExcessResources(false);
     // Sets submissionPeriod to a big number to make sure it is only runs once.
-    primaryConfiguration.setFlightSubmissionPeriod(Duration.ofSeconds(2000));
+    primaryConfiguration.setFlightSubmissionPeriod(Duration.ofHours(2));
     return primaryConfiguration;
   }
 
-  /**
-   * Creates a pool with resources with given {@code resourceStates}.
-   */
+  /** Creates a pool with resources with given {@code resourceStates}. */
   private Pool newPoolWithResourceCount(int poolSize, Multiset<ResourceState> resourceStates) {
     PoolId poolId = PoolId.create(UUID.randomUUID().toString());
     Pool pool =
@@ -130,7 +126,8 @@ public class FlightSchedulerTest extends BaseUnitTest {
             ImmutableMultiset.of(ResourceState.READY, ResourceState.READY, ResourceState.CREATING));
 
     initializeScheduler();
-    Thread.sleep(4000);
+
+    TimeUnit.SECONDS.sleep(4);
 
     verify(flightManager, times(2)).submitCreationFlight(pool1);
     verify(flightManager, never()).submitCreationFlight(pool2);
@@ -150,7 +147,7 @@ public class FlightSchedulerTest extends BaseUnitTest {
     List<Resource> resources =
         bufferDao.retrieveResourcesRandomly(pool.id(), ResourceState.READY, 2);
     initializeScheduler();
-    Thread.sleep(4000);
+    TimeUnit.SECONDS.sleep(4);
 
     resources.forEach(
         resource ->
@@ -163,12 +160,12 @@ public class FlightSchedulerTest extends BaseUnitTest {
     newPoolWithResourceCount(1, ImmutableMultiset.of(ResourceState.READY, ResourceState.READY));
 
     PrimaryConfiguration primaryConfiguration = newPrimaryConfiguration();
-    primaryConfiguration.setDeleteExceedPoolSizeResource(true);
+    primaryConfiguration.setDeleteExcessResources(true);
     initializeScheduler(primaryConfiguration);
 
-    Thread.sleep(4000);
+    TimeUnit.SECONDS.sleep(4);
 
-    verify(flightManager, times(1))
+    verify(flightManager)
         .submitDeletionFlight(any(Resource.class), eq(ResourceType.GOOGLE_PROJECT));
   }
 
@@ -180,7 +177,7 @@ public class FlightSchedulerTest extends BaseUnitTest {
     newPoolWithResourceCount(1, ImmutableMultiset.of(ResourceState.READY, ResourceState.CREATING));
 
     initializeScheduler();
-    Thread.sleep(4000);
+    TimeUnit.SECONDS.sleep(4);
 
     verify(flightManager, never())
         .submitDeletionFlight(any(Resource.class), eq(ResourceType.GOOGLE_PROJECT));
@@ -192,7 +189,7 @@ public class FlightSchedulerTest extends BaseUnitTest {
     newPoolWithResourceCount(1, ImmutableMultiset.of(ResourceState.READY, ResourceState.READY));
 
     initializeScheduler();
-    Thread.sleep(4000);
+    TimeUnit.SECONDS.sleep(4);
 
     verify(flightManager, never())
         .submitDeletionFlight(any(Resource.class), eq(ResourceType.GOOGLE_PROJECT));
@@ -211,7 +208,7 @@ public class FlightSchedulerTest extends BaseUnitTest {
     PrimaryConfiguration primaryConfiguration = newPrimaryConfiguration();
     primaryConfiguration.setResourceCreationPerPoolLimit(5);
     initializeScheduler(primaryConfiguration);
-    Thread.sleep(4000);
+    TimeUnit.SECONDS.sleep(4);
 
     verify(flightManager, times(5)).submitCreationFlight(pool);
     verify(flightManager, never())
@@ -240,7 +237,7 @@ public class FlightSchedulerTest extends BaseUnitTest {
     primaryConfiguration.setResourceDeletionPerPoolLimit(3);
     initializeScheduler(primaryConfiguration);
 
-    Thread.sleep(4000);
+    TimeUnit.SECONDS.sleep(4);
 
     verify(flightManager, times(3))
         .submitDeletionFlight(resourceArgumentCaptor.capture(), eq(ResourceType.GOOGLE_PROJECT));

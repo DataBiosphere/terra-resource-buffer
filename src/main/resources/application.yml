@@ -7,7 +7,7 @@ buffer:
     username:
   primary:
     # Don't delete resource when ready resource count exceeds pool size.
-    delete-exceed-pool-size-resource: false
+    delete-excess-resources: false
     scheduler-enabled: true
   pool:
     # The Folder to have all Resource Buffer Service configs.
