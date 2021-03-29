@@ -25,7 +25,9 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @ConfigurationProperties(prefix = "buffer.primary")
 public class PrimaryConfiguration {
 
-  /** Whether to run the scheduler to periodically. */
+  /**
+   * Whether to run the scheduler to periodically.
+   */
   private boolean schedulerEnabled;
 
   /**
@@ -43,7 +45,7 @@ public class PrimaryConfiguration {
    * is no use case that we need to actively reduce pool size. Resource is only need to be deleted
    * when pool is inactivated.
    */
-  private boolean deleteExcessResources;
+  private boolean deleteExcessResources = false;
 
   /**
    * How many resource creation flights for a pool to process simultaneously because because we
