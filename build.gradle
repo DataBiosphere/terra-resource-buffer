@@ -163,7 +163,7 @@ jib {
                         ',-cprof_service_version=' + version +
                         ',-cprof_enable_heap_sampling=true' +
                         ',-logtostderr' +
-                        ',-minloglevel=1'
+                        ',-minloglevel=2'
         ]
     }
 }
