@@ -3,6 +3,9 @@ package bio.terra.buffer.service.resource.projectid;
 import bio.terra.buffer.generated.model.ProjectIdSchema;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.hash.Hashing;
+import java.util.ArrayList;
+import java.util.Random;
+import java.util.Scanner;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +17,9 @@ public class GcpProjectIdGenerator {
    * historical experience, increase if 8 is not enough for a pool's naming.
    */
   @VisibleForTesting static final int RANDOM_ID_SIZE = 8;
+
+  /** The largest number to use for random suffixes for adjective/noun project IDs. */
+  @VisibleForTesting static final int RANDOM_SUFFIX_LIMIT = 10000;
 
   /**
    * Generates project Id from prefix and scheme.
@@ -27,6 +33,10 @@ public class GcpProjectIdGenerator {
     }
 
     switch (projectIdSchema.getScheme()) {
+      case TWO_WORDS_NUMBER:
+        generatedId += WordPairs.getWithRandomSuffix();
+        break;
+
       case RANDOM_CHAR:
       default:
         generatedId += generateRandomId();
@@ -40,5 +50,24 @@ public class GcpProjectIdGenerator {
         .hashUnencodedChars(UUID.randomUUID().toString())
         .toString()
         .substring(0, RANDOM_ID_SIZE);
+  }
+
+  private static class WordPairs {
+    static final ArrayList<String> words = loadWords();
+    static final Random random = new Random();
+
+    static ArrayList<String> loadWords() {
+      ArrayList<String> words = new ArrayList<String>();
+      Scanner scanner =
+          new Scanner(WordPairs.class.getResourceAsStream("/random_project_prefixes.txt"));
+      while (scanner.hasNext()) {
+        words.add(scanner.next());
+      }
+      return words;
+    }
+
+    static String getWithRandomSuffix() {
+      return words.get(random.nextInt(words.size())) + "-" + random.nextInt(RANDOM_SUFFIX_LIMIT);
+    }
   }
 }
