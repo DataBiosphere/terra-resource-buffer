@@ -2,8 +2,9 @@ package scripts.testscripts;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static scripts.utils.BufferServiceUtils.POOL_ID;
-import static scripts.utils.BufferServiceUtils.pollUntilPoolFull;
+import static scripts.utils.BufferServiceUtils.pollUntilResourceCountExceeds;
 import static scripts.utils.BufferServiceUtils.retryHandout;
 
 import bio.terra.buffer.api.BufferApi;
@@ -32,9 +33,7 @@ public class HandoutResource extends TestScript {
   // https://broadworkbench.atlassian.net/browse/PF-619, this might be higher than actual pool size.
   private static int beforeCount;
 
-  /**
-   * Public constructor so that this class can be instantiated via reflection.
-   */
+  /** Public constructor so that this class can be instantiated via reflection. */
   public HandoutResource() {
     super();
   }
@@ -46,7 +45,7 @@ public class HandoutResource extends TestScript {
     BufferApi bufferApi = new BufferApi(apiClient);
     poolSize = bufferApi.getPoolInfo(POOL_ID).getPoolConfig().getSize();
     // Pull until pool is full.
-    pollUntilResourceCountExceed(server, Duration.ofMinutes(30), poolSize);
+    pollUntilResourceCountExceeds(server, Duration.ofMinutes(30), poolSize);
     assertThat(
         bufferApi.getPoolInfo(POOL_ID).getResourceStateCount().get("READY"),
         greaterThanOrEqualTo(poolSize));
@@ -66,13 +65,11 @@ public class HandoutResource extends TestScript {
 
   @Override
   public void cleanup(List<TestUserSpecification> testUsers) throws Exception {
-    poolSize = bufferApi.getPoolInfo(POOL_ID).getPoolConfig().getSize();
-
     logger.info("Success count: {}", successCount);
     // For now we verifies all RESOURCE_COUNT calls successfully. Not sure that is too ideal or we
     // want to set some threshold like we allow 0.1% failure rate is allowable in this burst case.
-    PoolInfo poolInfo = pollUntilResourceCountExceed(server, Duration.ofHours(2), beforeCount);
+    PoolInfo poolInfo = pollUntilResourceCountExceeds(server, Duration.ofHours(2), beforeCount);
     assertThat(poolInfo.getResourceStateCount().get("CREATING"), equalTo(0));
-    assertThat(poolInfo.getResourceStateCount().get("READY"), equalTo(poolSize));
+    assertThat(poolInfo.getResourceStateCount().get("READY"), greaterThanOrEqualTo(poolSize));
   }
 }

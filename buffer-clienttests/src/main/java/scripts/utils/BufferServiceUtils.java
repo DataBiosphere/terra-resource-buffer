@@ -34,13 +34,10 @@ public class BufferServiceUtils {
    */
   public static final String POOL_ID = "resource_buffer_test_v1";
 
-  /**
-   * How ofter to poll from buffer service.
-   */
+  /** How ofter to poll from buffer service. */
   public static final Duration POLLING_INTERVAL = Duration.ofMinutes(1);
 
-  private BufferServiceUtils() {
-  }
+  private BufferServiceUtils() {}
 
   /**
    * Build the Buffer Service API client object for the given server specification.
@@ -73,10 +70,8 @@ public class BufferServiceUtils {
     return apiClient;
   }
 
-  /**
-   * Poll pool info from Buffer Service until READY resource is more than expect number.
-   */
-  public static PoolInfo pollUntilResourceCountExceed(
+  /** Poll pool info from Buffer Service until READY resource is more than expect number. */
+  public static PoolInfo pollUntilResourceCountExceeds(
       ServerSpecification server, Duration timeout, int mimimumSize)
       throws InterruptedException, ApiException, IOException {
     Instant deadline = Instant.now().plus(timeout);
@@ -98,9 +93,7 @@ public class BufferServiceUtils {
     }
   }
 
-  /**
-   * Retries Handout resource API if resource is no resource is available.
-   */
+  /** Retries Handout resource API if resource is no resource is available. */
   public static String retryHandout(BufferApi bufferApi, String handoutRequestId)
       throws InterruptedException, ApiException {
     int numAttempts = 1;
