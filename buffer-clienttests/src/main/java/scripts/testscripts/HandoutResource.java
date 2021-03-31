@@ -28,6 +28,8 @@ public class HandoutResource extends TestScript {
 
   private int poolSize;
   private static int successCount;
+  // The number of rsource count before the test. Because of
+  // https://broadworkbench.atlassian.net/browse/PF-619, this might be higher than actual pool size.
   private static int beforeCount;
 
   /**
@@ -64,15 +66,12 @@ public class HandoutResource extends TestScript {
 
   @Override
   public void cleanup(List<TestUserSpecification> testUsers) throws Exception {
-    BufferApi bufferApi = new BufferApi(BufferServiceUtils.getClient(server));
-    int afterCount = beforeCount = bufferApi.getPoolInfo(POOL_ID).getResourceStateCount()
-        .get("READY");
     poolSize = bufferApi.getPoolInfo(POOL_ID).getPoolConfig().getSize();
 
     logger.info("Success count: {}", successCount);
     // For now we verifies all RESOURCE_COUNT calls successfully. Not sure that is too ideal or we
     // want to set some threshold like we allow 0.1% failure rate is allowable in this burst case.
-    PoolInfo poolInfo = pollUntilResourceCountExceed(server, Duration.ofHours(2), poolSize);
+    PoolInfo poolInfo = pollUntilResourceCountExceed(server, Duration.ofHours(2), beforeCount);
     assertThat(poolInfo.getResourceStateCount().get("CREATING"), equalTo(0));
     assertThat(poolInfo.getResourceStateCount().get("READY"), equalTo(poolSize));
   }
