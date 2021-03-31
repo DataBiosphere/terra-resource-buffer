@@ -29,8 +29,8 @@ public class HandoutResource extends TestScript {
 
   private int poolSize;
   private static int successCount;
-  // The number of rsource count before the test. Because of
-  // https://broadworkbench.atlassian.net/browse/PF-619, this might be higher than actual pool size.
+  // The number of rsource count before the test. Because of PF-619, this might be higher than
+  // actual pool size.
   private static int beforeCount;
 
   /** Public constructor so that this class can be instantiated via reflection. */
@@ -44,7 +44,7 @@ public class HandoutResource extends TestScript {
     ApiClient apiClient = BufferServiceUtils.getClient(server);
     BufferApi bufferApi = new BufferApi(apiClient);
     poolSize = bufferApi.getPoolInfo(POOL_ID).getPoolConfig().getSize();
-    // Pull until pool is full.
+    // Poll until pool is full.
     pollUntilResourceCountExceeds(server, Duration.ofMinutes(30), poolSize);
     assertThat(
         bufferApi.getPoolInfo(POOL_ID).getResourceStateCount().get("READY"),
