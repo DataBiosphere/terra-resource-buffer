@@ -25,9 +25,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @ConfigurationProperties(prefix = "buffer.primary")
 public class PrimaryConfiguration {
 
-  /**
-   * Whether to run the scheduler to periodically.
-   */
+  /** Whether to run the scheduler to periodically. */
   private boolean schedulerEnabled;
 
   /**

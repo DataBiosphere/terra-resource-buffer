@@ -1,0 +1,11 @@
+{
+  "name": "buffertest-dev",
+  "description": "buffertest in terra-integration cluster.",
+  "bufferUri": "https://buffer.buffertest.integ.envs.broadinstitute.org",
+  "bufferClientServiceAccountFile": "buffertest-buffer-client-sa.json",
+  "cluster": {},
+  "deploymentScript": {},
+  "testRunnerServiceAccountFile": "buffertest-buffer-client-sa.json",
+  "skipDeployment": true,
+  "skipKubernetes": true
+}

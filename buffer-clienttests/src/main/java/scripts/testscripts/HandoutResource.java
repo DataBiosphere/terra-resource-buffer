@@ -2,8 +2,9 @@ package scripts.testscripts;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static scripts.utils.BufferServiceUtils.POOL_ID;
-import static scripts.utils.BufferServiceUtils.pollUntilPoolFull;
+import static scripts.utils.BufferServiceUtils.pollUntilResourceCountExceeds;
 import static scripts.utils.BufferServiceUtils.retryHandout;
 
 import bio.terra.buffer.api.BufferApi;
@@ -23,10 +24,14 @@ import scripts.utils.BufferServiceUtils;
  * refilled after Y hours.
  */
 public class HandoutResource extends TestScript {
+
   private static final Logger logger = LoggerFactory.getLogger(HandoutResource.class);
 
   private int poolSize;
   private static int successCount;
+  // The number of rsource count before the test. Because of PF-619, this might be higher than
+  // actual pool size.
+  private static int beforeCount;
 
   /** Public constructor so that this class can be instantiated via reflection. */
   public HandoutResource() {
@@ -39,9 +44,12 @@ public class HandoutResource extends TestScript {
     ApiClient apiClient = BufferServiceUtils.getClient(server);
     BufferApi bufferApi = new BufferApi(apiClient);
     poolSize = bufferApi.getPoolInfo(POOL_ID).getPoolConfig().getSize();
-    pollUntilPoolFull(server, Duration.ofMinutes(30), poolSize);
+    // Poll until pool is full.
+    pollUntilResourceCountExceeds(server, Duration.ofMinutes(30), poolSize);
     assertThat(
-        bufferApi.getPoolInfo(POOL_ID).getResourceStateCount().get("READY"), equalTo(poolSize));
+        bufferApi.getPoolInfo(POOL_ID).getResourceStateCount().get("READY"),
+        greaterThanOrEqualTo(poolSize));
+    beforeCount = bufferApi.getPoolInfo(POOL_ID).getResourceStateCount().get("READY");
   }
 
   @Override
@@ -60,8 +68,8 @@ public class HandoutResource extends TestScript {
     logger.info("Success count: {}", successCount);
     // For now we verifies all RESOURCE_COUNT calls successfully. Not sure that is too ideal or we
     // want to set some threshold like we allow 0.1% failure rate is allowable in this burst case.
-    PoolInfo poolInfo = pollUntilPoolFull(server, Duration.ofHours(2), poolSize);
+    PoolInfo poolInfo = pollUntilResourceCountExceeds(server, Duration.ofHours(2), beforeCount);
     assertThat(poolInfo.getResourceStateCount().get("CREATING"), equalTo(0));
-    assertThat(poolInfo.getResourceStateCount().get("READY"), equalTo(poolSize));
+    assertThat(poolInfo.getResourceStateCount().get("READY"), greaterThanOrEqualTo(poolSize));
   }
 }

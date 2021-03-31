@@ -25,13 +25,14 @@ import org.slf4j.LoggerFactory;
  * class.
  */
 public class BufferServiceUtils {
+
   private static final Logger logger = LoggerFactory.getLogger(BufferServiceUtils.class);
 
   /**
    * The pool id to get projects from. Pool config can be found at src/resources/config/perf folder
    * under Buffer Service repo.
    */
-  public static final String POOL_ID = "resource_perf_v2";
+  public static final String POOL_ID = "resource_buffer_test_v1";
 
   /** How ofter to poll from buffer service. */
   public static final Duration POLLING_INTERVAL = Duration.ofMinutes(1);
@@ -69,12 +70,9 @@ public class BufferServiceUtils {
     return apiClient;
   }
 
-  /**
-   * Poll poll info from Buffer Service until the pool is full. Throws any error or timeouts as a
-   * {@link InterruptedException}.
-   */
-  public static PoolInfo pollUntilPoolFull(
-      ServerSpecification server, Duration timeout, int poolSize)
+  /** Poll pool info from Buffer Service until READY resource is more than expect number. */
+  public static PoolInfo pollUntilResourceCountExceeds(
+      ServerSpecification server, Duration timeout, int mimimumSize)
       throws InterruptedException, ApiException, IOException {
     Instant deadline = Instant.now().plus(timeout);
     int count = 0;
@@ -84,7 +82,7 @@ public class BufferServiceUtils {
       count++;
       PoolInfo poolInfo = bufferApi.getPoolInfo(POOL_ID);
       logger.info("Total polling count: {}, poolInfo: {}", count, poolInfo);
-      if (poolInfo.getResourceStateCount().get("READY").equals(poolSize)) {
+      if (poolInfo.getResourceStateCount().get("READY") >= mimimumSize) {
         logger.info("Done after {} times poll. ", count);
         return poolInfo;
       }
