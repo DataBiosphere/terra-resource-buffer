@@ -23,12 +23,16 @@ import scripts.utils.BufferServiceUtils;
  * refilled after Y hours.
  */
 public class HandoutResource extends TestScript {
+
   private static final Logger logger = LoggerFactory.getLogger(HandoutResource.class);
 
   private int poolSize;
   private static int successCount;
+  private static int beforeCount;
 
-  /** Public constructor so that this class can be instantiated via reflection. */
+  /**
+   * Public constructor so that this class can be instantiated via reflection.
+   */
   public HandoutResource() {
     super();
   }
@@ -39,9 +43,12 @@ public class HandoutResource extends TestScript {
     ApiClient apiClient = BufferServiceUtils.getClient(server);
     BufferApi bufferApi = new BufferApi(apiClient);
     poolSize = bufferApi.getPoolInfo(POOL_ID).getPoolConfig().getSize();
-    pollUntilPoolFull(server, Duration.ofMinutes(30), poolSize);
+    // Pull until pool is full.
+    pollUntilResourceCountExceed(server, Duration.ofMinutes(30), poolSize);
     assertThat(
-        bufferApi.getPoolInfo(POOL_ID).getResourceStateCount().get("READY"), equalTo(poolSize));
+        bufferApi.getPoolInfo(POOL_ID).getResourceStateCount().get("READY"),
+        greaterThanOrEqualTo(poolSize));
+    beforeCount = bufferApi.getPoolInfo(POOL_ID).getResourceStateCount().get("READY");
   }
 
   @Override
@@ -57,10 +64,15 @@ public class HandoutResource extends TestScript {
 
   @Override
   public void cleanup(List<TestUserSpecification> testUsers) throws Exception {
+    BufferApi bufferApi = new BufferApi(BufferServiceUtils.getClient(server));
+    int afterCount = beforeCount = bufferApi.getPoolInfo(POOL_ID).getResourceStateCount()
+        .get("READY");
+    poolSize = bufferApi.getPoolInfo(POOL_ID).getPoolConfig().getSize();
+
     logger.info("Success count: {}", successCount);
     // For now we verifies all RESOURCE_COUNT calls successfully. Not sure that is too ideal or we
     // want to set some threshold like we allow 0.1% failure rate is allowable in this burst case.
-    PoolInfo poolInfo = pollUntilPoolFull(server, Duration.ofHours(2), poolSize);
+    PoolInfo poolInfo = pollUntilResourceCountExceed(server, Duration.ofHours(2), poolSize);
     assertThat(poolInfo.getResourceStateCount().get("CREATING"), equalTo(0));
     assertThat(poolInfo.getResourceStateCount().get("READY"), equalTo(poolSize));
   }
