@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: changelog_1_add_resource_state_index
+      author: yonghaoy
+      changes:
+      - createIndex:
+          clustered:  true
+          columns:
+            - column:
+                descending:  true
+                name:  state
+          indexName:  resource_state_index
+          tableName:  resource
+          unique:  false
