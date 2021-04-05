@@ -135,7 +135,7 @@ public class FlightScheduler {
 
   /** Schedules up to {@code number} of resources creation flight for a pool. */
   private void scheduleDeletionFlights(Pool pool, int number) {
-    if(number == 0) {
+    if (number == 0) {
       return;
     }
     int flightToSchedule = Math.min(primaryConfiguration.getResourceDeletionPerPoolLimit(), number);

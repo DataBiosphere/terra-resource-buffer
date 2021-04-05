@@ -4,7 +4,6 @@ databaseChangeLog:
       author: yonghaoy
       changes:
       - createIndex:
-          clustered:  true
           columns:
             - column:
                 descending:  true
