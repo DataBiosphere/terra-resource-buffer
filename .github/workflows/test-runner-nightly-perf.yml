@@ -1,9 +1,10 @@
 name: Test Runner Nightly Perf Tests
 
-on:
-  workflow_dispatch: { }
-  schedule:
-    - cron: '0 6 * * *' # run at 6 AM UTC, 1 AM ET.
+on: push
+#on:
+#  workflow_dispatch: { }
+#  schedule:
+#    - cron: '0 6 * * *' # run at 6 AM UTC, 1 AM ET.
 
 jobs:
   test-runner-integration:
@@ -42,7 +43,6 @@ jobs:
       - name: Run the Perf test suite
         id: perf-test
         run: |
-          cd buffer-clienttests
           TEST_RUNNER_SERVER_SPECIFICATION_FILE="buffertest.json" ./gradlew  runTest --scan --args="configs/HandoutResourcesThenWaitForRefill.json build/reports"
       - name: Upload Test Reports
         if: always()
@@ -50,28 +50,28 @@ jobs:
         with:
           name: Test Reports
           path: buffer-clienttests/build/reports
-      - name: Notify QA Slack
-        #  Always notify #dsde-qa when test finishes, and it is not manually triggered(workflow_dispatch).
-        if: github.event_name != 'workflow_dispatch' && always()
-        uses: broadinstitute/action-slack@v3.8.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        with:
-          status: ${{ job.status }}
-          channel: "#dsde-qa"
-          username: "Resource Buffer tests"
-          text: "Perf tests"
-          fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
-      - name: Notify PF team when perf test fails
-        if: failure()
-        uses: broadinstitute/action-slack@v3.8.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        with:
-          status: ${{ job.status }}
-          channel: "#platform-foundation-alerts"
-          username: "Resource Buffer tests"
-          text: "Perf tests fail"
-          fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
+#      - name: Notify QA Slack
+#        #  Always notify #dsde-qa when test finishes, and it is not manually triggered(workflow_dispatch).
+#        if: github.event_name != 'workflow_dispatch' && always()
+#        uses: broadinstitute/action-slack@v3.8.0
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+#        with:
+#          status: ${{ job.status }}
+#          channel: "#dsde-qa"
+#          username: "Resource Buffer tests"
+#          text: "Perf tests"
+#          fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
+#      - name: Notify PF team when perf test fails
+#        if: failure()
+#        uses: broadinstitute/action-slack@v3.8.0
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+#        with:
+#          status: ${{ job.status }}
+#          channel: "#platform-foundation-alerts"
+#          username: "Resource Buffer tests"
+#          text: "Perf tests fail"
+#          fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
