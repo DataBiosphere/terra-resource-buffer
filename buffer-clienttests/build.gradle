@@ -1,9 +1,6 @@
 plugins {
-    id "com.diffplug.gradle.spotless" version "3.27.2"
-    id "com.github.spotbugs" version "4.0.0"
-
     // Terra Test Runner Plugin
-    id "bio.terra.test-runner-plugin" version "0.0.1-SNAPSHOT"
+    id "bio.terra.test-runner-plugin" version "0.0.3-SNAPSHOT"
 }
 
 repositories {
@@ -31,7 +28,7 @@ dependencies {
         googleOauth2 = "0.20.0"
 
         bufferServiceClient = "0.4.3-SNAPSHOT"
-        testRunner = "0.0.2-SNAPSHOT"
+        testRunner = "0.0.3-SNAPSHOT"
     }
 
     implementation group: 'org.apache.commons', name: 'commons-math3', version: "${apacheMath}"
@@ -59,38 +56,3 @@ dependencies {
     }
 }
 
-group "bio.terra"
-version "1.0-SNAPSHOT"
-sourceCompatibility = 1.8
-
-spotless {
-    java {
-        googleJavaFormat()
-    }
-}
-compileJava.dependsOn tasks.spotlessApply
-
-spotbugs {
-    effort = 'max'
-    // This makes the "html" reports come out in plain text so you can just open the file in IntelliJ
-    // and look at your bugs instead of having to switch to a browser.
-    extraArgs = ['-emacs']
-}
-spotbugsMain {
-    reports {
-        html {
-            enabled = true
-            destination = file("$buildDir/reports/spotbugs/main.txt")
-            stylesheet = 'fancy.xsl'
-        }
-    }
-}
-spotbugsTest {
-    reports {
-        html {
-            enabled = true
-            destination = file("$buildDir/reports/spotbugs/test.txt")
-            stylesheet = 'fancy.xsl'
-        }
-    }
-}
