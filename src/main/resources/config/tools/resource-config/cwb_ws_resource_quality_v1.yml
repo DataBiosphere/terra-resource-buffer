@@ -3,7 +3,7 @@
 configName: "cwb_ws_resource_quality_v1"
 gcpProjectConfig:
   projectIdSchema:
-    prefix: "terra-test"
+    prefix: "terra-quality"
     scheme: "RANDOM_CHAR"
   # quality.firecloud.org/quality/CommunityWorkbench
   parentFolderId: "180789000311"
