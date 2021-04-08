@@ -1,6 +1,6 @@
 # Community Workbench buffered workspace template
 ---
-configName: "cwb_ws_resource_quality_v1"
+configName: "cwb_ws_resource_quality_v2"
 gcpProjectConfig:
   projectIdSchema:
     prefix: "terra-quality"
