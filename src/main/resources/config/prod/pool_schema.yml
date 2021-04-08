@@ -2,10 +2,10 @@
 ---
 poolConfigs:
   - poolId: "cwb_ws_prod_v1"
-    size: 500
+    size: 3000
     resourceConfigName: "cwb_ws_prod_v1"
   - poolId: "aou_ws_prod_v1"
-    size: 300
+    size: 500
     resourceConfigName: "aou_ws_prod_v1"
   - poolId: "aou_ws_preprod_v1"
     size: 100
