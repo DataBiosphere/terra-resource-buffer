@@ -56,8 +56,8 @@ public class GcpProjectIdGenerator {
     static final List<String> words = loadWords();
     static final Random random = new Random();
 
-    static ArrayList<String> loadWords() {
-      ArrayList<String> words = new ArrayList<String>();
+    static List<String> loadWords() {
+      List<String> words = new ArrayList<String>();
       Scanner scanner =
           new Scanner(WordPairs.class.getResourceAsStream("/random_project_prefixes.txt"));
       while (scanner.hasNext()) {
