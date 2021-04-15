@@ -1,13 +1,13 @@
-# All Of Us buffered workspace template
+# Projects with VPC-SC configuration
 ---
-configName: "aou_ws_resource_test_v1"
+configName: "vpc_sc_v1"
 gcpProjectConfig:
   projectIdSchema:
-    prefix: "aou-rw-test"
+    prefix: "terra-vpc-sc"
     scheme: "RANDOM_CHAR"
-  # test.firecloud.org/terra_dev_aou_test
-  parentFolderId: "737976594150"
-  billingAccount: "01A82E-CA8A14-367457"
+  # firecloud.org/prod/for_vpc_sc_unclaimed
+  parentFolderId: "TODO"
+  billingAccount: "0106B0-41CAA9-427C96"
   enabledApis:
     - "bigquery-json.googleapis.com"
     - "compute.googleapis.com"
@@ -21,8 +21,10 @@ gcpProjectConfig:
     - "dataproc.googleapis.com"
     - "dns.googleapis.com"
     - "genomics.googleapis.com"
+    - "lifesciences.googleapis.com"
     - "logging.googleapis.com"
     - "monitoring.googleapis.com"
+    - "notebooks.googleapis.com"
     - "storage-api.googleapis.com"
     - "storage-component.googleapis.com"
   network:
