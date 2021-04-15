@@ -4,6 +4,7 @@ import bio.terra.buffer.generated.model.ProjectIdSchema;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.hash.Hashing;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.UUID;
@@ -38,7 +39,6 @@ public class GcpProjectIdGenerator {
         break;
 
       case RANDOM_CHAR:
-      default:
         generatedId += generateRandomId();
         break;
     }
@@ -53,7 +53,7 @@ public class GcpProjectIdGenerator {
   }
 
   private static class WordPairs {
-    static final ArrayList<String> words = loadWords();
+    static final List<String> words = loadWords();
     static final Random random = new Random();
 
     static ArrayList<String> loadWords() {
