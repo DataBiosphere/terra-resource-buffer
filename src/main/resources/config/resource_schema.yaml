@@ -73,15 +73,11 @@ components:
           type: string
         scheme:
           type: string
-          # swagger-codegen always looks for and removes a common prefix for
-          # enum values, which breaks enums that only have a single value.
-          # PLACEHOLDER_VALUE should be removed when we have an actual second value
-          # to use.
-          # TODO(PF-228): Add naming scheme for GCP style(TWO_WORDS_NUMBER)
-          enum: ['PLACEHOLDER_VALUE', 'RANDOM_CHAR']
+          enum: ['RANDOM_CHAR', 'TWO_WORDS_NUMBER']
           description: >
             Id Scheme:
              * `RANDOM_CHAR` - all random letters/numbers, length is defined in generator code.
+             * `TWO_WORDS_NUMBER` - an adjective, noun pair with a short random numeric suffix.
       type: object
 
     IamBinding:
