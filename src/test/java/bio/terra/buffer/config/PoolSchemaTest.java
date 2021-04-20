@@ -20,7 +20,14 @@ import org.junit.jupiter.api.Test;
 @Tag("unit")
 public class PoolSchemaTest {
   /** List of pool config folders for all environments, e.g. prod, staging, dev. */
-  private static final List<String> POOL_CONFIG_FOLDERS = ImmutableList.of("config/dev/");
+  private static final List<String> POOL_CONFIG_FOLDERS =
+      ImmutableList.of(
+          "config/dev/",
+          "config/prod/",
+          "config/perf/",
+          "config/staging/",
+          "config/alpha/",
+          "config/tools/");
 
   @Test
   public void testConfigValid() throws Exception {
