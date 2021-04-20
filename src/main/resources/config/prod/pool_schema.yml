@@ -6,4 +6,4 @@ poolConfigs:
     resourceConfigName: "cwb_ws_prod_v1"
   - poolId: "vpc_sc_v1"
     size: 1000
-    resourceConfigName: "vpc_sc_v1_v1"
+    resourceConfigName: "vpc_sc_v1"
