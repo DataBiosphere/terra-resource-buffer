@@ -2,12 +2,12 @@
 ---
 poolConfigs:
   - poolId: "cwb_ws_dev_v2"
-    size: 300
+    size: 1000
     resourceConfigName: "cwb_ws_resource_dev_v2"
   - poolId: "workspace_manager_v6"
-    size: 300
+    size: 1000
     resourceConfigName: "workspace_manager_v6"
   - poolId: "vpc_sc_v1"
-    size: 300
+    size: 1000
     resourceConfigName: "vpc_sc_v1"
 
