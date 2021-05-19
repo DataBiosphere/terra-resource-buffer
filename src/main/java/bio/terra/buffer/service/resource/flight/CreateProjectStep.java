@@ -120,8 +120,8 @@ public class CreateProjectStep implements Step {
   }
 
   /** Returns the uniquely identifying number of the project. */
-  private static String getNumber(Project project) {
+  private static Long getNumber(Project project) {
     // The projects name has the form "projects/[project number]".
-    return project.getName().substring("projects/".length());
+    return Long.parseLong(project.getName().substring("projects/".length()));
   }
 }
