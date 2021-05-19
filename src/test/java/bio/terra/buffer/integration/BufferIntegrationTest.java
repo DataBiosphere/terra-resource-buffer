@@ -14,7 +14,7 @@ import bio.terra.buffer.generated.model.GcpProjectConfig;
 import bio.terra.buffer.service.pool.PoolService;
 import bio.terra.buffer.service.pool.PoolWithResourceConfig;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
-import com.google.api.services.cloudresourcemanager.model.Project;
+import com.google.api.services.cloudresourcemanager.v3.model.Project;
 import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -68,6 +68,6 @@ public class BufferIntegrationTest extends BaseIntegrationTest {
       throws Exception {
     Project project =
         rmCow.projects().get(resourceUid.getGoogleProjectUid().getProjectId()).execute();
-    assertEquals("ACTIVE", project.getLifecycleState());
+    assertEquals("ACTIVE", project.getState());
   }
 }

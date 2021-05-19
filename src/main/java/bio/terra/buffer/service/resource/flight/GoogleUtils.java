@@ -5,7 +5,7 @@ import bio.terra.cloudres.google.api.services.common.OperationUtils;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.stairway.exception.RetryException;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
-import com.google.api.services.cloudresourcemanager.model.Project;
+import com.google.api.services.cloudresourcemanager.v3.model.Project;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.time.Duration;
@@ -105,8 +105,8 @@ public class GoogleUtils {
 
   /** Checks if project is being deleted. */
   public static boolean isProjectDeleting(Project project) {
-    return project.getLifecycleState().equals("DELETE_REQUESTED")
-        || project.getLifecycleState().equals("DELETE_IN_PROGRESS");
+    return project.getState().equals("DELETE_REQUESTED")
+        || project.getState().equals("DELETE_IN_PROGRESS");
   }
 
   /**

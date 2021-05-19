@@ -10,7 +10,7 @@ import bio.terra.stairway.Step;
 import bio.terra.stairway.StepResult;
 import bio.terra.stairway.StepStatus;
 import bio.terra.stairway.exception.RetryException;
-import com.google.api.services.cloudresourcemanager.model.Project;
+import com.google.api.services.cloudresourcemanager.v3.model.Project;
 import java.io.IOException;
 import java.util.Optional;
 import org.slf4j.Logger;

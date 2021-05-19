@@ -10,8 +10,7 @@ import bio.terra.cloudres.google.api.services.common.OperationCow;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.stairway.*;
 import bio.terra.stairway.exception.RetryException;
-import com.google.api.services.cloudresourcemanager.model.Project;
-import com.google.api.services.cloudresourcemanager.model.ResourceId;
+import com.google.api.services.cloudresourcemanager.v3.model.Project;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
@@ -48,13 +47,12 @@ public class CreateProjectStep implements Step {
           new Project()
               .setProjectId(projectId)
               .setLabels(createLabelMap(flightContext))
-              .setParent(
-                  new ResourceId().setType("folder").setId(gcpProjectConfig.getParentFolderId()));
+              .setParent("folders/" + gcpProjectConfig.getParentFolderId());
       OperationCow<?> operation =
           rmCow.operations().operationCow(rmCow.projects().create(project).execute());
       pollUntilSuccess(operation, Duration.ofSeconds(5), Duration.ofMinutes(5));
       Project createdProject = rmCow.projects().get(projectId).execute();
-      flightContext.getWorkingMap().put(GOOGLE_PROJECT_NUMBER, createdProject.getProjectNumber());
+      flightContext.getWorkingMap().put(GOOGLE_PROJECT_NUMBER, getNumber(createdProject));
     } catch (IOException | InterruptedException e) {
       logger.info("Error when creating GCP project", e);
       return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY, e);
@@ -117,5 +115,11 @@ public class CreateProjectStep implements Step {
     String regex = "[^a-z0-9-_]+";
     String value = originalName.toLowerCase().replaceAll(regex, "--");
     return value.length() > 64 ? value.substring(0, 63) : value;
+  }
+
+  /** Returns the uniquely identifying number of the project. */
+  private static String getNumber(Project project) {
+    // The projects name has the form "projects/[project number]".
+    return project.getName().substring("projects/".length());
   }
 }
