@@ -61,7 +61,7 @@ public class CreateProjectStep implements Step {
   }
 
   @Override
-  public StepResult undoStep(FlightContext flightContext) {
+  public StepResult undoStep(FlightContext flightContext) throws InterruptedException {
     if (isResourceReady(flightContext)) {
       return StepResult.getStepResultSuccess();
     }
@@ -79,8 +79,10 @@ public class CreateProjectStep implements Step {
         // The project is already being deleted.
         return StepResult.getStepResultSuccess();
       }
-      rmCow.projects().delete(projectId).execute();
-    } catch (IOException e) {
+      OperationCow<?> operation =
+          rmCow.operations().operationCow(rmCow.projects().delete(projectId).execute());
+      pollUntilSuccess(operation, Duration.ofSeconds(5), Duration.ofMinutes(5));
+    } catch (IOException | RetryException e) {
       logger.info("Error when deleting GCP project", e);
       return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY, e);
     }
