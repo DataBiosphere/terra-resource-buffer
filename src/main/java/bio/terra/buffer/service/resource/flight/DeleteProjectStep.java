@@ -4,14 +4,16 @@ import static bio.terra.buffer.service.resource.FlightMapKeys.CLOUD_RESOURCE_UID
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.*;
 
 import bio.terra.buffer.generated.model.CloudResourceUid;
+import bio.terra.cloudres.google.api.services.common.OperationCow;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.stairway.FlightContext;
 import bio.terra.stairway.Step;
 import bio.terra.stairway.StepResult;
 import bio.terra.stairway.StepStatus;
 import bio.terra.stairway.exception.RetryException;
-import com.google.api.services.cloudresourcemanager.model.Project;
+import com.google.api.services.cloudresourcemanager.v3.model.Project;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +28,8 @@ public class DeleteProjectStep implements Step {
   }
 
   @Override
-  public StepResult doStep(FlightContext flightContext) throws RetryException {
+  public StepResult doStep(FlightContext flightContext)
+      throws InterruptedException, RetryException {
     String projectId =
         flightContext
             .getInputParameters()
@@ -43,7 +46,9 @@ public class DeleteProjectStep implements Step {
         logger.info("Project id: {} is deleted or being deleted", projectId);
         return StepResult.getStepResultSuccess();
       }
-      rmCow.projects().delete(projectId).execute();
+      OperationCow<?> operation =
+          rmCow.operations().operationCow(rmCow.projects().delete(projectId).execute());
+      pollUntilSuccess(operation, Duration.ofSeconds(5), Duration.ofMinutes(5));
     } catch (IOException e) {
       logger.info("Error when deleting GCP project", e);
       return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY, e);

@@ -30,7 +30,7 @@ import bio.terra.stairway.FlightMap;
 import bio.terra.stairway.FlightStatus;
 import bio.terra.stairway.RetryRule;
 import bio.terra.stairway.Step;
-import com.google.api.services.cloudresourcemanager.model.Project;
+import com.google.api.services.cloudresourcemanager.v3.model.Project;
 import java.time.Instant;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -142,14 +142,14 @@ public class DeleteProjectFlightIntegrationTest extends BaseIntegrationTest {
             .projects()
             .get(resource.cloudResourceUid().getGoogleProjectUid().getProjectId())
             .execute();
-    assertEquals("ACTIVE", project.getLifecycleState());
+    assertEquals("ACTIVE", project.getState());
     return project;
   }
 
   private void assertProjectDeleting(String projectId) throws Exception {
     // Project is ready for deletion
     Project project = rmCow.projects().get(projectId).execute();
-    assertEquals("DELETE_REQUESTED", project.getLifecycleState());
+    assertEquals("DELETE_REQUESTED", project.getState());
   }
 
   /** A {@link Flight} with extra error step after resource deletion steps. */

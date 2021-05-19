@@ -80,9 +80,9 @@ import bio.terra.stairway.RetryRule;
 import bio.terra.stairway.Step;
 import bio.terra.stairway.StepResult;
 import bio.terra.stairway.StepStatus;
-import com.google.api.services.cloudresourcemanager.model.Binding;
-import com.google.api.services.cloudresourcemanager.model.GetIamPolicyRequest;
-import com.google.api.services.cloudresourcemanager.model.Project;
+import com.google.api.services.cloudresourcemanager.v3.model.Binding;
+import com.google.api.services.cloudresourcemanager.v3.model.GetIamPolicyRequest;
+import com.google.api.services.cloudresourcemanager.v3.model.Project;
 import com.google.api.services.compute.model.Firewall;
 import com.google.api.services.compute.model.Network;
 import com.google.api.services.compute.model.Route;
@@ -297,7 +297,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
             .projects()
             .get(resource.cloudResourceUid().getGoogleProjectUid().getProjectId())
             .execute()
-            .getLifecycleState());
+            .getState());
     assertEquals(
         FlightStatus.ERROR, stairwayComponent.get().getFlightState(flightId).getFlightStatus());
   }
@@ -437,7 +437,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
             .projects()
             .get(resource.cloudResourceUid().getGoogleProjectUid().getProjectId())
             .execute();
-    assertEquals("ACTIVE", project.getLifecycleState());
+    assertEquals("ACTIVE", project.getState());
 
     assertThat(
         project.getLabels().entrySet(),
@@ -704,6 +704,6 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
    * e.g. projects/123/services/serviceusage.googleapis.com.
    */
   private static String serviceName(Project project, String apiId) {
-    return String.format("projects/%d/services/%s", project.getProjectNumber(), apiId);
+    return String.format("%s/services/%s", project.getName(), apiId);
   }
 }
