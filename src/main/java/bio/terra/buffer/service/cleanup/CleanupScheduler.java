@@ -123,7 +123,6 @@ public class CleanupScheduler {
                       objectMapper.writeValueAsString(cloudResourceUid),
                       bio.terra.janitor.model.CloudResourceUid.class))
               .creation(now)
-              .expiration(Instant.now().plus(TEST_RESOURCE_TIME_TO_LIVE).atOffset(ZoneOffset.UTC))
               .expiration(now.plus(TEST_RESOURCE_TIME_TO_LIVE))
               .putLabelsItem("client", CLIENT_NAME);
       data = ByteString.copyFromUtf8(objectMapper.writeValueAsString(body));
