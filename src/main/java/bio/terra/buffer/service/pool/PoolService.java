@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -124,7 +125,7 @@ public class PoolService {
                 "No resource is ready to use at this moment for pool: %s. Please try later",
                 poolId));
       }
-    } catch (InterruptedException e) {
+    } catch (InterruptedException | DataAccessException e) {
       throw new InternalServerErrorException(
           String.format(
               "Failed to update one resource state from READY to HANDED_OUT for pool {}", poolId));
