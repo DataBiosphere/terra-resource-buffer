@@ -12,14 +12,9 @@ import java.util.List;
  *
  * <ul>
  *   <li>Billing account is present.
- *   <li>compute.googleapis.com need to be enabled.
  * </ul>
  */
 public class GcpResourceConfigValidator implements ResourceConfigValidator {
-  /** List of services required to be enabled. */
-  private static final List<String> REQUIRED_SERVICES =
-      ImmutableList.of("storage-component.googleapis.com");
-
   @Override
   public void validate(ResourceConfig config) {
     GcpProjectConfig gcpProjectConfig = config.getGcpProjectConfig();
@@ -27,12 +22,6 @@ public class GcpResourceConfigValidator implements ResourceConfigValidator {
         || gcpProjectConfig.getBillingAccount().isEmpty()) {
       throw new InvalidPoolConfigException(
           String.format("Missing billing account for config: %s", config.getConfigName()));
-    }
-
-    if (gcpProjectConfig.getEnabledApis() == null
-        || !gcpProjectConfig.getEnabledApis().containsAll(REQUIRED_SERVICES)) {
-      throw new InvalidPoolConfigException(
-          String.format("Missing required enabledApis for config: %s", config.getConfigName()));
     }
   }
 }
