@@ -1,6 +1,6 @@
 # Data Repo buffered workspace template
 ---
-configName: "datarepo_v2"
+configName: "datarepo_v3"
 gcpProjectConfig:
   projectIdSchema:
     prefix: "datarepo-dev"
