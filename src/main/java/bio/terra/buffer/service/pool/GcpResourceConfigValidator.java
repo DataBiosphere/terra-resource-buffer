@@ -3,8 +3,6 @@ package bio.terra.buffer.service.pool;
 import bio.terra.buffer.common.exception.InvalidPoolConfigException;
 import bio.terra.buffer.generated.model.GcpProjectConfig;
 import bio.terra.buffer.generated.model.ResourceConfig;
-import com.google.common.collect.ImmutableList;
-import java.util.List;
 
 /**
  * Validates GCP resource config. Because Resource Buffer Service creates customized network for all

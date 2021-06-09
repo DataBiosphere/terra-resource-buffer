@@ -6,13 +6,11 @@ import bio.terra.buffer.common.BaseUnitTest;
 import bio.terra.buffer.common.exception.InvalidPoolConfigException;
 import bio.terra.buffer.generated.model.GcpProjectConfig;
 import bio.terra.buffer.generated.model.ResourceConfig;
-import com.google.common.collect.ImmutableList;
 import org.junit.jupiter.api.Test;
 
 public class ResourceConfigValidatorTest extends BaseUnitTest {
   private static GcpProjectConfig newValidGcpProjectConfig() {
-    return new GcpProjectConfig()
-        .billingAccount("123");
+    return new GcpProjectConfig().billingAccount("123");
   }
 
   @Test
