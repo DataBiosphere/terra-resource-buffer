@@ -8,6 +8,7 @@ gcpProjectConfig:
   parentFolderId: "375605435272" #test.firecloud.org/tools/buffer-tools/workspace_manager
   billingAccount: "01A82E-CA8A14-367457"
   enabledApis:
+    - "bigquerydatatransfer.googleapis.com"
     - "bigquery-json.googleapis.com"
     - "compute.googleapis.com"
     - "container.googleapis.com"
@@ -26,6 +27,8 @@ gcpProjectConfig:
     - "notebooks.googleapis.com"
     - "storage-api.googleapis.com"
     - "storage-component.googleapis.com"
+    - "storagetransfer.googleapis.com"
+
   network:
     enableNetworkMonitoring: "true"
     keepDefaultNetwork: "true"
