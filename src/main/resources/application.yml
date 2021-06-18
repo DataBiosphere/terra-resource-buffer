@@ -29,7 +29,7 @@ terra:
       max-parallel-flights: 500
       migrate-upgrade: true
       quiet-down-timeout: 20s
-      retention-check-interval: 1h
+      retention-check-interval: 6h
       terminate-timeout: 5s
       cluster-name-suffix: buffer-stairwaycluster
 # Turn on debug-level logs for CRL, to include all CRL operation payloads.
