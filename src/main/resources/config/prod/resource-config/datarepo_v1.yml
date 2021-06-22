@@ -6,7 +6,7 @@ gcpProjectConfig:
     prefix: "datarepo-prod"
     scheme: "RANDOM_CHAR"
   parentFolderId: "815384374864" # firecloud.org/terra-datarepo
-  billingAccount: "00708C-45D19D-27AAFA"
+  billingAccount: "0106B0-41CAA9-427C96"
   enabledApis:
     - "bigquery-json.googleapis.com"
     - "firestore.googleapis.com"
