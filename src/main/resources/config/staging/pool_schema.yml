@@ -4,3 +4,6 @@ poolConfigs:
 - poolId: "cwb_ws_staging_v1"
   size: 100
   resourceConfigName: "cwb_ws_resource_staging_v1"
+- poolId: "datarepo_v1"
+  size: 300
+  resourceConfigName: "datarepo_v1"
