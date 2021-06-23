@@ -3,7 +3,7 @@
 configName: "datarepo_v1"
 gcpProjectConfig:
   projectIdSchema:
-    prefix: "datarepo-prod"
+    prefix: "datarepo"
     scheme: "RANDOM_CHAR"
   parentFolderId: "815384374864" # firecloud.org/terra-datarepo
   billingAccount: "0106B0-41CAA9-427C96"
