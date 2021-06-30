@@ -1,12 +1,12 @@
 # Community Workbench buffered workspace template
 ---
-configName: "cwb_ws_resource_staging_v1"
+configName: "cwb_ws_resource_alpha_vpc_v1"
 gcpProjectConfig:
   projectIdSchema:
-    prefix: "terra-staging"
+    prefix: "terra-alpha-vpc"
     scheme: "RANDOM_CHAR"
-  # test.firecloud.org/staging/CommunityWorkbench
-  parentFolderId: "137690849844"
+  # test.firecloud.org/alpha/CommunityWorkbench
+  parentFolderId: "102618195587"
   billingAccount: "01A82E-CA8A14-367457"
   enabledApis:
   - "bigquery-json.googleapis.com"
@@ -27,4 +27,4 @@ gcpProjectConfig:
   - "storage-api.googleapis.com"
   - "storage-component.googleapis.com"
   network:
-    enableNetworkMonitoring: "false"
+    enableNetworkMonitoring: "true"

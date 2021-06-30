@@ -1,9 +1,9 @@
 # Community Workbench buffered workspace template
 ---
-configName: "cwb_ws_resource_staging_v1"
+configName: "cwb_ws_resource_staging_vpc_v1"
 gcpProjectConfig:
   projectIdSchema:
-    prefix: "terra-staging"
+    prefix: "terra-staging-vpc"
     scheme: "RANDOM_CHAR"
   # test.firecloud.org/staging/CommunityWorkbench
   parentFolderId: "137690849844"
@@ -27,4 +27,4 @@ gcpProjectConfig:
   - "storage-api.googleapis.com"
   - "storage-component.googleapis.com"
   network:
-    enableNetworkMonitoring: "false"
+    enableNetworkMonitoring: "true"
