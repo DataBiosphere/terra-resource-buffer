@@ -7,6 +7,9 @@ poolConfigs:
   - poolId: "workspace_manager_v6"
     size: 300
     resourceConfigName: "workspace_manager_v6"
+  - poolId: "workspace_manager_v8"
+    size: 500
+    resourceConfigName: "workspace_manager_v8"
   - poolId: "vpc_sc_v1"
     size: 300
     resourceConfigName: "vpc_sc_v1"
