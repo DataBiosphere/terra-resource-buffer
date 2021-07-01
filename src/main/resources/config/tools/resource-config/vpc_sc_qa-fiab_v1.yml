@@ -6,7 +6,7 @@ gcpProjectConfig:
     prefix: "terra-vpc-sc-qafiab"
     scheme: "RANDOM_CHAR"
   # quality.firecloud.org/quality/for_vpc_sc_unclaimed
-  parentFolderId: "TODO"
+  parentFolderId: "108325210767"
   billingAccount: "01A82E-CA8A14-367457"
   enabledApis:
     - "bigquery-json.googleapis.com"
