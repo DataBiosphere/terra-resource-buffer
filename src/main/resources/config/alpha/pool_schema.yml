@@ -7,9 +7,9 @@ poolConfigs:
 - poolId: "cwb_ws_alpha_v2"
   size: 100
   resourceConfigName: "cwb_ws_resource_alpha_v2"
-- poolId: "cwb_ws_alpha_vpc_v1"
+- poolId: "vpc_sc_v1"
   size: 100
-  resourceConfigName: "cwb_ws_resource_alpha_vpc_v1"
+  resourceConfigName: "vpc_sc_v1"
 - poolId: "datarepo_v1"
   size: 300
   resourceConfigName: "datarepo_v1"

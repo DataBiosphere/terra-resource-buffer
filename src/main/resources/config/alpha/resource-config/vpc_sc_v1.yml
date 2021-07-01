@@ -1,12 +1,12 @@
 # Community Workbench buffered workspace template
 ---
-configName: "cwb_ws_resource_alpha_vpc_v1"
+configName: "vpc_sc_v1"
 gcpProjectConfig:
   projectIdSchema:
-    prefix: "terra-alpha-vpc"
+    prefix: "terra-vpc-sc-alpha"
     scheme: "RANDOM_CHAR"
-  # test.firecloud.org/alpha/CommunityWorkbench
-  parentFolderId: "102618195587"
+  # test.firecloud.org/alpha/for_vpc_sc_unclaimed
+  parentFolderId: "TODO"
   billingAccount: "01A82E-CA8A14-367457"
   enabledApis:
   - "bigquery-json.googleapis.com"

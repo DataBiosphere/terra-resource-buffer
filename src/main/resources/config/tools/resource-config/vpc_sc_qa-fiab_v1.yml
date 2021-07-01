@@ -1,12 +1,12 @@
 # Community Workbench buffered workspace template
 ---
-configName: "cwb_ws_resource_qa-fiab_vpc_v2"
+configName: "vpc_sc_qa-fiab_v1"
 gcpProjectConfig:
   projectIdSchema:
-    prefix: "terra-quality-vpc"
+    prefix: "terra-vpc-sc-qafiab"
     scheme: "RANDOM_CHAR"
-  # quality.firecloud.org/quality/CommunityWorkbench
-  parentFolderId: "180789000311"
+  # quality.firecloud.org/quality/for_vpc_sc_unclaimed
+  parentFolderId: "TODO"
   billingAccount: "01A82E-CA8A14-367457"
   enabledApis:
     - "bigquery-json.googleapis.com"
