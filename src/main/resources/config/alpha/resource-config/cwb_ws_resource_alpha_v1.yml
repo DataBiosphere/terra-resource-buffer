@@ -3,7 +3,7 @@
 configName: "cwb_ws_resource_alpha_v1"
 gcpProjectConfig:
   projectIdSchema:
-    prefix: "terra-alpha"
+    prefix: "terra-dev"
     scheme: "RANDOM_CHAR"
   # test.firecloud.org/alpha/CommunityWorkbench
   parentFolderId: "102618195587"
