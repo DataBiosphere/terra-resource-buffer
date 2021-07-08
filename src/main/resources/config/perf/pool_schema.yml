@@ -14,13 +14,13 @@ poolConfigs:
     size: 500
     resourceConfigName: "cwb_ws_perf_v1"
   - poolId: "cwb_ws_perf_v2"
-    size: 1000
+    size: 500
     resourceConfigName: "cwb_ws_perf_v2"
   - poolId: "vpc_sc_v1"
     size: 500
     resourceConfigName: "vpc_sc_v1"
   - poolId: "vpc_sc_v2"
-    size: 1000
+    size: 500
     resourceConfigName: "vpc_sc_v2"
   - poolId: "datarepo_v1"
     size: 300
