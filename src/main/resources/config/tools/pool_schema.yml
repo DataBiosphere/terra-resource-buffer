@@ -4,9 +4,15 @@ poolConfigs:
   - poolId: "cwb_ws_fiab_v2"
     size: 500
     resourceConfigName: "cwb_ws_resource_fiab_v2"
+  - poolId: "vpc_sc_dev-fiab_v1"
+    size: 100
+    resourceConfigName: "vpc_sc_dev-fiab_v1"
   - poolId: "cwb_ws_quality_v2"
     size: 500
     resourceConfigName: "cwb_ws_resource_quality_v2"
+  - poolId: "vpc_sc_qa-fiab_v1"
+    size: 100
+    resourceConfigName: "vpc_sc_qa-fiab_v1"
   - poolId: "workspace_manager_v6"
     size: 500
     resourceConfigName: "workspace_manager_v6"
