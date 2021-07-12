@@ -4,9 +4,6 @@ poolConfigs:
   - poolId: "cwb_ws_dev_v2"
     size: 300
     resourceConfigName: "cwb_ws_resource_dev_v2"
-  - poolId: "workspace_manager_v6"
-    size: 300
-    resourceConfigName: "workspace_manager_v6"
   - poolId: "workspace_manager_v8"
     size: 500
     resourceConfigName: "workspace_manager_v8"
