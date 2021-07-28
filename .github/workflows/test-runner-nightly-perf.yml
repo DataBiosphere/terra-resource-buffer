@@ -43,7 +43,7 @@ jobs:
       - name: Run the Perf test suite
         id: perf-test
         run: |
-          TEST_RUNNER_SERVER_SPECIFICATION_FILE="yyu-buffer-client-sa.json" ./gradlew  runTest --scan --args="configs/UnauthorizedAccess.json build/reports"
+          TEST_RUNNER_SERVER_SPECIFICATION_FILE="unauthorized-buffertest.json" ./gradlew  runTest --scan --args="configs/UnauthorizedAccess.json build/reports"
           TEST_RUNNER_SERVER_SPECIFICATION_FILE="buffertest.json" ./gradlew  runTest --scan --args="configs/HandoutResourcesThenWaitForRefill.json build/reports"
       - name: Upload Test Reports
         if: always()
