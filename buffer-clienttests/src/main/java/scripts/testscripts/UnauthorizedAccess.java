@@ -30,7 +30,7 @@ public class UnauthorizedAccess extends TestScript {
     BufferApi bufferApi = new BufferApi(apiClient);
     try {
       retryHandout(bufferApi, UUID.randomUUID().toString());
-      assertThat("Invalid SA account access not throw exception", false);
+      assertThat("Invalid SA account access not throwing exception", false);
     } catch (ApiException apiEx) {
       assertThat(apiEx.getCode(), equalTo(401));
     }
