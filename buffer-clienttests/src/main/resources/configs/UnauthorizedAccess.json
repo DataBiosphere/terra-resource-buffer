@@ -1,0 +1,17 @@
+{
+  "name": "UnauthorizedAccess",
+  "description": "Verify invalid service account can not access Buffer Service.",
+  "serverSpecificationFile": "unauthorized-buffertest.json",
+  "kubernetes": {},
+  "application": {},
+  "testScripts": [
+    {
+      "name": "UnauthorizedAccess",
+      "numberOfUserJourneyThreadsToRun": 1,
+      "userJourneyThreadPoolSize": 1,
+      "expectedTimeForEach": 1,
+      "expectedTimeForEachUnit": "HOURS"
+    }
+  ],
+  "testUserFiles": []
+}

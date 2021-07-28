@@ -31,6 +31,7 @@ jobs:
       - name: Render configs for Test Runner
         run: |
           buffer-clienttests/tools/render-config.sh buffertest ${{ steps.vault-token-step.outputs.vault-token }}
+          buffer-clienttests/tools/render-config.sh yyu ${{ steps.vault-token-step.outputs.vault-token }}
       - name: Cache Gradle packages
         uses: actions/cache@v2
         with:
@@ -42,6 +43,7 @@ jobs:
       - name: Run the Perf test suite
         id: perf-test
         run: |
+          TEST_RUNNER_SERVER_SPECIFICATION_FILE="unauthorized-buffertest.json" ./gradlew  runTest --scan --args="configs/UnauthorizedAccess.json build/reports"
           TEST_RUNNER_SERVER_SPECIFICATION_FILE="buffertest.json" ./gradlew  runTest --scan --args="configs/HandoutResourcesThenWaitForRefill.json build/reports"
       - name: Upload Test Reports
         if: always()
@@ -63,7 +65,7 @@ jobs:
           text: "Perf tests"
           fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
       - name: Notify PF team when perf test fails
-        if: failure()
+        if: failure() && github.event_name != 'workflow_dispatch'
         uses: broadinstitute/action-slack@v3.8.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
