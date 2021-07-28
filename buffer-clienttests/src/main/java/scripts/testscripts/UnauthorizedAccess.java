@@ -12,30 +12,25 @@ import bio.terra.testrunner.runner.config.TestUserSpecification;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scripts.utils.BufferServiceUtils;
 
-/**
- * A {@link TestScript} which
- * refilled after Y hours.
- */
-public class UnauthorizedHandoutResource extends TestScript {
+/** Verify invalid service account can not access Buffer Service.*/
+public class UnauthorizedAccess extends TestScript {
 
-  private static final Logger logger = LoggerFactory.getLogger(UnauthorizedHandoutResource.class);
+  private static final Logger logger = LoggerFactory.getLogger(UnauthorizedAccess.class);
 
   /** Public constructor so that this class can be instantiated via reflection. */
-  public UnauthorizedHandoutResource() {
+  public UnauthorizedAccess() {
     super();
   }
 
   @Override
   public void userJourney(TestUserSpecification testUser) throws Exception {
-    ApiClient apiClient = new ApiClient();
-    apiClient.setBasePath(server.bufferUri);
+    ApiClient apiClient = BufferServiceUtils.getClient(server);
     BufferApi bufferApi = new BufferApi(apiClient);
-    String handoutRequestId = UUID.randomUUID().toString();
-    logger.info("Generated handoutRequestId: {}", handoutRequestId);
     try {
-      retryHandout(bufferApi, handoutRequestId);
-      assertThat("GET pool info did not throw not found exception", false);
+      retryHandout(bufferApi, UUID.randomUUID().toString());
+      assertThat("Invalid SA account access not throw exception", false);
     } catch (ApiException apiEx) {
       assertThat(apiEx.getCode(), equalTo(401));
     }

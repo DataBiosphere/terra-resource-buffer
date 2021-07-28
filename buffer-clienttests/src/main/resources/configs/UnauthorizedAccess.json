@@ -1,12 +1,12 @@
 {
-  "name": "UnauthorizedHandoutResource",
-  "description": "Fetch pool info repeatedly, concurrently. Authentication required.",
+  "name": "UnauthorizedAccess",
+  "description": "Verify invalid service account can not access Buffer Service.",
   "serverSpecificationFile": "buffertest.json",
   "kubernetes": {},
   "application": {},
   "testScripts": [
     {
-      "name": "UnauthorizedHandoutResource",
+      "name": "UnauthorizedAccess",
       "numberOfUserJourneyThreadsToRun": 1,
       "userJourneyThreadPoolSize": 1,
       "expectedTimeForEach": 1,
