@@ -1,0 +1,17 @@
+{
+  "name": "UnauthorizedHandoutResource",
+  "description": "Fetch pool info repeatedly, concurrently. Authentication required.",
+  "serverSpecificationFile": "buffertest.json",
+  "kubernetes": {},
+  "application": {},
+  "testScripts": [
+    {
+      "name": "UnauthorizedHandoutResource",
+      "numberOfUserJourneyThreadsToRun": 1,
+      "userJourneyThreadPoolSize": 1,
+      "expectedTimeForEach": 1,
+      "expectedTimeForEachUnit": "HOURS"
+    }
+  ],
+  "testUserFiles": []
+}
