@@ -1,7 +1,7 @@
 {
   "name": "UnauthorizedAccess",
   "description": "Verify invalid service account can not access Buffer Service.",
-  "serverSpecificationFile": "unthorized-buffertest.json",
+  "serverSpecificationFile": "unauthorized-buffertest.json",
   "kubernetes": {},
   "application": {},
   "testScripts": [
