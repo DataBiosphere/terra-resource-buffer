@@ -45,7 +45,7 @@ public class CrlConfiguration {
   /** The client name required by CRL. */
   public static final String CLIENT_NAME = "terra-resource-buffer";
   /** How long to keep the resource before Janitor do the cleanup. */
-  public static final Duration TEST_RESOURCE_TIME_TO_LIVE = Duration.ofMinutes(60);
+  public static final Duration TEST_RESOURCE_TIME_TO_LIVE = Duration.ofHours(10);
 
   /**
    * Whether we're running Resource Buffer Service in test mode with Cloud Resource Library. If so,
