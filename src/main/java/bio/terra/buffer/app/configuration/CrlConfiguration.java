@@ -44,8 +44,11 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 public class CrlConfiguration {
   /** The client name required by CRL. */
   public static final String CLIENT_NAME = "terra-resource-buffer";
-  /** How long to keep the resource before Janitor do the cleanup. */
-  public static final Duration TEST_RESOURCE_TIME_TO_LIVE = Duration.ofMinutes(60);
+  /**
+   * How long to keep the resource before Janitor do the cleanup.
+   * Set to large number to avoid the conflict between Terra perf tesing with Janitor clean up jobs
+    */
+  public static final Duration TEST_RESOURCE_TIME_TO_LIVE = Duration.ofHours(10);
 
   /**
    * Whether we're running Resource Buffer Service in test mode with Cloud Resource Library. If so,
