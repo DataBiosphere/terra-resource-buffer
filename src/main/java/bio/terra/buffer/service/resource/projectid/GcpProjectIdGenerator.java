@@ -71,7 +71,6 @@ public class GcpProjectIdGenerator {
           }
         } catch (IOException ioEx) {
           logger.info("Error when retrieving GCP project. Retrying project id generation.", ioEx);
-          continue;
         }
     }
     throw new RuntimeException(

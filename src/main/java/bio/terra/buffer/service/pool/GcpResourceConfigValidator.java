@@ -4,6 +4,7 @@ import static bio.terra.buffer.service.resource.projectid.GcpProjectIdGenerator.
 
 import bio.terra.buffer.common.exception.InvalidPoolConfigException;
 import bio.terra.buffer.generated.model.GcpProjectConfig;
+import bio.terra.buffer.generated.model.ProjectIdSchema;
 import bio.terra.buffer.generated.model.ResourceConfig;
 
 /**
@@ -23,10 +24,16 @@ public class GcpResourceConfigValidator implements ResourceConfigValidator {
       throw new InvalidPoolConfigException(
           String.format("Missing billing account for config: %s", config.getConfigName()));
     }
-    if (gcpProjectConfig.getProjectIdSchema().getPrefix().length()
-        > MAX_LENGTH_GCP_PROJECT_ID_PREFIX) {
+    if (gcpProjectConfig
+            .getProjectIdSchema()
+            .getScheme()
+            .equals(ProjectIdSchema.SchemeEnum.TWO_WORDS_NUMBER)
+        && gcpProjectConfig.getProjectIdSchema().getPrefix().length()
+            > MAX_LENGTH_GCP_PROJECT_ID_PREFIX) {
       throw new InvalidPoolConfigException(
-          String.format("Project id prefix is too long: %s", config.getConfigName()));
+          String.format(
+              "Project id prefix is too long for TWO_WORDS_NUMBER naming scheme: %s",
+              config.getConfigName()));
     }
   }
 }
