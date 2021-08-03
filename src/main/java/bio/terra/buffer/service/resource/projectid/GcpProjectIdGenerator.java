@@ -33,7 +33,10 @@ public class GcpProjectIdGenerator {
   /** The maximum allowed length for a GCP project id. */
   private static final int MAX_LENGTH_GCP_PROJECT_ID = 30;
 
-  /** The maximum allowed length for a GCP project id prefix (e.g. "terra-"). */
+  /**
+   * The maximum allowed length for a GCP project id prefix (e.g. "terra-") when using the
+   * TWO_WORDS_NUMBER naming scheme.
+   */
   public static final int MAX_LENGTH_GCP_PROJECT_ID_PREFIX = 12;
 
   /**
@@ -56,21 +59,18 @@ public class GcpProjectIdGenerator {
    * @param projectIdSchema prefix and naming scheme
    * @param rmCow resource manager wrapper to retrieve the project
    * @return generated project id (prefix + naming scheme)
+   * @throws IOException if there is an error retrieving the project from GCP
    */
   public String generateIdWithRetries(
-      ProjectIdSchema projectIdSchema, CloudResourceManagerCow rmCow) {
+      ProjectIdSchema projectIdSchema, CloudResourceManagerCow rmCow) throws IOException {
     for (int numTries = 0; numTries < MAX_RETRIES; numTries++) {
       String projectId = generateId(projectIdSchema);
       if (projectId.length() <= MAX_LENGTH_GCP_PROJECT_ID)
-        try {
-          if (retrieveProject(rmCow, projectId).isEmpty()) {
-            logger.info("Generated GCP project id after {} tries.", numTries);
-            return projectId;
-          } else {
-            logger.info("Generated GCP project is already in use: {}", projectId);
-          }
-        } catch (IOException ioEx) {
-          logger.info("Error when retrieving GCP project. Retrying project id generation.", ioEx);
+        if (retrieveProject(rmCow, projectId).isEmpty()) {
+          logger.info("Generated GCP project id after {} tries.", numTries);
+          return projectId;
+        } else {
+          logger.info("Generated GCP project is already in use: {}", projectId);
         }
     }
     throw new RuntimeException(
