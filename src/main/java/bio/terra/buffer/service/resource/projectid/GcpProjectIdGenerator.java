@@ -60,9 +60,11 @@ public class GcpProjectIdGenerator {
    * @param rmCow resource manager wrapper to retrieve the project
    * @return generated project id (prefix + naming scheme)
    * @throws IOException if there is an error retrieving the project from GCP
+   * @throws InterruptedException if no project id is found after the maximum number of retries
    */
   public String generateIdWithRetries(
-      ProjectIdSchema projectIdSchema, CloudResourceManagerCow rmCow) throws IOException {
+      ProjectIdSchema projectIdSchema, CloudResourceManagerCow rmCow)
+      throws IOException, InterruptedException {
     for (int numTries = 0; numTries < MAX_RETRIES; numTries++) {
       String projectId = generateId(projectIdSchema);
       if (projectId.length() <= MAX_LENGTH_GCP_PROJECT_ID)
@@ -73,7 +75,7 @@ public class GcpProjectIdGenerator {
           logger.info("Generated GCP project is already in use: {}", projectId);
         }
     }
-    throw new RuntimeException(
+    throw new InterruptedException(
         "No project id found after maximum number of retries: " + MAX_RETRIES);
   }
 
