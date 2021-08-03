@@ -54,7 +54,7 @@ public class GcpProjectIdGenerator {
    * @throws InterruptedException if no project id is found after the maximum number of retries
    */
   public String generateIdWithRetries(ProjectIdSchema projectIdSchema)
-      throws IOException, InterruptedException {
+      throws InterruptedException {
     for (int numTries = 0; numTries < MAX_RETRIES; numTries++) {
       String projectId = generateId(projectIdSchema);
       if (projectId.length() <= MAX_LENGTH_GCP_PROJECT_ID) {

@@ -36,7 +36,7 @@ public class GenerateProjectIdStep implements Step {
           CLOUD_RESOURCE_UID,
           new CloudResourceUid().googleProjectUid(new GoogleProjectUid().projectId(projectId)));
       return StepResult.getStepResultSuccess();
-    } catch (IOException | InterruptedException ioEx) {
+    } catch (InterruptedException ioEx) {
       logger.info("Error when generating GCP project id.", ioEx);
       return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY, ioEx);
     }
