@@ -44,8 +44,7 @@ public class GoogleProjectCreationFlight extends Flight {
     addStep(new AssertResourceCreatingStep(bufferDao), newInternalDefaultRetryRule());
     addStep(new UndoCreatingDbEntityStep(bufferDao), newInternalDefaultRetryRule());
     addStep(
-        new GenerateProjectIdStep(gcpProjectConfig, idGenerator, rmCow),
-        newCloudApiDefaultRetryRule());
+        new GenerateProjectIdStep(gcpProjectConfig, idGenerator), newCloudApiDefaultRetryRule());
     addStep(new CreateProjectStep(rmCow, gcpProjectConfig), newCloudApiDefaultRetryRule());
     addStep(new SetBillingInfoStep(billingCow, gcpProjectConfig), newCloudApiDefaultRetryRule());
     addStep(

@@ -39,6 +39,11 @@ public class CreateProjectStep implements Step {
   public StepResult doStep(FlightContext flightContext) throws RetryException {
     String projectId = flightContext.getWorkingMap().get(GOOGLE_PROJECT_ID, String.class);
     try {
+      // If the project id us used. Fail the flight and let Stairway rollback the flight.
+      if (retrieveProject(rmCow, projectId).isPresent()) {
+        return new StepResult(StepStatus.STEP_RESULT_FAILURE_FATAL);
+      }
+
       Project project =
           new Project()
               .setProjectId(projectId)

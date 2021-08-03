@@ -7,7 +7,6 @@ import bio.terra.buffer.generated.model.CloudResourceUid;
 import bio.terra.buffer.generated.model.GcpProjectConfig;
 import bio.terra.buffer.generated.model.GoogleProjectUid;
 import bio.terra.buffer.service.resource.projectid.GcpProjectIdGenerator;
-import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.stairway.*;
 import java.io.IOException;
 import org.slf4j.Logger;
@@ -19,15 +18,11 @@ public class GenerateProjectIdStep implements Step {
 
   private final GcpProjectConfig gcpProjectConfig;
   private final GcpProjectIdGenerator projectIdGenerator;
-  private final CloudResourceManagerCow rmCow;
 
   public GenerateProjectIdStep(
-      GcpProjectConfig gcpProjectConfig,
-      GcpProjectIdGenerator projectIdGenerator,
-      CloudResourceManagerCow rmCow) {
+      GcpProjectConfig gcpProjectConfig, GcpProjectIdGenerator projectIdGenerator) {
     this.gcpProjectConfig = gcpProjectConfig;
     this.projectIdGenerator = projectIdGenerator;
-    this.rmCow = rmCow;
   }
 
   @Override
@@ -35,7 +30,7 @@ public class GenerateProjectIdStep implements Step {
     FlightMap workingMap = flightContext.getWorkingMap();
     try {
       String projectId =
-          projectIdGenerator.generateIdWithRetries(gcpProjectConfig.getProjectIdSchema(), rmCow);
+          projectIdGenerator.generateIdWithRetries(gcpProjectConfig.getProjectIdSchema());
       flightContext.getWorkingMap().put(GOOGLE_PROJECT_ID, projectId);
       workingMap.put(
           CLOUD_RESOURCE_UID,
