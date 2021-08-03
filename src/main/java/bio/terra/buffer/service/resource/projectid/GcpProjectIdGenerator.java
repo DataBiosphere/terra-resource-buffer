@@ -31,10 +31,7 @@ public class GcpProjectIdGenerator {
    */
   public static final int MAX_LENGTH_GCP_PROJECT_ID_PREFIX = 12;
 
-  /**
-   * The maximum number of times to try generating a project id that has an allowable length and is
-   * not already in use.
-   */
+  /** The maximum number of times to try generating a project id that has an allowable length. */
   private static final int MAX_RETRIES = 100;
 
   /**
