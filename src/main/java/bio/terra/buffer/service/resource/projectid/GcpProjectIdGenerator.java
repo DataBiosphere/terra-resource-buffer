@@ -22,10 +22,44 @@ public class GcpProjectIdGenerator {
   /** The largest number to use for random suffixes for adjective/noun project IDs. */
   @VisibleForTesting static final int RANDOM_SUFFIX_LIMIT = 10000;
 
+  /** The maximum allowed length for a GCP project id. */
+  private static final int MAX_LENGTH_GCP_PROJECT_ID = 30;
+
+  /**
+   * The maximum allowed length for a GCP project id prefix (e.g. "terra-") when using the
+   * TWO_WORDS_NUMBER naming scheme.
+   */
+  public static final int MAX_LENGTH_GCP_PROJECT_ID_PREFIX = 12;
+
+  /** The maximum number of times to try generating a project id that has an allowable length. */
+  private static final int MAX_RETRIES = 100;
+
+  /**
+   * Generate a GCP project id from the prefix and scheme.
+   *
+   * <p>Keep retrying the id generation until we find one that fits into the GCP project id length
+   * limit, or until we have retried the maximum number of times.
+   *
+   * @param projectIdSchema prefix and naming scheme
+   * @return generated project id (prefix + naming scheme)
+   * @throws InterruptedException if no project id is found after the maximum number of retries
+   */
+  public String generateIdWithRetries(ProjectIdSchema projectIdSchema) throws InterruptedException {
+    for (int numTries = 0; numTries < MAX_RETRIES; numTries++) {
+      String projectId = generateId(projectIdSchema);
+      if (projectId.length() <= MAX_LENGTH_GCP_PROJECT_ID) {
+        return projectId;
+      }
+    }
+    throw new InterruptedException(
+        "No project id found after maximum number of retries: " + MAX_RETRIES);
+  }
+
+  @VisibleForTesting
   /**
    * Generates project Id from prefix and scheme.
    *
-   * <p>The output will be prefix + naming scheme. For now, we only support RANDOM_CHAR scheme.
+   * <p>The output will be prefix + naming scheme.
    */
   public String generateId(ProjectIdSchema projectIdSchema) {
     String generatedId = projectIdSchema.getPrefix();
