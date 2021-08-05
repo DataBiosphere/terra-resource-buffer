@@ -2,6 +2,7 @@ package bio.terra.buffer.service.resource.flight;
 
 import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
 import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.isNetworkMonitoringEnabled;
+import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.isUsePrivateGoogleAccess;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.*;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.NETWORK_NAME;
 
@@ -120,7 +121,7 @@ public class CreateSubnetsStep implements Step {
                 .setNetwork(network.getSelfLink())
                 .setIpCidrRange(entry.getValue())
                 .setEnableFlowLogs(networkMonitoringEnabled)
-                .setPrivateIpGoogleAccess(networkMonitoringEnabled);
+                .setPrivateIpGoogleAccess(isUsePrivateGoogleAccess(gcpProjectConfig));
         if (networkMonitoringEnabled) {
           subnetwork.setLogConfig(LOG_CONFIG);
         }

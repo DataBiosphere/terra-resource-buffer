@@ -107,6 +107,11 @@ components:
             Keep the default VPC network if this flag is true, otherwise delete it.
           type: boolean
           default: false
+        usePrivateGoogleAccess:
+          description: |-
+            Whether to config Private Google Access See: https://cloud.google.com/vpc/docs/configure-private-google-access
+          type: boolean
+          default: false
       type: object
 
     ComputeEngine:

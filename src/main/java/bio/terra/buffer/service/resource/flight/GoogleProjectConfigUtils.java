@@ -28,4 +28,11 @@ public class GoogleProjectConfigUtils {
         && gcpProjectConfig.getComputeEngine().isKeepDefaultServiceAcct() != null
         && gcpProjectConfig.getComputeEngine().isKeepDefaultServiceAcct();
   }
+
+  /** Checks if private Google Access enabled. */
+  public static boolean isUsePrivateGoogleAccess(GcpProjectConfig gcpProjectConfig) {
+    return gcpProjectConfig.getNetwork() != null
+        && gcpProjectConfig.getNetwork().isUsePrivateGoogleAccess() != null
+        && gcpProjectConfig.getNetwork().isUsePrivateGoogleAccess();
+  }
 }

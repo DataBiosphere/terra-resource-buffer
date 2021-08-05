@@ -167,7 +167,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   }
 
   @Test
-  public void testCreateGoogleProject_enableNetworkMonitoring() throws Exception {
+  public void testCreateGoogleProject_enablePrivateGoogleAccessAndFlowLog() throws Exception {
     FlightManager manager =
         new FlightManager(
             bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
@@ -176,7 +176,9 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
             bufferDao,
             newBasicGcpConfig()
                 .network(
-                    new bio.terra.buffer.generated.model.Network().enableNetworkMonitoring(true)));
+                    new bio.terra.buffer.generated.model.Network()
+                        .enableNetworkMonitoring(true)
+                        .usePrivateGoogleAccess(true)));
 
     String flightId = manager.submitCreationFlight(pool).get();
     ResourceId resourceId =
