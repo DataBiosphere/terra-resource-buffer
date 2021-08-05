@@ -6,6 +6,7 @@ import static bio.terra.buffer.service.resource.projectid.GcpProjectIdGenerator.
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.buffer.common.BaseUnitTest;
@@ -30,5 +31,19 @@ public class GcpProjectIdGeneratorTest extends BaseUnitTest {
         new ProjectIdSchema().prefix("prefix").scheme(TWO_WORDS_NUMBER);
     String generatedID = gcpProjectIDGenerator.generateId(generatorConfig);
     assertThat(generatedID, matchesPattern("prefix-[a-z]+-[a-z]+-[0-9]+"));
+  }
+
+  @Test
+  public void generateIdWithRetries_retriesExhausted() {
+    ProjectIdSchema generatorConfig =
+        new ProjectIdSchema().prefix("prefixthatislongerthan30characters").scheme(TWO_WORDS_NUMBER);
+    InterruptedException interruptedException =
+        assertThrows(
+            InterruptedException.class,
+            () -> gcpProjectIDGenerator.generateIdWithRetries(generatorConfig));
+    assertTrue(
+        interruptedException
+            .getMessage()
+            .contains("No project id found after maximum number of retries"));
   }
 }
