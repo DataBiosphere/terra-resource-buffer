@@ -101,6 +101,8 @@ components:
           description: |-
             Make network traffic is measured. If enabled, turn on flow logs, enable private google access.
             See https://docs.google.com/document/d/1ccz2kzDL68CPofZ-b95ykQIudCgh7OCSFJ4Ym4Oz0r0/edit for more context.
+            Note: Having NetworkMonitoring requires usePrivateGoogleAccess to be true. So usePrivateGoogleAccess will be true
+            if this is set to true
           type: boolean
         keepDefaultNetwork:
           description: |-
