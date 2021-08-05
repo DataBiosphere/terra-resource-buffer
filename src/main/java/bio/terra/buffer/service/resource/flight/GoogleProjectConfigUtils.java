@@ -35,8 +35,9 @@ public class GoogleProjectConfigUtils {
    * true regardless.
    */
   public static boolean isUsePrivateGoogleAccess(GcpProjectConfig gcpProjectConfig) {
-    return isNetworkMonitoringEnabled(gcpProjectConfig) || (gcpProjectConfig.getNetwork() != null
-        && gcpProjectConfig.getNetwork().isUsePrivateGoogleAccess() != null
-        && gcpProjectConfig.getNetwork().isUsePrivateGoogleAccess());
+    return isNetworkMonitoringEnabled(gcpProjectConfig)
+        || (gcpProjectConfig.getNetwork() != null
+            && gcpProjectConfig.getNetwork().isUsePrivateGoogleAccess() != null
+            && gcpProjectConfig.getNetwork().isUsePrivateGoogleAccess());
   }
 }
