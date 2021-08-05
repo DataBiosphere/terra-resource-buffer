@@ -178,7 +178,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
                 .network(
                     new bio.terra.buffer.generated.model.Network()
                         .enableNetworkMonitoring(true)
-                        .usePrivateGoogleAccess(true)));
+                        .enablePrivateGoogleAccess(true)));
 
     String flightId = manager.submitCreationFlight(pool).get();
     ResourceId resourceId =

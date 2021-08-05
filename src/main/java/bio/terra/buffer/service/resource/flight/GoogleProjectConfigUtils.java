@@ -34,10 +34,10 @@ public class GoogleProjectConfigUtils {
    * Access. So if {@link #isNetworkMonitoringEnabled(GcpProjectConfig)} is true, this will also be
    * true regardless.
    */
-  public static boolean isUsePrivateGoogleAccess(GcpProjectConfig gcpProjectConfig) {
+  public static boolean usePrivateGoogleAccess(GcpProjectConfig gcpProjectConfig) {
     return isNetworkMonitoringEnabled(gcpProjectConfig)
         || (gcpProjectConfig.getNetwork() != null
-            && gcpProjectConfig.getNetwork().isUsePrivateGoogleAccess() != null
-            && gcpProjectConfig.getNetwork().isUsePrivateGoogleAccess());
+            && gcpProjectConfig.getNetwork().isEnablePrivateGoogleAccess() != null
+            && gcpProjectConfig.getNetwork().isEnablePrivateGoogleAccess());
   }
 }
