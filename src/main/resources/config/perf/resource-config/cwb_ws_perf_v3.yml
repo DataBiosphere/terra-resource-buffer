@@ -28,5 +28,6 @@ gcpProjectConfig:
     - "storage-component.googleapis.com"
   network:
     enableNetworkMonitoring: "false"
+    enablePrivateGoogleAccess: "true"
   computeEngine:
     keepDefaultServiceAcct: "true"
