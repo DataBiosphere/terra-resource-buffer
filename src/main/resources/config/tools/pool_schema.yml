@@ -19,9 +19,6 @@ poolConfigs:
   - poolId: "vpc_sc_qa-fiab_v2"
     size: 100
     resourceConfigName: "vpc_sc_qa-fiab_v2"
-  - poolId: "workspace_manager_v8"
-    size: 500
-    resourceConfigName: "workspace_manager_v8"
   - poolId: "workspace_manager_v9"
     size: 500
     resourceConfigName: "workspace_manager_v9"
