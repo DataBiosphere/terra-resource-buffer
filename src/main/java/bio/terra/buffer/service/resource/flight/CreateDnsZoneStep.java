@@ -1,7 +1,7 @@
 package bio.terra.buffer.service.resource.flight;
 
 import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
-import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.isNetworkMonitoringEnabled;
+import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.usePrivateGoogleAccess;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.*;
 
 import bio.terra.buffer.generated.model.GcpProjectConfig;
@@ -13,7 +13,9 @@ import bio.terra.stairway.StepResult;
 import bio.terra.stairway.StepStatus;
 import bio.terra.stairway.exception.RetryException;
 import com.google.api.services.compute.model.Network;
-import com.google.api.services.dns.model.*;
+import com.google.api.services.dns.model.ManagedZone;
+import com.google.api.services.dns.model.ManagedZonePrivateVisibilityConfig;
+import com.google.api.services.dns.model.ManagedZonePrivateVisibilityConfigNetwork;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
@@ -53,7 +55,7 @@ public class CreateDnsZoneStep implements Step {
   @Override
   public StepResult doStep(FlightContext flightContext) throws RetryException {
     String projectId = flightContext.getWorkingMap().get(GOOGLE_PROJECT_ID, String.class);
-    if (!isNetworkMonitoringEnabled(gcpProjectConfig)) {
+    if (!usePrivateGoogleAccess(gcpProjectConfig)) {
       return StepResult.getStepResultSuccess();
     }
     try {

@@ -28,4 +28,16 @@ public class GoogleProjectConfigUtils {
         && gcpProjectConfig.getComputeEngine().isKeepDefaultServiceAcct() != null
         && gcpProjectConfig.getComputeEngine().isKeepDefaultServiceAcct();
   }
+
+  /**
+   * Checks if private Google Access enabled. Using network monitoring requires private Google
+   * Access. So if {@link #isNetworkMonitoringEnabled(GcpProjectConfig)} is true, this will also be
+   * true regardless.
+   */
+  public static boolean usePrivateGoogleAccess(GcpProjectConfig gcpProjectConfig) {
+    return isNetworkMonitoringEnabled(gcpProjectConfig)
+        || (gcpProjectConfig.getNetwork() != null
+            && gcpProjectConfig.getNetwork().isEnablePrivateGoogleAccess() != null
+            && gcpProjectConfig.getNetwork().isEnablePrivateGoogleAccess());
+  }
 }

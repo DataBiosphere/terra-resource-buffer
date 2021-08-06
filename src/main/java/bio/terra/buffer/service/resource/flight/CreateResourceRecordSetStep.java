@@ -1,7 +1,7 @@
 package bio.terra.buffer.service.resource.flight;
 
 import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
-import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.isNetworkMonitoringEnabled;
+import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.usePrivateGoogleAccess;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.*;
 
 import bio.terra.buffer.generated.model.GcpProjectConfig;
@@ -53,7 +53,7 @@ public class CreateResourceRecordSetStep implements Step {
   @Override
   public StepResult doStep(FlightContext flightContext) throws RetryException {
     String projectId = flightContext.getWorkingMap().get(GOOGLE_PROJECT_ID, String.class);
-    if (!isNetworkMonitoringEnabled(gcpProjectConfig)) {
+    if (!usePrivateGoogleAccess(gcpProjectConfig)) {
       return StepResult.getStepResultSuccess();
     }
     try {
