@@ -1,5 +1,5 @@
 #This is a Skaffold configuration, which lets developers continuously push new images to their development namespaces.
-apiVersion: skaffold/v2alpha4
+apiVersion: skaffold/v2beta17
 kind: Config
 build:
   artifacts:
@@ -8,16 +8,7 @@ build:
     jib: {}
 deploy:
   statusCheckDeadlineSeconds: 540
-  helm:
-    releases:
-      - name: buffer-ENV
-        namespace: terra-ENV
-        chartPath: terra-helm/charts/buffer
-        skipBuildDependencies: true
-        values:
-          image: gcr.io/terra-kernel-k8s/terra-resource-buffer
-        valuesFiles:
-          - terra-helmfile/terra/values/buffer.yaml
-          - terra-helmfile/terra/values/buffer/personal.yaml
-          - terra-helmfile/terra/values/buffer/personal/ENV.yaml
-          - values.yaml
+  kubectl:
+    manifests:
+    - terra-helmfile/output/manifests.yaml
+    defaultNamespace: terra-ENV
