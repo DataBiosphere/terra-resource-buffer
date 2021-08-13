@@ -35,6 +35,7 @@ mkdir -p ./terra-helmfile/output
 ./terra-helmfile/bin/render \
   -e "${ENV}" \
   -a buffer \
+  --values-file ./values.yaml \
   --stdout > terra-helmfile/output/manifests.yaml
 
 # That's it! You can now deploy to the k8s cluster by running
