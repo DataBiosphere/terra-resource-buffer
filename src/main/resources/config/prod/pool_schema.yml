@@ -10,3 +10,6 @@ poolConfigs:
   - poolId: "datarepo_v1"
     size: 1000
     resourceConfigName: "datarepo_v1"
+  - poolId: "datarepo_fakeprod_v1"
+    size: 50
+    resourceConfigName: "datarepo_fakeprod_v1"
