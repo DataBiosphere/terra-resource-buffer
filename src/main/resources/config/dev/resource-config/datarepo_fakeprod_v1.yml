@@ -6,7 +6,7 @@ gcpProjectConfig:
     prefix: "datarepo"
     scheme: "RANDOM_CHAR"
   parentFolderId: "270278425081" #data.test-terra.bio/repos/jade-dev
-  billingAccount: "0106B0-41CAA9-427C96"
+  billingAccount: "01A82E-CA8A14-367457"
   enabledApis:
     - "bigquery-json.googleapis.com"
     - "firestore.googleapis.com"
