@@ -3,7 +3,7 @@
 configName: "datarepo_fakeprod_v1"
 gcpProjectConfig:
   projectIdSchema:
-    prefix: "datarepo"
+    prefix: "tdr-fp"
     scheme: "RANDOM_CHAR"
   parentFolderId: "270278425081" #data.test-terra.bio/repos/jade-dev
   billingAccount: "01A82E-CA8A14-367457"
