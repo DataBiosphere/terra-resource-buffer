@@ -1,0 +1,33 @@
+# Community Workbench buffered workspace template
+---
+configName: "vpc_sc_dev-fiab_v2"
+gcpProjectConfig:
+  projectIdSchema:
+    prefix: "terra-vpc-sc-devfiab"
+    scheme: "RANDOM_CHAR"
+  # test.firecloud.org/tools/for_vpc_sc_unclaimed
+  parentFolderId: "610557500976"
+  billingAccount: "01A82E-CA8A14-367457"
+  enabledApis:
+    - "bigquery-json.googleapis.com"
+    - "compute.googleapis.com"
+    - "container.googleapis.com"
+    - "cloudbilling.googleapis.com"
+    - "clouderrorreporting.googleapis.com"
+    - "cloudkms.googleapis.com"
+    - "cloudtrace.googleapis.com"
+    - "containerregistry.googleapis.com"
+    - "dataflow.googleapis.com"
+    - "dataproc.googleapis.com"
+    - "dns.googleapis.com"
+    - "genomics.googleapis.com"
+    - "lifesciences.googleapis.com"
+    - "logging.googleapis.com"
+    - "monitoring.googleapis.com"
+    - "storage-api.googleapis.com"
+    - "storage-component.googleapis.com"
+  network:
+    enableNetworkMonitoring: "true"
+    enablePrivateGoogleAccess: "true"
+  computeEngine:
+    keepDefaultServiceAcct: "true"
