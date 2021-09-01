@@ -3,7 +3,7 @@
 configName: "vpc_sc_v3"
 gcpProjectConfig:
   projectIdSchema:
-    prefix: "terra-vpc-perf"
+    prefix: "terra-vpc-sc-perf"
     scheme: "RANDOM_CHAR"
   # test.firecloud.org/perf/for_vpc_sc_unclaimed
   parentFolderId: "533417334224"

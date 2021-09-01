@@ -3,7 +3,7 @@
 configName: "vpc_sc_v3"
 gcpProjectConfig:
   projectIdSchema:
-    prefix: "terra-vpc"
+    prefix: "terra-vpc-sc"
     scheme: "RANDOM_CHAR"
   # firecloud.org/prod/for_vpc_sc_unclaimed
   parentFolderId: "160283235721"

@@ -3,7 +3,7 @@
 configName: "vpc_sc_v2"
 gcpProjectConfig:
   projectIdSchema:
-    prefix: "terra-vpc-staging"
+    prefix: "terra-vpc-sc-staging"
     scheme: "RANDOM_CHAR"
   # test.firecloud.org/staging/for_vpc_sc_unclaimed
   parentFolderId: "119547684332"
