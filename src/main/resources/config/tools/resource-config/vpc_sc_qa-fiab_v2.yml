@@ -3,7 +3,7 @@
 configName: "vpc_sc_qa-fiab_v2"
 gcpProjectConfig:
   projectIdSchema:
-    prefix: "terra-vpc-sc-qafiab"
+    prefix: "terra-vpc-qafiab"
     scheme: "RANDOM_CHAR"
   # quality.firecloud.org/quality/for_vpc_sc_unclaimed
   parentFolderId: "108325210767"

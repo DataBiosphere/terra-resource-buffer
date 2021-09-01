@@ -3,11 +3,11 @@
 configName: "vpc_sc_v3"
 gcpProjectConfig:
   projectIdSchema:
-    prefix: "terra-vpc-perf"
+    prefix: "terra-vpc"
     scheme: "RANDOM_CHAR"
-  # test.firecloud.org/perf/for_vpc_sc_unclaimed
-  parentFolderId: "533417334224"
-  billingAccount: "01A82E-CA8A14-367457"
+  # firecloud.org/prod/for_vpc_sc_unclaimed
+  parentFolderId: "160283235721"
+  billingAccount: "0106B0-41CAA9-427C96"
   enabledApis:
     - "bigquery-json.googleapis.com"
     - "compute.googleapis.com"
@@ -27,7 +27,7 @@ gcpProjectConfig:
     - "storage-api.googleapis.com"
     - "storage-component.googleapis.com"
   network:
-    enableNetworkMonitoring: "true"
+    enableNetworkMonitoring: "false"
     enablePrivateGoogleAccess: "true"
   computeEngine:
     keepDefaultServiceAcct: "true"

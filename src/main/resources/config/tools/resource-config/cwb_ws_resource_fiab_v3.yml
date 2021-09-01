@@ -1,12 +1,12 @@
-# Projects with VPC-SC configuration
+# Community Workbench buffered workspace template
 ---
-configName: "vpc_sc_v3"
+configName: "cwb_ws_resource_fiab_v3"
 gcpProjectConfig:
   projectIdSchema:
-    prefix: "terra-vpc-perf"
+    prefix: "terra-test"
     scheme: "RANDOM_CHAR"
-  # test.firecloud.org/perf/for_vpc_sc_unclaimed
-  parentFolderId: "533417334224"
+  # test.firecloud.org/tools/CommunityWorkbench
+  parentFolderId: "595081786611"
   billingAccount: "01A82E-CA8A14-367457"
   enabledApis:
     - "bigquery-json.googleapis.com"
@@ -27,7 +27,7 @@ gcpProjectConfig:
     - "storage-api.googleapis.com"
     - "storage-component.googleapis.com"
   network:
-    enableNetworkMonitoring: "true"
+    enableNetworkMonitoring: "false"
     enablePrivateGoogleAccess: "true"
   computeEngine:
     keepDefaultServiceAcct: "true"

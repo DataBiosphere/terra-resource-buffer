@@ -1,12 +1,12 @@
-# Projects with VPC-SC configuration
+# # Projects with VPC-SC configuration
 ---
-configName: "vpc_sc_v3"
+configName: "vpc_sc_v2"
 gcpProjectConfig:
   projectIdSchema:
-    prefix: "terra-vpc-perf"
+    prefix: "terra-vpc-dev"
     scheme: "RANDOM_CHAR"
-  # test.firecloud.org/perf/for_vpc_sc_unclaimed
-  parentFolderId: "533417334224"
+  # test.firecloud.org/dev/for_vpc_sc_unclaimed
+  parentFolderId: "1061905712535"
   billingAccount: "01A82E-CA8A14-367457"
   enabledApis:
     - "bigquery-json.googleapis.com"

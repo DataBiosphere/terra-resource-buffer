@@ -1,12 +1,12 @@
-# Projects with VPC-SC configuration
+# Community Workbench buffered workspace template
 ---
-configName: "vpc_sc_v3"
+configName: "cwb_ws_resource_dev_v3"
 gcpProjectConfig:
   projectIdSchema:
-    prefix: "terra-vpc-perf"
+    prefix: "terra-dev"
     scheme: "RANDOM_CHAR"
-  # test.firecloud.org/perf/for_vpc_sc_unclaimed
-  parentFolderId: "533417334224"
+  # test.firecloud.org/dev/CommunityWorkbench
+  parentFolderId: "803412578462"
   billingAccount: "01A82E-CA8A14-367457"
   enabledApis:
     - "bigquery-json.googleapis.com"
