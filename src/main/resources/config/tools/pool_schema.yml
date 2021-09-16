@@ -17,7 +17,7 @@ poolConfigs:
     size: 500
     resourceConfigName: "cwb_ws_resource_quality_v2"
   - poolId: "cwb_ws_quality_v3"
-    size: 500
+    size: 5000
     resourceConfigName: "cwb_ws_resource_quality_v3"
   - poolId: "vpc_sc_qa-fiab_v1"
     size: 100
