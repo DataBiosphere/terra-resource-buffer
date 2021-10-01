@@ -70,9 +70,8 @@ repositories {
 }
 
 dependencies {
-    // Terra deps
-    implementation group: 'bio.terra', name: 'stairway', version: '0.0.61-SNAPSHOT'
-    implementation group: 'bio.terra', name: 'terra-common-lib', version: '0.0.48-SNAPSHOT'
+    // Terra deps - we get Stairway via TCL
+    implementation group: 'bio.terra', name: 'terra-common-lib', version: '0.0.51-SNAPSHOT'
 
     // When updating platform version, be sure to keep Spring dependency-management plugin stanza's
     // version of cloud-resource-schema in sync with the platform (PF-866).
