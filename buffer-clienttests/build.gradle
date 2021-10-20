@@ -1,6 +1,6 @@
 plugins {
     // Terra Test Runner Plugin
-    id "bio.terra.test-runner-plugin" version "0.0.3-SNAPSHOT"
+    id "bio.terra.test-runner-plugin" version "0.0.7-SNAPSHOT"
 }
 
 repositories {
