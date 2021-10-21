@@ -27,3 +27,9 @@ From the buffer-clienttests/tools directory:
 
 Each service account JSON files in the resources/serviceaccounts directory of this project specifies a default file
 path for the client secret file. This default path should match where the render-config.sh script puts the secret.
+
+## Covered Tests
+### Buffer performacnce & resistance test
+Make 400 cocurrent request to grab 400 projects from Buffer. 
+Expect they all success then pool is refilled within 2 hours.
+The number is decided by real Community Workbench traffic(< 400 per day) and Broad Terra GKE rate limit(unknown but ~500)
