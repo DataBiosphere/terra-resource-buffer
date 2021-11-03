@@ -45,8 +45,8 @@ public class CrlConfiguration {
   /** The client name required by CRL. */
   public static final String CLIENT_NAME = "terra-resource-buffer";
   /**
-   * How long to keep the resource before Janitor do the cleanup. Set to large number(5 days + 10 hrs) to
-   *  avoid the conflict between Terra perf tesing with Janitor clean up jobs. 
+   * How long to keep the resource before Janitor do the cleanup. Set to large number(5 days + 10
+   * hrs) to avoid the conflict between Terra perf tesing with Janitor clean up jobs.
    */
   public static final Duration TEST_RESOURCE_TIME_TO_LIVE = Duration.ofHours(130);
 
