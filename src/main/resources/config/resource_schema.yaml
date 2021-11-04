@@ -108,6 +108,7 @@ components:
         keepDefaultNetwork:
           description: |-
             Keep the default VPC network if this flag is true, otherwise delete it.
+            Note: This might not be working if organization policy orgconstraints/compute.skipDefaultNetworkCreation is on.
           type: boolean
           default: false
         enablePrivateGoogleAccess:
