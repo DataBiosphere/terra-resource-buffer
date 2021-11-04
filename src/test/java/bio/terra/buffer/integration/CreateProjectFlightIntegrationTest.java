@@ -209,8 +209,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertDefaultServiceAccountExists(project);
   }
 
-  @Disabled(
-      "In Broad deployment, skipDefaultNetworkCreation is turned on orignization policy")
+  @Disabled("In Broad deployment, skipDefaultNetworkCreation is turned on orignization policy")
   @Test
   public void testCreateGoogleProject_keepDefaultNetwork() throws Exception {
     FlightManager manager =
