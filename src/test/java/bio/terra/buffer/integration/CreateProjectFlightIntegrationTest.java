@@ -10,19 +10,28 @@ import static bio.terra.buffer.integration.IntegrationUtils.newFullGcpConfig;
 import static bio.terra.buffer.integration.IntegrationUtils.pollUntilResourcesMatch;
 import static bio.terra.buffer.integration.IntegrationUtils.preparePool;
 import static bio.terra.buffer.service.resource.FlightMapKeys.RESOURCE_CONFIG;
+import static bio.terra.buffer.service.resource.flight.CreateDnsZoneStep.GCR_MANAGED_ZONE_TEMPLATE;
 import static bio.terra.buffer.service.resource.flight.CreateDnsZoneStep.MANAGED_ZONE_TEMPLATE;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_EGRESS_INTERNEL;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_EGRESS_INTERNEL_RULE_NAME;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_EGRESS_LEONARDO_RULE_NAME;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_EGRESS_PRIVATE_ACCESS_RULE_NAME;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INGRESS_LEONARDO_SSL_DEFAULT;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INTERNAL_DEFAULT_NETWORK;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INTERNAL_RULE_NAME_FOR_DEFAULT;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INTERNAL_RULE_NAME_FOR_NETWORK;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INTERNAL_VPC_NETWORK;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.DENY_EGRESS_LEONARDO_WORKER_RULE_NAME;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.DENY_EGRESS_RULE_NAME;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.LEONARDO_SSL_RULE_NAME_FOR_DEFAULT;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.LEONARDO_SSL_RULE_NAME_FOR_NETWORK;
-import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.buildAllowInternalFirewallRule;
-import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.buildLeonardoSslFirewallRule;
 import static bio.terra.buffer.service.resource.flight.CreateProjectStep.CONFIG_NAME_LABEL_LEY;
 import static bio.terra.buffer.service.resource.flight.CreateProjectStep.NETWORK_LABEL_KEY;
 import static bio.terra.buffer.service.resource.flight.CreateProjectStep.SUB_NETWORK_LABEL_KEY;
 import static bio.terra.buffer.service.resource.flight.CreateProjectStep.createValidLabelValue;
-import static bio.terra.buffer.service.resource.flight.CreateResourceRecordSetStep.A_RECORD;
-import static bio.terra.buffer.service.resource.flight.CreateResourceRecordSetStep.CNAME_RECORD;
+import static bio.terra.buffer.service.resource.flight.CreateResourceRecordSetStep.GCR_CNAME_RECORD;
+import static bio.terra.buffer.service.resource.flight.CreateResourceRecordSetStep.RESTRICT_API_A_RECORD;
+import static bio.terra.buffer.service.resource.flight.CreateResourceRecordSetStep.RESTRICT_API_CNAME_RECORD;
 import static bio.terra.buffer.service.resource.flight.CreateRouteStep.DEFAULT_GATEWAY;
 import static bio.terra.buffer.service.resource.flight.CreateRouteStep.DESTINATION_RANGE;
 import static bio.terra.buffer.service.resource.flight.CreateRouteStep.ROUTE_NAME;
@@ -190,6 +199,35 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertRouteExists(project);
     assertDnsExists(project);
     assertDefaultVpcNotExists(project);
+  }
+
+  @Test
+  public void testCreateGoogleProject_blockInternetAccessWithGcrDnsEnabled() throws Exception {
+    FlightManager manager =
+        new FlightManager(
+            bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
+    Pool pool =
+        preparePool(
+            bufferDao,
+            newBasicGcpConfig()
+                .network(
+                    new bio.terra.buffer.generated.model.Network()
+                        .enableNetworkMonitoring(true)
+                        .enablePrivateGoogleAccess(true)
+                        .enableCloudRegistryPrivateGoogleAccess(true)
+                        .denyInternetAccess(true)));
+
+    String flightId = manager.submitCreationFlight(pool).get();
+    ResourceId resourceId =
+        extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
+    Project project = assertProjectExists(resourceId);
+    assertNetworkExists(project);
+    assertSubnetsExist(project, NetworkMonitoring.ENABLED);
+    assertRouteExists(project);
+    assertDnsExists(project);
+    assertGcrDnsExists(project);
+    assertDefaultVpcNotExists(project);
+    assertFirewallRulesExistForBlockInternetAccess(project);
   }
 
   @Test
@@ -532,13 +570,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     Firewall leonardoSsl =
         computeCow.firewalls().get(projectId, LEONARDO_SSL_RULE_NAME_FOR_NETWORK).execute();
 
-    Firewall allowInternalExpected =
-        buildAllowInternalFirewallRule(network, ALLOW_INTERNAL_RULE_NAME_FOR_NETWORK);
-    Firewall leonardoSslExpected =
-        buildLeonardoSslFirewallRule(network, LEONARDO_SSL_RULE_NAME_FOR_NETWORK);
-
-    assertFirewallRuleMatch(allowInternalExpected, allowInternal);
-    assertFirewallRuleMatch(leonardoSslExpected, leonardoSsl);
+    assertFirewallRuleMatch(ALLOW_INTERNAL_VPC_NETWORK, allowInternal);
+    assertFirewallRuleMatch(LEONARDO_SSL_RULE_NAME_FOR_NETWORK, leonardoSsl);
   }
 
   private void assertFirewallRulesExistForDefaultVpc(Project project) throws Exception {
@@ -550,13 +583,33 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     Firewall leonardoSsl =
         computeCow.firewalls().get(projectId, LEONARDO_SSL_RULE_NAME_FOR_DEFAULT).execute();
 
-    Firewall allowInternalExpected =
-        buildAllowInternalFirewallRule(network, ALLOW_INTERNAL_RULE_NAME_FOR_DEFAULT);
-    Firewall leonardoSslExpected =
-        buildLeonardoSslFirewallRule(network, LEONARDO_SSL_RULE_NAME_FOR_DEFAULT);
+    assertFirewallRuleMatch(ALLOW_INTERNAL_DEFAULT_NETWORK, allowInternal);
+    assertFirewallRuleMatch(ALLOW_INGRESS_LEONARDO_SSL_DEFAULT, leonardoSsl);
+  }
 
-    assertFirewallRuleMatch(allowInternalExpected, allowInternal);
-    assertFirewallRuleMatch(leonardoSslExpected, leonardoSsl);
+  private void assertFirewallRulesExistForBlockInternetAccess(Project project) throws Exception {
+    String projectId = project.getProjectId();
+    Network network =
+        computeCow.networks().get(project.getProjectId(), DEFAULT_NETWORK_NAME).execute();
+
+    Firewall allowEgressInternal =
+        computeCow.firewalls().get(projectId, ALLOW_EGRESS_INTERNEL_RULE_NAME).execute();
+    assertFirewallRuleMatch(ALLOW_EGRESS_INTERNEL, allowEgressInternal);
+
+    Firewall allowLeonardoEgress =
+        computeCow.firewalls().get(projectId, ALLOW_EGRESS_LEONARDO_RULE_NAME).execute();
+    assertFirewallRuleMatch(ALLOW_EGRESS_LEONARDO, allowEgressInternal);
+
+    Firewall allowPrivateGoogleAccess =
+        computeCow.firewalls().get(projectId, ALLOW_EGRESS_PRIVATE_ACCESS_RULE_NAME).execute();
+    assertFirewallRuleMatch(ALLOW_EGRESS_PRIVATE_ACCESS, allowEgressInternal);
+
+    Firewall denyEgress = computeCow.firewalls().get(projectId, DENY_EGRESS_RULE_NAME).execute();
+    assertFirewallRuleMatch(DENY_EGRESSE, allowEgressInternal);
+
+    Firewall denyLeonardoWorker =
+        computeCow.firewalls().get(projectId, DENY_EGRESS_LEONARDO_WORKER_RULE_NAME).execute();
+    assertFirewallRuleMatch(DENY_EGRESS_LEONARDO_WORKER, allowEgressInternal);
   }
 
   private void assertFirewallRuleMatch(Firewall expected, Firewall actual) {
@@ -616,14 +669,36 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
             .getRrsets()
             .stream()
             .collect(Collectors.toMap(ResourceRecordSet::getType, r -> r));
-    ResourceRecordSet aRecordSet = resourceRecordSets.get(A_RECORD.getType());
-    ResourceRecordSet cnameRecordSet = resourceRecordSets.get(CNAME_RECORD.getType());
+    ResourceRecordSet aRecordSet = resourceRecordSets.get(RESTRICT_API_A_RECORD.getType());
+    ResourceRecordSet cnameRecordSet = resourceRecordSets.get(RESTRICT_API_CNAME_RECORD.getType());
 
     assertEquals(MANAGED_ZONE_TEMPLATE.getName(), managedZone.getName());
     assertEquals(MANAGED_ZONE_TEMPLATE.getVisibility(), managedZone.getVisibility());
     assertEquals(MANAGED_ZONE_TEMPLATE.getDescription(), managedZone.getDescription());
-    assertResourceRecordSetMatch(A_RECORD, aRecordSet);
-    assertResourceRecordSetMatch(CNAME_RECORD, cnameRecordSet);
+    assertResourceRecordSetMatch(RESTRICT_API_A_RECORD, aRecordSet);
+    assertResourceRecordSetMatch(RESTRICT_API_CNAME_RECORD, cnameRecordSet);
+  }
+
+  private void assertGcrDnsExists(Project project) throws Exception {
+    String projectId = project.getProjectId();
+
+    ManagedZone managedZone = dnsCow.managedZones().get(projectId, GCR_MANAGED_ZONE_NAME).execute();
+    Map<String, ResourceRecordSet> resourceRecordSets =
+        dnsCow
+            .resourceRecordSets()
+            .list(project.getProjectId(), GCR_MANAGED_ZONE_NAME)
+            .execute()
+            .getRrsets()
+            .stream()
+            .collect(Collectors.toMap(ResourceRecordSet::getType, r -> r));
+    ResourceRecordSet aRecordSet = resourceRecordSets.get(GCR_A_RECORD.getType());
+    ResourceRecordSet cnameRecordSet = resourceRecordSets.get(GCR_CNAME_RECORD.getType());
+
+    assertEquals(GCR_MANAGED_ZONE_TEMPLATE.getName(), managedZone.getName());
+    assertEquals(GCR_MANAGED_ZONE_TEMPLATE.getVisibility(), managedZone.getVisibility());
+    assertEquals(GCR_MANAGED_ZONE_TEMPLATE.getDescription(), managedZone.getDescription());
+    assertResourceRecordSetMatch(GCR_A_RECORD, aRecordSet);
+    assertResourceRecordSetMatch(GCR_CNAME_RECORD, cnameRecordSet);
   }
 
   private void assertDnsNotExists(Project project) throws Exception {

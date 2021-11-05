@@ -1,8 +1,12 @@
 package bio.terra.buffer.service.resource.flight;
 
 import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
+import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.enableGcrPrivateGoogleAccess;
 import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.usePrivateGoogleAccess;
-import static bio.terra.buffer.service.resource.flight.GoogleUtils.*;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.GCR_MANAGED_ZONE_NAME;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.MANAGED_ZONE_NAME;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.NETWORK_NAME;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.getResource;
 
 import bio.terra.buffer.generated.model.GcpProjectConfig;
 import bio.terra.cloudres.google.compute.CloudComputeCow;
@@ -29,6 +33,8 @@ import org.slf4j.LoggerFactory;
  *
  * <p>Follow the same steps and values from here:
  * https://cloud.google.com/vpc-service-controls/docs/set-up-private-connectivity#configuring_dns_with
+ *
+ * <p>When enableGcrPrivateGoogleAccess, follow the similar step to create DNS zone for gcr.io
  */
 public class CreateDnsZoneStep implements Step {
   @VisibleForTesting
@@ -37,8 +43,15 @@ public class CreateDnsZoneStep implements Step {
           .setName(MANAGED_ZONE_NAME)
           .setDescription("Routes googleapis.com to restricted.googleapis.com VIP")
           .setDnsName("googleapis.com.")
-          .setVisibility("private")
-          .setDescription("description");
+          .setVisibility("private");
+
+  @VisibleForTesting
+  public static final ManagedZone GCR_MANAGED_ZONE_TEMPLATE =
+      new ManagedZone()
+          .setName(GCR_MANAGED_ZONE_NAME)
+          .setDescription("Routes gcr.io to restricted.googleapis.com")
+          .setDnsName("gcr.io.")
+          .setVisibility("private");
 
   private final Logger logger = LoggerFactory.getLogger(CreateDnsZoneStep.class);
   private final CloudComputeCow computeCow;
@@ -65,22 +78,34 @@ public class CreateDnsZoneStep implements Step {
           getResource(() -> computeCow.networks().get(projectId, NETWORK_NAME).execute(), 404)
               .get();
 
-      // Skip ManagedZone creation if ManagedZone already present.
-      ManagedZone managedZone =
-          MANAGED_ZONE_TEMPLATE.setPrivateVisibilityConfig(
-              new ManagedZonePrivateVisibilityConfig()
-                  .setNetworks(
-                      ImmutableList.of(
-                          new ManagedZonePrivateVisibilityConfigNetwork()
-                              .setNetworkUrl(network.getSelfLink()))));
+      createManagedDnsZone(projectId, network, MANAGED_ZONE_TEMPLATE);
 
-      createResourceAndIgnoreConflict(
-          () -> dnsCow.managedZones().create(projectId, managedZone).execute());
+      if (enableGcrPrivateGoogleAccess(gcpProjectConfig)) {
+        createManagedDnsZone(projectId, network, GCR_MANAGED_ZONE_TEMPLATE);
+      }
+
     } catch (IOException e) {
       logger.info("Error when configuring DNS ", e);
       return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY, e);
     }
     return StepResult.getStepResultSuccess();
+  }
+
+  private void createManagedDnsZone(
+      String projectId, Network network, ManagedZone managedZoneTemplatae) throws IOException {
+    // Skip ManagedZone creation if ManagedZone already present.
+    ManagedZone managedZone =
+        managedZoneTemplatae
+            .clone()
+            .setPrivateVisibilityConfig(
+                new ManagedZonePrivateVisibilityConfig()
+                    .setNetworks(
+                        ImmutableList.of(
+                            new ManagedZonePrivateVisibilityConfigNetwork()
+                                .setNetworkUrl(network.getSelfLink()))));
+
+    createResourceAndIgnoreConflict(
+        () -> dnsCow.managedZones().create(projectId, managedZone).execute());
   }
 
   @Override

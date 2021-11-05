@@ -113,7 +113,21 @@ components:
           default: false
         enablePrivateGoogleAccess:
           description: |-
-            Whether to config Private Google Access See: https://cloud.google.com/vpc/docs/configure-private-google-access
+            Whether to config Private Google Access for storage and bigquery API. See: https://cloud.google.com/vpc/docs/configure-private-google-access
+            Note: Having NetworkMonitoring requires usePrivateGoogleAccess to be true. So usePrivateGoogleAccess will be true
+            if this is set to true.
+          type: boolean
+          default: false
+        enableCloudRegistryPrivateGoogleAccess:
+          description: |-
+            Whether to config Private Google Access for gcr.io.
+          type: boolean
+          default: false
+        blockInternetAccess:
+          description: |-
+            Whether to allow virtual machines have internet access. If ture, few firewall rules will be created to block egress
+            access(exlude Leonardo created VMs).
+            See: https://docs.google.com/document/d/1elBUrHVoFzT8k5bofDxPi1bLPzJAYed-mc10ZfNz8CY/edit?resourcekey=0-7pDBBKNL6n3K7imr2V0fpA
             Note: Having NetworkMonitoring requires usePrivateGoogleAccess to be true. So usePrivateGoogleAccess will be true
             if this is set to true.
           type: boolean

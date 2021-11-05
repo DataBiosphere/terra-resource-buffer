@@ -1,6 +1,7 @@
 package bio.terra.buffer.service.resource.flight;
 
 import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
+import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.blockInternetAccess;
 import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.keepDefaultNetwork;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.*;
 
@@ -16,6 +17,7 @@ import com.google.api.services.compute.model.Firewall;
 import com.google.api.services.compute.model.Network;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -44,6 +46,164 @@ public class CreateFirewallRuleStep implements Step {
   public static final String LEONARDO_SSL_RULE_NAME_FOR_DEFAULT =
       DEFAULT_NETWORK_NAME + "-vpc-" + LEONARDO_SSL_RULE_NAME_FOR_NETWORK;
 
+  /**
+   * Firewall rules to make VM private but still allowing leonardo can access internet(exclude
+   * leonardo-worker which is used by Leo created dataproc worker).
+   */
+  @VisibleForTesting public static final String DENY_EGRESS_RULE_NAME = "deny-egress-all";
+
+  @VisibleForTesting
+  public static final String DENY_EGRESS_LEONARDO_WORKER_RULE_NAME = "deny-egress-leonardo-worker";
+
+  @VisibleForTesting
+  public static final String ALLOW_EGRESS_LEONARDO_RULE_NAME = "allow-egress-leonardo";
+
+  @VisibleForTesting
+  public static final String ALLOW_EGRESS_PRIVATE_ACCESS_RULE_NAME = "allow-egress-private-access";
+
+  @VisibleForTesting
+  public static final String ALLOW_EGRESS_INTERNEL_RULE_NAME = "allow-egress-internal";
+
+  /**
+   * Firewall rule to priority map. The lower number is, the higher priority.
+   *
+   * <p>To make sure only Leo VMs have private internet access when {@code blockInternetAccess} is
+   * true, the priority of egress firewall rules need to be:
+   *
+   * <ul>
+   *   <oi>ALLOW_EGRESS_PRIVATE_ACCESS_RULE_NAME <oi>ALLOW_EGRESS_INTERNEL(equal)
+   *   <oi>DENY_EGRESS_LEONARDO_WORKER_RULE_NAME <oi>ALLOW_EGRESS_LEONARDO <oi>DENY_EGRESS_RULE_NAME
+   * </ul>
+   */
+  @VisibleForTesting
+  public static final ImmutableMap<String, Integer> FIREWALL_RULE_PRIORITY_MAP =
+      ImmutableMap.<String, Integer>builder()
+          .put(ALLOW_INTERNAL_RULE_NAME_FOR_NETWORK, 65534)
+          .put(LEONARDO_SSL_RULE_NAME_FOR_NETWORK, 65534)
+          .put(ALLOW_INTERNAL_RULE_NAME_FOR_DEFAULT, 65534)
+          .put(LEONARDO_SSL_RULE_NAME_FOR_DEFAULT, 65534)
+          .put(DENY_EGRESS_RULE_NAME, 4000)
+          .put(DENY_EGRESS_LEONARDO_WORKER_RULE_NAME, 2000)
+          .put(ALLOW_EGRESS_LEONARDO_RULE_NAME, 3000)
+          .put(ALLOW_EGRESS_PRIVATE_ACCESS_RULE_NAME, 1000)
+          .put(ALLOW_EGRESS_INTERNEL_RULE_NAME, 1000)
+          .build();
+
+  @VisibleForTesting
+  public static final Firewall ALLOW_INTERNAL_VPC_NETWORK =
+      new Firewall()
+          .setName(ALLOW_INTERNAL_RULE_NAME_FOR_NETWORK)
+          .setDescription("Allow internal ingress traffic on the network.")
+          .setDirection("INGRESS")
+          .setSourceRanges(ImmutableList.of("10.128.0.0/9"))
+          .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(ALLOW_INTERNAL_RULE_NAME_FOR_NETWORK))
+          .setAllowed(
+              ImmutableList.of(
+                  new Firewall.Allowed().setIPProtocol("icmp"),
+                  new Firewall.Allowed().setIPProtocol("tcp").setPorts(ImmutableList.of("0-65535")),
+                  new Firewall.Allowed()
+                      .setIPProtocol("udp")
+                      .setPorts(ImmutableList.of("0-65535"))));
+
+  @VisibleForTesting
+  public static final Firewall ALLOW_INTERNAL_DEFAULT_NETWORK =
+      new Firewall()
+          .setName(ALLOW_INTERNAL_RULE_NAME_FOR_DEFAULT)
+          .setDescription("Allow internal ingress traffic on the default VPC network.")
+          .setDirection("INGRESS")
+          .setSourceRanges(ImmutableList.of("10.128.0.0/9"))
+          .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(ALLOW_INTERNAL_RULE_NAME_FOR_DEFAULT))
+          .setAllowed(
+              ImmutableList.of(
+                  new Firewall.Allowed().setIPProtocol("icmp"),
+                  new Firewall.Allowed().setIPProtocol("tcp").setPorts(ImmutableList.of("0-65535")),
+                  new Firewall.Allowed()
+                      .setIPProtocol("udp")
+                      .setPorts(ImmutableList.of("0-65535"))));
+
+  @VisibleForTesting
+  public static final Firewall ALLOW_INGRESS_LEONARDO_SSL_NETWORK =
+      new Firewall()
+          .setName(LEONARDO_SSL_RULE_NAME_FOR_NETWORK)
+          .setDescription("Allow SSL traffic from Leonardo-managed VMs.")
+          .setDirection("INGRESS")
+          .setSourceRanges(ImmutableList.of("0.0.0.0/0"))
+          .setTargetTags(ImmutableList.of("leonardo"))
+          .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(LEONARDO_SSL_RULE_NAME_FOR_NETWORK))
+          .setAllowed(
+              ImmutableList.of(
+                  new Firewall.Allowed().setIPProtocol("tcp").setPorts(ImmutableList.of("443"))));
+
+  @VisibleForTesting
+  public static final Firewall ALLOW_INGRESS_LEONARDO_SSL_DEFAULT =
+      new Firewall()
+          .setName(LEONARDO_SSL_RULE_NAME_FOR_DEFAULT)
+          .setDescription("Allow SSL traffic from Leonardo-managed VMs for default VPC network.")
+          .setDirection("INGRESS")
+          .setSourceRanges(ImmutableList.of("0.0.0.0/0"))
+          .setTargetTags(ImmutableList.of("leonardo"))
+          .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(LEONARDO_SSL_RULE_NAME_FOR_DEFAULT))
+          .setAllowed(
+              ImmutableList.of(
+                  new Firewall.Allowed().setIPProtocol("tcp").setPorts(ImmutableList.of("443"))));
+
+  @VisibleForTesting
+  public static final Firewall ALLOW_EGRESS_PRIVATE_ACCESS_RULE =
+      new Firewall()
+          .setName(ALLOW_EGRESS_PRIVATE_ACCESS_RULE_NAME)
+          .setDescription("Allow accessing internet using private Google Access.")
+          .setDirection("EGRESS")
+          .setSourceRanges(ImmutableList.of("199.36.153.4/30"))
+          .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(ALLOW_EGRESS_PRIVATE_ACCESS_RULE_NAME))
+          .setAllowed(ImmutableList.of(new Firewall.Allowed().setIPProtocol("all")));
+
+  public static final Firewall ALLOW_EGRESS_INTERNEL =
+      new Firewall()
+          .setName(ALLOW_EGRESS_INTERNEL_RULE_NAME)
+          .setDescription("Allow egress ingress traffic on the network.")
+          .setDirection("EGRESS")
+          .setSourceRanges(ImmutableList.of("10.128.0.0/9"))
+          .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(ALLOW_EGRESS_INTERNEL_RULE_NAME))
+          .setAllowed(
+              ImmutableList.of(
+                  new Firewall.Allowed().setIPProtocol("icmp"),
+                  new Firewall.Allowed().setIPProtocol("tcp").setPorts(ImmutableList.of("0-65535")),
+                  new Firewall.Allowed()
+                      .setIPProtocol("udp")
+                      .setPorts(ImmutableList.of("0-65535"))));
+
+  public static final Firewall ALLOW_EGRESS_LEONARDO =
+      new Firewall()
+          .setNetwork(highSecurityNetwork.getSelfLink())
+          .setName(ALLOW_EGRESS_LEONARDO_RULE_NAME)
+          .setDescription("Allow Leonardo created VMs accessing internet")
+          .setDirection("EGRESS")
+          .setSourceRanges(ImmutableList.of("0.0.0.0/0"))
+          .setTargetTags(ImmutableList.of("leonardo"))
+          .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(ALLOW_EGRESS_LEONARDO_RULE_NAME))
+          .setAllowed(ImmutableList.of(new Firewall.Allowed().setIPProtocol("all")));
+
+  public static final Firewall DENY_EGRESS_LEONARDO_WORKER =
+      new Firewall()
+          .setNetwork(highSecurityNetwork.getSelfLink())
+          .setName(DENY_EGRESS_LEONARDO_WORKER_RULE_NAME)
+          .setDescription("Block Leonardo-worker VMs accessing internet")
+          .setDirection("EGRESS")
+          .setSourceRanges(ImmutableList.of("0.0.0.0/0"))
+          .setTargetTags(ImmutableList.of("leonardo-worker"))
+          .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(DENY_EGRESS_LEONARDO_WORKER_RULE_NAME))
+          .setDenied(ImmutableList.of(new Firewall.Denied().setIPProtocol("all")));
+
+  public static final Firewall DENY_EGRESS =
+      new Firewall()
+          .setNetwork(highSecurityNetwork.getSelfLink())
+          .setName(DENY_EGRESS_RULE_NAME)
+          .setDescription("Block egress for all VMs")
+          .setDirection("EGRESS")
+          .setSourceRanges(ImmutableList.of("0.0.0.0/0"))
+          .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(DENY_EGRESS_RULE_NAME))
+          .setDenied(ImmutableList.of(new Firewall.Denied().setIPProtocol("all")));
+
   private final Logger logger = LoggerFactory.getLogger(CreateFirewallRuleStep.class);
   private final CloudComputeCow computeCow;
   private final GcpProjectConfig gcpProjectConfig;
@@ -66,9 +226,10 @@ public class CreateFirewallRuleStep implements Step {
           getResource(() -> computeCow.networks().get(projectId, NETWORK_NAME).execute(), 404)
               .get();
       Firewall allowInternalRuleForNetwork =
-          buildAllowInternalFirewallRule(highSecurityNetwork, ALLOW_INTERNAL_RULE_NAME_FOR_NETWORK);
-      Firewall leonardoSslRuleForNetwork =
-          buildLeonardoSslFirewallRule(highSecurityNetwork, LEONARDO_SSL_RULE_NAME_FOR_NETWORK);
+          appendNetworkOnFirewall(highSecurityNetwork, ALLOW_INTERNAL_VPC_NETWORK);
+      Firewall allowInternalRuleForNetwork =
+          appendNetworkOnFirewall(highSecurityNetwork, LEONARDO_SSL_RULE_NAME_FOR_NETWORK);
+
       addFirewallRule(projectId, allowInternalRuleForNetwork).ifPresent(operationsToPoll::add);
       addFirewallRule(projectId, leonardoSslRuleForNetwork).ifPresent(operationsToPoll::add);
 
@@ -79,12 +240,30 @@ public class CreateFirewallRuleStep implements Step {
             getResource(
                     () -> computeCow.networks().get(projectId, DEFAULT_NETWORK_NAME).execute(), 404)
                 .get();
-        Firewall allowInternalRuleForDefault =
-            buildAllowInternalFirewallRule(defaultNetwork, ALLOW_INTERNAL_RULE_NAME_FOR_DEFAULT);
-        Firewall leonardoSslRuleForDefault =
-            buildLeonardoSslFirewallRule(defaultNetwork, LEONARDO_SSL_RULE_NAME_FOR_DEFAULT);
-        addFirewallRule(projectId, allowInternalRuleForDefault).ifPresent(operationsToPoll::add);
-        addFirewallRule(projectId, leonardoSslRuleForDefault).ifPresent(operationsToPoll::add);
+
+        addFirewallRule(
+                projectId, appendNetworkOnFirewall(defaultNetwork, ALLOW_INTERNAL_DEFAULT_NETWORK))
+            .ifPresent(operationsToPoll::add);
+        addFirewallRule(
+                projectId,
+                appendNetworkOnFirewall(defaultNetwork, ALLOW_INGRESS_LEONARDO_SSL_DEFAULT))
+            .ifPresent(operationsToPoll::add);
+      }
+
+      if (blockInternetAccess(gcpProjectConfig)) {
+        addFirewallRule(projectId, appendNetworkOnFirewall(defaultNetwork, ALLOW_EGRESS_INTERNEL))
+            .ifPresent(operationsToPoll::add);
+        addFirewallRule(
+                projectId,
+                appendNetworkOnFirewall(defaultNetwork, ALLOW_EGRESS_PRIVATE_ACCESS_RULE))
+            .ifPresent(operationsToPoll::add);
+        addFirewallRule(projectId, appendNetworkOnFirewall(defaultNetwork, ALLOW_EGRESS_LEONARDO))
+            .ifPresent(operationsToPoll::add);
+        addFirewallRule(
+                projectId, appendNetworkOnFirewall(defaultNetwork, DENY_EGRESS_LEONARDO_WORKER))
+            .ifPresent(operationsToPoll::add);
+        addFirewallRule(projectId, appendNetworkOnFirewall(defaultNetwork, DENY_EGRESS))
+            .ifPresent(operationsToPoll::add);
       }
 
       for (OperationCow<?> operation : operationsToPoll) {
@@ -121,49 +300,14 @@ public class CreateFirewallRuleStep implements Step {
   }
 
   /**
-   * Helper method to build a firewall rule that allows internal traffic on the network. See <a
-   * href="https://cloud.google.com/vpc/docs/firewalls#more_rules_default_vpc">default-allow-internal</a>.
+   * Helper method to build a new firewall rule that with network assosicated network.
    *
    * @param network the network to add the firewall rule to
-   * @param ruleName name of the firewall rule (unique within a project)
+   * @param firewall the firewall to be assosicated with a network
    * @return firewall rule object
    */
   @VisibleForTesting
-  public static Firewall buildAllowInternalFirewallRule(Network network, String ruleName) {
-    return new Firewall()
-        .setNetwork(network.getSelfLink())
-        .setName(ruleName)
-        .setDescription("Allow internal traffic on the network.")
-        .setDirection("INGRESS")
-        .setSourceRanges(ImmutableList.of("10.128.0.0/9"))
-        .setPriority(65534)
-        .setAllowed(
-            ImmutableList.of(
-                new Firewall.Allowed().setIPProtocol("icmp"),
-                new Firewall.Allowed().setIPProtocol("tcp").setPorts(ImmutableList.of("0-65535")),
-                new Firewall.Allowed().setIPProtocol("udp").setPorts(ImmutableList.of("0-65535"))));
-  }
-
-  /**
-   * Helper method to build a firewall rule that allows SSL traffic from Leonardo-managed VMs on the
-   * network.
-   *
-   * @param network the network to add the firewall rule to
-   * @param ruleName name of the firewall rule (unique within a project)
-   * @return firewall rule object
-   */
-  @VisibleForTesting
-  public static Firewall buildLeonardoSslFirewallRule(Network network, String ruleName) {
-    return new Firewall()
-        .setNetwork(network.getSelfLink())
-        .setName(ruleName)
-        .setDescription("Allow SSL traffic from Leonardo-managed VMs.")
-        .setDirection("INGRESS")
-        .setSourceRanges(ImmutableList.of("0.0.0.0/0"))
-        .setTargetTags(ImmutableList.of("leonardo"))
-        .setPriority(65534)
-        .setAllowed(
-            ImmutableList.of(
-                new Firewall.Allowed().setIPProtocol("tcp").setPorts(ImmutableList.of("443"))));
+  public static Firewall appendNetworkOnFirewall(Network network, Firewall firewall) {
+    return firewall.clone().setNetwork(network.getSelfLink());
   }
 }
