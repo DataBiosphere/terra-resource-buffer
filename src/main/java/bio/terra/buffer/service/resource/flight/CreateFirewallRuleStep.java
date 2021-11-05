@@ -174,7 +174,6 @@ public class CreateFirewallRuleStep implements Step {
 
   public static final Firewall ALLOW_EGRESS_LEONARDO =
       new Firewall()
-          .setNetwork(highSecurityNetwork.getSelfLink())
           .setName(ALLOW_EGRESS_LEONARDO_RULE_NAME)
           .setDescription("Allow Leonardo created VMs accessing internet")
           .setDirection("EGRESS")
@@ -185,7 +184,6 @@ public class CreateFirewallRuleStep implements Step {
 
   public static final Firewall DENY_EGRESS_LEONARDO_WORKER =
       new Firewall()
-          .setNetwork(highSecurityNetwork.getSelfLink())
           .setName(DENY_EGRESS_LEONARDO_WORKER_RULE_NAME)
           .setDescription("Block Leonardo-worker VMs accessing internet")
           .setDirection("EGRESS")
@@ -196,7 +194,6 @@ public class CreateFirewallRuleStep implements Step {
 
   public static final Firewall DENY_EGRESS =
       new Firewall()
-          .setNetwork(highSecurityNetwork.getSelfLink())
           .setName(DENY_EGRESS_RULE_NAME)
           .setDescription("Block egress for all VMs")
           .setDirection("EGRESS")
@@ -225,13 +222,14 @@ public class CreateFirewallRuleStep implements Step {
       Network highSecurityNetwork =
           getResource(() -> computeCow.networks().get(projectId, NETWORK_NAME).execute(), 404)
               .get();
-      Firewall allowInternalRuleForNetwork =
-          appendNetworkOnFirewall(highSecurityNetwork, ALLOW_INTERNAL_VPC_NETWORK);
-      Firewall allowInternalRuleForNetwork =
-          appendNetworkOnFirewall(highSecurityNetwork, LEONARDO_SSL_RULE_NAME_FOR_NETWORK);
 
-      addFirewallRule(projectId, allowInternalRuleForNetwork).ifPresent(operationsToPoll::add);
-      addFirewallRule(projectId, leonardoSslRuleForNetwork).ifPresent(operationsToPoll::add);
+      addFirewallRule(
+              projectId, appendNetworkOnFirewall(highSecurityNetwork, ALLOW_INTERNAL_VPC_NETWORK))
+          .ifPresent(operationsToPoll::add);
+      addFirewallRule(
+              projectId,
+              appendNetworkOnFirewall(highSecurityNetwork, LEONARDO_SSL_RULE_NAME_FOR_NETWORK))
+          .ifPresent(operationsToPoll::add);
 
       // TODO(PF-538): revisit whether we still need this flag after NF allows specifying a network
       // If the default network was not deleted, then create identical firewall rules for it.
@@ -251,18 +249,21 @@ public class CreateFirewallRuleStep implements Step {
       }
 
       if (blockInternetAccess(gcpProjectConfig)) {
-        addFirewallRule(projectId, appendNetworkOnFirewall(defaultNetwork, ALLOW_EGRESS_INTERNEL))
+        addFirewallRule(
+                projectId, appendNetworkOnFirewall(highSecurityNetwork, ALLOW_EGRESS_INTERNEL))
             .ifPresent(operationsToPoll::add);
         addFirewallRule(
                 projectId,
-                appendNetworkOnFirewall(defaultNetwork, ALLOW_EGRESS_PRIVATE_ACCESS_RULE))
-            .ifPresent(operationsToPoll::add);
-        addFirewallRule(projectId, appendNetworkOnFirewall(defaultNetwork, ALLOW_EGRESS_LEONARDO))
+                appendNetworkOnFirewall(highSecurityNetwork, ALLOW_EGRESS_PRIVATE_ACCESS_RULE))
             .ifPresent(operationsToPoll::add);
         addFirewallRule(
-                projectId, appendNetworkOnFirewall(defaultNetwork, DENY_EGRESS_LEONARDO_WORKER))
+                projectId, appendNetworkOnFirewall(highSecurityNetwork, ALLOW_EGRESS_LEONARDO))
             .ifPresent(operationsToPoll::add);
-        addFirewallRule(projectId, appendNetworkOnFirewall(defaultNetwork, DENY_EGRESS))
+        addFirewallRule(
+                projectId,
+                appendNetworkOnFirewall(highSecurityNetwork, DENY_EGRESS_LEONARDO_WORKER))
+            .ifPresent(operationsToPoll::add);
+        addFirewallRule(projectId, appendNetworkOnFirewall(highSecurityNetwork, DENY_EGRESS))
             .ifPresent(operationsToPoll::add);
       }
 
