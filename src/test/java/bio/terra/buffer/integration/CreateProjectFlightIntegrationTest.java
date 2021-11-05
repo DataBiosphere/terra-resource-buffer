@@ -577,8 +577,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     Firewall leonardoSsl =
         computeCow.firewalls().get(projectId, LEONARDO_SSL_FOR_VPC_NETWORK_RULE_NAME).execute();
 
-    assertFirewallRuleMatch(ALLOW_INTERNAL_VPC_NETWORK, allowInternal);
-    assertFirewallRuleMatch(ALLOW_INGRESS_LEONARDO_SSL_NETWORK, leonardoSsl);
+    assertFirewallRuleMatch(network, ALLOW_INTERNAL_VPC_NETWORK, allowInternal);
+    assertFirewallRuleMatch(network, ALLOW_INGRESS_LEONARDO_SSL_NETWORK, leonardoSsl);
   }
 
   private void assertFirewallRulesExistForDefaultVpc(Project project) throws Exception {
@@ -593,8 +593,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     Firewall leonardoSsl =
         computeCow.firewalls().get(projectId, LEONARDO_SSL_FOR_DEFAULT_NETWORK_RULE_NAME).execute();
 
-    assertFirewallRuleMatch(ALLOW_INTERNAL_DEFAULT_NETWORK, allowInternal);
-    assertFirewallRuleMatch(ALLOW_INGRESS_LEONARDO_SSL_DEFAULT, leonardoSsl);
+    assertFirewallRuleMatch(network, ALLOW_INTERNAL_DEFAULT_NETWORK, allowInternal);
+    assertFirewallRuleMatch(network, ALLOW_INGRESS_LEONARDO_SSL_DEFAULT, leonardoSsl);
   }
 
   private void assertFirewallRulesExistForBlockInternetAccess(Project project) throws Exception {
@@ -603,30 +603,30 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
     Firewall allowEgressInternal =
         computeCow.firewalls().get(projectId, ALLOW_EGRESS_INTERNEL_RULE_NAME).execute();
-    assertFirewallRuleMatch(ALLOW_EGRESS_INTERNEL, allowEgressInternal);
+    assertFirewallRuleMatch(network, ALLOW_EGRESS_INTERNEL, allowEgressInternal);
 
     Firewall allowLeonardoEgress =
         computeCow.firewalls().get(projectId, ALLOW_EGRESS_LEONARDO_RULE_NAME).execute();
-    assertFirewallRuleMatch(ALLOW_EGRESS_LEONARDO, allowEgressInternal);
+    assertFirewallRuleMatch(network, ALLOW_EGRESS_LEONARDO, allowEgressInternal);
 
     Firewall allowPrivateGoogleAccess =
         computeCow.firewalls().get(projectId, ALLOW_EGRESS_PRIVATE_ACCESS_RULE_NAME).execute();
-    assertFirewallRuleMatch(ALLOW_EGRESS_PRIVATE_ACCESS, allowEgressInternal);
+    assertFirewallRuleMatch(network, ALLOW_EGRESS_PRIVATE_ACCESS, allowEgressInternal);
 
     Firewall denyEgress = computeCow.firewalls().get(projectId, DENY_EGRESS_RULE_NAME).execute();
-    assertFirewallRuleMatch(DENY_EGRESS, allowEgressInternal);
+    assertFirewallRuleMatch(network, DENY_EGRESS, allowEgressInternal);
 
     Firewall denyLeonardoWorker =
         computeCow.firewalls().get(projectId, DENY_EGRESS_LEONARDO_WORKER_RULE_NAME).execute();
-    assertFirewallRuleMatch(DENY_EGRESS_LEONARDO_WORKER, allowEgressInternal);
+    assertFirewallRuleMatch(network, DENY_EGRESS_LEONARDO_WORKER, allowEgressInternal);
   }
 
-  private void assertFirewallRuleMatch(Firewall expected, Firewall actual) {
+  private void assertFirewallRuleMatch(Network network, Firewall expected, Firewall actual) {
     assertEquals(expected.getAllowed(), actual.getAllowed());
     assertEquals(expected.getDescription(), actual.getDescription());
     assertEquals(expected.getDirection(), actual.getDirection());
     assertEquals(expected.getPriority(), actual.getPriority());
-    assertEquals(expected.getNetwork(), actual.getNetwork());
+    assertEquals(network, actual.getNetwork());
   }
 
   private void assertSubnetsExist(Project project, NetworkMonitoring networkMonitoring)
