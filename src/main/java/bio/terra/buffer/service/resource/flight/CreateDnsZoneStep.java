@@ -6,6 +6,7 @@ import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.GCR_MANAGED_ZONE_NAME;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.MANAGED_ZONE_NAME;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.NETWORK_NAME;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.createResourceAndIgnoreConflict;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.getResource;
 
 import bio.terra.buffer.generated.model.GcpProjectConfig;

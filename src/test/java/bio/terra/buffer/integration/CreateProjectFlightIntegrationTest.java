@@ -14,21 +14,27 @@ import static bio.terra.buffer.service.resource.flight.CreateDnsZoneStep.GCR_MAN
 import static bio.terra.buffer.service.resource.flight.CreateDnsZoneStep.MANAGED_ZONE_TEMPLATE;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_EGRESS_INTERNEL;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_EGRESS_INTERNEL_RULE_NAME;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_EGRESS_LEONARDO;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_EGRESS_LEONARDO_RULE_NAME;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_EGRESS_PRIVATE_ACCESS;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_EGRESS_PRIVATE_ACCESS_RULE_NAME;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INGRESS_LEONARDO_SSL_DEFAULT;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INGRESS_LEONARDO_SSL_NETWORK;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INTERNAL_DEFAULT_NETWORK;
-import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INTERNAL_RULE_NAME_FOR_DEFAULT;
-import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INTERNAL_RULE_NAME_FOR_NETWORK;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INTERNAL_FOR_DEFAULT_NETWORK_RULE_NAME;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INTERNAL_VPC_NETWORK;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.DENY_EGRESS;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.DENY_EGRESS_LEONARDO_WORKER;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.DENY_EGRESS_LEONARDO_WORKER_RULE_NAME;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.DENY_EGRESS_RULE_NAME;
-import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.LEONARDO_SSL_RULE_NAME_FOR_DEFAULT;
-import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.LEONARDO_SSL_RULE_NAME_FOR_NETWORK;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.LEONARDO_SSL_FOR_DEFAULT_NETWORK_RULE_NAME;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.LEONARDO_SSL_FOR_VPC_NETWORK_RULE_NAME;
 import static bio.terra.buffer.service.resource.flight.CreateProjectStep.CONFIG_NAME_LABEL_LEY;
 import static bio.terra.buffer.service.resource.flight.CreateProjectStep.NETWORK_LABEL_KEY;
 import static bio.terra.buffer.service.resource.flight.CreateProjectStep.SUB_NETWORK_LABEL_KEY;
 import static bio.terra.buffer.service.resource.flight.CreateProjectStep.createValidLabelValue;
+import static bio.terra.buffer.service.resource.flight.CreateResourceRecordSetStep.GCR_A_RECORD;
 import static bio.terra.buffer.service.resource.flight.CreateResourceRecordSetStep.GCR_CNAME_RECORD;
 import static bio.terra.buffer.service.resource.flight.CreateResourceRecordSetStep.RESTRICT_API_A_RECORD;
 import static bio.terra.buffer.service.resource.flight.CreateResourceRecordSetStep.RESTRICT_API_CNAME_RECORD;
@@ -40,6 +46,7 @@ import static bio.terra.buffer.service.resource.flight.CreateSubnetsStep.LOG_CON
 import static bio.terra.buffer.service.resource.flight.CreateSubnetsStep.REGION_TO_IP_RANGE;
 import static bio.terra.buffer.service.resource.flight.DeleteDefaultFirewallRulesStep.DEFAULT_FIREWALL_NAMES;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.DEFAULT_NETWORK_NAME;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.GCR_MANAGED_ZONE_NAME;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.MANAGED_ZONE_NAME;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.NETWORK_NAME;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.SUBNETWORK_NAME;
@@ -215,7 +222,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
                         .enableNetworkMonitoring(true)
                         .enablePrivateGoogleAccess(true)
                         .enableCloudRegistryPrivateGoogleAccess(true)
-                        .denyInternetAccess(true)));
+                        .blockInternetAccess(true)));
 
     String flightId = manager.submitCreationFlight(pool).get();
     ResourceId resourceId =
@@ -566,12 +573,12 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     String projectId = project.getProjectId();
     Network network = computeCow.networks().get(project.getProjectId(), NETWORK_NAME).execute();
     Firewall allowInternal =
-        computeCow.firewalls().get(projectId, ALLOW_INTERNAL_RULE_NAME_FOR_NETWORK).execute();
+        computeCow.firewalls().get(projectId, ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME).execute();
     Firewall leonardoSsl =
-        computeCow.firewalls().get(projectId, LEONARDO_SSL_RULE_NAME_FOR_NETWORK).execute();
+        computeCow.firewalls().get(projectId, LEONARDO_SSL_FOR_VPC_NETWORK_RULE_NAME).execute();
 
     assertFirewallRuleMatch(ALLOW_INTERNAL_VPC_NETWORK, allowInternal);
-    assertFirewallRuleMatch(LEONARDO_SSL_RULE_NAME_FOR_NETWORK, leonardoSsl);
+    assertFirewallRuleMatch(ALLOW_INGRESS_LEONARDO_SSL_NETWORK, leonardoSsl);
   }
 
   private void assertFirewallRulesExistForDefaultVpc(Project project) throws Exception {
@@ -579,9 +586,12 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     Network network =
         computeCow.networks().get(project.getProjectId(), DEFAULT_NETWORK_NAME).execute();
     Firewall allowInternal =
-        computeCow.firewalls().get(projectId, ALLOW_INTERNAL_RULE_NAME_FOR_DEFAULT).execute();
+        computeCow
+            .firewalls()
+            .get(projectId, ALLOW_INTERNAL_FOR_DEFAULT_NETWORK_RULE_NAME)
+            .execute();
     Firewall leonardoSsl =
-        computeCow.firewalls().get(projectId, LEONARDO_SSL_RULE_NAME_FOR_DEFAULT).execute();
+        computeCow.firewalls().get(projectId, LEONARDO_SSL_FOR_DEFAULT_NETWORK_RULE_NAME).execute();
 
     assertFirewallRuleMatch(ALLOW_INTERNAL_DEFAULT_NETWORK, allowInternal);
     assertFirewallRuleMatch(ALLOW_INGRESS_LEONARDO_SSL_DEFAULT, leonardoSsl);
@@ -589,8 +599,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
   private void assertFirewallRulesExistForBlockInternetAccess(Project project) throws Exception {
     String projectId = project.getProjectId();
-    Network network =
-        computeCow.networks().get(project.getProjectId(), DEFAULT_NETWORK_NAME).execute();
+    Network network = computeCow.networks().get(project.getProjectId(), NETWORK_NAME).execute();
 
     Firewall allowEgressInternal =
         computeCow.firewalls().get(projectId, ALLOW_EGRESS_INTERNEL_RULE_NAME).execute();
@@ -605,7 +614,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertFirewallRuleMatch(ALLOW_EGRESS_PRIVATE_ACCESS, allowEgressInternal);
 
     Firewall denyEgress = computeCow.firewalls().get(projectId, DENY_EGRESS_RULE_NAME).execute();
-    assertFirewallRuleMatch(DENY_EGRESSE, allowEgressInternal);
+    assertFirewallRuleMatch(DENY_EGRESS, allowEgressInternal);
 
     Firewall denyLeonardoWorker =
         computeCow.firewalls().get(projectId, DENY_EGRESS_LEONARDO_WORKER_RULE_NAME).execute();

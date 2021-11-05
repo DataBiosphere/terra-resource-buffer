@@ -16,11 +16,11 @@ import bio.terra.stairway.exception.RetryException;
 import com.google.api.services.compute.model.Firewall;
 import com.google.api.services.compute.model.Network;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
@@ -30,21 +30,22 @@ import org.slf4j.LoggerFactory;
 public class CreateFirewallRuleStep implements Step {
   /** Names for firewall rules on the high-security network (called 'network'). */
   @VisibleForTesting
-  public static final String ALLOW_INTERNAL_RULE_NAME_FOR_NETWORK = "allow-internal";
+  public static final String ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME = "allow-internal";
 
-  @VisibleForTesting public static final String LEONARDO_SSL_RULE_NAME_FOR_NETWORK = "leonardo-ssl";
+  @VisibleForTesting
+  public static final String LEONARDO_SSL_FOR_VPC_NETWORK_RULE_NAME = "leonardo-ssl";
 
   /**
    * Names for firewall rules on the default network (called 'default'). Rule names must be unique
    * within a project, so prefix these rule names with 'default-vpc'.
    */
   @VisibleForTesting
-  public static final String ALLOW_INTERNAL_RULE_NAME_FOR_DEFAULT =
-      DEFAULT_NETWORK_NAME + "-vpc-" + ALLOW_INTERNAL_RULE_NAME_FOR_NETWORK;
+  public static final String ALLOW_INTERNAL_FOR_DEFAULT_NETWORK_RULE_NAME =
+      DEFAULT_NETWORK_NAME + "-vpc-" + ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME;
 
   @VisibleForTesting
-  public static final String LEONARDO_SSL_RULE_NAME_FOR_DEFAULT =
-      DEFAULT_NETWORK_NAME + "-vpc-" + LEONARDO_SSL_RULE_NAME_FOR_NETWORK;
+  public static final String LEONARDO_SSL_FOR_DEFAULT_NETWORK_RULE_NAME =
+      DEFAULT_NETWORK_NAME + "-vpc-" + LEONARDO_SSL_FOR_VPC_NETWORK_RULE_NAME;
 
   /**
    * Firewall rules to make VM private but still allowing leonardo can access internet(exclude
@@ -78,10 +79,10 @@ public class CreateFirewallRuleStep implements Step {
   @VisibleForTesting
   public static final ImmutableMap<String, Integer> FIREWALL_RULE_PRIORITY_MAP =
       ImmutableMap.<String, Integer>builder()
-          .put(ALLOW_INTERNAL_RULE_NAME_FOR_NETWORK, 65534)
-          .put(LEONARDO_SSL_RULE_NAME_FOR_NETWORK, 65534)
-          .put(ALLOW_INTERNAL_RULE_NAME_FOR_DEFAULT, 65534)
-          .put(LEONARDO_SSL_RULE_NAME_FOR_DEFAULT, 65534)
+          .put(ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME, 65534)
+          .put(LEONARDO_SSL_FOR_VPC_NETWORK_RULE_NAME, 65534)
+          .put(ALLOW_INTERNAL_FOR_DEFAULT_NETWORK_RULE_NAME, 65534)
+          .put(LEONARDO_SSL_FOR_DEFAULT_NETWORK_RULE_NAME, 65534)
           .put(DENY_EGRESS_RULE_NAME, 4000)
           .put(DENY_EGRESS_LEONARDO_WORKER_RULE_NAME, 2000)
           .put(ALLOW_EGRESS_LEONARDO_RULE_NAME, 3000)
@@ -92,114 +93,111 @@ public class CreateFirewallRuleStep implements Step {
   @VisibleForTesting
   public static final Firewall ALLOW_INTERNAL_VPC_NETWORK =
       new Firewall()
-          .setName(ALLOW_INTERNAL_RULE_NAME_FOR_NETWORK)
+          .setName(ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME)
           .setDescription("Allow internal ingress traffic on the network.")
           .setDirection("INGRESS")
-          .setSourceRanges(ImmutableList.of("10.128.0.0/9"))
-          .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(ALLOW_INTERNAL_RULE_NAME_FOR_NETWORK))
+          .setSourceRanges(Arrays.asList("10.128.0.0/9"))
+          .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME))
           .setAllowed(
-              ImmutableList.of(
+              Arrays.asList(
                   new Firewall.Allowed().setIPProtocol("icmp"),
-                  new Firewall.Allowed().setIPProtocol("tcp").setPorts(ImmutableList.of("0-65535")),
-                  new Firewall.Allowed()
-                      .setIPProtocol("udp")
-                      .setPorts(ImmutableList.of("0-65535"))));
+                  new Firewall.Allowed().setIPProtocol("tcp").setPorts(Arrays.asList("0-65535")),
+                  new Firewall.Allowed().setIPProtocol("udp").setPorts(Arrays.asList("0-65535"))));
 
   @VisibleForTesting
   public static final Firewall ALLOW_INTERNAL_DEFAULT_NETWORK =
       new Firewall()
-          .setName(ALLOW_INTERNAL_RULE_NAME_FOR_DEFAULT)
+          .setName(ALLOW_INTERNAL_FOR_DEFAULT_NETWORK_RULE_NAME)
           .setDescription("Allow internal ingress traffic on the default VPC network.")
           .setDirection("INGRESS")
-          .setSourceRanges(ImmutableList.of("10.128.0.0/9"))
-          .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(ALLOW_INTERNAL_RULE_NAME_FOR_DEFAULT))
+          .setSourceRanges(Arrays.asList("10.128.0.0/9"))
+          .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(ALLOW_INTERNAL_FOR_DEFAULT_NETWORK_RULE_NAME))
           .setAllowed(
-              ImmutableList.of(
+              Arrays.asList(
                   new Firewall.Allowed().setIPProtocol("icmp"),
-                  new Firewall.Allowed().setIPProtocol("tcp").setPorts(ImmutableList.of("0-65535")),
-                  new Firewall.Allowed()
-                      .setIPProtocol("udp")
-                      .setPorts(ImmutableList.of("0-65535"))));
+                  new Firewall.Allowed().setIPProtocol("tcp").setPorts(Arrays.asList("0-65535")),
+                  new Firewall.Allowed().setIPProtocol("udp").setPorts(Arrays.asList("0-65535"))));
 
   @VisibleForTesting
   public static final Firewall ALLOW_INGRESS_LEONARDO_SSL_NETWORK =
       new Firewall()
-          .setName(LEONARDO_SSL_RULE_NAME_FOR_NETWORK)
+          .setName(LEONARDO_SSL_FOR_VPC_NETWORK_RULE_NAME)
           .setDescription("Allow SSL traffic from Leonardo-managed VMs.")
           .setDirection("INGRESS")
-          .setSourceRanges(ImmutableList.of("0.0.0.0/0"))
-          .setTargetTags(ImmutableList.of("leonardo"))
-          .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(LEONARDO_SSL_RULE_NAME_FOR_NETWORK))
+          .setSourceRanges(Arrays.asList("0.0.0.0/0"))
+          .setTargetTags(Arrays.asList("leonardo"))
+          .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(LEONARDO_SSL_FOR_VPC_NETWORK_RULE_NAME))
           .setAllowed(
-              ImmutableList.of(
-                  new Firewall.Allowed().setIPProtocol("tcp").setPorts(ImmutableList.of("443"))));
+              Arrays.asList(
+                  new Firewall.Allowed().setIPProtocol("tcp").setPorts(Arrays.asList("443"))));
 
   @VisibleForTesting
   public static final Firewall ALLOW_INGRESS_LEONARDO_SSL_DEFAULT =
       new Firewall()
-          .setName(LEONARDO_SSL_RULE_NAME_FOR_DEFAULT)
+          .setName(LEONARDO_SSL_FOR_DEFAULT_NETWORK_RULE_NAME)
           .setDescription("Allow SSL traffic from Leonardo-managed VMs for default VPC network.")
           .setDirection("INGRESS")
-          .setSourceRanges(ImmutableList.of("0.0.0.0/0"))
-          .setTargetTags(ImmutableList.of("leonardo"))
-          .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(LEONARDO_SSL_RULE_NAME_FOR_DEFAULT))
+          .setSourceRanges(Arrays.asList("0.0.0.0/0"))
+          .setTargetTags(Arrays.asList("leonardo"))
+          .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(LEONARDO_SSL_FOR_DEFAULT_NETWORK_RULE_NAME))
           .setAllowed(
-              ImmutableList.of(
-                  new Firewall.Allowed().setIPProtocol("tcp").setPorts(ImmutableList.of("443"))));
+              Arrays.asList(
+                  new Firewall.Allowed().setIPProtocol("tcp").setPorts(Arrays.asList("443"))));
 
   @VisibleForTesting
-  public static final Firewall ALLOW_EGRESS_PRIVATE_ACCESS_RULE =
+  public static final Firewall ALLOW_EGRESS_PRIVATE_ACCESS =
       new Firewall()
           .setName(ALLOW_EGRESS_PRIVATE_ACCESS_RULE_NAME)
           .setDescription("Allow accessing internet using private Google Access.")
           .setDirection("EGRESS")
-          .setSourceRanges(ImmutableList.of("199.36.153.4/30"))
+          .setDestinationRanges(Arrays.asList("199.36.153.4/30"))
           .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(ALLOW_EGRESS_PRIVATE_ACCESS_RULE_NAME))
-          .setAllowed(ImmutableList.of(new Firewall.Allowed().setIPProtocol("all")));
+          .setAllowed(Arrays.asList(new Firewall.Allowed().setIPProtocol("all")));
 
+  @VisibleForTesting
   public static final Firewall ALLOW_EGRESS_INTERNEL =
       new Firewall()
           .setName(ALLOW_EGRESS_INTERNEL_RULE_NAME)
           .setDescription("Allow egress ingress traffic on the network.")
           .setDirection("EGRESS")
-          .setSourceRanges(ImmutableList.of("10.128.0.0/9"))
+          .setDestinationRanges(Arrays.asList("10.128.0.0/9"))
           .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(ALLOW_EGRESS_INTERNEL_RULE_NAME))
           .setAllowed(
-              ImmutableList.of(
+              Arrays.asList(
                   new Firewall.Allowed().setIPProtocol("icmp"),
-                  new Firewall.Allowed().setIPProtocol("tcp").setPorts(ImmutableList.of("0-65535")),
-                  new Firewall.Allowed()
-                      .setIPProtocol("udp")
-                      .setPorts(ImmutableList.of("0-65535"))));
+                  new Firewall.Allowed().setIPProtocol("tcp").setPorts(Arrays.asList("0-65535")),
+                  new Firewall.Allowed().setIPProtocol("udp").setPorts(Arrays.asList("0-65535"))));
 
+  @VisibleForTesting
   public static final Firewall ALLOW_EGRESS_LEONARDO =
       new Firewall()
           .setName(ALLOW_EGRESS_LEONARDO_RULE_NAME)
           .setDescription("Allow Leonardo created VMs accessing internet")
           .setDirection("EGRESS")
-          .setSourceRanges(ImmutableList.of("0.0.0.0/0"))
-          .setTargetTags(ImmutableList.of("leonardo"))
+          .setDestinationRanges(Arrays.asList("0.0.0.0/0"))
+          .setTargetTags(Arrays.asList("leonardo"))
           .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(ALLOW_EGRESS_LEONARDO_RULE_NAME))
-          .setAllowed(ImmutableList.of(new Firewall.Allowed().setIPProtocol("all")));
+          .setAllowed(Arrays.asList(new Firewall.Allowed().setIPProtocol("all")));
 
+  @VisibleForTesting
   public static final Firewall DENY_EGRESS_LEONARDO_WORKER =
       new Firewall()
           .setName(DENY_EGRESS_LEONARDO_WORKER_RULE_NAME)
           .setDescription("Block Leonardo-worker VMs accessing internet")
           .setDirection("EGRESS")
-          .setSourceRanges(ImmutableList.of("0.0.0.0/0"))
-          .setTargetTags(ImmutableList.of("leonardo-worker"))
+          .setDestinationRanges(Arrays.asList("0.0.0.0/0"))
+          .setTargetTags(Arrays.asList("leonardo-worker"))
           .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(DENY_EGRESS_LEONARDO_WORKER_RULE_NAME))
-          .setDenied(ImmutableList.of(new Firewall.Denied().setIPProtocol("all")));
+          .setDenied(Arrays.asList(new Firewall.Denied().setIPProtocol("all")));
 
   public static final Firewall DENY_EGRESS =
       new Firewall()
           .setName(DENY_EGRESS_RULE_NAME)
           .setDescription("Block egress for all VMs")
           .setDirection("EGRESS")
-          .setSourceRanges(ImmutableList.of("0.0.0.0/0"))
+          .setDestinationRanges(Arrays.asList("0.0.0.0/0"))
           .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(DENY_EGRESS_RULE_NAME))
-          .setDenied(ImmutableList.of(new Firewall.Denied().setIPProtocol("all")));
+          .setDenied(Arrays.asList(new Firewall.Denied().setIPProtocol("all")));
 
   private final Logger logger = LoggerFactory.getLogger(CreateFirewallRuleStep.class);
   private final CloudComputeCow computeCow;
@@ -228,7 +226,7 @@ public class CreateFirewallRuleStep implements Step {
           .ifPresent(operationsToPoll::add);
       addFirewallRule(
               projectId,
-              appendNetworkOnFirewall(highSecurityNetwork, LEONARDO_SSL_RULE_NAME_FOR_NETWORK))
+              appendNetworkOnFirewall(highSecurityNetwork, ALLOW_INGRESS_LEONARDO_SSL_NETWORK))
           .ifPresent(operationsToPoll::add);
 
       // TODO(PF-538): revisit whether we still need this flag after NF allows specifying a network
@@ -254,7 +252,7 @@ public class CreateFirewallRuleStep implements Step {
             .ifPresent(operationsToPoll::add);
         addFirewallRule(
                 projectId,
-                appendNetworkOnFirewall(highSecurityNetwork, ALLOW_EGRESS_PRIVATE_ACCESS_RULE))
+                appendNetworkOnFirewall(highSecurityNetwork, ALLOW_EGRESS_PRIVATE_ACCESS))
             .ifPresent(operationsToPoll::add);
         addFirewallRule(
                 projectId, appendNetworkOnFirewall(highSecurityNetwork, ALLOW_EGRESS_LEONARDO))
@@ -309,6 +307,7 @@ public class CreateFirewallRuleStep implements Step {
    */
   @VisibleForTesting
   public static Firewall appendNetworkOnFirewall(Network network, Firewall firewall) {
+    // Make a copy because the input is static and not thread safe.
     return firewall.clone().setNetwork(network.getSelfLink());
   }
 }
