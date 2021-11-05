@@ -607,18 +607,18 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
     Firewall allowLeonardoEgress =
         computeCow.firewalls().get(projectId, ALLOW_EGRESS_LEONARDO_RULE_NAME).execute();
-    assertFirewallRuleMatch(network, ALLOW_EGRESS_LEONARDO, allowEgressInternal);
+    assertFirewallRuleMatch(network, ALLOW_EGRESS_LEONARDO, allowLeonardoEgress);
 
     Firewall allowPrivateGoogleAccess =
         computeCow.firewalls().get(projectId, ALLOW_EGRESS_PRIVATE_ACCESS_RULE_NAME).execute();
-    assertFirewallRuleMatch(network, ALLOW_EGRESS_PRIVATE_ACCESS, allowEgressInternal);
+    assertFirewallRuleMatch(network, ALLOW_EGRESS_PRIVATE_ACCESS, allowPrivateGoogleAccess);
 
     Firewall denyEgress = computeCow.firewalls().get(projectId, DENY_EGRESS_RULE_NAME).execute();
-    assertFirewallRuleMatch(network, DENY_EGRESS, allowEgressInternal);
+    assertFirewallRuleMatch(network, DENY_EGRESS, denyEgress);
 
     Firewall denyLeonardoWorker =
         computeCow.firewalls().get(projectId, DENY_EGRESS_LEONARDO_WORKER_RULE_NAME).execute();
-    assertFirewallRuleMatch(network, DENY_EGRESS_LEONARDO_WORKER, allowEgressInternal);
+    assertFirewallRuleMatch(network, DENY_EGRESS_LEONARDO_WORKER, denyLeonardoWorker);
   }
 
   private void assertFirewallRuleMatch(Network network, Firewall expected, Firewall actual) {
