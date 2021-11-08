@@ -72,10 +72,13 @@ public class CreateFirewallRuleStep implements Step {
    * <p>To make sure only Leo VMs have private internet access when {@code blockInternetAccess} is
    * true, the priority of egress firewall rules need to be:
    *
-   * <ul>
-   *   <oi>ALLOW_EGRESS_PRIVATE_ACCESS_RULE_NAME <oi>ALLOW_EGRESS_INTERNAL(equal)
-   *   <oi>DENY_EGRESS_LEONARDO_WORKER_RULE_NAME <oi>ALLOW_EGRESS_LEONARDO <oi>DENY_EGRESS_RULE_NAME
-   * </ul>
+   * <ol>
+   *   <li>ALLOW_EGRESS_PRIVATE_ACCESS_RULE_NAME
+   *   <li>ALLOW_EGRESS_INTERNAL(equal)
+   *   <li>DENY_EGRESS_LEONARDO_WORKER_RULE_NAME
+   *   <li>ALLOW_EGRESS_LEONARDO<
+   *   <li>DENY_EGRESS_RULE_NAME
+   * </ol>
    */
   @VisibleForTesting
   public static final ImmutableMap<String, Integer> FIREWALL_RULE_PRIORITY_MAP =
@@ -97,7 +100,7 @@ public class CreateFirewallRuleStep implements Step {
           .setName(ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME)
           .setDescription("Allow internal ingress traffic on the network.")
           .setDirection("INGRESS")
-          .setSourceRanges(REGION_TO_IP_RANGE.values())
+          .setSourceRanges(new ArrayList(REGION_TO_IP_RANGE.values()))
           .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME))
           .setAllowed(
               Arrays.asList(
@@ -111,7 +114,7 @@ public class CreateFirewallRuleStep implements Step {
           .setName(ALLOW_INTERNAL_FOR_DEFAULT_NETWORK_RULE_NAME)
           .setDescription("Allow internal ingress traffic on the default VPC network.")
           .setDirection("INGRESS")
-          .setSourceRanges(REGION_TO_IP_RANGE.values())
+          .setSourceRanges(new ArrayList(REGION_TO_IP_RANGE.values()))
           .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(ALLOW_INTERNAL_FOR_DEFAULT_NETWORK_RULE_NAME))
           .setAllowed(
               Arrays.asList(
@@ -161,7 +164,7 @@ public class CreateFirewallRuleStep implements Step {
           .setName(ALLOW_EGRESS_INTERNAL_RULE_NAME)
           .setDescription("Allow internal egress traffic on the network.")
           .setDirection("EGRESS")
-          .setDestinationRanges(REGION_TO_IP_RANGE.values())
+          .setDestinationRanges(new ArrayList(REGION_TO_IP_RANGE.values()))
           .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(ALLOW_EGRESS_INTERNAL_RULE_NAME))
           .setAllowed(
               Arrays.asList(
