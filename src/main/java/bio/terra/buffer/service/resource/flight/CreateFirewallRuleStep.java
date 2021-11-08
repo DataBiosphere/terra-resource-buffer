@@ -1,6 +1,7 @@
 package bio.terra.buffer.service.resource.flight;
 
 import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
+import static bio.terra.buffer.service.resource.flight.CreateSubnetsStep.REGION_TO_IP_RANGE;
 import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.blockInternetAccess;
 import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.keepDefaultNetwork;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.*;
@@ -96,7 +97,7 @@ public class CreateFirewallRuleStep implements Step {
           .setName(ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME)
           .setDescription("Allow internal ingress traffic on the network.")
           .setDirection("INGRESS")
-          .setSourceRanges(Arrays.asList("10.128.0.0/9"))
+          .setSourceRanges(REGION_TO_IP_RANGE.values())
           .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME))
           .setAllowed(
               Arrays.asList(
@@ -110,7 +111,7 @@ public class CreateFirewallRuleStep implements Step {
           .setName(ALLOW_INTERNAL_FOR_DEFAULT_NETWORK_RULE_NAME)
           .setDescription("Allow internal ingress traffic on the default VPC network.")
           .setDirection("INGRESS")
-          .setSourceRanges(Arrays.asList("10.128.0.0/9"))
+          .setSourceRanges(REGION_TO_IP_RANGE.values())
           .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(ALLOW_INTERNAL_FOR_DEFAULT_NETWORK_RULE_NAME))
           .setAllowed(
               Arrays.asList(
@@ -160,7 +161,7 @@ public class CreateFirewallRuleStep implements Step {
           .setName(ALLOW_EGRESS_INTERNAL_RULE_NAME)
           .setDescription("Allow internal egress traffic on the network.")
           .setDirection("EGRESS")
-          .setDestinationRanges(Arrays.asList("10.128.0.0/9"))
+          .setDestinationRanges(REGION_TO_IP_RANGE.values())
           .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(ALLOW_EGRESS_INTERNAL_RULE_NAME))
           .setAllowed(
               Arrays.asList(
