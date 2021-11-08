@@ -12,8 +12,8 @@ import static bio.terra.buffer.integration.IntegrationUtils.preparePool;
 import static bio.terra.buffer.service.resource.FlightMapKeys.RESOURCE_CONFIG;
 import static bio.terra.buffer.service.resource.flight.CreateDnsZoneStep.GCR_MANAGED_ZONE_TEMPLATE;
 import static bio.terra.buffer.service.resource.flight.CreateDnsZoneStep.MANAGED_ZONE_TEMPLATE;
-import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_EGRESS_INTERNEL;
-import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_EGRESS_INTERNEL_RULE_NAME;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_EGRESS_INTERNAL;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_EGRESS_INTERNAL_RULE_NAME;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_EGRESS_LEONARDO;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_EGRESS_LEONARDO_RULE_NAME;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_EGRESS_PRIVATE_ACCESS;
@@ -602,8 +602,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     Network network = computeCow.networks().get(project.getProjectId(), NETWORK_NAME).execute();
 
     Firewall allowEgressInternal =
-        computeCow.firewalls().get(projectId, ALLOW_EGRESS_INTERNEL_RULE_NAME).execute();
-    assertFirewallRuleMatch(network, ALLOW_EGRESS_INTERNEL, allowEgressInternal);
+        computeCow.firewalls().get(projectId, ALLOW_EGRESS_INTERNAL_RULE_NAME).execute();
+    assertFirewallRuleMatch(network, ALLOW_EGRESS_INTERNAL, allowEgressInternal);
 
     Firewall allowLeonardoEgress =
         computeCow.firewalls().get(projectId, ALLOW_EGRESS_LEONARDO_RULE_NAME).execute();

@@ -49,12 +49,12 @@ public class CreateFirewallRuleStep implements Step {
 
   /**
    * Firewall rules to make VM private but still allowing leonardo can access internet(exclude
-   * leonardo-worker which is used by Leo created dataproc worker).
+   * leonardo-private which is used by Leo created dataproc worker).
    */
   @VisibleForTesting public static final String DENY_EGRESS_RULE_NAME = "deny-egress-all";
 
   @VisibleForTesting
-  public static final String DENY_EGRESS_LEONARDO_WORKER_RULE_NAME = "deny-egress-leonardo-worker";
+  public static final String DENY_EGRESS_LEONARDO_WORKER_RULE_NAME = "deny-egress-leonardo-private";
 
   @VisibleForTesting
   public static final String ALLOW_EGRESS_LEONARDO_RULE_NAME = "allow-egress-leonardo";
@@ -63,7 +63,7 @@ public class CreateFirewallRuleStep implements Step {
   public static final String ALLOW_EGRESS_PRIVATE_ACCESS_RULE_NAME = "allow-egress-private-access";
 
   @VisibleForTesting
-  public static final String ALLOW_EGRESS_INTERNEL_RULE_NAME = "allow-egress-internal";
+  public static final String ALLOW_EGRESS_INTERNAL_RULE_NAME = "allow-egress-internal";
 
   /**
    * Firewall rule to priority map. The lower number is, the higher priority.
@@ -72,7 +72,7 @@ public class CreateFirewallRuleStep implements Step {
    * true, the priority of egress firewall rules need to be:
    *
    * <ul>
-   *   <oi>ALLOW_EGRESS_PRIVATE_ACCESS_RULE_NAME <oi>ALLOW_EGRESS_INTERNEL(equal)
+   *   <oi>ALLOW_EGRESS_PRIVATE_ACCESS_RULE_NAME <oi>ALLOW_EGRESS_INTERNAL(equal)
    *   <oi>DENY_EGRESS_LEONARDO_WORKER_RULE_NAME <oi>ALLOW_EGRESS_LEONARDO <oi>DENY_EGRESS_RULE_NAME
    * </ul>
    */
@@ -87,7 +87,7 @@ public class CreateFirewallRuleStep implements Step {
           .put(DENY_EGRESS_LEONARDO_WORKER_RULE_NAME, 2000)
           .put(ALLOW_EGRESS_LEONARDO_RULE_NAME, 3000)
           .put(ALLOW_EGRESS_PRIVATE_ACCESS_RULE_NAME, 1000)
-          .put(ALLOW_EGRESS_INTERNEL_RULE_NAME, 1000)
+          .put(ALLOW_EGRESS_INTERNAL_RULE_NAME, 1000)
           .build();
 
   @VisibleForTesting
@@ -155,13 +155,13 @@ public class CreateFirewallRuleStep implements Step {
           .setAllowed(Arrays.asList(new Firewall.Allowed().setIPProtocol("all")));
 
   @VisibleForTesting
-  public static final Firewall ALLOW_EGRESS_INTERNEL =
+  public static final Firewall ALLOW_EGRESS_INTERNAL =
       new Firewall()
-          .setName(ALLOW_EGRESS_INTERNEL_RULE_NAME)
-          .setDescription("Allow egress ingress traffic on the network.")
+          .setName(ALLOW_EGRESS_INTERNAL_RULE_NAME)
+          .setDescription("Allow internal egress traffic on the network.")
           .setDirection("EGRESS")
           .setDestinationRanges(Arrays.asList("10.128.0.0/9"))
-          .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(ALLOW_EGRESS_INTERNEL_RULE_NAME))
+          .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(ALLOW_EGRESS_INTERNAL_RULE_NAME))
           .setAllowed(
               Arrays.asList(
                   new Firewall.Allowed().setIPProtocol("icmp"),
@@ -183,10 +183,10 @@ public class CreateFirewallRuleStep implements Step {
   public static final Firewall DENY_EGRESS_LEONARDO_WORKER =
       new Firewall()
           .setName(DENY_EGRESS_LEONARDO_WORKER_RULE_NAME)
-          .setDescription("Block Leonardo-worker VMs accessing internet")
+          .setDescription("Block leonardo-private VMs accessing internet")
           .setDirection("EGRESS")
           .setDestinationRanges(Arrays.asList("0.0.0.0/0"))
-          .setTargetTags(Arrays.asList("leonardo-worker"))
+          .setTargetTags(Arrays.asList("leonardo-private"))
           .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(DENY_EGRESS_LEONARDO_WORKER_RULE_NAME))
           .setDenied(Arrays.asList(new Firewall.Denied().setIPProtocol("all")));
 
@@ -248,7 +248,7 @@ public class CreateFirewallRuleStep implements Step {
 
       if (blockInternetAccess(gcpProjectConfig)) {
         addFirewallRule(
-                projectId, appendNetworkOnFirewall(highSecurityNetwork, ALLOW_EGRESS_INTERNEL))
+                projectId, appendNetworkOnFirewall(highSecurityNetwork, ALLOW_EGRESS_INTERNAL))
             .ifPresent(operationsToPoll::add);
         addFirewallRule(
                 projectId,

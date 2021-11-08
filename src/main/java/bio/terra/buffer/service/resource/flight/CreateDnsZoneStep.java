@@ -93,10 +93,10 @@ public class CreateDnsZoneStep implements Step {
   }
 
   private void createManagedDnsZone(
-      String projectId, Network network, ManagedZone managedZoneTemplatae) throws IOException {
+      String projectId, Network network, ManagedZone managedZoneTemplate) throws IOException {
     // Skip ManagedZone creation if ManagedZone already present.
     ManagedZone managedZone =
-        managedZoneTemplatae
+        managedZoneTemplate
             .clone()
             .setPrivateVisibilityConfig(
                 new ManagedZonePrivateVisibilityConfig()
