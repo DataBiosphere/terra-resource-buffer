@@ -497,10 +497,10 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
             Map.entry(SUB_NETWORK_LABEL_KEY, SUBNETWORK_NAME),
             Map.entry(
                 LEONARDO_ALLOW_HTTPS_FIREWALL_RULE_NAME_LABEL_KEY,
-                ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME),
+                LEONARDO_SSL_FOR_VPC_NETWORK_RULE_NAME),
             Map.entry(
                 LEONARDO_ALLOW_INTERNAL_RULE_NAME_LABEL_KEY,
-                LEONARDO_SSL_FOR_VPC_NETWORK_RULE_NAME),
+                ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME),
             Map.entry(CONFIG_NAME_LABEL_KEY, TEST_CONFIG_NAME)));
     return project;
   }

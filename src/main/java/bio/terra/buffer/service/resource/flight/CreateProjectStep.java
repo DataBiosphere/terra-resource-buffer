@@ -107,10 +107,10 @@ public class CreateProjectStep implements Step {
         .put(SUB_NETWORK_LABEL_KEY, createValidLabelValue(SUBNETWORK_NAME))
         .put(
             LEONARDO_ALLOW_HTTPS_FIREWALL_RULE_NAME_LABEL_KEY,
-            createValidLabelValue(ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME))
+            createValidLabelValue(LEONARDO_SSL_FOR_VPC_NETWORK_RULE_NAME))
         .put(
             LEONARDO_ALLOW_INTERNAL_RULE_NAME_LABEL_KEY,
-            createValidLabelValue(LEONARDO_SSL_FOR_VPC_NETWORK_RULE_NAME))
+            createValidLabelValue(ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME))
         .put(
             CONFIG_NAME_LABEL_KEY,
             createValidLabelValue(
