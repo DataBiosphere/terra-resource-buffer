@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 public class CreateProjectStep implements Step {
   @VisibleForTesting public static final String NETWORK_LABEL_KEY = "vpc-network-name";
   @VisibleForTesting public static final String SUB_NETWORK_LABEL_KEY = "vpc-subnetwork-name";
-  @VisibleForTesting public static final String CONFIG_NAME_LABEL_LEY = "buffer-config-name";
+  @VisibleForTesting public static final String CONFIG_NAME_LABEL_KEY = "buffer-config-name";
 
   private final Logger logger = LoggerFactory.getLogger(CreateProjectStep.class);
   private final CloudResourceManagerCow rmCow;
@@ -94,7 +94,7 @@ public class CreateProjectStep implements Step {
         .put(NETWORK_LABEL_KEY, createValidLabelValue(NETWORK_NAME))
         .put(SUB_NETWORK_LABEL_KEY, createValidLabelValue(SUBNETWORK_NAME))
         .put(
-            CONFIG_NAME_LABEL_LEY,
+            CONFIG_NAME_LABEL_KEY,
             createValidLabelValue(
                 flightContext
                     .getInputParameters()
