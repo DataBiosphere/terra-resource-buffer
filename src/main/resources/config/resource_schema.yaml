@@ -123,10 +123,10 @@ components:
             Whether to config Private Google Access for gcr.io.
           type: boolean
           default: false
-        blockInternetAccess:
+        blockBatchInternetAccess:
           description: |-
-            Whether to allow GCE VMs have internet access. If ture, few firewall rules will be created to block egress
-            access(exclude Leonardo created VMs).
+            Whether to allow GCE VMs have internet access for batch analysis. If ture, few firewall rules will be created to block egress
+            access. Interactive analysis(Leonardo GCE or Dataproc master node) VMs are not affected.
             See: https://docs.google.com/document/d/1elBUrHVoFzT8k5bofDxPi1bLPzJAYed-mc10ZfNz8CY/edit?resourcekey=0-7pDBBKNL6n3K7imr2V0fpA
           type: boolean
           default: false

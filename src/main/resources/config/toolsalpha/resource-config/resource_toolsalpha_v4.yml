@@ -30,7 +30,7 @@ gcpProjectConfig:
     enableNetworkMonitoring: "true"
     enablePrivateGoogleAccess: "true"
     enableCloudRegistryPrivateGoogleAccess: "true"
-    blockInternetAccess: "true"
+    blockBatchInternetAccess: "true"
   computeEngine:
     keepDefaultServiceAcct: "true"
   iamBindings:

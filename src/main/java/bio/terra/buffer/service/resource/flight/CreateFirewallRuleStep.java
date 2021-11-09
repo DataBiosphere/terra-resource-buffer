@@ -2,7 +2,7 @@ package bio.terra.buffer.service.resource.flight;
 
 import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
 import static bio.terra.buffer.service.resource.flight.CreateSubnetsStep.REGION_TO_IP_RANGE;
-import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.blockInternetAccess;
+import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.blockBatchInternetAccess;
 import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.keepDefaultNetwork;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.*;
 
@@ -69,8 +69,8 @@ public class CreateFirewallRuleStep implements Step {
   /**
    * Firewall rule to priority map. The lower number is, the higher priority.
    *
-   * <p>To make sure only Leo VMs have private internet access when {@code blockInternetAccess} is
-   * true, the priority of egress firewall rules need to be:
+   * <p>To make sure only Leo VMs have private internet access when {@code blockBatchInternetAccess}
+   * is true, the priority of egress firewall rules need to be:
    *
    * <ol>
    *   <li>ALLOW_EGRESS_PRIVATE_ACCESS_RULE_NAME
@@ -250,7 +250,7 @@ public class CreateFirewallRuleStep implements Step {
             .ifPresent(operationsToPoll::add);
       }
 
-      if (blockInternetAccess(gcpProjectConfig)) {
+      if (blockBatchInternetAccess(gcpProjectConfig)) {
         addFirewallRule(
                 projectId, appendNetworkOnFirewall(highSecurityNetwork, ALLOW_EGRESS_INTERNAL))
             .ifPresent(operationsToPoll::add);
