@@ -1,6 +1,8 @@
 package bio.terra.buffer.service.resource.flight;
 
 import static bio.terra.buffer.service.resource.FlightMapKeys.*;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.LEONARDO_SSL_FOR_VPC_NETWORK_RULE_NAME;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.*;
 import static bio.terra.buffer.service.resource.flight.StepUtils.isResourceReady;
 
@@ -25,6 +27,16 @@ public class CreateProjectStep implements Step {
   @VisibleForTesting public static final String NETWORK_LABEL_KEY = "vpc-network-name";
   @VisibleForTesting public static final String SUB_NETWORK_LABEL_KEY = "vpc-subnetwork-name";
   @VisibleForTesting public static final String CONFIG_NAME_LABEL_KEY = "buffer-config-name";
+  // Firewall rule name to allow https traffic for leoanrdo VMs. Empty if not having such firewall
+  // rule.
+  @VisibleForTesting
+  public static final String LEONARDO_ALLOW_HTTPS_FIREWALL_RULE_NAME_LABEL_KEY =
+      "leonardo-allow-https-firewall-name";
+  // Firewall rule name to allow internal traffic within VPC for leonardo VMs. Empty if not having
+  // such firewall rule.
+  @VisibleForTesting
+  public static final String LEONARDO_ALLOW_INTERNAL_RULE_NAME_LABEL_KEY =
+      "leonardo-allow-internal-firewall-name";
 
   private final Logger logger = LoggerFactory.getLogger(CreateProjectStep.class);
   private final CloudResourceManagerCow rmCow;
@@ -93,6 +105,12 @@ public class CreateProjectStep implements Step {
     return new ImmutableMap.Builder<String, String>()
         .put(NETWORK_LABEL_KEY, createValidLabelValue(NETWORK_NAME))
         .put(SUB_NETWORK_LABEL_KEY, createValidLabelValue(SUBNETWORK_NAME))
+        .put(
+            LEONARDO_ALLOW_HTTPS_FIREWALL_RULE_NAME_LABEL_KEY,
+            createValidLabelValue(ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME))
+        .put(
+            LEONARDO_ALLOW_INTERNAL_RULE_NAME_LABEL_KEY,
+            createValidLabelValue(LEONARDO_SSL_FOR_VPC_NETWORK_RULE_NAME))
         .put(
             CONFIG_NAME_LABEL_KEY,
             createValidLabelValue(

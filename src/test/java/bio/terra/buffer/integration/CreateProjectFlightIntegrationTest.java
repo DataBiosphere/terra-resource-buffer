@@ -31,6 +31,8 @@ import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.DE
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.LEONARDO_SSL_FOR_DEFAULT_NETWORK_RULE_NAME;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.LEONARDO_SSL_FOR_VPC_NETWORK_RULE_NAME;
 import static bio.terra.buffer.service.resource.flight.CreateProjectStep.CONFIG_NAME_LABEL_KEY;
+import static bio.terra.buffer.service.resource.flight.CreateProjectStep.LEONARDO_ALLOW_HTTPS_FIREWALL_RULE_NAME_LABEL_KEY;
+import static bio.terra.buffer.service.resource.flight.CreateProjectStep.LEONARDO_ALLOW_INTERNAL_RULE_NAME_LABEL_KEY;
 import static bio.terra.buffer.service.resource.flight.CreateProjectStep.NETWORK_LABEL_KEY;
 import static bio.terra.buffer.service.resource.flight.CreateProjectStep.SUB_NETWORK_LABEL_KEY;
 import static bio.terra.buffer.service.resource.flight.CreateProjectStep.createValidLabelValue;
@@ -493,6 +495,12 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
         Matchers.hasItems(
             Map.entry(NETWORK_LABEL_KEY, NETWORK_NAME),
             Map.entry(SUB_NETWORK_LABEL_KEY, SUBNETWORK_NAME),
+            Map.entry(
+                LEONARDO_ALLOW_HTTPS_FIREWALL_RULE_NAME_LABEL_KEY,
+                ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME),
+            Map.entry(
+                LEONARDO_ALLOW_INTERNAL_RULE_NAME_LABEL_KEY,
+                LEONARDO_SSL_FOR_VPC_NETWORK_RULE_NAME),
             Map.entry(CONFIG_NAME_LABEL_KEY, TEST_CONFIG_NAME)));
     return project;
   }

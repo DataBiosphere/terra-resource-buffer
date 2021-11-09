@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 public class CreateFirewallRuleStep implements Step {
   /** Names for firewall rules on the high-security network (called 'network'). */
   @VisibleForTesting
-  public static final String ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME = "allow-internal";
+  public static final String ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME = "leonardo-allow-internal";
 
   @VisibleForTesting
   public static final String LEONARDO_SSL_FOR_VPC_NETWORK_RULE_NAME = "leonardo-ssl";
@@ -83,10 +83,10 @@ public class CreateFirewallRuleStep implements Step {
   @VisibleForTesting
   public static final ImmutableMap<String, Integer> FIREWALL_RULE_PRIORITY_MAP =
       ImmutableMap.<String, Integer>builder()
-          .put(ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME, 65534)
-          .put(LEONARDO_SSL_FOR_VPC_NETWORK_RULE_NAME, 65534)
-          .put(ALLOW_INTERNAL_FOR_DEFAULT_NETWORK_RULE_NAME, 65534)
-          .put(LEONARDO_SSL_FOR_DEFAULT_NETWORK_RULE_NAME, 65534)
+          .put(ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME, 1000)
+          .put(LEONARDO_SSL_FOR_VPC_NETWORK_RULE_NAME, 1000)
+          .put(ALLOW_INTERNAL_FOR_DEFAULT_NETWORK_RULE_NAME, 1000)
+          .put(LEONARDO_SSL_FOR_DEFAULT_NETWORK_RULE_NAME, 1000)
           .put(DENY_EGRESS_RULE_NAME, 4000)
           .put(DENY_EGRESS_LEONARDO_WORKER_RULE_NAME, 2000)
           .put(ALLOW_EGRESS_LEONARDO_RULE_NAME, 3000)
@@ -100,6 +100,7 @@ public class CreateFirewallRuleStep implements Step {
           .setName(ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME)
           .setDescription("Allow internal ingress traffic on the network.")
           .setDirection("INGRESS")
+          .setTargetTags(Arrays.asList("leonardo"))
           .setSourceRanges(new ArrayList(REGION_TO_IP_RANGE.values()))
           .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME))
           .setAllowed(
@@ -114,6 +115,7 @@ public class CreateFirewallRuleStep implements Step {
           .setName(ALLOW_INTERNAL_FOR_DEFAULT_NETWORK_RULE_NAME)
           .setDescription("Allow internal ingress traffic on the default VPC network.")
           .setDirection("INGRESS")
+          .setTargetTags(Arrays.asList("leonardo"))
           .setSourceRanges(new ArrayList(REGION_TO_IP_RANGE.values()))
           .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(ALLOW_INTERNAL_FOR_DEFAULT_NETWORK_RULE_NAME))
           .setAllowed(
