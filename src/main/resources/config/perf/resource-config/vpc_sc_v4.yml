@@ -1,0 +1,35 @@
+# Projects with VPC-SC configuration
+---
+configName: "vpc_sc_v4"
+gcpProjectConfig:
+  projectIdSchema:
+    prefix: "terra-vpc-sc-perf"
+    scheme: "RANDOM_CHAR"
+  # test.firecloud.org/perf/for_vpc_sc_unclaimed
+  parentFolderId: "533417334224"
+  billingAccount: "01A82E-CA8A14-367457"
+  enabledApis:
+    - "bigquery-json.googleapis.com"
+    - "compute.googleapis.com"
+    - "container.googleapis.com"
+    - "cloudbilling.googleapis.com"
+    - "clouderrorreporting.googleapis.com"
+    - "cloudkms.googleapis.com"
+    - "cloudtrace.googleapis.com"
+    - "containerregistry.googleapis.com"
+    - "dataflow.googleapis.com"
+    - "dataproc.googleapis.com"
+    - "dns.googleapis.com"
+    - "genomics.googleapis.com"
+    - "lifesciences.googleapis.com"
+    - "logging.googleapis.com"
+    - "monitoring.googleapis.com"
+    - "storage-api.googleapis.com"
+    - "storage-component.googleapis.com"
+  network:
+    enableNetworkMonitoring: "true"
+    enablePrivateGoogleAccess: "true"
+    enableCloudRegistryPrivateGoogleAccess: "true"
+    blockBatchInternetAccess: "true"
+  computeEngine:
+    keepDefaultServiceAcct: "true"
