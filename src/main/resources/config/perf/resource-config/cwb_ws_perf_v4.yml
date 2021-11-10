@@ -1,0 +1,33 @@
+# Community Workbench buffered workspace template
+---
+configName: "cwb_ws_perf_v4"
+gcpProjectConfig:
+  projectIdSchema:
+    prefix: "terra-perf"
+    scheme: "RANDOM_CHAR"
+  # test.firecloud.org/perf/CommunityWorkbench
+  parentFolderId: "246142551922"
+  billingAccount: "01A82E-CA8A14-367457"
+  enabledApis:
+    - "bigquery-json.googleapis.com"
+    - "compute.googleapis.com"
+    - "container.googleapis.com"
+    - "containerregistry.googleapis.com"
+    - "cloudbilling.googleapis.com"
+    - "clouderrorreporting.googleapis.com"
+    - "cloudkms.googleapis.com"
+    - "cloudtrace.googleapis.com"
+    - "dataflow.googleapis.com"
+    - "dataproc.googleapis.com"
+    - "dns.googleapis.com"
+    - "genomics.googleapis.com"
+    - "lifesciences.googleapis.com"
+    - "logging.googleapis.com"
+    - "monitoring.googleapis.com"
+    - "storage-api.googleapis.com"
+    - "storage-component.googleapis.com"
+  network:
+    enableNetworkMonitoring: "false"
+    enablePrivateGoogleAccess: "true"
+  computeEngine:
+    keepDefaultServiceAcct: "true"
