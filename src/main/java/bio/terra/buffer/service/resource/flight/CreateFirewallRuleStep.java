@@ -76,7 +76,7 @@ public class CreateFirewallRuleStep implements Step {
    *   <li>ALLOW_EGRESS_PRIVATE_ACCESS_RULE_NAME
    *   <li>ALLOW_EGRESS_INTERNAL(equal)
    *   <li>DENY_EGRESS_LEONARDO_WORKER_RULE_NAME
-   *   <li>ALLOW_EGRESS_LEONARDO<
+   *   <li>ALLOW_EGRESS_LEONARDO
    *   <li>DENY_EGRESS_RULE_NAME
    * </ol>
    */
