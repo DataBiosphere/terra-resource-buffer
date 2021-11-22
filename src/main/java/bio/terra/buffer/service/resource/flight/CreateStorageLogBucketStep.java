@@ -1,6 +1,7 @@
 package bio.terra.buffer.service.resource.flight;
 
 import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
+import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.createLogBucket;
 
 import bio.terra.buffer.generated.model.GcpProjectConfig;
 import bio.terra.cloudres.common.ClientConfig;
@@ -50,7 +51,7 @@ public class CreateStorageLogBucketStep implements Step {
     StorageCow storageCow =
         new StorageCow(clientConfig, StorageOptions.newBuilder().setProjectId(projectId).build());
     String bucketName = "storage-logs-" + projectId;
-    if (storageCow.get(bucketName) != null) {
+    if (storageCow.get(bucketName) != null || !createLogBucket(gcpProjectConfig)) {
       return StepResult.getStepResultSuccess();
     }
     storageCow.create(

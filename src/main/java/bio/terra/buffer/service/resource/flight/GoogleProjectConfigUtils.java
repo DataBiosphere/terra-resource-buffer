@@ -1,6 +1,7 @@
 package bio.terra.buffer.service.resource.flight;
 
 import bio.terra.buffer.generated.model.GcpProjectConfig;
+import bio.terra.buffer.generated.model.PoolConfig;
 
 /** Utility methods for parsing the Google Project configuration. */
 public class GoogleProjectConfigUtils {
@@ -53,5 +54,11 @@ public class GoogleProjectConfigUtils {
     return gcpProjectConfig.getNetwork() != null
         && gcpProjectConfig.getNetwork().isBlockBatchInternetAccess() != null
         && gcpProjectConfig.getNetwork().isBlockBatchInternetAccess();
+  }
+
+  public static boolean createLogBucket(GcpProjectConfig gcpProjectConfig) {
+    return gcpProjectConfig.getStorage() != null
+        && gcpProjectConfig.getStorage().isCreateLogBucket() != null
+        && gcpProjectConfig.getStorage().isCreateLogBucket();
   }
 }
