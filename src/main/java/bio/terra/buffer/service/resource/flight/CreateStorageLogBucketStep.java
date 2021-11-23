@@ -51,7 +51,7 @@ public class CreateStorageLogBucketStep implements Step {
     StorageCow storageCow =
         new StorageCow(clientConfig, StorageOptions.newBuilder().setProjectId(projectId).build());
     String bucketName = "storage-logs-" + projectId;
-    if (storageCow.get(bucketName) != null || !createLogBucket(gcpProjectConfig)) {
+    if (!createLogBucket(gcpProjectConfig) || storageCow.get(bucketName) != null) {
       return StepResult.getStepResultSuccess();
     }
     storageCow.create(

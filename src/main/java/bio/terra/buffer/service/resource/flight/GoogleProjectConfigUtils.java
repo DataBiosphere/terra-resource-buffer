@@ -1,7 +1,6 @@
 package bio.terra.buffer.service.resource.flight;
 
 import bio.terra.buffer.generated.model.GcpProjectConfig;
-import bio.terra.buffer.generated.model.PoolConfig;
 
 /** Utility methods for parsing the Google Project configuration. */
 public class GoogleProjectConfigUtils {

@@ -70,6 +70,7 @@ import bio.terra.buffer.generated.model.ComputeEngine;
 import bio.terra.buffer.generated.model.GcpProjectConfig;
 import bio.terra.buffer.generated.model.IamBinding;
 import bio.terra.buffer.generated.model.ResourceConfig;
+import bio.terra.buffer.generated.model.Storage;
 import bio.terra.buffer.service.resource.FlightManager;
 import bio.terra.buffer.service.resource.FlightSubmissionFactoryImpl;
 import bio.terra.buffer.service.resource.flight.AssertResourceCreatingStep;
@@ -141,6 +142,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   @Autowired FlightSubmissionFactoryImpl flightSubmissionFactoryImpl;
   @Autowired ClientConfig clientConfig;
   @Autowired TransactionTemplate transactionTemplate;
+  @Autowired StorageCow storageCow;
 
   enum NetworkMonitoring {
     ENABLED,
@@ -276,6 +278,22 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertFirewallRulesExist(project);
     assertDefaultVpcExists(project);
     assertFirewallRulesExistForDefaultVpc(project);
+  }
+
+  @Test
+  public void testCreateGoogleProject_createLogBucket_false() throws Exception {
+    FlightManager manager =
+        new FlightManager(
+            bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
+    Pool pool =
+        preparePool(bufferDao, newBasicGcpConfig().storage(new Storage().createLogBucket(false)));
+    String flightId = manager.submitCreationFlight(pool).get();
+    ResourceId resourceId =
+        extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
+    Project project = assertProjectExists(resourceId);
+    String projectId = project.getProjectId();
+    String logBucketName = "storage-logs-" + projectId;
+    assertNull(storageCow.get(logBucketName));
   }
 
   @Test
