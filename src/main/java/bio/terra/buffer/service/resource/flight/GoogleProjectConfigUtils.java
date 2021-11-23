@@ -1,6 +1,8 @@
 package bio.terra.buffer.service.resource.flight;
 
 import bio.terra.buffer.generated.model.GcpProjectConfig;
+import bio.terra.buffer.generated.model.Storage;
+import java.util.Optional;
 
 /** Utility methods for parsing the Google Project configuration. */
 public class GoogleProjectConfigUtils {
@@ -56,8 +58,8 @@ public class GoogleProjectConfigUtils {
   }
 
   public static boolean createLogBucket(GcpProjectConfig gcpProjectConfig) {
-    return gcpProjectConfig.getStorage() != null
-        && gcpProjectConfig.getStorage().isCreateLogBucket() != null
-        && gcpProjectConfig.getStorage().isCreateLogBucket();
+    return Optional.ofNullable(gcpProjectConfig.getStorage())
+        .map(Storage::isCreateLogBucket) // returns Optional.empty() if null
+        .orElse(true);
   }
 }

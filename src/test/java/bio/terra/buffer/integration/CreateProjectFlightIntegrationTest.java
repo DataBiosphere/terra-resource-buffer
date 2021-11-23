@@ -57,6 +57,7 @@ import static bio.terra.buffer.service.resource.flight.GoogleUtils.resourceExist
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -278,6 +279,21 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertFirewallRulesExist(project);
     assertDefaultVpcExists(project);
     assertFirewallRulesExistForDefaultVpc(project);
+  }
+
+  @Test
+  public void testCreateGoogleProject_createLogBucket_true() throws Exception {
+    FlightManager manager =
+        new FlightManager(
+            bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
+    Pool pool = preparePool(bufferDao, newBasicGcpConfig());
+    String flightId = manager.submitCreationFlight(pool).get();
+    ResourceId resourceId =
+        extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
+    Project project = assertProjectExists(resourceId);
+    String projectId = project.getProjectId();
+    String logBucketName = "storage-logs-" + projectId;
+    assertNotNull(storageCow.get(logBucketName));
   }
 
   @Test
