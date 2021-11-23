@@ -46,6 +46,12 @@ import org.slf4j.LoggerFactory;
  */
 public class CreateSubnetsStep implements Step {
   /**
+   * The log filter when network monitoring is enabled. We use flow logs to monitor network traffic
+   * that flys between VPC network and public internet. Filter out the logs if the traffic is within
+   * the smae VPC network.
+   */
+  private static final String LOG_FILTER = "src_instance.project_id != dest_instance.project_id";
+  /**
    * All current Google Compute Engine regions with the default Ip ranges listed (and manually
    * copied) in: https://cloud.google.com/vpc/docs/vpc#ip-ranges.
    */
@@ -92,6 +98,7 @@ public class CreateSubnetsStep implements Step {
   public static final SubnetworkLogConfig LOG_CONFIG =
       new SubnetworkLogConfig()
           .setAggregationInterval("INTERVAL_30_SEC")
+          .setFilterExpr(LOG_FILTER)
           .setEnable(true)
           .setFlowSampling((float) 1.0)
           .setMetadata("INCLUDE_ALL_METADATA");
