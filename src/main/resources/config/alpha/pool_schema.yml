@@ -1,18 +1,15 @@
 # Resource Buffer Service Pools Schema in alpha environment
 ---
 poolConfigs:
-- poolId: "cwb_ws_alpha_v3"
-  size: 100
-  resourceConfigName: "cwb_ws_resource_alpha_v3"
 - poolId: "cwb_ws_alpha_v4"
   size: 100
   resourceConfigName: "cwb_ws_resource_alpha_v4"
-- poolId: "vpc_sc_v2"
-  size: 100
-  resourceConfigName: "vpc_sc_v2"
 - poolId: "vpc_sc_v3"
   size: 100
   resourceConfigName: "vpc_sc_v3"
+- poolId: "vpc_sc_v4"
+  size: 100
+  resourceConfigName: "vpc_sc_v4"
 - poolId: "datarepo_v1"
   size: 300
   resourceConfigName: "datarepo_v1"
