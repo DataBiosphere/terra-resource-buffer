@@ -150,21 +150,28 @@ public class CreateSubnetsStep implements Step {
    *
    * <p>For log filter, when network monitoring is enabled. We use flow logs to monitor egress
    * network traffic. The filters are:
+   *
    * <ul>
    *   <li>Reporter is SRC (egress)
    *   <li>Destination is not restricted.googleapi.com
    *   <li>Destination is not within the same network.
    * </ul>
    *
-   * <p> Flow log filter does not support {@code has()} yet, the workaround is to filter out traffoc
-   * between different networks is by using dest_ip. Ideally, it should be
-   * {@code dest_instance.project_id != src_instance.project_id}
-   * See https://b.corp.google.com/issues/171517286 (GCP internal support ticket) for discussion.
+   * <p>Flow log filter does not support {@code has()} yet, the workaround is to filter out traffoc
+   * between different networks is by using dest_ip. Ideally, it should be {@code
+   * dest_instance.project_id != src_instance.project_id} See
+   * https://b.corp.google.com/issues/171517286 (GCP internal support ticket) for discussion.
    */
-  private static SubnetworkLogConfig getSubnetLogConfig(String subnetIpRange) {
-    String logFilter = "reporter=='SRC' && "
-        + "!inIpRange(connection.dest_ip, '" + subnetIpRange + "') && "
-        + "!inIpRange(connection.dest_ip, '" + RESTRICTED_GOOGLE_IP_ADDRESS + "')";
+  @VisibleForTesting
+  public static SubnetworkLogConfig getSubnetLogConfig(String subnetIpRange) {
+    String logFilter =
+        "reporter=='SRC' && "
+            + "!inIpRange(connection.dest_ip, '"
+            + subnetIpRange
+            + "') && "
+            + "!inIpRange(connection.dest_ip, '"
+            + RESTRICTED_GOOGLE_IP_ADDRESS
+            + "')";
     return new SubnetworkLogConfig()
         .setAggregationInterval("INTERVAL_30_SEC")
         .setFilterExpr(logFilter)
