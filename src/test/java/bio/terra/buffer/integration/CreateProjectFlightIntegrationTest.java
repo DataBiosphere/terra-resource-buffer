@@ -652,10 +652,6 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
           networkMonitoring.equals(NetworkMonitoring.ENABLED),
           subnetwork.getPrivateIpGoogleAccess());
       if (networkMonitoring.equals(NetworkMonitoring.ENABLED)) {
-        System.out.println("~~~~~~~~~~");
-        System.out.println("~~~~~~~~~~");
-        System.out.println("~~~~~~~~~~");
-        System.out.println(subnetwork.getLogConfig());
         assertEquals(getSubnetLogConfig(subnetwork.getIpCidrRange()), subnetwork.getLogConfig());
       }
     }
