@@ -30,6 +30,9 @@ public class GoogleUtils {
   /** The name of the default network that exists in the project. */
   public static final String DEFAULT_NETWORK_NAME = "default";
 
+  /** The IP address for restricted.googleapis.com. */
+  public static final String RESTRICTED_GOOGLE_IP_ADDRESS = "199.36.153.4/30"
+
   /**
    * Poll until the Google Service API operation has completed. Throws any error or timeouts as a
    * {@link RetryException}.
