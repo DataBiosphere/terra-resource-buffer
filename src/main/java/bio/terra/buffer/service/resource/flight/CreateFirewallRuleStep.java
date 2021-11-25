@@ -156,7 +156,7 @@ public class CreateFirewallRuleStep implements Step {
           .setName(ALLOW_EGRESS_PRIVATE_ACCESS_RULE_NAME)
           .setDescription("Allow accessing internet using private Google Access.")
           .setDirection("EGRESS")
-          .setDestinationRanges(Arrays.asList("199.36.153.4/30"))
+          .setDestinationRanges(Arrays.asList(RESTRICTED_GOOGLE_IP_ADDRESS))
           .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(ALLOW_EGRESS_PRIVATE_ACCESS_RULE_NAME))
           .setAllowed(Arrays.asList(new Firewall.Allowed().setIPProtocol("all")));
 

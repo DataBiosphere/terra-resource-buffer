@@ -32,8 +32,6 @@ import org.slf4j.LoggerFactory;
  */
 public class CreateRouteStep implements Step {
   @VisibleForTesting public static final String ROUTE_NAME = "private-google-access-route";
-  /** restricted.googleapis.com */
-  @VisibleForTesting public static final String DESTINATION_RANGE = "199.36.153.4/30";
 
   @VisibleForTesting
   public static final String DEFAULT_GATEWAY = "/global/gateways/default-internet-gateway";
@@ -62,7 +60,7 @@ public class CreateRouteStep implements Step {
       Route route =
           new Route()
               .setName(ROUTE_NAME)
-              .setDestRange(DESTINATION_RANGE)
+              .setDestRange(RESTRICTED_GOOGLE_IP_ADDRESS)
               .setNetwork(network.getSelfLink())
               .setNextHopGateway("projects/" + projectId + DEFAULT_GATEWAY);
       Optional<Operation> insertOperation =

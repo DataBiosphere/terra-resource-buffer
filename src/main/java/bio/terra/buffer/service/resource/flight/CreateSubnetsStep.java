@@ -46,12 +46,6 @@ import org.slf4j.LoggerFactory;
  */
 public class CreateSubnetsStep implements Step {
   /**
-   * The log filter when network monitoring is enabled. We use flow logs to monitor network traffic
-   * that flys between VPC network and public internet. Filter out the logs if the traffic is within
-   * the smae VPC network.
-   */
-  private static final String LOG_FILTER = "src_instance.project_id != dest_instance.project_id";
-  /**
    * All current Google Compute Engine regions with the default Ip ranges listed (and manually
    * copied) in: https://cloud.google.com/vpc/docs/vpc#ip-ranges.
    */
@@ -86,23 +80,6 @@ public class CreateSubnetsStep implements Step {
           .put("us-west4", "10.182.0.0/20")
           .build();
 
-  /**
-   * If flow logs are enabled, we want to adjust the default config in two ways:
-   *
-   * <ul>
-   *   <li>Increase the sampling ratio (defaults to 0.5) so we sample all traffic.
-   *   <li>Reduce the aggregation interval to 30 seconds (default is 5secs) to save on storage
-   * </ul>
-   */
-  @VisibleForTesting
-  public static final SubnetworkLogConfig LOG_CONFIG =
-      new SubnetworkLogConfig()
-          .setAggregationInterval("INTERVAL_30_SEC")
-          .setFilterExpr(LOG_FILTER)
-          .setEnable(true)
-          .setFlowSampling((float) 1.0)
-          .setMetadata("INCLUDE_ALL_METADATA");
-
   private final Logger logger = LoggerFactory.getLogger(CreateSubnetsStep.class);
   private final CloudComputeCow computeCow;
   private final GcpProjectConfig gcpProjectConfig;
@@ -132,7 +109,7 @@ public class CreateSubnetsStep implements Step {
                 .setEnableFlowLogs(networkMonitoringEnabled)
                 .setPrivateIpGoogleAccess(usePrivateGoogleAccess(gcpProjectConfig));
         if (networkMonitoringEnabled) {
-          subnetwork.setLogConfig(LOG_CONFIG);
+          subnetwork.setLogConfig(getSubnetLogConfig(subnetwork.getIpCidrRange()));
         }
 
         createResourceAndIgnoreConflict(
@@ -161,5 +138,45 @@ public class CreateSubnetsStep implements Step {
     // Flight undo will just need to delete the project on GCP at CreateProjectStep.
     // doStep methods already checks subnets exists or not. So no need to delete subnet.
     return StepResult.getStepResultSuccess();
+  }
+
+  /**
+   * If flow logs are enabled, we want to adjust the default config in two ways:
+   *
+   * <ul>
+   *   <li>Increase the sampling ratio (defaults to 0.5) so we sample all traffic.
+   *   <li>Reduce the aggregation interval to 30 seconds (default is 5secs) to save on storage
+   * </ul>
+   *
+   * <p>For log filter, when network monitoring is enabled. We use flow logs to monitor egress
+   * network traffic. The filters are:
+   *
+   * <ul>
+   *   <li>Reporter is SRC (egress)
+   *   <li>Destination is not restricted.googleapi.com
+   *   <li>Destination is not within the same network.
+   * </ul>
+   *
+   * <p>Flow log filter does not support {@code has()} yet, the workaround is to filter out traffoc
+   * between different networks is by using dest_ip. Ideally, it should be {@code
+   * dest_instance.project_id != src_instance.project_id} See
+   * https://b.corp.google.com/issues/171517286 (GCP internal support ticket) for discussion.
+   */
+  @VisibleForTesting
+  public static SubnetworkLogConfig getSubnetLogConfig(String subnetIpRange) {
+    String logFilter =
+        "reporter=='SRC' && "
+            + "!inIpRange(connection.dest_ip, '"
+            + subnetIpRange
+            + "') && "
+            + "!inIpRange(connection.dest_ip, '"
+            + RESTRICTED_GOOGLE_IP_ADDRESS
+            + "')";
+    return new SubnetworkLogConfig()
+        .setAggregationInterval("INTERVAL_30_SEC")
+        .setFilterExpr(logFilter)
+        .setEnable(true)
+        .setFlowSampling((float) 1.0)
+        .setMetadata("INCLUDE_ALL_METADATA");
   }
 }

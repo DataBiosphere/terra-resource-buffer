@@ -41,16 +41,16 @@ import static bio.terra.buffer.service.resource.flight.CreateResourceRecordSetSt
 import static bio.terra.buffer.service.resource.flight.CreateResourceRecordSetStep.RESTRICT_API_A_RECORD;
 import static bio.terra.buffer.service.resource.flight.CreateResourceRecordSetStep.RESTRICT_API_CNAME_RECORD;
 import static bio.terra.buffer.service.resource.flight.CreateRouteStep.DEFAULT_GATEWAY;
-import static bio.terra.buffer.service.resource.flight.CreateRouteStep.DESTINATION_RANGE;
 import static bio.terra.buffer.service.resource.flight.CreateRouteStep.ROUTE_NAME;
 import static bio.terra.buffer.service.resource.flight.CreateStorageLogBucketStep.STORAGE_LOGS_IDENTITY;
-import static bio.terra.buffer.service.resource.flight.CreateSubnetsStep.LOG_CONFIG;
 import static bio.terra.buffer.service.resource.flight.CreateSubnetsStep.REGION_TO_IP_RANGE;
+import static bio.terra.buffer.service.resource.flight.CreateSubnetsStep.getSubnetLogConfig;
 import static bio.terra.buffer.service.resource.flight.DeleteDefaultFirewallRulesStep.DEFAULT_FIREWALL_NAMES;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.DEFAULT_NETWORK_NAME;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.GCR_MANAGED_ZONE_NAME;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.MANAGED_ZONE_NAME;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.NETWORK_NAME;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.RESTRICTED_GOOGLE_IP_ADDRESS;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.SUBNETWORK_NAME;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.projectIdToName;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.resourceExists;
@@ -652,7 +652,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
           networkMonitoring.equals(NetworkMonitoring.ENABLED),
           subnetwork.getPrivateIpGoogleAccess());
       if (networkMonitoring.equals(NetworkMonitoring.ENABLED)) {
-        assertEquals(LOG_CONFIG, subnetwork.getLogConfig());
+        assertEquals(getSubnetLogConfig(subnetwork.getIpCidrRange()), subnetwork.getLogConfig());
       }
     }
   }
@@ -661,7 +661,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     String projectId = project.getProjectId();
     Network network = computeCow.networks().get(project.getProjectId(), NETWORK_NAME).execute();
     Route route = computeCow.routes().get(projectId, ROUTE_NAME).execute();
-    assertEquals(DESTINATION_RANGE, route.getDestRange());
+    assertEquals(RESTRICTED_GOOGLE_IP_ADDRESS, route.getDestRange());
     assertEquals(
         "https://www.googleapis.com/compute/v1/projects/" + projectId + DEFAULT_GATEWAY,
         route.getNextHopGateway());
