@@ -49,3 +49,8 @@ spring:
       max-age: 0
       must-revalidate: true
     static-locations: classpath:/api/
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus
