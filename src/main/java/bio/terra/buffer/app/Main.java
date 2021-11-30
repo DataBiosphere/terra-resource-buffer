@@ -5,8 +5,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.metrics.export.prometheus.EnablePrometheusScraping;
 
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
+@EnablePrometheusScraping
 @ComponentScan(
     basePackages = {
       "bio.terra.common.db",

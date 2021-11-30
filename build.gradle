@@ -92,8 +92,11 @@ dependencies {
     implementation group: 'com.google.auto.value', name: 'auto-value-annotations', version: '1.7.3'
     implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.104.1'
     implementation group: 'com.google.guava', name: 'guava', version: '29.0-jre'
+    implementation group: 'io.opencensus', name: 'opencensus-exporter-stats-prometheus', version: '0.28.+'
     implementation group: 'io.opencensus', name: 'opencensus-exporter-stats-stackdriver', version: '0.28.+'
-    implementation group: "org.springframework.cloud", name: "spring-cloud-gcp-starter-logging", version: "1.2.6.RELEASE"
+    implementation group: 'io.prometheus', name: 'simpleclient_common', version: '0.12.0'
+    implementation group: 'org.springframework.cloud', name: 'spring-cloud-gcp-starter-logging', version: '1.2.6.RELEASE'
+    implementation group: 'org.springframework.metrics', name: 'spring-metrics', version: '0.5.1.RELEASE'
     implementation group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
     implementation group: 'org.liquibase', name: 'liquibase-core', version: '3.10.0'
     implementation group: 'org.webjars', name: 'webjars-locator-core', version: '0.46'
