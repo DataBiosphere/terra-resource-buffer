@@ -60,6 +60,8 @@ components:
           $ref: '#/components/schemas/Network'
         computeEngine:
           $ref: '#/components/schemas/ComputeEngine'
+        storage:
+          $ref: '#/components/schemas/Storage'
       type: object
 
     ProjectIdSchema:
@@ -140,4 +142,14 @@ components:
             Keep the default Compute Engine service account if this flag is true, otherwise delete it.
           type: boolean
           default: false
+      type: object
+
+    Storage:
+      description: Google Cloud Storage used by the project
+      properties:
+        createLogBucket:
+          description: |-
+            Create a bucket for logging (object-level access enabled).
+          type: boolean
+          default: true
       type: object

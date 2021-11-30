@@ -1,6 +1,7 @@
 package bio.terra.buffer.service.resource.flight;
 
 import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
+import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.createLogBucket;
 
 import bio.terra.buffer.generated.model.GcpProjectConfig;
 import bio.terra.cloudres.common.ClientConfig;
@@ -46,6 +47,10 @@ public class CreateStorageLogBucketStep implements Step {
 
   @Override
   public StepResult doStep(FlightContext flightContext) {
+    if (!createLogBucket(gcpProjectConfig)) {
+      logger.info("Skipping log bucket creation due to configuration parameter.");
+      return StepResult.getStepResultSuccess();
+    }
     String projectId = flightContext.getWorkingMap().get(GOOGLE_PROJECT_ID, String.class);
     StorageCow storageCow =
         new StorageCow(clientConfig, StorageOptions.newBuilder().setProjectId(projectId).build());
