@@ -5,6 +5,7 @@ import bio.terra.buffer.app.configuration.BufferDatabaseProperties;
 import bio.terra.buffer.app.configuration.StairwayDatabaseConfiguration;
 import bio.terra.buffer.service.cleanup.CleanupScheduler;
 import bio.terra.buffer.service.pool.PoolService;
+import bio.terra.buffer.service.prometheus.PrometheusExporter;
 import bio.terra.buffer.service.resource.FlightScheduler;
 import bio.terra.buffer.service.stackdriver.StackdriverExporter;
 import bio.terra.common.migrate.LiquibaseMigrator;
@@ -26,6 +27,7 @@ public final class StartupInitializer {
   public static void initialize(ApplicationContext applicationContext) {
     logger.info("Initializing the application after the application is setup");
     applicationContext.getBean(StackdriverExporter.class).initialize();
+    applicationContext.getBean(PrometheusExporter.class).initialize();
     // Initialize or upgrade the database depending on the configuration
     LiquibaseMigrator migrateService = applicationContext.getBean(LiquibaseMigrator.class);
     BufferDatabaseConfiguration bufferDatabaseConfiguration =
