@@ -149,7 +149,7 @@ components:
       properties:
         createLogBucket:
           description: |-
-            Create a bucket for logging (not UBLA-compliant).
+            Create a bucket for logging (object-level access enabled).
           type: boolean
           default: true
       type: object

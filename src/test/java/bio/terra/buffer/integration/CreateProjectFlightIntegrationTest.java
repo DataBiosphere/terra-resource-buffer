@@ -171,6 +171,9 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertDnsNotExists(project);
     assertDefaultVpcNotExists(project);
     assertDefaultServiceAccountNotExists(project);
+
+    String logBucketName = "storage-logs-" + project.getProjectId();
+    assertNotNull(storageCow.get(logBucketName));
   }
 
   @Test
@@ -279,21 +282,6 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertFirewallRulesExist(project);
     assertDefaultVpcExists(project);
     assertFirewallRulesExistForDefaultVpc(project);
-  }
-
-  @Test
-  public void testCreateGoogleProject_createLogBucket_true() throws Exception {
-    FlightManager manager =
-        new FlightManager(
-            bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
-    Pool pool = preparePool(bufferDao, newBasicGcpConfig());
-    String flightId = manager.submitCreationFlight(pool).get();
-    ResourceId resourceId =
-        extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
-    Project project = assertProjectExists(resourceId);
-    String projectId = project.getProjectId();
-    String logBucketName = "storage-logs-" + projectId;
-    assertNotNull(storageCow.get(logBucketName));
   }
 
   @Test

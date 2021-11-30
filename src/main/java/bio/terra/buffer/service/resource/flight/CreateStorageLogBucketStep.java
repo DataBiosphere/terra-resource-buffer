@@ -47,11 +47,15 @@ public class CreateStorageLogBucketStep implements Step {
 
   @Override
   public StepResult doStep(FlightContext flightContext) {
+    if (!createLogBucket(gcpProjectConfig)) {
+      logger.info("Skipping log bucket creation due to configuration parameter.");
+      return StepResult.getStepResultSuccess();
+    }
     String projectId = flightContext.getWorkingMap().get(GOOGLE_PROJECT_ID, String.class);
     StorageCow storageCow =
         new StorageCow(clientConfig, StorageOptions.newBuilder().setProjectId(projectId).build());
     String bucketName = "storage-logs-" + projectId;
-    if (!createLogBucket(gcpProjectConfig) || storageCow.get(bucketName) != null) {
+    if (storageCow.get(bucketName) != null) {
       return StepResult.getStepResultSuccess();
     }
     storageCow.create(

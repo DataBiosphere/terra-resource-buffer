@@ -57,6 +57,7 @@ public class GoogleProjectConfigUtils {
         && gcpProjectConfig.getNetwork().isBlockBatchInternetAccess();
   }
 
+  /** Create the GCS bucket for log storage if enabled in configuration. */
   public static boolean createLogBucket(GcpProjectConfig gcpProjectConfig) {
     return Optional.ofNullable(gcpProjectConfig.getStorage())
         .map(Storage::isCreateLogBucket) // returns Optional.empty() if null
