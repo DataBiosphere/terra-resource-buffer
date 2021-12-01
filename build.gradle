@@ -94,12 +94,11 @@ dependencies {
     implementation group: 'com.google.guava', name: 'guava', version: '29.0-jre'
     implementation group: 'io.opencensus', name: 'opencensus-exporter-stats-prometheus', version: '0.28.+'
     implementation group: 'io.opencensus', name: 'opencensus-exporter-stats-stackdriver', version: '0.28.+'
-    implementation group: 'io.prometheus', name: 'simpleclient_common', version: '0.12.0'
+    implementation group: 'io.prometheus', name: 'simpleclient_httpserver', version: '0.12.0'
     implementation group: 'org.springframework.cloud', name: 'spring-cloud-gcp-starter-logging', version: '1.2.6.RELEASE'
     implementation group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
     implementation group: 'org.liquibase', name: 'liquibase-core', version: '3.10.0'
     implementation group: 'org.webjars', name: 'webjars-locator-core', version: '0.46'
-    runtimeOnly group: 'io.micrometer', name: 'micrometer-registry-prometheus', version: '1.8.0'
     runtimeOnly group: 'org.postgresql', name: 'postgresql', version: '42.2.12'
 
     // Deps whose versions are controlled by Spring
@@ -107,7 +106,6 @@ dependencies {
     implementation group: 'org.apache.commons', name: 'commons-lang3'
     implementation group: 'org.apache.commons', name: 'commons-pool2'
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter'
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jdbc'
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
 
