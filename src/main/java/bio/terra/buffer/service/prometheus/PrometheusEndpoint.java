@@ -3,16 +3,15 @@ package bio.terra.buffer.service.prometheus;
 import bio.terra.buffer.app.configuration.PrometheusConfiguration;
 import io.opencensus.exporter.stats.prometheus.PrometheusStatsCollector;
 import io.prometheus.client.exporter.HTTPServer;
-
-import java.io.IOException;
-import java.util.Objects;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.io.IOException;
+import java.util.Objects;
 
 /**
  * A component that automatically runs a Prometheus endpoint server on a different port,
