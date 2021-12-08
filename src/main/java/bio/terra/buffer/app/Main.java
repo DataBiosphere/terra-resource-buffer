@@ -18,6 +18,8 @@ import org.springframework.context.annotation.ComponentScan;
       "bio.terra.common.migrate",
       // Tracing-related components & configs
       "bio.terra.common.tracing",
+      // Metrics exporting components & configs
+      "bio.terra.common.prometheus",
       // Scan all service-specific packages beneath the current package
       "bio.terra.buffer"
     })
