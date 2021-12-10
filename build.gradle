@@ -114,6 +114,17 @@ dependencies {
     runtimeOnly group: 'org.webjars.npm', name: 'swagger-ui-dist', version: '3.36.2'
     swaggerCodegen group: 'io.swagger.codegen.v3', name: 'swagger-codegen-cli'
 
+    // Force log4j version to at least 2.15.0 for security concerns.
+    implementation('org.apache.logging.log4j:log4j-api') {
+        version {
+            require "2.15.0"
+        }
+    }
+    implementation('org.apache.logging.log4j:log4j-to-slf4j') {
+        version {
+            require "2.15.0"
+        }
+    }
 
     // Test deps
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
