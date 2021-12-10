@@ -124,6 +124,11 @@ dependencies {
     annotationProcessor group: 'org.springframework.boot', name: 'spring-boot-configuration-processor'
 }
 
+// Exclude the Spring logger, so everything will use SLF4J
+configurations.all {
+    exclude group: "commons-logging", module: "commons-logging"
+}
+
 dependencyLocking {
     lockAllConfigurations() // see https://docs.gradle.org/current/userguide/dependency_locking.html
 }
