@@ -7,7 +7,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Stream;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
@@ -35,7 +39,8 @@ public class PoolConfigLoader {
   @VisibleForTesting
   public static List<PoolWithResourceConfig> loadPoolConfig(String folderName) {
     PoolConfigs poolConfigs = parsePools(folderName);
-    Map<String, ResourceConfig> resourceConfigNameMap = parseResourceConfig(folderName);
+    // Map<String, ResourceConfig> resourceConfigNameMap = parseResourceConfig(folderName);
+    Map<String, ResourceConfig> resourceConfigNameMap = parseResourceConfigWithJackson(folderName);
     validateResourceConfig(new ArrayList<>(resourceConfigNameMap.values()));
     return combineParsedConfig(poolConfigs, resourceConfigNameMap);
   }
@@ -54,6 +59,31 @@ public class PoolConfigLoader {
       throw new BadPoolConfigException(
           String.format("Failed to parse pool schema for folder %s", folderName), e);
     }
+  }
+
+  private static Map<String, ResourceConfig> parseResourceConfigWithJackson(String folderName) {
+    ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory()).findAndRegisterModules();
+    Map<String, ResourceConfig> resourceConfigNameMap = new HashMap<>();
+    try (Stream<Path> paths =
+        Files.walk(Paths.get(folderName + "/" + RESOURCE_CONFIG_SUB_DIR_NAME))) {
+      paths
+          .filter(Files::isRegularFile)
+          .forEach(
+              path -> {
+                try {
+                  ResourceConfig config =
+                      objectMapper.readValue(path.toFile(), ResourceConfig.class);
+                  resourceConfigNameMap.put(config.getConfigName(), config);
+                } catch (IOException e) {
+                  throw new BadPoolConfigException(
+                      String.format("Failed to parse ResourceConfig for %s", folderName), e);
+                }
+              });
+    } catch (IOException e) {
+      throw new BadPoolConfigException(
+          String.format("Failed to parse ResourceConfig for %s", folderName), e);
+    }
+    return resourceConfigNameMap;
   }
 
   /**
