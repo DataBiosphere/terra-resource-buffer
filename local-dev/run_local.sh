@@ -15,5 +15,6 @@ export BUFFER_CRL_JANITOR_TRACK_RESOURCE_TOPIC_ID=crljanitor-tools-pubsub-topic
 export BUFFER_POOL_CONFIG_PATH=config/toolsalpha
 export SPRING_PROFILES_INCLUDE=human-readable-logging
 export TERRA_COMMON_STAIRWAY_DB_FORCE_CLEAN_START=true
+export TERRA_COMMON_TRACING_STACKDRIVER_EXPORT_ENABLED=false
 
 ./gradlew bootRun
