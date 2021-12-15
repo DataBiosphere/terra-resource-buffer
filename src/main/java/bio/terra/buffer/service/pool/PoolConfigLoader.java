@@ -68,6 +68,10 @@ public class PoolConfigLoader {
     }
   }
 
+  /**
+   * Deserializes {@link PoolConfigs} of the given {@code POOL_SCHEMA_NAME} file in the given
+   * config folder.
+   */
   private static PoolConfigs parsePoolsAsSystemFile(String folderName) {
     ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
     ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory()).findAndRegisterModules();
@@ -80,6 +84,11 @@ public class PoolConfigLoader {
     }
   }
 
+  /**
+   * Deserializes {@link ResourceConfig} of the all the config files in the given config folders.
+   * @param folderName
+   * @return
+   */
   private static Map<String, ResourceConfig> parseResourceConfigAsSystemFile(String folderName) {
     ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory()).findAndRegisterModules();
     Map<String, ResourceConfig> resourceConfigNameMap = new HashMap<>();
