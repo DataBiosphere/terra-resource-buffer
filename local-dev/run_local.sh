@@ -16,5 +16,6 @@ export BUFFER_POOL_CONFIG_PATH=config/toolsalpha
 export SPRING_PROFILES_INCLUDE=human-readable-logging
 export TERRA_COMMON_STAIRWAY_DB_FORCE_CLEAN_START=true
 export TERRA_COMMON_TRACING_STACKDRIVER_EXPORT_ENABLED=false
-
+export TERRA_COMMON_PROMETHEUS_ENDPOINT_ENABLED=false
+prometheus
 ./gradlew bootRun
