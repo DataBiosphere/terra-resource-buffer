@@ -6,6 +6,7 @@ import bio.terra.buffer.generated.model.ResourceConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.annotations.VisibleForTesting;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -38,9 +39,15 @@ public class PoolConfigLoader {
   /** Parse and validate {@link PoolConfig} and {@link ResourceConfig} from file. */
   @VisibleForTesting
   public static List<PoolWithResourceConfig> loadPoolConfig(String folderName) {
-    PoolConfigs poolConfigs = parsePools(folderName);
-    // Map<String, ResourceConfig> resourceConfigNameMap = parseResourceConfig(folderName);
-    Map<String, ResourceConfig> resourceConfigNameMap = parseResourceConfigWithJackson(folderName);
+    PoolConfigs poolConfigs;
+    Map<String, ResourceConfig> resourceConfigNameMap;
+    if (folderName.contains("verily-")) {
+      poolConfigs = parsePoolsAsSystemFile(folderName);
+      resourceConfigNameMap = parseResourceConfigAsSystemFile(folderName);
+    } else {
+      poolConfigs = parsePools(folderName);
+      resourceConfigNameMap = parseResourceConfig(folderName);
+    }
     validateResourceConfig(new ArrayList<>(resourceConfigNameMap.values()));
     return combineParsedConfig(poolConfigs, resourceConfigNameMap);
   }
@@ -61,11 +68,24 @@ public class PoolConfigLoader {
     }
   }
 
-  private static Map<String, ResourceConfig> parseResourceConfigWithJackson(String folderName) {
+  private static PoolConfigs parsePoolsAsSystemFile(String folderName) {
+    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+    ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory()).findAndRegisterModules();
+    try {
+      return objectMapper.readValue(
+          new File("src/main/resources/" + folderName + "/" + POOL_SCHEMA_NAME), PoolConfigs.class);
+    } catch (IOException e) {
+      throw new BadPoolConfigException(
+          String.format("Failed to parse pool schema for folder %s", folderName), e);
+    }
+  }
+
+  private static Map<String, ResourceConfig> parseResourceConfigAsSystemFile(String folderName) {
     ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory()).findAndRegisterModules();
     Map<String, ResourceConfig> resourceConfigNameMap = new HashMap<>();
     try (Stream<Path> paths =
-        Files.walk(Paths.get(folderName + "/" + RESOURCE_CONFIG_SUB_DIR_NAME))) {
+        Files.walk(
+            Paths.get("src/main/resources/" + folderName + "/" + RESOURCE_CONFIG_SUB_DIR_NAME))) {
       paths
           .filter(Files::isRegularFile)
           .forEach(
@@ -81,7 +101,7 @@ public class PoolConfigLoader {
               });
     } catch (IOException e) {
       throw new BadPoolConfigException(
-          String.format("Failed to parse ResourceConfig for %s", folderName), e);
+          String.format("Failed to access the files in %s", folderName), e);
     }
     return resourceConfigNameMap;
   }
