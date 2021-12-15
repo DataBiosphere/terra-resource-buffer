@@ -71,7 +71,7 @@ repositories {
 
 dependencies {
     // Terra deps - we get Stairway via TCL
-    implementation group: 'bio.terra', name: 'terra-common-lib', version: '0.0.51-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'terra-common-lib', version: '0.0.52-SNAPSHOT'
 
     // When updating platform version, be sure to keep Spring dependency-management plugin stanza's
     // version of cloud-resource-schema in sync with the platform (PF-866).
@@ -93,7 +93,7 @@ dependencies {
     implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.104.1'
     implementation group: 'com.google.guava', name: 'guava', version: '29.0-jre'
     implementation group: 'io.opencensus', name: 'opencensus-exporter-stats-stackdriver', version: '0.28.+'
-    implementation group: "org.springframework.cloud", name: "spring-cloud-gcp-starter-logging", version: "1.2.6.RELEASE"
+    implementation group: 'org.springframework.cloud', name: 'spring-cloud-gcp-starter-logging', version: '1.2.6.RELEASE'
     implementation group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
     implementation group: 'org.liquibase', name: 'liquibase-core', version: '3.10.0'
     implementation group: 'org.webjars', name: 'webjars-locator-core', version: '0.46'
@@ -114,6 +114,17 @@ dependencies {
     runtimeOnly group: 'org.webjars.npm', name: 'swagger-ui-dist', version: '3.36.2'
     swaggerCodegen group: 'io.swagger.codegen.v3', name: 'swagger-codegen-cli'
 
+    // Force log4j version to at least 2.15.0 for security concerns.
+    implementation('org.apache.logging.log4j:log4j-api') {
+        version {
+            require "2.15.0"
+        }
+    }
+    implementation('org.apache.logging.log4j:log4j-to-slf4j') {
+        version {
+            require "2.15.0"
+        }
+    }
 
     // Test deps
     testImplementation('org.springframework.boot:spring-boot-starter-test') {

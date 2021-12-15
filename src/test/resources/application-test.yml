@@ -26,6 +26,8 @@ terra:
     kubernetes:
       pod-name: buffer-test-pod
       in-kubernetes: false
+    prometheus:
+      endpoint-enabled: false
     stairway:
       force-clean-start: true
       tracing-enabled: false
