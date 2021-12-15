@@ -32,15 +32,22 @@ public class PoolSchemaTest {
           "config/toolsalpha/");
 
   @Test
-  public void testConfigValid() throws Exception {
+  public void testConfigValid() {
     for (String folder : POOL_CONFIG_FOLDERS) {
-      assertPoolConfigValid(folder);
+      assertPoolConfigValid(folder, false);
     }
   }
 
-  private void assertPoolConfigValid(String folderName) throws Exception {
+  @Test
+  public void testConfigValid_readFromSystemFile() {
+    for (String folder : POOL_CONFIG_FOLDERS) {
+      assertPoolConfigValid(folder, true);
+    }
+  }
+
+  private void assertPoolConfigValid(String folderName, boolean readFromSystemFile) {
     try {
-      loadPoolConfig(folderName);
+      loadPoolConfig(folderName, readFromSystemFile);
     } catch (Exception e) {
       fail(String.format("Validate %s resource failed with exception %s", folderName, e));
       throw e;

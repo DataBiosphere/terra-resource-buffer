@@ -38,10 +38,11 @@ public class PoolConfigLoader {
 
   /** Parse and validate {@link PoolConfig} and {@link ResourceConfig} from file. */
   @VisibleForTesting
-  public static List<PoolWithResourceConfig> loadPoolConfig(String folderName) {
+  public static List<PoolWithResourceConfig> loadPoolConfig(
+      String folderName, boolean readFromSystemFile) {
     PoolConfigs poolConfigs;
     Map<String, ResourceConfig> resourceConfigNameMap;
-    if (folderName.contains("verily-")) {
+    if (readFromSystemFile) {
       poolConfigs = parsePoolsAsSystemFile(folderName);
       resourceConfigNameMap = parseResourceConfigAsSystemFile(folderName);
     } else {
@@ -69,15 +70,14 @@ public class PoolConfigLoader {
   }
 
   /**
-   * Deserializes {@link PoolConfigs} of the given {@code POOL_SCHEMA_NAME} file in the given
-   * config folder.
+   * Deserializes {@link PoolConfigs} of the given {@code POOL_SCHEMA_NAME} file in the given config
+   * folder.
    */
   private static PoolConfigs parsePoolsAsSystemFile(String folderName) {
-    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
     ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory()).findAndRegisterModules();
     try {
       return objectMapper.readValue(
-          new File("src/main/resources/" + folderName + "/" + POOL_SCHEMA_NAME), PoolConfigs.class);
+          new File(folderName + "/" + POOL_SCHEMA_NAME), PoolConfigs.class);
     } catch (IOException e) {
       throw new BadPoolConfigException(
           String.format("Failed to parse pool schema for folder %s", folderName), e);
@@ -86,6 +86,7 @@ public class PoolConfigLoader {
 
   /**
    * Deserializes {@link ResourceConfig} of the all the config files in the given config folders.
+   *
    * @param folderName
    * @return
    */
@@ -93,8 +94,7 @@ public class PoolConfigLoader {
     ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory()).findAndRegisterModules();
     Map<String, ResourceConfig> resourceConfigNameMap = new HashMap<>();
     try (Stream<Path> paths =
-        Files.walk(
-            Paths.get("src/main/resources/" + folderName + "/" + RESOURCE_CONFIG_SUB_DIR_NAME))) {
+        Files.walk(Paths.get(folderName + "/" + RESOURCE_CONFIG_SUB_DIR_NAME))) {
       paths
           .filter(Files::isRegularFile)
           .forEach(

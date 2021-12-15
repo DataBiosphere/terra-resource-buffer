@@ -36,7 +36,7 @@ public class BufferIntegrationTest extends BaseIntegrationTest {
   public void testCreateGoogleProject() throws Exception {
     // The pool id in config file.
     PoolId poolId = PoolId.create("ws_test_v1");
-    List<PoolWithResourceConfig> config = loadPoolConfig("test/config");
+    List<PoolWithResourceConfig> config = loadPoolConfig("test/config", false);
     poolService.updateFromConfig(config);
 
     List<Resource> resources = pollUntilResourcesMatch(bufferDao, poolId, ResourceState.READY, 2);

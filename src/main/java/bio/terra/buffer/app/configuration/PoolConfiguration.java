@@ -16,6 +16,9 @@ public class PoolConfiguration {
   // Whether to update pool from pool config when server start.
   private boolean updatePoolOnStart;
 
+  // Whether to read config file from system file.
+  private boolean readConfigFromSystemFile;
+
   public String getConfigPath() {
     return configPath;
   }
@@ -30,5 +33,13 @@ public class PoolConfiguration {
 
   public void setUpdatePoolOnStart(boolean updatePoolOnStart) {
     this.updatePoolOnStart = updatePoolOnStart;
+  }
+
+  public boolean getReadConfigFromSystemFile() {
+    return readConfigFromSystemFile;
+  }
+
+  public void setReadConfigFromSystemFile(boolean readConfigFromSystemFile) {
+    this.readConfigFromSystemFile = readConfigFromSystemFile;
   }
 }

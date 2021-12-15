@@ -13,6 +13,7 @@ buffer:
     scheduler-enabled: false
   pool:
     update-pool-on-start: false
+    read-config-from-system-file: false
   stackdriver:
     enabled: false
   stairway:
