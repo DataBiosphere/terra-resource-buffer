@@ -41,7 +41,7 @@ public class PoolSchemaTest {
   @Test
   public void testConfigValid_readFromSystemFile() {
     for (String folder : POOL_CONFIG_FOLDERS) {
-      assertPoolConfigValid(folder, true);
+      assertPoolConfigValid("src/main/resources/" + folder, true);
     }
   }
 
