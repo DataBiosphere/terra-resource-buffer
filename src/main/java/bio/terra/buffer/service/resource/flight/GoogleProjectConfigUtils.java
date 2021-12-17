@@ -59,13 +59,13 @@ public class GoogleProjectConfigUtils {
         && gcpProjectConfig.getNetwork().isBlockBatchInternetAccess();
   }
 
-  /** Gets region blocklist. */
-  public static List<String> regionBlocklist(GcpProjectConfig gcpProjectConfig) {
+  /** Gets blocked regions. */
+  public static List<String> blockedRegions(GcpProjectConfig gcpProjectConfig) {
     if (gcpProjectConfig.getNetwork() == null
-        || gcpProjectConfig.getNetwork().getRegionBlocklist() == null) {
+        || gcpProjectConfig.getNetwork().getBlockedRegions() == null) {
       return Collections.emptyList();
     }
-    return gcpProjectConfig.getNetwork().getRegionBlocklist();
+    return gcpProjectConfig.getNetwork().getBlockedRegions();
   }
 
   /** Create the GCS bucket for log storage if enabled in configuration. */
