@@ -134,7 +134,7 @@ components:
           default: false
         blockedRegions:
           description: |-
-            Subnetworks will not include these regions. (This is used in Verily deployment.)
+            Subnetworks will not include these regions.
           type: array
           items:
             type: string

@@ -146,21 +146,20 @@ public class CreateSubnetsStep implements Step {
   /** Gets a map of region to IP range. */
   private Map<String, String> getRegionToIpRange() {
     // Convert to HashMap so we can call removeAll().
-    Map<String, String> regiontoIpRange = new HashMap<>(REGION_TO_IP_RANGE);
+    Map<String, String> regionToIpRange = new HashMap<>(REGION_TO_IP_RANGE);
     List<String> blockedRegions = GoogleProjectConfigUtils.blockedRegions(gcpProjectConfig);
 
-    // Throw an exception if blocklist contains an invalid region.
+    // Warn if blocklist contains an invalid region.
     Set<String> blockedRegionsCopy = new HashSet<>(blockedRegions);
-    blockedRegionsCopy.removeAll(regiontoIpRange.keySet());
+    blockedRegionsCopy.removeAll(regionToIpRange.keySet());
     if (!blockedRegionsCopy.isEmpty()) {
-      throw new IllegalArgumentException(
-          String.format("Region blocklist contains invalid regions: %s", blockedRegionsCopy));
+      logger.warn("Region blocklist contains invalid regions: {}", blockedRegionsCopy);
     }
 
-    regiontoIpRange.keySet().removeAll(blockedRegions);
+    regionToIpRange.keySet().removeAll(blockedRegions);
     // TODO(melissachang): Delete after fix for PF-1152 deployed everywhere.
-    logger.debug("Region to ip range: {}", regiontoIpRange);
-    return regiontoIpRange;
+    logger.debug("Region to ip range: {}", regionToIpRange);
+    return regionToIpRange;
   }
 
   /**
