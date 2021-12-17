@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -98,7 +99,7 @@ public class CreateSubnetsStep implements Step {
       Network network =
           getResource(() -> computeCow.networks().get(projectId, NETWORK_NAME).execute(), 404)
               .get();
-      for (Map.Entry<String, String> entry : REGION_TO_IP_RANGE.entrySet()) {
+      for (Map.Entry<String, String> entry : getRegionToIpRange().entrySet()) {
         String region = entry.getKey();
         Subnetwork subnetwork =
             new Subnetwork()
@@ -138,6 +139,16 @@ public class CreateSubnetsStep implements Step {
     // Flight undo will just need to delete the project on GCP at CreateProjectStep.
     // doStep methods already checks subnets exists or not. So no need to delete subnet.
     return StepResult.getStepResultSuccess();
+  }
+
+  /** Gets a map of region to IP range. */
+  private Map<String, String> getRegionToIpRange() {
+    // Convert to HashMap so we can call removeAll().
+    Map<String, String> regiontoIpRange = new HashMap<>(REGION_TO_IP_RANGE);
+    regiontoIpRange.keySet().removeAll(GoogleProjectConfigUtils.regionBlocklist(gcpProjectConfig));
+    // TODO(melissachang): Delete after fix for PF-1152 deployed everywhere.
+    logger.debug("Region to ip range: {}", regiontoIpRange);
+    return regiontoIpRange;
   }
 
   /**
