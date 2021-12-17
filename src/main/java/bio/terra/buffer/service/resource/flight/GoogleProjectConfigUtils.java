@@ -2,6 +2,8 @@ package bio.terra.buffer.service.resource.flight;
 
 import bio.terra.buffer.generated.model.GcpProjectConfig;
 import bio.terra.buffer.generated.model.Storage;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 /** Utility methods for parsing the Google Project configuration. */
@@ -55,6 +57,15 @@ public class GoogleProjectConfigUtils {
     return gcpProjectConfig.getNetwork() != null
         && gcpProjectConfig.getNetwork().isBlockBatchInternetAccess() != null
         && gcpProjectConfig.getNetwork().isBlockBatchInternetAccess();
+  }
+
+  /** Gets region blocklist. */
+  public static List<String> regionBlocklist(GcpProjectConfig gcpProjectConfig) {
+    if (gcpProjectConfig.getNetwork() == null
+        || gcpProjectConfig.getNetwork().getRegionBlocklist() == null) {
+      return Collections.emptyList();
+    }
+    return gcpProjectConfig.getNetwork().getRegionBlocklist();
   }
 
   /** Create the GCS bucket for log storage if enabled in configuration. */

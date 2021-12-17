@@ -132,6 +132,12 @@ components:
             See: https://docs.google.com/document/d/1elBUrHVoFzT8k5bofDxPi1bLPzJAYed-mc10ZfNz8CY/edit?resourcekey=0-7pDBBKNL6n3K7imr2V0fpA
           type: boolean
           default: false
+        regionBlocklist:
+          description: |-
+            Subnetworks will not include these regions. (Used in Verily deployment.)
+          type: array
+          items:
+            type: string
       type: object
 
     ComputeEngine:
