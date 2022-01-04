@@ -17,7 +17,7 @@ public class PoolConfiguration {
   // Whether to update pool from pool config when server start.
   private boolean updatePoolOnStart;
 
-  // Whether to read config file from system file.
+  // Alternative system file path to read the config files from.
   private String systemFilePath;
 
   public String getConfigPath() {
