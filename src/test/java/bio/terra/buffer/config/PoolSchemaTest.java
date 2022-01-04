@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import com.google.common.collect.ImmutableList;
 import java.util.*;
+import javax.annotation.Nullable;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -34,20 +35,20 @@ public class PoolSchemaTest {
   @Test
   public void testConfigValid() {
     for (String folder : POOL_CONFIG_FOLDERS) {
-      assertPoolConfigValid(folder, false);
+      assertPoolConfigValid(folder, null);
     }
   }
 
   @Test
   public void testConfigValid_readFromSystemFile() {
     for (String folder : POOL_CONFIG_FOLDERS) {
-      assertPoolConfigValid("src/main/resources/" + folder, true);
+      assertPoolConfigValid(folder, "src/main/resources");
     }
   }
 
-  private void assertPoolConfigValid(String folderName, boolean readFromSystemFile) {
+  private void assertPoolConfigValid(String folderName, @Nullable String systemFilePath) {
     try {
-      loadPoolConfig(folderName, readFromSystemFile);
+      loadPoolConfig(folderName, Optional.ofNullable(systemFilePath));
     } catch (Exception e) {
       fail(String.format("Validate %s resource failed with exception %s", folderName, e));
       throw e;

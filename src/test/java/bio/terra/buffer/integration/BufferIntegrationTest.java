@@ -17,6 +17,7 @@ import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import com.google.api.services.cloudresourcemanager.v3.model.Project;
 import com.google.common.collect.ImmutableMap;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -36,7 +37,7 @@ public class BufferIntegrationTest extends BaseIntegrationTest {
   public void testCreateGoogleProject() throws Exception {
     // The pool id in config file.
     PoolId poolId = PoolId.create("ws_test_v1");
-    List<PoolWithResourceConfig> config = loadPoolConfig("test/config", false);
+    List<PoolWithResourceConfig> config = loadPoolConfig("test/config", Optional.empty());
     poolService.updateFromConfig(config);
 
     List<Resource> resources = pollUntilResourcesMatch(bufferDao, poolId, ResourceState.READY, 2);

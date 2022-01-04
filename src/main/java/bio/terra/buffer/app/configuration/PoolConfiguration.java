@@ -1,5 +1,6 @@
 package bio.terra.buffer.app.configuration;
 
+import java.util.Optional;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -17,7 +18,7 @@ public class PoolConfiguration {
   private boolean updatePoolOnStart;
 
   // Whether to read config file from system file.
-  private boolean readConfigFromSystemFile;
+  private String systemFilePath;
 
   public String getConfigPath() {
     return configPath;
@@ -35,11 +36,11 @@ public class PoolConfiguration {
     this.updatePoolOnStart = updatePoolOnStart;
   }
 
-  public boolean getReadConfigFromSystemFile() {
-    return readConfigFromSystemFile;
+  public Optional<String> getReadConfigFromSystemFile() {
+    return Optional.ofNullable(systemFilePath);
   }
 
-  public void setReadConfigFromSystemFile(boolean readConfigFromSystemFile) {
-    this.readConfigFromSystemFile = readConfigFromSystemFile;
+  public void setSystemFilePath(String systemFilePath) {
+    this.systemFilePath = systemFilePath;
   }
 }
