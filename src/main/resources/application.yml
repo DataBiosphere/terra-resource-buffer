@@ -14,7 +14,8 @@ buffer:
     # Whether to update pool when config changes during server startup.
     # Might be useful to avoid potential backward compatibility caused by config change and make tests easier.
     update-pool-on-start: true
-    read-config-from-system-path: false
+    # Alternative system file path to read the config files from. If not set, fall back to reading from config-path. 	    
+    system-file-path:
   stairway:
     db:
       password:
