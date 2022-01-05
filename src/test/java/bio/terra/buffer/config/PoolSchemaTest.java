@@ -20,29 +20,24 @@ import org.junit.jupiter.api.Test;
  */
 @Tag("unit")
 public class PoolSchemaTest {
+  private static final String CONFIG_FOLDER = "config/";
   /** List of pool config folders for all environments, e.g. prod, staging, dev. */
   private static final List<String> POOL_CONFIG_FOLDERS =
       ImmutableList.of(
-          "config/alpha/",
-          "config/buffertest/",
-          "config/dev/",
-          "config/prod/",
-          "config/perf/",
-          "config/staging/",
-          "config/tools/",
-          "config/toolsalpha/");
+          "alpha/", "buffertest/", "dev/", "prod/", "perf/", "staging/", "tools/", "toolsalpha/");
 
   @Test
   public void testConfigValid() {
     for (String folder : POOL_CONFIG_FOLDERS) {
-      assertPoolConfigValid(folder, null);
+      assertPoolConfigValid(CONFIG_FOLDER + folder, null);
     }
   }
 
   @Test
   public void testConfigValid_readFromSystemFile() {
     for (String folder : POOL_CONFIG_FOLDERS) {
-      assertPoolConfigValid(folder, "src/main/resources");
+      assertPoolConfigValid(
+          CONFIG_FOLDER + folder, "src/main/resources" + "/" + CONFIG_FOLDER + folder);
     }
   }
 

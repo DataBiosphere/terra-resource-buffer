@@ -43,8 +43,8 @@ public class PoolConfigLoader {
     PoolConfigs poolConfigs;
     Map<String, ResourceConfig> resourceConfigNameMap;
     if (systemFilePath.isPresent()) {
-      poolConfigs = parsePoolsAsSystemFile(systemFilePath.get(), folderName);
-      resourceConfigNameMap = parseResourceConfigAsSystemFile(systemFilePath.get(), folderName);
+      poolConfigs = parsePoolsAsSystemFile(systemFilePath.get());
+      resourceConfigNameMap = parseResourceConfigAsSystemFile(systemFilePath.get());
     } else {
       poolConfigs = parsePools(folderName);
       resourceConfigNameMap = parseResourceConfig(folderName);
@@ -72,31 +72,31 @@ public class PoolConfigLoader {
   /**
    * Deserializes {@link PoolConfigs} of the given {@code POOL_SCHEMA_NAME} file in the given config
    * folder.
+   *
+   * @param systemFilePath full path to the pool_schema.yaml file.
    */
-  private static PoolConfigs parsePoolsAsSystemFile(String filePath, String folderName) {
+  private static PoolConfigs parsePoolsAsSystemFile(String systemFilePath) {
     ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory()).findAndRegisterModules();
     try {
       return objectMapper.readValue(
-          new File(filePath + "/" + folderName + "/" + POOL_SCHEMA_NAME), PoolConfigs.class);
+          new File(systemFilePath + "/" + POOL_SCHEMA_NAME), PoolConfigs.class);
     } catch (IOException e) {
       throw new BadPoolConfigException(
-          String.format("Failed to parse pool schema for folder %s", folderName), e);
+          String.format("Failed to parse pool schema for folder %s", systemFilePath), e);
     }
   }
 
   /**
    * Deserializes {@link ResourceConfig} of the all the config files in the given config folders.
    *
-   * @param folderName
-   * @return
+   * @param systemFilePath full path to the resource configs directory.
    */
   private static Map<String, ResourceConfig> parseResourceConfigAsSystemFile(
-      String systemFilePath, String folderName) {
+      String systemFilePath) {
     ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory()).findAndRegisterModules();
     Map<String, ResourceConfig> resourceConfigNameMap = new HashMap<>();
     try (Stream<Path> paths =
-        Files.walk(
-            Paths.get(systemFilePath + "/" + folderName + "/" + RESOURCE_CONFIG_SUB_DIR_NAME))) {
+        Files.walk(Paths.get(systemFilePath + "/" + RESOURCE_CONFIG_SUB_DIR_NAME))) {
       paths
           .filter(Files::isRegularFile)
           .forEach(
@@ -107,12 +107,12 @@ public class PoolConfigLoader {
                   resourceConfigNameMap.put(config.getConfigName(), config);
                 } catch (IOException e) {
                   throw new BadPoolConfigException(
-                      String.format("Failed to parse ResourceConfig for %s", folderName), e);
+                      String.format("Failed to parse ResourceConfig for %s", systemFilePath), e);
                 }
               });
     } catch (IOException e) {
       throw new BadPoolConfigException(
-          String.format("Failed to access the files in %s", folderName), e);
+          String.format("Failed to access the files in %s", systemFilePath), e);
     }
     return resourceConfigNameMap;
   }

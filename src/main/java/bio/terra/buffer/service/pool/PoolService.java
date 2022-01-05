@@ -66,7 +66,7 @@ public class PoolService {
       List<PoolWithResourceConfig> parsedPoolConfigs;
       parsedPoolConfigs =
           loadPoolConfig(
-              poolConfiguration.getConfigPath(), poolConfiguration.getReadConfigFromSystemFile());
+              poolConfiguration.getConfigPath(), poolConfiguration.getConfigSystemFilePath());
       updateFromConfig(parsedPoolConfigs);
     }
   }

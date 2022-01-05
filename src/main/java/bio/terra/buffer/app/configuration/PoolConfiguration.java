@@ -36,7 +36,7 @@ public class PoolConfiguration {
     this.updatePoolOnStart = updatePoolOnStart;
   }
 
-  public Optional<String> getReadConfigFromSystemFile() {
+  public Optional<String> getConfigSystemFilePath() {
     return Optional.ofNullable(systemFilePath);
   }
 
