@@ -46,6 +46,7 @@ public class PoolConfigLoader {
       poolConfigs = parsePoolsAsSystemFile(systemFilePath.get());
       resourceConfigNameMap = parseResourceConfigAsSystemFile(systemFilePath.get());
     } else {
+      // TODO (PF-1273): clean up once all environments are switched to using system file path.
       poolConfigs = parsePools(folderName);
       resourceConfigNameMap = parseResourceConfig(folderName);
     }
