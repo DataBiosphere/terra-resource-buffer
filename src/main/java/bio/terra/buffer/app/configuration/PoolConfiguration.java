@@ -1,5 +1,6 @@
 package bio.terra.buffer.app.configuration;
 
+import com.google.common.base.Strings;
 import java.util.Optional;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -37,7 +38,7 @@ public class PoolConfiguration {
   }
 
   public Optional<String> getConfigSystemFilePath() {
-    return Optional.ofNullable(systemFilePath);
+    return Optional.ofNullable(Strings.emptyToNull(systemFilePath));
   }
 
   public void setSystemFilePath(String systemFilePath) {
