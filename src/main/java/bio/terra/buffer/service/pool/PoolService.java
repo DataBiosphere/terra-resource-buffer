@@ -64,7 +64,9 @@ public class PoolService {
     logger.info("Pool config update enabled: " + poolConfiguration.isUpdatePoolOnStart());
     if (poolConfiguration.isUpdatePoolOnStart()) {
       List<PoolWithResourceConfig> parsedPoolConfigs;
-      parsedPoolConfigs = loadPoolConfig(poolConfiguration.getConfigPath());
+      parsedPoolConfigs =
+          loadPoolConfig(
+              poolConfiguration.getConfigPath(), poolConfiguration.getConfigSystemFilePath());
       updateFromConfig(parsedPoolConfigs);
     }
   }

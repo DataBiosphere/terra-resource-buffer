@@ -1,5 +1,6 @@
 package bio.terra.buffer.app.configuration;
 
+import java.util.Optional;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,9 @@ public class PoolConfiguration {
   // Whether to update pool from pool config when server start.
   private boolean updatePoolOnStart;
 
+  // Alternative system file path to read the config files from.
+  private String systemFilePath;
+
   public String getConfigPath() {
     return configPath;
   }
@@ -30,5 +34,13 @@ public class PoolConfiguration {
 
   public void setUpdatePoolOnStart(boolean updatePoolOnStart) {
     this.updatePoolOnStart = updatePoolOnStart;
+  }
+
+  public Optional<String> getConfigSystemFilePath() {
+    return Optional.ofNullable(systemFilePath);
+  }
+
+  public void setSystemFilePath(String systemFilePath) {
+    this.systemFilePath = systemFilePath;
   }
 }

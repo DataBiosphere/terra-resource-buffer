@@ -6,8 +6,13 @@ import bio.terra.buffer.generated.model.ResourceConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.annotations.VisibleForTesting;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Stream;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
@@ -33,9 +38,18 @@ public class PoolConfigLoader {
 
   /** Parse and validate {@link PoolConfig} and {@link ResourceConfig} from file. */
   @VisibleForTesting
-  public static List<PoolWithResourceConfig> loadPoolConfig(String folderName) {
-    PoolConfigs poolConfigs = parsePools(folderName);
-    Map<String, ResourceConfig> resourceConfigNameMap = parseResourceConfig(folderName);
+  public static List<PoolWithResourceConfig> loadPoolConfig(
+      String folderName, Optional<String> systemFilePath) {
+    PoolConfigs poolConfigs;
+    Map<String, ResourceConfig> resourceConfigNameMap;
+    if (systemFilePath.isPresent()) {
+      poolConfigs = parsePoolsAsSystemFile(systemFilePath.get());
+      resourceConfigNameMap = parseResourceConfigAsSystemFile(systemFilePath.get());
+    } else {
+      // TODO (PF-1273): clean up once all environments are switched to using system file path.
+      poolConfigs = parsePools(folderName);
+      resourceConfigNameMap = parseResourceConfig(folderName);
+    }
     validateResourceConfig(new ArrayList<>(resourceConfigNameMap.values()));
     return combineParsedConfig(poolConfigs, resourceConfigNameMap);
   }
@@ -54,6 +68,54 @@ public class PoolConfigLoader {
       throw new BadPoolConfigException(
           String.format("Failed to parse pool schema for folder %s", folderName), e);
     }
+  }
+
+  /**
+   * Deserializes {@link PoolConfigs} of the given {@code POOL_SCHEMA_NAME} file in the given config
+   * folder.
+   *
+   * @param systemFilePath full path to the pool_schema.yaml file.
+   */
+  private static PoolConfigs parsePoolsAsSystemFile(String systemFilePath) {
+    ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory()).findAndRegisterModules();
+    try {
+      return objectMapper.readValue(
+          new File(systemFilePath + "/" + POOL_SCHEMA_NAME), PoolConfigs.class);
+    } catch (IOException e) {
+      throw new BadPoolConfigException(
+          String.format("Failed to parse pool schema for folder %s", systemFilePath), e);
+    }
+  }
+
+  /**
+   * Deserializes {@link ResourceConfig} of the all the config files in the given config folders.
+   *
+   * @param systemFilePath full path to the resource configs directory.
+   */
+  private static Map<String, ResourceConfig> parseResourceConfigAsSystemFile(
+      String systemFilePath) {
+    ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory()).findAndRegisterModules();
+    Map<String, ResourceConfig> resourceConfigNameMap = new HashMap<>();
+    try (Stream<Path> paths =
+        Files.walk(Paths.get(systemFilePath + "/" + RESOURCE_CONFIG_SUB_DIR_NAME))) {
+      paths
+          .filter(Files::isRegularFile)
+          .forEach(
+              path -> {
+                try {
+                  ResourceConfig config =
+                      objectMapper.readValue(path.toFile(), ResourceConfig.class);
+                  resourceConfigNameMap.put(config.getConfigName(), config);
+                } catch (IOException e) {
+                  throw new BadPoolConfigException(
+                      String.format("Failed to parse ResourceConfig for %s", systemFilePath), e);
+                }
+              });
+    } catch (IOException e) {
+      throw new BadPoolConfigException(
+          String.format("Failed to access the files in %s", systemFilePath), e);
+    }
+    return resourceConfigNameMap;
   }
 
   /**
