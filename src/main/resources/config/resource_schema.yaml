@@ -134,7 +134,8 @@ components:
           default: false
         blockedRegions:
           description: |-
-            Subnetworks will not include these regions.
+            Subnetworks will be created for the regions in CreateSubnetsStep.REGION_TO_IP_RANGE, excluding these
+            blockedRegions.
           type: array
           items:
             type: string
