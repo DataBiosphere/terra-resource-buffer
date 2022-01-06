@@ -107,6 +107,7 @@ import com.google.api.services.compute.model.Firewall;
 import com.google.api.services.compute.model.Network;
 import com.google.api.services.compute.model.Route;
 import com.google.api.services.compute.model.Subnetwork;
+import com.google.api.services.compute.model.SubnetworkList;
 import com.google.api.services.dns.model.ManagedZone;
 import com.google.api.services.dns.model.ResourceRecordSet;
 import com.google.api.services.iam.v1.model.ServiceAccount;
@@ -116,6 +117,7 @@ import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.StorageOptions;
 import com.google.cloud.storage.StorageRoles;
 import com.google.common.collect.ImmutableList;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -282,6 +284,53 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertFirewallRulesExist(project);
     assertDefaultVpcExists(project);
     assertFirewallRulesExistForDefaultVpc(project);
+  }
+
+  @Test
+  public void testCreateGoogleProject_blockedRegions() throws Exception {
+    List<String> blockedRegions = ImmutableList.of("europe-west2", "us-west4");
+
+    FlightManager manager =
+        new FlightManager(
+            bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
+    Pool pool =
+        preparePool(
+            bufferDao,
+            newBasicGcpConfig()
+                .network(
+                    new bio.terra.buffer.generated.model.Network().blockedRegions(blockedRegions)));
+
+    String flightId = manager.submitCreationFlight(pool).get();
+    ResourceId resourceId =
+        extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
+    Project project = assertProjectExists(resourceId);
+
+    assertSubnetBlockedRegions(project, blockedRegions);
+  }
+
+  @Test
+  public void testCreateGoogleProject_blockedRegions_invalidBlockedRegion() throws Exception {
+    // If a blocked region is invalid, project configuration still succeeds.
+    String validBlockedRegion = "europe-west2";
+    String invalidBlockedRegion = "u-west4";
+    List<String> blockedRegions = ImmutableList.of(validBlockedRegion, invalidBlockedRegion);
+
+    FlightManager manager =
+        new FlightManager(
+            bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
+    Pool pool =
+        preparePool(
+            bufferDao,
+            newBasicGcpConfig()
+                .network(
+                    new bio.terra.buffer.generated.model.Network().blockedRegions(blockedRegions)));
+
+    String flightId = manager.submitCreationFlight(pool).get();
+    ResourceId resourceId =
+        extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
+    Project project = assertProjectExists(resourceId);
+
+    assertSubnetBlockedRegions(project, ImmutableList.of(validBlockedRegion));
   }
 
   @Test
@@ -676,6 +725,15 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
       if (networkMonitoring.equals(NetworkMonitoring.ENABLED)) {
         assertEquals(getSubnetLogConfig(subnetwork.getIpCidrRange()), subnetwork.getLogConfig());
       }
+    }
+  }
+
+  private void assertSubnetBlockedRegions(Project project, List<String> blockedRegions)
+      throws IOException {
+    for (String blockedRegion : blockedRegions) {
+      SubnetworkList subnetworksInRegion =
+          computeCow.subnetworks().list(project.getProjectId(), blockedRegion).execute();
+      assertNull(subnetworksInRegion.getItems());
     }
   }
 
