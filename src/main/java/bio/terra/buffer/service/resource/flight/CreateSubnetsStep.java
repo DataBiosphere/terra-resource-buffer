@@ -23,10 +23,8 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -149,11 +147,8 @@ public class CreateSubnetsStep implements Step {
     Map<String, String> regionToIpRange = new HashMap<>(REGION_TO_IP_RANGE);
     List<String> blockedRegions = GoogleProjectConfigUtils.blockedRegions(gcpProjectConfig);
 
-    // Warn if blocklist contains an invalid region.
-    Set<String> blockedRegionsCopy = new HashSet<>(blockedRegions);
-    blockedRegionsCopy.removeAll(regionToIpRange.keySet());
-    if (!blockedRegionsCopy.isEmpty()) {
-      logger.warn("Region blocklist contains invalid regions: {}", blockedRegionsCopy);
+    if (!REGION_TO_IP_RANGE.keySet().containsAll(blockedRegions)) {
+      logger.warn("Blocked regions contains invalid regions: {}", blockedRegions);
     }
 
     regionToIpRange.keySet().removeAll(blockedRegions);
