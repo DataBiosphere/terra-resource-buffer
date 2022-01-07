@@ -46,7 +46,6 @@ public class PoolConfigLoader {
     if (systemFilePath.isPresent()) {
       poolConfigs = parsePoolsAsSystemFile(systemFilePath.get());
       resourceConfigNameMap = parseResourceConfigAsSystemFile(systemFilePath.get());
-
     } else {
       // TODO (PF-1273): clean up once all environments are switched to using system file path.
       poolConfigs = parsePools(folderName);
@@ -131,6 +130,7 @@ public class PoolConfigLoader {
     }
     return path.toFile().getCanonicalFile();
   }
+
   /**
    * Deserializes {@link ResourceConfig} which contains map of {@link ResourceConfig} keyed on
    * resource config name from config folder.
