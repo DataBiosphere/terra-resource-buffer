@@ -81,12 +81,13 @@ public class PoolConfigLoader {
   private static PoolConfigs parsePoolsAsSystemFile(String systemFilePath) {
     ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory()).findAndRegisterModules();
     File poolConfigFile = new File(systemFilePath + "/" + POOL_SCHEMA_NAME);
-
     try {
       return objectMapper.readValue(getCanonicalFile(poolConfigFile.toPath()), PoolConfigs.class);
     } catch (IOException e) {
       throw new BadPoolConfigException(
-          String.format("Fail to parse pool config for %s", systemFilePath), e);
+          String.format(
+              "Failed to parse pool schema for %s", systemFilePath + "/" + POOL_SCHEMA_NAME),
+          e);
     }
   }
 
