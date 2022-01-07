@@ -305,7 +305,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
         extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
     Project project = assertProjectExists(resourceId);
 
-    assertSubnetBlockedRegions(project, blockedRegions);
+    assertNoSubnetsInBlockedRegions(project, blockedRegions);
   }
 
   @Test
@@ -330,7 +330,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
         extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
     Project project = assertProjectExists(resourceId);
 
-    assertSubnetBlockedRegions(project, ImmutableList.of(validBlockedRegion));
+    assertNoSubnetsInBlockedRegions(project, ImmutableList.of(validBlockedRegion));
   }
 
   @Test
@@ -728,7 +728,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     }
   }
 
-  private void assertSubnetBlockedRegions(Project project, List<String> blockedRegions)
+  private void assertNoSubnetsInBlockedRegions(Project project, List<String> blockedRegions)
       throws IOException {
     for (String blockedRegion : blockedRegions) {
       SubnetworkList subnetworksInRegion =
