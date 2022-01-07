@@ -45,8 +45,7 @@ public class PoolSchemaTest {
   @Test
   public void loadPoolConfig_systemFilePathIsSymbolicLink_configValid() {
     assertEquals(
-        2,
-        loadPoolConfig("config", Optional.of("./src/test/java/bio/terra/buffer/config")).size());
+        2, loadPoolConfig("config", Optional.of("./src/test/java/bio/terra/buffer/config")).size());
   }
 
   private void assertPoolConfigValid(String folderName, @Nullable String systemFilePath) {
