@@ -152,7 +152,7 @@ public class CreateSubnetsStep implements Step {
     }
 
     regionToIpRange.keySet().removeAll(blockedRegions);
-    // TODO(melissachang): Delete after fix for PF-1152 deployed everywhere.
+    // TODO(PF-1152): Delete after fix for PF-1152 deployed everywhere.
     logger.debug("Region to ip range: {}", regionToIpRange);
     return regionToIpRange;
   }
