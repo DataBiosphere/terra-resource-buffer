@@ -8,6 +8,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -78,12 +79,14 @@ public class PoolConfigLoader {
    */
   private static PoolConfigs parsePoolsAsSystemFile(String systemFilePath) {
     ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory()).findAndRegisterModules();
+    File poolConfigFile = new File(systemFilePath + "/" + POOL_SCHEMA_NAME);
     try {
-      return objectMapper.readValue(
-          new File(systemFilePath + "/" + POOL_SCHEMA_NAME), PoolConfigs.class);
+      return objectMapper.readValue(getCanonicalFile(poolConfigFile.toPath()), PoolConfigs.class);
     } catch (IOException e) {
       throw new BadPoolConfigException(
-          String.format("Failed to parse pool schema for folder %s", systemFilePath), e);
+          String.format(
+              "Failed to parse pool schema for %s", systemFilePath + "/" + POOL_SCHEMA_NAME),
+          e);
     }
   }
 
@@ -96,26 +99,36 @@ public class PoolConfigLoader {
       String systemFilePath) {
     ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory()).findAndRegisterModules();
     Map<String, ResourceConfig> resourceConfigNameMap = new HashMap<>();
-    try (Stream<Path> paths =
-        Files.walk(Paths.get(systemFilePath + "/" + RESOURCE_CONFIG_SUB_DIR_NAME))) {
-      paths
-          .filter(Files::isRegularFile)
+    try (Stream<Path> walk =
+        Files.walk(
+            Paths.get(systemFilePath + "/" + RESOURCE_CONFIG_SUB_DIR_NAME),
+            1,
+            FileVisitOption.FOLLOW_LINKS)) {
+      walk.filter(path -> !Files.isDirectory(path))
           .forEach(
               path -> {
                 try {
                   ResourceConfig config =
-                      objectMapper.readValue(path.toFile(), ResourceConfig.class);
+                      objectMapper.readValue(getCanonicalFile(path), ResourceConfig.class);
                   resourceConfigNameMap.put(config.getConfigName(), config);
                 } catch (IOException e) {
                   throw new BadPoolConfigException(
-                      String.format("Failed to parse ResourceConfig for %s", systemFilePath), e);
+                      String.format("Failed to parse ResourceConfig for %s", path), e);
                 }
               });
     } catch (IOException e) {
       throw new BadPoolConfigException(
-          String.format("Failed to access the files in %s", systemFilePath), e);
+          String.format("Failed to walk the files in the directory %s", systemFilePath), e);
     }
     return resourceConfigNameMap;
+  }
+
+  private static File getCanonicalFile(Path path) throws IOException {
+    if (Files.isSymbolicLink(path)) {
+      Path symLink = Files.readSymbolicLink(path);
+      return symLink.toFile().getCanonicalFile();
+    }
+    return path.toFile().getCanonicalFile();
   }
 
   /**

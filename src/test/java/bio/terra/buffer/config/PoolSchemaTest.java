@@ -1,6 +1,7 @@
 package bio.terra.buffer.config;
 
 import static bio.terra.buffer.service.pool.PoolConfigLoader.loadPoolConfig;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.google.common.collect.ImmutableList;
@@ -39,6 +40,12 @@ public class PoolSchemaTest {
       assertPoolConfigValid(
           CONFIG_FOLDER + folder, "src/main/resources" + "/" + CONFIG_FOLDER + folder);
     }
+  }
+
+  @Test
+  public void loadPoolConfig_systemFilePathIsSymbolicLink_configValid() {
+    assertEquals(
+        2, loadPoolConfig("config", Optional.of("./src/test/java/bio/terra/buffer/config")).size());
   }
 
   private void assertPoolConfigValid(String folderName, @Nullable String systemFilePath) {
