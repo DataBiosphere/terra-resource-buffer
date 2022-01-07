@@ -43,8 +43,8 @@ public class PoolSchemaTest {
   }
 
   @Test
-  public void loadPoolConfig_systemFilePathIsSymbolicLink_configValid() throws IOException {
-    loadPoolConfig("config", Optional.ofNullable("./src/test/java/bio/terra/buffer/config"));
+  public void loadPoolConfig_systemFilePathIsSymbolicLink_configValid() {
+    loadPoolConfig("config", Optional.of("./src/test/java/bio/terra/buffer/config"));
   }
 
   private void assertPoolConfigValid(String folderName, @Nullable String systemFilePath) {
