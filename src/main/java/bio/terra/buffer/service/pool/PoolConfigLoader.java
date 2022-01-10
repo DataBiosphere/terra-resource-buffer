@@ -124,14 +124,6 @@ public class PoolConfigLoader {
     return resourceConfigNameMap;
   }
 
-  private static File getCanonicalFile(Path path) throws IOException {
-    if (Files.isSymbolicLink(path)) {
-      Path symLink = Files.readSymbolicLink(path);
-      return symLink.toFile().getCanonicalFile();
-    }
-    return path.toFile().getCanonicalFile();
-  }
-
   /**
    * Deserializes {@link ResourceConfig} which contains map of {@link ResourceConfig} keyed on
    * resource config name from config folder.
