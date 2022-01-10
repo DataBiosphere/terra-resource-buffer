@@ -81,7 +81,7 @@ public class PoolConfigLoader {
     ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory()).findAndRegisterModules();
     File poolConfigFile = new File(systemFilePath + "/" + POOL_SCHEMA_NAME);
     try {
-      return objectMapper.readValue(getCanonicalFile(poolConfigFile.toPath()), PoolConfigs.class);
+      return objectMapper.readValue(poolConfigFile.getCanonicalFile(), PoolConfigs.class);
     } catch (IOException e) {
       throw new BadPoolConfigException(
           String.format(
@@ -109,7 +109,8 @@ public class PoolConfigLoader {
               path -> {
                 try {
                   ResourceConfig config =
-                      objectMapper.readValue(getCanonicalFile(path), ResourceConfig.class);
+                      objectMapper.readValue(
+                          path.toFile().getCanonicalFile(), ResourceConfig.class);
                   resourceConfigNameMap.put(config.getConfigName(), config);
                 } catch (IOException e) {
                   throw new BadPoolConfigException(
@@ -121,14 +122,6 @@ public class PoolConfigLoader {
           String.format("Failed to walk the files in the directory %s", systemFilePath), e);
     }
     return resourceConfigNameMap;
-  }
-
-  private static File getCanonicalFile(Path path) throws IOException {
-    if (Files.isSymbolicLink(path)) {
-      Path symLink = Files.readSymbolicLink(path);
-      return symLink.toFile().getCanonicalFile();
-    }
-    return path.toFile().getCanonicalFile();
   }
 
   /**
