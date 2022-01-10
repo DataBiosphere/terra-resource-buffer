@@ -1,0 +1,27 @@
+# All Of Us buffered workspace template
+---
+configName: "ws_resource_v1"
+gcpProjectConfig:
+  projectIdSchema:
+    prefix: "aou-rw-test"
+    scheme: "RANDOM_CHAR"
+  # Resource Buffer Service Testing
+  parentFolderId: "637867149294"
+  billingAccount: "01A82E-CA8A14-367457"
+  enabledApis:
+    - "bigquery-json.googleapis.com"
+    - "compute.googleapis.com"
+    - "container.googleapis.com"
+    - "cloudbilling.googleapis.com"
+    - "clouderrorreporting.googleapis.com"
+    - "cloudkms.googleapis.com"
+    - "cloudtrace.googleapis.com"
+    - "containerregistry.googleapis.com"
+    - "dataflow.googleapis.com"
+    - "dataproc.googleapis.com"
+    - "genomics.googleapis.com"
+    - "logging.googleapis.com"
+    - "monitoring.googleapis.com"
+    - "storage-api.googleapis.com"
+    - "storage-component.googleapis.com"
+    - "dns.googleapis.com"
