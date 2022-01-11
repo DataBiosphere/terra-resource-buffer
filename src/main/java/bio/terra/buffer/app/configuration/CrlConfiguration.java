@@ -45,12 +45,6 @@ public class CrlConfiguration {
   /** The client name required by CRL. */
   public static final String CLIENT_NAME = "terra-resource-buffer";
   /**
-   * How long to keep the resource before Janitor do the cleanup. Set to large number(5 days + 10
-   * hrs) to avoid the conflict between Terra perf tesing with Janitor clean up jobs.
-   */
-  public static final Duration TEST_RESOURCE_TIME_TO_LIVE = Duration.ofHours(130);
-
-  /**
    * Whether we're running Resource Buffer Service in test mode with Cloud Resource Library. If so,
    * we enable to the Janitor to auto-delete all created cloud resources.
    */
@@ -75,6 +69,14 @@ public class CrlConfiguration {
 
   /** pubsub topic id to publish track resource to Janitor */
   private String janitorTrackResourceTopicId;
+
+  /**
+   * How long to keep the resource before Janitor do the cleanup when {@code cleanupAfterHandout} is
+   * true.
+   *
+   * <p>Default value is 5 days + 10 hours.
+   */
+  private Duration testResourceTimeToLive = Duration.ofHours(130);
 
   public boolean isCleanupAfterHandout() {
     return cleanupAfterHandout;
@@ -108,6 +110,14 @@ public class CrlConfiguration {
     this.cleanupAfterHandout = cleanupAfterHandout;
   }
 
+  public Duration getTestResourceTimeToLive() {
+    return testResourceTimeToLive;
+  }
+
+  public void setTestResourceTimeToLive(Duration testResourceTimeToLive) {
+    this.testResourceTimeToLive = testResourceTimeToLive;
+  }
+
   /**
    * The {@link ClientConfig} in CRL's COW object. If in test, it will also include {@link
    * CleanupConfig}.
@@ -121,7 +131,7 @@ public class CrlConfiguration {
           CleanupConfig.builder()
               .setCleanupId(CLIENT_NAME + "-test")
               .setJanitorProjectId(janitorTrackResourceProjectId)
-              .setTimeToLive(TEST_RESOURCE_TIME_TO_LIVE)
+              .setTimeToLive(testResourceTimeToLive)
               .setJanitorTopicName(janitorTrackResourceTopicId)
               .setCredentials(loadJanitorClientCredential())
               .build());
