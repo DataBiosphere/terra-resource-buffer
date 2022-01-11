@@ -1,7 +1,6 @@
 package bio.terra.buffer.service.cleanup;
 
 import static bio.terra.buffer.app.configuration.CrlConfiguration.CLIENT_NAME;
-import static bio.terra.buffer.app.configuration.CrlConfiguration.TEST_RESOURCE_TIME_TO_LIVE;
 
 import bio.terra.buffer.app.configuration.CrlConfiguration;
 import bio.terra.buffer.common.Resource;
@@ -21,9 +20,7 @@ import com.google.pubsub.v1.PubsubMessage;
 import com.google.pubsub.v1.TopicName;
 import java.io.IOException;
 import java.time.Clock;
-import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
@@ -123,8 +120,7 @@ public class CleanupScheduler {
                       objectMapper.writeValueAsString(cloudResourceUid),
                       bio.terra.janitor.model.CloudResourceUid.class))
               .creation(now)
-              .expiration(Instant.now().plus(TEST_RESOURCE_TIME_TO_LIVE).atOffset(ZoneOffset.UTC))
-              .expiration(now.plus(TEST_RESOURCE_TIME_TO_LIVE))
+              .expiration(now.plus(crlConfiguration.getTestResourceTimeToLive()))
               .putLabelsItem("client", CLIENT_NAME);
       data = ByteString.copyFromUtf8(objectMapper.writeValueAsString(body));
     } catch (IOException e) {

@@ -1,7 +1,6 @@
 package bio.terra.buffer.service.cleanup;
 
 import static bio.terra.buffer.app.configuration.CrlConfiguration.CLIENT_NAME;
-import static bio.terra.buffer.app.configuration.CrlConfiguration.TEST_RESOURCE_TIME_TO_LIVE;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -22,6 +21,7 @@ import com.google.cloud.pubsub.v1.Publisher;
 import com.google.common.collect.ImmutableList;
 import com.google.pubsub.v1.PubsubMessage;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -65,6 +65,7 @@ public class CleanupSchedulerTest extends BaseUnitTest {
     crlConfiguration.setJanitorClientCredentialFilePath("testPath");
     crlConfiguration.setJanitorTrackResourceProjectId("projectId");
     crlConfiguration.setJanitorTrackResourceTopicId("topicId");
+    crlConfiguration.setTestResourceTimeToLive(Duration.ofHours(10));
     cleanupScheduler =
         new CleanupScheduler(bufferDao, crlConfiguration, Clock.fixed(CREATION, ZoneId.of("UTC")));
     cleanupScheduler.providePublisher(mockPublisher);
@@ -118,7 +119,10 @@ public class CleanupSchedulerTest extends BaseUnitTest {
             objectMapper.writeValueAsString(
                 new CreateResourceRequestBody()
                     .creation(CREATION.atOffset(ZoneOffset.UTC))
-                    .expiration(CREATION.plus(TEST_RESOURCE_TIME_TO_LIVE).atOffset(ZoneOffset.UTC))
+                    .expiration(
+                        CREATION
+                            .plus(crlConfiguration.getTestResourceTimeToLive())
+                            .atOffset(ZoneOffset.UTC))
                     .putLabelsItem("client", CLIENT_NAME)
                     .resourceUid(
                         new bio.terra.janitor.model.CloudResourceUid()
