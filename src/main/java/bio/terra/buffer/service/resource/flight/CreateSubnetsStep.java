@@ -146,14 +146,7 @@ public class CreateSubnetsStep implements Step {
     // Convert to HashMap so we can call removeAll().
     Map<String, String> regionToIpRange = new HashMap<>(REGION_TO_IP_RANGE);
     List<String> blockedRegions = GoogleProjectConfigUtils.blockedRegions(gcpProjectConfig);
-
-    if (!REGION_TO_IP_RANGE.keySet().containsAll(blockedRegions)) {
-      logger.warn("Blocked regions contains invalid regions: {}", blockedRegions);
-    }
-
     regionToIpRange.keySet().removeAll(blockedRegions);
-    // TODO(PF-1152): Delete after fix for PF-1152 deployed everywhere.
-    logger.debug("Region to ip range: {}", regionToIpRange);
     return regionToIpRange;
   }
 
