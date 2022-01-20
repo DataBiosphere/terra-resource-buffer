@@ -7,9 +7,9 @@
   "testScripts": [
     {
       "name": "HandoutResource",
-      "numberOfUserJourneyThreadsToRun": 400,
-      "userJourneyThreadPoolSize": 200,
-      "expectedTimeForEach": 2,
+      "numberOfUserJourneyThreadsToRun": 200,
+      "userJourneyThreadPoolSize": 100,
+      "expectedTimeForEach": 3,
       "expectedTimeForEachUnit": "HOURS"
     }
   ],
