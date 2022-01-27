@@ -1,9 +1,10 @@
 plugins {
     // Terra Test Runner Plugin
-    id "bio.terra.test-runner-plugin" version "0.0.7-SNAPSHOT"
+    id "bio.terra.test-runner-plugin" version "0.1.0-SNAPSHOT"
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
     maven {
         url "https://broadinstitute.jfrog.io/broadinstitute/libs-release-local/"
@@ -28,7 +29,7 @@ dependencies {
         googleOauth2 = "0.20.0"
 
         bufferServiceClient = "0.4.3-SNAPSHOT"
-        testRunner = "0.0.7-SNAPSHOT"
+        testRunner = "0.1.0-SNAPSHOT"
     }
 
     implementation group: 'org.apache.commons', name: 'commons-math3', version: "${apacheMath}"
