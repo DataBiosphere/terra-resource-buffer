@@ -171,8 +171,14 @@ components:
         name:
           description: "The service account name. The email address for this account would be name@PROJECT_ID.iam.gserviceaccount.com"
           type: string
+        description:
+          description: "description field in com.google.api.services.iam.v1.model.ServiceAccount."
+          type: string
+        displayName:
+          description: "display_name field in com.google.api.services.iam.v1.model.ServiceAccount."
+          type: string
         roles:
-          description: Role that is assigned to this service account. For example, `roles/viewer`, `roles/editor`, or `roles/owner`.
+          description: List of roles that is assigned to this service account. For example, `roles/viewer`, `roles/editor`, or `roles/owner`.
           type: array
           items:
             type: string
