@@ -56,10 +56,7 @@ public class CreateServiceAccountsStep implements Step {
                       .setServiceAccount(
                               new ServiceAccount()
                                       // Set a description to help with debugging.
-                                      .setDescription(
-                                              String.format(
-                                                      "SA for AI Notebook Instance id %s in location %s",
-                                                      resource.getInstanceId(), resource.getLocation())));
+                                      .setDescription(serviceAccount.getDescription()));
       iamCow.projects().serviceAccounts().create("projects/" + projectId, createRequest).execute();
     }
 

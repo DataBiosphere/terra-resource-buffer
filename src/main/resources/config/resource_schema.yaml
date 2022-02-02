@@ -182,4 +182,17 @@ components:
           type: array
           items:
             type: string
+        projectLabels:
+          type: array
+          description: Resource labels added into the project, it helps Buffer clients lookup resource.
+          items:
+            $ref: '#/components/schemas/GcpResourceLabel'
       type: object
+
+    GcpResourceLabel:
+      description: A key-value pair on Google Cloud resources
+      properties:
+        key:
+          type: string
+        value:
+          type: string
