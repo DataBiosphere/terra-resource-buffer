@@ -62,6 +62,10 @@ components:
           $ref: '#/components/schemas/ComputeEngine'
         storage:
           $ref: '#/components/schemas/Storage'
+        serviceAccounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceAccount'
       type: object
 
     ProjectIdSchema:
@@ -159,4 +163,17 @@ components:
             Create a bucket for logging (object-level access enabled).
           type: boolean
           default: true
+      type: object
+
+    ServiceAccount:
+      description: GCP Service account created within this project
+      properties:
+        name:
+          description: "The service account name. The email address for this account would be name@PROJECT_ID.iam.gserviceaccount.com"
+          type: string
+        roles:
+          description: Role that is assigned to this service account. For example, `roles/viewer`, `roles/editor`, or `roles/owner`.
+          type: array
+          items:
+            type: string
       type: object

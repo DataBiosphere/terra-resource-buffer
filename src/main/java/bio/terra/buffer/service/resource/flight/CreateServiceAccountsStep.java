@@ -1,14 +1,9 @@
 package bio.terra.buffer.service.resource.flight;
 
-import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
-import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.isNetworkMonitoringEnabled;
-import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.usePrivateGoogleAccess;
-import static bio.terra.buffer.service.resource.flight.GoogleUtils.*;
-import static bio.terra.buffer.service.resource.flight.GoogleUtils.NETWORK_NAME;
-
 import bio.terra.buffer.generated.model.GcpProjectConfig;
 import bio.terra.cloudres.google.api.services.common.OperationCow;
 import bio.terra.cloudres.google.compute.CloudComputeCow;
+import bio.terra.cloudres.google.iam.IamCow;
 import bio.terra.stairway.FlightContext;
 import bio.terra.stairway.Step;
 import bio.terra.stairway.StepResult;
@@ -19,74 +14,30 @@ import com.google.api.services.compute.model.Subnetwork;
 import com.google.api.services.compute.model.SubnetworkLogConfig;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-/**
- * Creates Subnetworks for project
- *
- * <p>This class implements the creation of a non-default VPC network within a GCP project, per the
- * CIS benchmark guidelines for Google Cloud Platform ("3.1 Ensure the default network does not
- * exist in a project"). The default network automatically maintains a subnetwork in each active GCP
- * region; the goal of this code is to recreate a setup that is very close to how the default VPC
- * network with auto-subnets operates, but with hard-coded regions and IP ranges.
- *
- * <p>As of Q4 2020, Terra doesn't have a strong driver for regional resources outside of the
- * Broad's default zone (us-central1), so this list of subnets is not carefully curated or
- * automatically extended as new GCP regions are added.
- *
- * <p>If the list of subnets managed here grows (to support new cloud regions) or shrinks (to reduce
- * the space of preallocated IPs), a manual backfill process would be required to update the set of
- * subnetworks in existing Terra workspaces.
- */
-public class CreateSubnetsStep implements Step {
-  /**
-   * All current Google Compute Engine regions with the default Ip ranges listed (and manually
-   * copied) in: https://cloud.google.com/vpc/docs/vpc#ip-ranges.
-   */
-  @VisibleForTesting
-  public static final Map<String, String> REGION_TO_IP_RANGE =
-      ImmutableMap.<String, String>builder()
-          .put("asia-east1", "10.140.0.0/20")
-          .put("asia-east2", "10.170.0.0/20")
-          .put("asia-northeast1", "10.146.0.0/20")
-          .put("asia-northeast2", "10.174.0.0/20")
-          .put("asia-northeast3", "10.178.0.0/20")
-          .put("asia-south1", "10.160.0.0/20")
-          .put("asia-southeast1", "10.148.0.0/20")
-          .put("asia-southeast2", "10.184.0.0/20")
-          .put("australia-southeast1", "10.152.0.0/20")
-          .put("europe-central2", "10.186.0.0/20")
-          .put("europe-north1", "10.166.0.0/20")
-          .put("europe-west1", "10.132.0.0/20")
-          .put("europe-west2", "10.154.0.0/20")
-          .put("europe-west3", "10.156.0.0/20")
-          .put("europe-west4", "10.164.0.0/20")
-          .put("europe-west6", "10.172.0.0/20")
-          .put("northamerica-northeast1", "10.162.0.0/20")
-          .put("northamerica-northeast2", "10.188.0.0/20")
-          .put("southamerica-east1", "10.158.0.0/20")
-          .put("us-central1", "10.128.0.0/20")
-          .put("us-east1", "10.142.0.0/20")
-          .put("us-east4", "10.150.0.0/20")
-          .put("us-west1", "10.138.0.0/20")
-          .put("us-west2", "10.168.0.0/20")
-          .put("us-west3", "10.180.0.0/20")
-          .put("us-west4", "10.182.0.0/20")
-          .build();
+import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
+import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.isNetworkMonitoringEnabled;
+import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.usePrivateGoogleAccess;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.*;
 
-  private final Logger logger = LoggerFactory.getLogger(CreateSubnetsStep.class);
-  private final CloudComputeCow computeCow;
+/** Creates Service accounts and garnt permission for projects */
+public class CreateServiceAccountsStep implements Step {
+
+  private final Logger logger = LoggerFactory.getLogger(CreateServiceAccountsStep.class);
+  private final IamCow iamCow;
   private final GcpProjectConfig gcpProjectConfig;
 
-  public CreateSubnetsStep(CloudComputeCow computeCow, GcpProjectConfig gcpProjectConfig) {
-    this.computeCow = computeCow;
+  public CreateServiceAccountsStep(IamCow iamCow, GcpProjectConfig gcpProjectConfig) {
+    this.iamCow = iamCow;
     this.gcpProjectConfig = gcpProjectConfig;
   }
 
