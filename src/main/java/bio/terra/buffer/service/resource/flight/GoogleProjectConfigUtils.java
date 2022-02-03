@@ -1,7 +1,6 @@
 package bio.terra.buffer.service.resource.flight;
 
 import bio.terra.buffer.generated.model.GcpProjectConfig;
-import bio.terra.buffer.generated.model.KubernetesEngine;
 import bio.terra.buffer.generated.model.Storage;
 import java.util.Collections;
 import java.util.List;
@@ -79,7 +78,7 @@ public class GoogleProjectConfigUtils {
   /** Create a service account for running GKE node. */
   public static boolean createGkeDefaultSa(GcpProjectConfig gcpProjectConfig) {
     return gcpProjectConfig.getKubernetesEngine() != null
-            && gcpProjectConfig.getKubernetesEngine().isCreateGkeDefaultServiceAccount() != null
-            && gcpProjectConfig.getKubernetesEngine().isCreateGkeDefaultServiceAccount();
+        && gcpProjectConfig.getKubernetesEngine().isCreateGkeDefaultServiceAccount() != null
+        && gcpProjectConfig.getKubernetesEngine().isCreateGkeDefaultServiceAccount();
   }
 }

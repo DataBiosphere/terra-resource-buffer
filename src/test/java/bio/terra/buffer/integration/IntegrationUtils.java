@@ -47,7 +47,9 @@ public class IntegrationUtils {
   public static final List<IamBinding> IAM_BINDINGS =
       Arrays.asList(
           new IamBinding().role("roles/editor").addMembersItem("group:" + TEST_GROUP_NAME),
-          new IamBinding().role("roles/viewer").addMembersItem("group:" + TEST_GROUP_VIEWER_NAME));
+          new IamBinding()
+              .role("roles/logging.logWriter")
+              .addMembersItem("group:" + TEST_GROUP_VIEWER_NAME));
 
   public static List<Resource> pollUntilResourcesMatch(
       BufferDao bufferDao, PoolId poolId, ResourceState state, int expectedResourceNum)

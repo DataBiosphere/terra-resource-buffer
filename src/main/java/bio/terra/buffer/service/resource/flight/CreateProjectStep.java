@@ -105,24 +105,26 @@ public class CreateProjectStep implements Step {
    * Creates labels for the a GCP projects including network name, sub network name, and the
    * Resource Buffer Service resource config name it uses.
    */
-  private static Map<String, String> createLabelMap(FlightContext flightContext, GcpProjectConfig gcpProjectConfig) {
-    ImmutableMap.Builder<String, String> labelBuilder =  new ImmutableMap.Builder<String, String>()
-        .put(NETWORK_LABEL_KEY, createValidLabelValue(NETWORK_NAME))
-        .put(SUB_NETWORK_LABEL_KEY, createValidLabelValue(SUBNETWORK_NAME))
-        .put(
-            LEONARDO_ALLOW_HTTPS_FIREWALL_RULE_NAME_LABEL_KEY,
-            createValidLabelValue(LEONARDO_SSL_FOR_VPC_NETWORK_RULE_NAME))
-        .put(
-            LEONARDO_ALLOW_INTERNAL_RULE_NAME_LABEL_KEY,
-            createValidLabelValue(ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME))
-        .put(
-            CONFIG_NAME_LABEL_KEY,
-            createValidLabelValue(
-                flightContext
-                    .getInputParameters()
-                    .get(RESOURCE_CONFIG, ResourceConfig.class)
-                    .getConfigName()));
-    if(createGkeDefaultSa(gcpProjectConfig)) {
+  private static Map<String, String> createLabelMap(
+      FlightContext flightContext, GcpProjectConfig gcpProjectConfig) {
+    ImmutableMap.Builder<String, String> labelBuilder =
+        new ImmutableMap.Builder<String, String>()
+            .put(NETWORK_LABEL_KEY, createValidLabelValue(NETWORK_NAME))
+            .put(SUB_NETWORK_LABEL_KEY, createValidLabelValue(SUBNETWORK_NAME))
+            .put(
+                LEONARDO_ALLOW_HTTPS_FIREWALL_RULE_NAME_LABEL_KEY,
+                createValidLabelValue(LEONARDO_SSL_FOR_VPC_NETWORK_RULE_NAME))
+            .put(
+                LEONARDO_ALLOW_INTERNAL_RULE_NAME_LABEL_KEY,
+                createValidLabelValue(ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME))
+            .put(
+                CONFIG_NAME_LABEL_KEY,
+                createValidLabelValue(
+                    flightContext
+                        .getInputParameters()
+                        .get(RESOURCE_CONFIG, ResourceConfig.class)
+                        .getConfigName()));
+    if (createGkeDefaultSa(gcpProjectConfig)) {
       labelBuilder.put(GKE_DEFAULT_SA_LABEL_KEY, createValidLabelValue(GKE_SA_NAME));
     }
     return labelBuilder.build();
