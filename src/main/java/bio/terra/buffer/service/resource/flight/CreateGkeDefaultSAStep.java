@@ -33,7 +33,7 @@ import org.springframework.http.HttpStatus;
  * https://cloud.google.com/kubernetes-engine/docs/how-to/hardening-your-cluster#use_least_privilege_sa
  */
 public class CreateGkeDefaultSAStep implements Step {
-  public static final String GKE_SA_NAME = "gke_node_default_sa";
+  public static final String GKE_SA_NAME = "gke-node-default-sa";
   public static final Set<String> GKE_SA_ROLES =
       ImmutableSet.of(
           "roles/logging.logWriter",
@@ -91,7 +91,8 @@ public class CreateGkeDefaultSAStep implements Step {
                   .add(
                       new Binding()
                           .setRole(r)
-                          .setMembers(Collections.singletonList(serviceAccountEmail))));
+                          .setMembers(
+                              Collections.singletonList("serviceAccount:" + serviceAccountEmail))));
       // Duplicating bindings is harmless (e.g. on retry). GCP de-duplicates.
       rmCow
           .projects()

@@ -4,18 +4,18 @@ poolConfigs:
   - poolId: "cwb_ws_dev_v4"
     size: 300
     resourceConfigName: "cwb_ws_resource_dev_v4"
+  - poolId: "cwb_ws_dev_v5"
+    size: 300
+    resourceConfigName: "cwb_ws_resource_dev_v5"
   - poolId: "workspace_manager_v9"
     size: 500
     resourceConfigName: "workspace_manager_v9"
-  - poolId: "vpc_sc_v3"
-    size: 300
-    resourceConfigName: "vpc_sc_v3"
-  - poolId: "vpc_sc_v4"
-    size: 300
-    resourceConfigName: "vpc_sc_v4"
   - poolId: "vpc_sc_v5"
     size: 300
     resourceConfigName: "vpc_sc_v5"
+  - poolId: "vpc_sc_v6"
+    size: 300
+    resourceConfigName: "vpc_sc_v6"
   - poolId: "datarepo_v3"
     size: 300
     resourceConfigName: "datarepo_v3"

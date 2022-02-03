@@ -4,12 +4,21 @@ poolConfigs:
   - poolId: "cwb_ws_fiab_v4"
     size: 500
     resourceConfigName: "cwb_ws_resource_fiab_v4"
+  - poolId: "cwb_ws_fiab_v5"
+    size: 500
+    resourceConfigName: "cwb_ws_resource_fiab_v5"
   - poolId: "vpc_sc_dev-fiab_v4"
     size: 100
     resourceConfigName: "vpc_sc_dev-fiab_v4"
+  - poolId: "vpc_sc_dev-fiab_v5"
+    size: 100
+    resourceConfigName: "vpc_sc_dev-fiab_v5"
   - poolId: "cwb_ws_quality_v4"
     size: 5000
     resourceConfigName: "cwb_ws_resource_quality_v4"
+  - poolId: "cwb_ws_quality_v5"
+    size: 5000
+    resourceConfigName: "cwb_ws_resource_quality_v5"
   - poolId: "vpc_sc_qa-fiab_v3"
     size: 100
     resourceConfigName: "vpc_sc_qa-fiab_v3"

@@ -4,3 +4,6 @@ poolConfigs:
   - poolId: "resource_toolsalpha_v4"
     size: 5
     resourceConfigName: "resource_toolsalpha_v4"
+  - poolId: "resource_toolsalpha_v5"
+    size: 5
+    resourceConfigName: "resource_toolsalpha_v5"

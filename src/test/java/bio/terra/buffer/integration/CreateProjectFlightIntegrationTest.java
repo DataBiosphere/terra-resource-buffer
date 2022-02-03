@@ -31,6 +31,7 @@ import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.DE
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.LEONARDO_SSL_FOR_DEFAULT_NETWORK_RULE_NAME;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.LEONARDO_SSL_FOR_VPC_NETWORK_RULE_NAME;
 import static bio.terra.buffer.service.resource.flight.CreateGkeDefaultSAStep.GKE_SA_NAME;
+import static bio.terra.buffer.service.resource.flight.CreateGkeDefaultSAStep.GKE_SA_ROLES;
 import static bio.terra.buffer.service.resource.flight.CreateProjectStep.CONFIG_NAME_LABEL_KEY;
 import static bio.terra.buffer.service.resource.flight.CreateProjectStep.LEONARDO_ALLOW_HTTPS_FIREWALL_RULE_NAME_LABEL_KEY;
 import static bio.terra.buffer.service.resource.flight.CreateProjectStep.LEONARDO_ALLOW_INTERNAL_RULE_NAME_LABEL_KEY;
@@ -368,9 +369,15 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     Project project = assertProjectExists(resourceId);
     String projectId = project.getProjectId();
 
-    assertServiceAccountExists(
-        project, ServiceAccountName.emailFromAccountId(GKE_SA_NAME, projectId));
-    assertIamBindingsContains(project, ImmutableList.of(new IamBinding()));
+    String serviceAccountEmail = ServiceAccountName.emailFromAccountId(GKE_SA_NAME, projectId);
+    assertServiceAccountExists(project, serviceAccountEmail);
+    List<IamBinding> expectedGkeSABindings = new ArrayList<>();
+    GKE_SA_ROLES.forEach(
+        r ->
+            expectedGkeSABindings.add(
+                new IamBinding().role(r).addMembersItem(serviceAccountEmail)));
+
+    assertIamBindingsContains(project, expectedGkeSABindings);
   }
 
   @Test
@@ -645,10 +652,6 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
             .collect(Collectors.toMap(Binding::getRole, Binding::getMembers));
 
     for (IamBinding iamBinding : iamBindings) {
-      System.out.println("~~~~!!!!!");
-      System.out.println("~~~~!!!!!");
-      System.out.println(iamBinding.getMembers());
-      System.out.println(iamBinding.getRole());
       assertThat(
           new ArrayList<>(allBindings.get(iamBinding.getRole())),
           Matchers.hasItems(iamBinding.getMembers().toArray()));
