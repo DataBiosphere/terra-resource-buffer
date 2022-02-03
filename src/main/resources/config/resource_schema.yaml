@@ -62,10 +62,8 @@ components:
           $ref: '#/components/schemas/ComputeEngine'
         storage:
           $ref: '#/components/schemas/Storage'
-        serviceAccounts:
-          type: array
-          items:
-            $ref: '#/components/schemas/ServiceAccount'
+        kubernetesEngine:
+          $ref: '#/components/schemas/KubernetesEngine'
       type: object
 
     ProjectIdSchema:
@@ -165,34 +163,12 @@ components:
           default: true
       type: object
 
-    ServiceAccount:
-      description: GCP Service account created within this project
+    KubernetesEngine:
+      description: Google Kubernetes Engine configurations
       properties:
-        name:
-          description: "The service account name. The email address for this account would be name@PROJECT_ID.iam.gserviceaccount.com"
-          type: string
-        description:
-          description: "description field in com.google.api.services.iam.v1.model.ServiceAccount."
-          type: string
-        displayName:
-          description: "display_name field in com.google.api.services.iam.v1.model.ServiceAccount."
-          type: string
-        roles:
-          description: List of roles that is assigned to this service account. For example, `roles/viewer`, `roles/editor`, or `roles/owner`.
-          type: array
-          items:
-            type: string
-        projectLabels:
-          type: array
-          description: Resource labels added into the project, it helps Buffer clients lookup resource.
-          items:
-            $ref: '#/components/schemas/GcpResourceLabel'
+        createGkeDefaultServiceAccount:
+          description: |-
+            Whether to create a service as the default GKE node runner.
+            See https://cloud.google.com/kubernetes-engine/docs/how-to/hardening-your-cluster#permissions"
+          type: boolean
       type: object
-
-    GcpResourceLabel:
-      description: A key-value pair on Google Cloud resources
-      properties:
-        key:
-          type: string
-        value:
-          type: string
