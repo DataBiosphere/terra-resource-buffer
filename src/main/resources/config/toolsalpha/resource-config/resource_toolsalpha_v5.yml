@@ -1,6 +1,6 @@
 # Resource template for local testing and personal environment on GKE
 ---
-configName: "resource_toolsalpha_v4"
+configName: "resource_toolsalpha_v5"
 gcpProjectConfig:
   projectIdSchema:
     prefix: "terra-toolsalpha"
