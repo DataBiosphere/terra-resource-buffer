@@ -375,7 +375,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     GKE_SA_ROLES.forEach(
         r ->
             expectedGkeSABindings.add(
-                new IamBinding().role(r).addMembersItem(serviceAccountEmail)));
+                new IamBinding().role(r).addMembersItem("serviceAccount:" + serviceAccountEmail)));
 
     assertIamBindingsContains(project, expectedGkeSABindings);
   }
