@@ -189,7 +189,7 @@ components:
             The unique identifier used for handout resource. Resource Buffer Service will handout the same resource for the same id.
           type: string
         cloudResourceUid:
-          $ref: '../../../../build/crlSchema/cloud_resources_uid.yaml#/components/schemas/CloudResourceUid'
+          $ref: '#/components/schemas/CloudResourceUid'
       type: object
 
     PoolInfo:
@@ -217,6 +217,37 @@ components:
       enum:
         - ACTIVE
         - DEACTIVATED
+
+    # A cloud resource unique identifier. Each CloudResourceUid represents exactly one cloud resource.
+    # We are not doing polymorphism at this moment because of lack of support in swagger-codegen or openApiGenerator
+    # Now CloudResourceUid contains all possible cloud resource types, and we will assume there is only one being set
+    # when using this.
+    # Currently the only resource that Buffer supports is GcpProject.
+    CloudResourceUid:
+      type: object
+      properties:
+        googleAiNotebookInstanceUid:
+          $ref: '#/components/schemas/GoogleAiNotebookInstanceUid'
+        googleBigQueryDatasetUid:
+          $ref: '#/components/schemas/GoogleBigQueryDatasetUid'
+        googleBigQueryTableUid:
+          $ref: '#/components/schemas/GoogleBigQueryTableUid'
+        googleBlobUid:
+          $ref: '#/components/schemas/GoogleBlobUid'
+        googleBucketUid:
+          $ref: '#/components/schemas/GoogleBucketUid'
+        googleProjectUid:
+          $ref: '#/components/schemas/GoogleProjectUid'
+        azurePublicIp:
+          $ref: '#/components/schemas/AzurePublicIp'
+        azureDisk:
+          $ref: '#/components/schemas/AzureDisk'
+        azureNetwork:
+          $ref: '#/components/schemas/AzureNetwork'
+        azureNetworkSecurityGroup:
+          $ref: '#/components/schemas/AzureNetworkSecurityGroup'
+        azureVirtualMachine:
+          $ref: '#/components/schemas/AzureVirtualMachine'
 
   responses:
     ErrorResponse:
