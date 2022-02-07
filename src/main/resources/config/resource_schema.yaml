@@ -62,6 +62,8 @@ components:
           $ref: '#/components/schemas/ComputeEngine'
         storage:
           $ref: '#/components/schemas/Storage'
+        kubernetesEngine:
+          $ref: '#/components/schemas/KubernetesEngine'
       type: object
 
     ProjectIdSchema:
@@ -159,4 +161,14 @@ components:
             Create a bucket for logging (object-level access enabled).
           type: boolean
           default: true
+      type: object
+
+    KubernetesEngine:
+      description: Google Kubernetes Engine configurations
+      properties:
+        createGkeDefaultServiceAccount:
+          description: |-
+            Whether to create a service as the default GKE node runner.
+            See https://cloud.google.com/kubernetes-engine/docs/how-to/hardening-your-cluster#permissions"
+          type: boolean
       type: object

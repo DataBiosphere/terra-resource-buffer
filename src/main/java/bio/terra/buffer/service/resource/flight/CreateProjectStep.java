@@ -3,6 +3,8 @@ package bio.terra.buffer.service.resource.flight;
 import static bio.terra.buffer.service.resource.FlightMapKeys.*;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.LEONARDO_SSL_FOR_VPC_NETWORK_RULE_NAME;
+import static bio.terra.buffer.service.resource.flight.CreateGkeDefaultSAStep.GKE_SA_NAME;
+import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.createGkeDefaultSa;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.*;
 import static bio.terra.buffer.service.resource.flight.StepUtils.isResourceReady;
 
@@ -27,6 +29,8 @@ public class CreateProjectStep implements Step {
   @VisibleForTesting public static final String NETWORK_LABEL_KEY = "vpc-network-name";
   @VisibleForTesting public static final String SUB_NETWORK_LABEL_KEY = "vpc-subnetwork-name";
   @VisibleForTesting public static final String CONFIG_NAME_LABEL_KEY = "buffer-config-name";
+  // GKE default service account name label. Only sets when createGkeDefaultServiceAccount is true.
+  @VisibleForTesting public static final String GKE_DEFAULT_SA_LABEL_KEY = "gke-default-sa";
   // Firewall rule name to allow https traffic for leoanrdo VMs. Empty if not having such firewall
   // rule.
   @VisibleForTesting
@@ -54,7 +58,7 @@ public class CreateProjectStep implements Step {
       Project project =
           new Project()
               .setProjectId(projectId)
-              .setLabels(createLabelMap(flightContext))
+              .setLabels(createLabelMap(flightContext, gcpProjectConfig))
               .setParent("folders/" + gcpProjectConfig.getParentFolderId());
       OperationCow<?> operation =
           rmCow.operations().operationCow(rmCow.projects().create(project).execute());
@@ -101,24 +105,29 @@ public class CreateProjectStep implements Step {
    * Creates labels for the a GCP projects including network name, sub network name, and the
    * Resource Buffer Service resource config name it uses.
    */
-  private static Map<String, String> createLabelMap(FlightContext flightContext) {
-    return new ImmutableMap.Builder<String, String>()
-        .put(NETWORK_LABEL_KEY, createValidLabelValue(NETWORK_NAME))
-        .put(SUB_NETWORK_LABEL_KEY, createValidLabelValue(SUBNETWORK_NAME))
-        .put(
-            LEONARDO_ALLOW_HTTPS_FIREWALL_RULE_NAME_LABEL_KEY,
-            createValidLabelValue(LEONARDO_SSL_FOR_VPC_NETWORK_RULE_NAME))
-        .put(
-            LEONARDO_ALLOW_INTERNAL_RULE_NAME_LABEL_KEY,
-            createValidLabelValue(ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME))
-        .put(
-            CONFIG_NAME_LABEL_KEY,
-            createValidLabelValue(
-                flightContext
-                    .getInputParameters()
-                    .get(RESOURCE_CONFIG, ResourceConfig.class)
-                    .getConfigName()))
-        .build();
+  private static Map<String, String> createLabelMap(
+      FlightContext flightContext, GcpProjectConfig gcpProjectConfig) {
+    ImmutableMap.Builder<String, String> labelBuilder =
+        new ImmutableMap.Builder<String, String>()
+            .put(NETWORK_LABEL_KEY, createValidLabelValue(NETWORK_NAME))
+            .put(SUB_NETWORK_LABEL_KEY, createValidLabelValue(SUBNETWORK_NAME))
+            .put(
+                LEONARDO_ALLOW_HTTPS_FIREWALL_RULE_NAME_LABEL_KEY,
+                createValidLabelValue(LEONARDO_SSL_FOR_VPC_NETWORK_RULE_NAME))
+            .put(
+                LEONARDO_ALLOW_INTERNAL_RULE_NAME_LABEL_KEY,
+                createValidLabelValue(ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME))
+            .put(
+                CONFIG_NAME_LABEL_KEY,
+                createValidLabelValue(
+                    flightContext
+                        .getInputParameters()
+                        .get(RESOURCE_CONFIG, ResourceConfig.class)
+                        .getConfigName()));
+    if (createGkeDefaultSa(gcpProjectConfig)) {
+      labelBuilder.put(GKE_DEFAULT_SA_LABEL_KEY, createValidLabelValue(GKE_SA_NAME));
+    }
+    return labelBuilder.build();
   }
 
   /**

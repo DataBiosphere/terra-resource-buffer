@@ -74,4 +74,11 @@ public class GoogleProjectConfigUtils {
         .map(Storage::isCreateLogBucket) // returns Optional.empty() if null
         .orElse(true);
   }
+
+  /** Create a service account for running GKE node. */
+  public static boolean createGkeDefaultSa(GcpProjectConfig gcpProjectConfig) {
+    return gcpProjectConfig.getKubernetesEngine() != null
+        && gcpProjectConfig.getKubernetesEngine().isCreateGkeDefaultServiceAccount() != null
+        && gcpProjectConfig.getKubernetesEngine().isCreateGkeDefaultServiceAccount();
+  }
 }

@@ -73,6 +73,8 @@ public class GoogleProjectCreationFlight extends Flight {
         new CreateDnsZoneStep(cloudComputeCow, dnsCow, gcpProjectConfig),
         newCloudApiDefaultRetryRule());
     addStep(
+        new CreateGkeDefaultSAStep(iamCow, rmCow, gcpProjectConfig), newCloudApiDefaultRetryRule());
+    addStep(
         new CreateResourceRecordSetStep(dnsCow, gcpProjectConfig), newCloudApiDefaultRetryRule());
     addStep(new FinishResourceCreationStep(bufferDao), newInternalDefaultRetryRule());
   }

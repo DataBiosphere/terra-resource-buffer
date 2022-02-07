@@ -22,11 +22,9 @@ import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -147,8 +145,8 @@ public class CreateSubnetsStep implements Step {
   private Map<String, String> getRegionToIpRange() {
     List<String> blockedRegions = GoogleProjectConfigUtils.blockedRegions(gcpProjectConfig);
     return REGION_TO_IP_RANGE.entrySet().stream()
-            .filter(e -> !blockedRegions.contains(e.getKey()))
-            .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
+        .filter(e -> !blockedRegions.contains(e.getKey()))
+        .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
   }
 
   /**

@@ -30,6 +30,8 @@ import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.DE
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.DENY_EGRESS_RULE_NAME;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.LEONARDO_SSL_FOR_DEFAULT_NETWORK_RULE_NAME;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.LEONARDO_SSL_FOR_VPC_NETWORK_RULE_NAME;
+import static bio.terra.buffer.service.resource.flight.CreateGkeDefaultSAStep.GKE_SA_NAME;
+import static bio.terra.buffer.service.resource.flight.CreateGkeDefaultSAStep.GKE_SA_ROLES;
 import static bio.terra.buffer.service.resource.flight.CreateProjectStep.CONFIG_NAME_LABEL_KEY;
 import static bio.terra.buffer.service.resource.flight.CreateProjectStep.LEONARDO_ALLOW_HTTPS_FIREWALL_RULE_NAME_LABEL_KEY;
 import static bio.terra.buffer.service.resource.flight.CreateProjectStep.LEONARDO_ALLOW_INTERNAL_RULE_NAME_LABEL_KEY;
@@ -67,11 +69,7 @@ import bio.terra.buffer.common.Resource;
 import bio.terra.buffer.common.ResourceId;
 import bio.terra.buffer.common.ResourceState;
 import bio.terra.buffer.db.BufferDao;
-import bio.terra.buffer.generated.model.ComputeEngine;
-import bio.terra.buffer.generated.model.GcpProjectConfig;
-import bio.terra.buffer.generated.model.IamBinding;
-import bio.terra.buffer.generated.model.ResourceConfig;
-import bio.terra.buffer.generated.model.Storage;
+import bio.terra.buffer.generated.model.*;
 import bio.terra.buffer.service.resource.FlightManager;
 import bio.terra.buffer.service.resource.FlightSubmissionFactoryImpl;
 import bio.terra.buffer.service.resource.flight.AssertResourceCreatingStep;
@@ -89,6 +87,7 @@ import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.cloudres.google.compute.CloudComputeCow;
 import bio.terra.cloudres.google.dns.DnsCow;
 import bio.terra.cloudres.google.iam.IamCow;
+import bio.terra.cloudres.google.iam.ServiceAccountName;
 import bio.terra.cloudres.google.serviceusage.ServiceUsageCow;
 import bio.terra.cloudres.google.storage.StorageCow;
 import bio.terra.common.stairway.StairwayComponent;
@@ -184,7 +183,12 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     FlightManager manager =
         new FlightManager(
             bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
-    Pool pool = preparePool(bufferDao, newBasicGcpConfig().iamBindings(IAM_BINDINGS));
+    Pool pool =
+        preparePool(
+            bufferDao,
+            newBasicGcpConfig()
+                .iamBindings(IAM_BINDINGS)
+                .kubernetesEngine(new KubernetesEngine().createGkeDefaultServiceAccount(true)));
 
     String flightId = manager.submitCreationFlight(pool).get();
     ResourceId resourceId =
@@ -347,6 +351,33 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     String projectId = project.getProjectId();
     String logBucketName = "storage-logs-" + projectId;
     assertNull(storageCow.get(logBucketName));
+  }
+
+  @Test
+  public void testCreateGoogleProject_createGkeSA_true() throws Exception {
+    FlightManager manager =
+        new FlightManager(
+            bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
+    Pool pool =
+        preparePool(
+            bufferDao,
+            newBasicGcpConfig()
+                .kubernetesEngine(new KubernetesEngine().createGkeDefaultServiceAccount(true)));
+    String flightId = manager.submitCreationFlight(pool).get();
+    ResourceId resourceId =
+        extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
+    Project project = assertProjectExists(resourceId);
+    String projectId = project.getProjectId();
+
+    String serviceAccountEmail = ServiceAccountName.emailFromAccountId(GKE_SA_NAME, projectId);
+    assertServiceAccountExists(project, serviceAccountEmail);
+    List<IamBinding> expectedGkeSABindings = new ArrayList<>();
+    GKE_SA_ROLES.forEach(
+        r ->
+            expectedGkeSABindings.add(
+                new IamBinding().role(r).addMembersItem("serviceAccount:" + serviceAccountEmail)));
+
+    assertIamBindingsContains(project, expectedGkeSABindings);
   }
 
   @Test
@@ -837,7 +868,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
             404));
   }
 
-  private void assertDefaultServiceAccountExists(Project project) throws Exception {
+  private void assertServiceAccountExists(Project project, String serviceAccountEmail)
+      throws Exception {
     List<ServiceAccount> serviceAccounts =
         iamCow
             .projects()
@@ -845,11 +877,19 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
             .list("projects/" + project.getProjectId())
             .execute()
             .getAccounts();
-    assertEquals(1, serviceAccounts.size());
-    assertEquals("Compute Engine default service account", serviceAccounts.get(0).getDisplayName());
-    assertThat(
-        serviceAccounts.get(0).getEmail(),
-        Matchers.containsString("-compute@developer.gserviceaccount.com"));
+
+    assertTrue(serviceAccounts.stream().anyMatch(s -> serviceAccountEmail.equals(s.getEmail())));
+  }
+
+  private void assertDefaultServiceAccountExists(Project project) throws Exception {
+    assertServiceAccountExists(
+        project,
+        getProjectNumberFromName(project.getName() + "-compute@developer.gserviceaccount.com"));
+  }
+
+  /** Extracts project number from project full name (project/{number}) */
+  private static String getProjectNumberFromName(String projectName) {
+    return projectName.split("/")[1];
   }
 
   private void assertDefaultServiceAccountNotExists(Project project) throws Exception {
