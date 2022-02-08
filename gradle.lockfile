@@ -1,7 +1,7 @@
 # This is a Gradle generated file for dependency locking.
 # Manual edits can break the build and are not advised.
 # This file is expected to be part of source control.
-bio.terra.cloud-resource-lib:cloud-resource-schema:0.9.0=cloudResourceSchema,compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+bio.terra.cloud-resource-lib:cloud-resource-schema:0.9.0=cloudResourceSchema,productionRuntimeClasspath,runtimeClasspath,testRuntimeClasspath
 bio.terra.cloud-resource-lib:common:0.9.0=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 bio.terra.cloud-resource-lib:google-api-services-common:0.9.0=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 bio.terra.cloud-resource-lib:google-billing:0.10.0=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
@@ -151,7 +151,6 @@ io.sundr:sundr-codegen:0.22.0=productionRuntimeClasspath,runtimeClasspath,testRu
 io.sundr:sundr-core:0.22.0=productionRuntimeClasspath,runtimeClasspath,testRuntimeClasspath
 io.swagger.codegen.v3:swagger-codegen-cli:3.0.22=swaggerCodegen
 io.swagger.core.v3:swagger-annotations:2.1.5=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
-io.swagger:swagger-annotations:1.6.0=compileClasspath,testCompileClasspath
 io.swagger:swagger-annotations:1.6.2=productionRuntimeClasspath,runtimeClasspath,testRuntimeClasspath
 jakarta.activation:jakarta.activation-api:1.2.2=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 jakarta.annotation:jakarta.annotation-api:1.3.5=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
