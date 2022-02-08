@@ -20,7 +20,7 @@ def useMavenLocal = false
 
 allprojects {
     group = 'bio.terra'
-    version = System.getenv('SERVICE_VERSION') != null ? System.getenv('SERVICE_VERSION') : '0.0.1-SNAPSHOT'
+    version = System.getenv('SERVICE_VERSION') != null ? System.getenv('SERVICE_VERSION') : '0.0.2-SNAPSHOT'
     ext['log4j2.version'] = '2.17.0' // until Spring Boot 2.6.2
     ext {
         artifactGroup = "${group}.buffer"
@@ -37,14 +37,6 @@ allprojects {
         dependencies {
             dependency group: "io.swagger.core.v3", name: "swagger-annotations", version: "2.1.5"
             dependency group: "io.swagger.codegen.v3", name: "swagger-codegen-cli", version: "3.0.22"
-
-            // PF-866: This will need to manually be kept in sync with the version of cloud-resource-schema
-            // specified by bio.terra.cloud-resource-lib:platform, as the dependency-management plugin does
-            // not support gradle platform plugin:
-            //
-            // https://github.com/spring-gradle-plugins/dependency-management-plugin/issues/211
-
-            dependency group: 'bio.terra.cloud-resource-lib', name: 'cloud-resource-schema', version: "0.9.0"
         }
     }
 
@@ -74,10 +66,7 @@ dependencies {
     // Terra deps - we get Stairway via TCL
     implementation group: 'bio.terra', name: 'terra-common-lib', version: '0.0.52-SNAPSHOT'
 
-    // When updating platform version, be sure to keep Spring dependency-management plugin stanza's
-    // version of cloud-resource-schema in sync with the platform (PF-866).
     implementation platform('bio.terra.cloud-resource-lib:platform:0.2.0')
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'cloud-resource-schema'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'common'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-billing'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-cloudresourcemanager'
@@ -87,7 +76,7 @@ dependencies {
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-serviceusage'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-storage'
 
-    implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.4.0-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.5.0-SNAPSHOT'
 
     // Versioned direct deps
     implementation group: 'com.google.auto.value', name: 'auto-value-annotations', version: '1.7.3'
@@ -111,6 +100,7 @@ dependencies {
     // Swagger deps
     implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.11.2'
     implementation group: 'com.fasterxml.jackson.module', name: 'jackson-module-jaxb-annotations', version: '2.11.2'
+    implementation group: 'io.swagger', name: 'swagger-annotations', version: '1.6.2'
     implementation group: 'io.swagger.core.v3', name: 'swagger-annotations'
     runtimeOnly group: 'org.webjars.npm', name: 'swagger-ui-dist', version: '3.36.2'
     swaggerCodegen group: 'io.swagger.codegen.v3', name: 'swagger-codegen-cli'
@@ -188,20 +178,6 @@ spotless {
         googleJavaFormat()
         targetExclude "${buildDir}/**"
     }
-}
-
-// CRL schema extraction
-configurations {
-    cloudResourceSchema { transitive = false }
-}
-dependencies {
-    cloudResourceSchema group: 'bio.terra.cloud-resource-lib', name: 'cloud-resource-schema'
-}
-task unzipCloudResourceSchema(type: Copy) {
-    from zipTree(configurations.cloudResourceSchema.singleFile).matching {
-        include 'cloud_resources_uid.yaml'
-    }
-    into "${buildDir}/crlSchema"
 }
 
 // OpenAPI/Swagger Server Generation
@@ -329,8 +305,6 @@ task integrationTest(type: Test) {
     outputs.upToDateWhen { false }
 }
 
-// Note The Open API schema depends on an external library - cloud-resource-schema, so need to unzip it first.
-swaggerSources.server.code.dependsOn tasks.unzipCloudResourceSchema
 compileJava.dependsOn swaggerSources.server.code, swaggerSources.resource.code, spotlessApply
 sourceSets.main.java.srcDir "${swaggerOutputDir}/src/main/java"
 sourceSets.test.resources.srcDir "config/" // Allow unit tests to directly load config files.
