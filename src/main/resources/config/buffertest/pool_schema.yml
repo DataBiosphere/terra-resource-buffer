@@ -2,5 +2,5 @@
 ---
 poolConfigs:
   - poolId: "resource_buffer_test_v1"
-    size: 1000
+    size: 1250
     resourceConfigName: "resource_buffer_test_v1"
