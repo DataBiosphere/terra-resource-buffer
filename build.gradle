@@ -76,7 +76,7 @@ dependencies {
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-serviceusage'
     implementation group: 'bio.terra.cloud-resource-lib', name: 'google-storage'
 
-    implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.4.0-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.5.0-SNAPSHOT'
 
     // Versioned direct deps
     implementation group: 'com.google.auto.value', name: 'auto-value-annotations', version: '1.7.3'

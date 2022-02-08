@@ -2,11 +2,23 @@ package bio.terra.buffer.service.cleanup;
 
 import static bio.terra.buffer.app.configuration.CrlConfiguration.CLIENT_NAME;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import bio.terra.buffer.app.configuration.CrlConfiguration;
-import bio.terra.buffer.common.*;
+import bio.terra.buffer.common.BaseUnitTest;
+import bio.terra.buffer.common.PoolId;
+import bio.terra.buffer.common.PoolStatus;
+import bio.terra.buffer.common.Pool;
+import bio.terra.buffer.common.RequestHandoutId;
+import bio.terra.buffer.common.Resource;
+import bio.terra.buffer.common.ResourceId;
+import bio.terra.buffer.common.ResourceState;
+import bio.terra.buffer.common.ResourceType;
 import bio.terra.buffer.db.BufferDao;
 import bio.terra.buffer.generated.model.CloudResourceUid;
 import bio.terra.buffer.generated.model.GoogleProjectUid;
