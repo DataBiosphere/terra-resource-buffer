@@ -8,8 +8,11 @@ poolConfigs:
     size: 3000
     resourceConfigName: "cwb_ws_prod_v4"
   - poolId: "cwb_ws_prod_v5"
-    size: 3000
+    size: 1000
     resourceConfigName: "cwb_ws_prod_v5"
+  - poolId: "cwb_ws_prod_v6"
+    size: 3000
+    resourceConfigName: "cwb_ws_prod_v6"
   - poolId: "vpc_sc_v5"
     size: 1000
     resourceConfigName: "vpc_sc_v5"
