@@ -76,6 +76,7 @@ public class GoogleProjectCreationFlight extends Flight {
         new CreateGkeDefaultSAStep(iamCow, rmCow, gcpProjectConfig), newCloudApiDefaultRetryRule());
     addStep(
         new CreateResourceRecordSetStep(dnsCow, gcpProjectConfig), newCloudApiDefaultRetryRule());
+    addStep(new CreateConsumerDefinedQuotaStep(serviceUsageCow));
     addStep(new FinishResourceCreationStep(bufferDao), newInternalDefaultRetryRule());
   }
 }

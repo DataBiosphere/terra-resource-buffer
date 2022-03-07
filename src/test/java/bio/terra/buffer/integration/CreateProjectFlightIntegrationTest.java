@@ -110,7 +110,8 @@ import com.google.api.services.compute.model.SubnetworkList;
 import com.google.api.services.dns.model.ManagedZone;
 import com.google.api.services.dns.model.ResourceRecordSet;
 import com.google.api.services.iam.v1.model.ServiceAccount;
-import com.google.api.services.serviceusage.v1.model.GoogleApiServiceusageV1Service;
+import com.google.api.services.serviceusage.v1beta1.model.GoogleApiServiceusageV1Service;
+import com.google.api.services.serviceusage.v1beta1.model.Service;
 import com.google.cloud.Policy;
 import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.StorageOptions;
@@ -629,7 +630,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
             .execute()
             .getServices()
             .stream()
-            .map(GoogleApiServiceusageV1Service::getName)
+            .map(Service::getName)
             .collect(Collectors.toList()),
         Matchers.hasItems(serviceNames.toArray()));
   }
