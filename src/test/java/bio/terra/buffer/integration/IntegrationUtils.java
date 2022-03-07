@@ -71,7 +71,7 @@ public class IntegrationUtils {
   public static FlightState blockUntilFlightComplete(
       StairwayComponent stairwayComponent, String flightId)
       throws InterruptedException, DatabaseOperationException {
-    Duration maxWait = Duration.ofSeconds(500);
+    Duration maxWait = Duration.ofMinutes(15);
     Duration waited = Duration.ZERO;
     while (waited.compareTo(maxWait) < 0) {
       if (!stairwayComponent.get().getFlightState(flightId).isActive()) {
