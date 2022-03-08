@@ -51,3 +51,5 @@ pom.xml
 *.tar.gz
 *.rar
 
+# Rendered config files
+/buffer-client-sa.json
