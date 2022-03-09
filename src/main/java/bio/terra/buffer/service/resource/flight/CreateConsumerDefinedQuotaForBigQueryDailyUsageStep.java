@@ -3,6 +3,7 @@ package bio.terra.buffer.service.resource.flight;
 import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_NUMBER;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.pollUntilSuccess;
 
+import bio.terra.buffer.generated.model.GcpProjectConfig;
 import bio.terra.cloudres.google.api.services.common.OperationCow;
 import bio.terra.cloudres.google.serviceusage.ServiceUsageCow;
 import bio.terra.stairway.FlightContext;
@@ -14,24 +15,37 @@ import com.google.api.services.serviceusage.v1beta1.model.QuotaOverride;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Collections;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CreateConsumerDefinedQuotaStep implements Step {
+public class CreateConsumerDefinedQuotaForBigQueryDailyUsageStep implements Step {
   private static final Logger logger =
-      LoggerFactory.getLogger(CreateConsumerDefinedQuotaStep.class);
+      LoggerFactory.getLogger(CreateConsumerDefinedQuotaForBigQueryDailyUsageStep.class);
   private final ServiceUsageCow serviceUsageCow;
+  private final GcpProjectConfig gcpProjectConfig;
 
-  public CreateConsumerDefinedQuotaStep(ServiceUsageCow serviceUsageCow) {
+  public CreateConsumerDefinedQuotaForBigQueryDailyUsageStep(
+      ServiceUsageCow serviceUsageCow, GcpProjectConfig gcpProjectConfig) {
     this.serviceUsageCow = serviceUsageCow;
+    this.gcpProjectConfig = gcpProjectConfig;
   }
 
   /** Apply a Consumer Quota Override for the BigQuery Query Usage Quota. */
   @Override
   public StepResult doStep(FlightContext context) throws InterruptedException, RetryException {
-    Long projectNumber = context.getWorkingMap().get(GOOGLE_PROJECT_NUMBER, Long.class);
+    Optional<Long> overrideValue =
+        GoogleProjectConfigUtils.bigQueryDailyUsageOverrideValueBytes(gcpProjectConfig);
+    if (overrideValue.isEmpty()) {
+      // Do not apply any quota override
+      return StepResult.getStepResultSuccess();
+    }
+    long projectNumber =
+        Optional.ofNullable(context.getWorkingMap().get(GOOGLE_PROJECT_NUMBER, Long.class))
+            .orElseThrow();
 
-    QuotaOverride overridePerProjectPerDay = buildQuotaOverride(projectNumber);
+    QuotaOverride overridePerProjectPerDay = buildQuotaOverride(projectNumber, overrideValue.get());
+
     // parent format and other details obtained by hitting the endpoint
     // https://serviceusage.googleapis.com/v1beta1/projects/${PROJECT_NUMBER}/services/bigquery.googleapis.com/consumerQuotaMetrics
     String parent =
@@ -60,7 +74,7 @@ public class CreateConsumerDefinedQuotaStep implements Step {
     return StepResult.getStepResultSuccess();
   }
 
-  private QuotaOverride buildQuotaOverride(Long projectNumber) {
+  private QuotaOverride buildQuotaOverride(long projectNumber, long overrideValue) {
     var result = new QuotaOverride();
     result.setMetric("bigquery.googleapis.com/quota/query/usage");
     // fill in the project number for the quota limit name
@@ -69,8 +83,7 @@ public class CreateConsumerDefinedQuotaStep implements Step {
             "projects/%d/services/bigquery.googleapis.com/"
                 + "consumerQuotaMetrics/bigquery.googleapis.com%%2Fquota%%2Fquery%%2Fusage",
             projectNumber));
-    long TERABYTE_IN_BYTES = 1_099_511_627_776L;
-    result.setOverrideValue(40 * TERABYTE_IN_BYTES);
+    result.setOverrideValue(overrideValue);
     result.setDimensions(Collections.emptyMap());
     result.setUnit("1/d/{project}"); // no substitution - literal {}s
     result.setAdminOverrideAncestor(null);

@@ -54,7 +54,8 @@ public class GoogleProjectCreationFlight extends Flight {
     addStep(
         new CreateStorageLogBucketStep(clientConfig, gcpProjectConfig),
         newCloudApiDefaultRetryRule());
-    addStep(new CreateConsumerDefinedQuotaStep(serviceUsageCow));
+    addStep(
+        new CreateConsumerDefinedQuotaForBigQueryDailyUsageStep(serviceUsageCow, gcpProjectConfig));
     addStep(
         new DeleteDefaultServiceAccountStep(iamCow, gcpProjectConfig),
         newCloudApiDefaultRetryRule());

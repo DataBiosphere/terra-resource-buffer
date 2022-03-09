@@ -111,6 +111,8 @@ import com.google.api.services.dns.model.ManagedZone;
 import com.google.api.services.dns.model.ResourceRecordSet;
 import com.google.api.services.iam.v1.model.ServiceAccount;
 import com.google.api.services.serviceusage.v1beta1.model.GoogleApiServiceusageV1Service;
+import com.google.api.services.serviceusage.v1beta1.model.ListConsumerOverridesResponse;
+import com.google.api.services.serviceusage.v1beta1.model.QuotaOverride;
 import com.google.api.services.serviceusage.v1beta1.model.Service;
 import com.google.cloud.Policy;
 import com.google.cloud.storage.BucketInfo;
@@ -118,6 +120,7 @@ import com.google.cloud.storage.StorageOptions;
 import com.google.cloud.storage.StorageRoles;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -134,6 +137,8 @@ import org.springframework.transaction.support.TransactionTemplate;
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
+
+  public static final long CONSUMER_QUOTA_OVERRIDE_VALUE_BYTES = 20_000_000_000_000L;
   @Autowired BufferDao bufferDao;
   @Autowired StairwayComponent stairwayComponent;
   @Autowired CloudComputeCow computeCow;
@@ -505,6 +510,44 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertFalse(bufferDao.retrieveResource(resource.id()).isPresent());
     assertEquals(
         FlightStatus.ERROR, stairwayComponent.get().getFlightState(flightId).getFlightStatus());
+  }
+
+  @Test
+  public void testCreateGoogleProject_createsConsumerOverride() throws Exception {
+    FlightManager manager =
+        new FlightManager(
+            bufferDao,
+            new StubSubmissionFlightFactory(LatchBeforeAssertResourceStep.class),
+            stairwayComponent,
+            transactionTemplate);
+    GcpProjectConfig gcpProjectConfig =
+        newBasicGcpConfig()
+            .serviceUsage(
+                new ServiceUsage()
+                    .bigQuery(
+                        new BigQueryQuotas()
+                            .overrideBigQueryDailyUsageQuota(true)
+                            .bigQueryDailyUsageQuotaOverrideValueBytes(
+                                new BigDecimal(CONSUMER_QUOTA_OVERRIDE_VALUE_BYTES))));
+    Pool pool = preparePool(bufferDao, gcpProjectConfig);
+    String flightId = manager.submitCreationFlight(pool).orElseThrow();
+    ResourceId resourceId =
+        extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
+
+    Project project = assertProjectExists(resourceId);
+    String projectNumber = getProjectNumberFromName(project.getName());
+
+    String parent =
+        String.format(
+            "projects/%s/services/bigquery.googleapis.com/consumerQuotaMetrics/"
+                + "bigquery.googleapis.com%%2Fquota%%2Fquery%%2Fusage/limits/%%2Fd%%2Fproject",
+            projectNumber);
+    ServiceUsageCow.Services.ConsumerQuotaMetrics.Limits.ConsumerOverrides.List list =
+        serviceUsageCow.services().consumerQuotaMetrics().limits().consumerOverrides().list(parent);
+    ListConsumerOverridesResponse response = list.execute();
+    assertEquals(1, response.getOverrides().size(), "single override expected");
+    QuotaOverride quotaOverride = response.getOverrides().get(0);
+    assertEquals(CONSUMER_QUOTA_OVERRIDE_VALUE_BYTES, quotaOverride.getOverrideValue());
   }
 
   /** A {@link Flight} that will fail to create Google Project. */
