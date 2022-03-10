@@ -50,6 +50,3 @@ pom.xml
 *.zip
 *.tar.gz
 *.rar
-
-# Rendered config files
-/buffer-client-sa.json
