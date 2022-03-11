@@ -84,10 +84,10 @@ public class GoogleProjectConfigUtils {
   }
 
   /**
-   * Create a Consumer Quota Override for BigQuery Daily Query Usage.
-   * If the configuration for isOverrideBigQueryDailyUsageQuota is true and
-   * bigQueryDailyUsageQuotaOverrideValueBytes is non-null, return an Optional
-   * of the value in bigQueryDailyUsageQuotaOverrideValueBytes. Otherwise, return empty.
+   * Create a Consumer Quota Override for BigQuery Daily Query Usage. If the configuration for
+   * isOverrideBigQueryDailyUsageQuota is true and bigQueryDailyUsageQuotaOverrideValueBytes is
+   * non-null, return an Optional of the value in bigQueryDailyUsageQuotaOverrideValueBytes.
+   * Otherwise, return empty.
    */
   public static Optional<Long> bigQueryDailyUsageOverrideValueBytes(
       GcpProjectConfig gcpProjectConfig) {
