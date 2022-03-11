@@ -845,7 +845,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     ResourceRecordSet cnameRecordSet = resourceRecordSets.get(RESTRICT_API_CNAME_RECORD.getType());
 
     assertEquals(MANAGED_ZONE_TEMPLATE.getName(), managedZone.getName());
-    assertEquals(MANAGED_ZONE_TEMPLATE.getVisibility(), managedZone.getVisibility());
+    assertEquals(MANAGED_ZONE_TEMPLATE.getVisibility(), managedZone.getVisibility().toLowerCase());
     assertEquals(MANAGED_ZONE_TEMPLATE.getDescription(), managedZone.getDescription());
     assertResourceRecordSetMatch(RESTRICT_API_A_RECORD, aRecordSet);
     assertResourceRecordSetMatch(RESTRICT_API_CNAME_RECORD, cnameRecordSet);
