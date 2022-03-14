@@ -1,6 +1,6 @@
 # # Projects with VPC-SC configuration
 ---
-configName: "vpc_sc_v7"
+configName: "vpc_sc_v8"
 gcpProjectConfig:
   projectIdSchema:
     prefix: "terra-vpc-sc-dev"
