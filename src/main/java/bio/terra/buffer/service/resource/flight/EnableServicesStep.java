@@ -12,7 +12,7 @@ import bio.terra.stairway.Step;
 import bio.terra.stairway.StepResult;
 import bio.terra.stairway.StepStatus;
 import bio.terra.stairway.exception.RetryException;
-import com.google.api.services.serviceusage.v1.model.BatchEnableServicesRequest;
+import com.google.api.services.serviceusage.v1beta1.model.BatchEnableServicesRequest;
 import java.io.IOException;
 import java.time.Duration;
 import org.slf4j.Logger;

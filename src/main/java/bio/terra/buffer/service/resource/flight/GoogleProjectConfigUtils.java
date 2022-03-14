@@ -1,6 +1,8 @@
 package bio.terra.buffer.service.resource.flight;
 
+import bio.terra.buffer.generated.model.BigQueryQuotas;
 import bio.terra.buffer.generated.model.GcpProjectConfig;
+import bio.terra.buffer.generated.model.ServiceUsage;
 import bio.terra.buffer.generated.model.Storage;
 import java.util.Collections;
 import java.util.List;
@@ -80,5 +82,27 @@ public class GoogleProjectConfigUtils {
     return gcpProjectConfig.getKubernetesEngine() != null
         && gcpProjectConfig.getKubernetesEngine().isCreateGkeDefaultServiceAccount() != null
         && gcpProjectConfig.getKubernetesEngine().isCreateGkeDefaultServiceAccount();
+  }
+
+  /**
+   * Create a Consumer Quota Override for BigQuery Daily Query Usage. If the configuration for
+   * isOverrideBigQueryDailyUsageQuota is true and bigQueryDailyUsageQuotaOverrideValueBytes is
+   * non-null, return an Optional of the value in bigQueryDailyUsageQuotaOverrideValueBytes.
+   * Otherwise, return empty.
+   */
+  public static Optional<Long> bigQueryDailyUsageOverrideValueBytes(
+      GcpProjectConfig gcpProjectConfig) {
+    Optional<BigQueryQuotas> bigQueryQuotasMaybe =
+        Optional.ofNullable(gcpProjectConfig.getServiceUsage()).map(ServiceUsage::getBigQuery);
+    if (bigQueryQuotasMaybe.isEmpty()) {
+      return Optional.empty();
+    }
+    BigQueryQuotas bigQueryQuotas = bigQueryQuotasMaybe.get();
+    if (!bigQueryQuotas.isOverrideBigQueryDailyUsageQuota()
+        || null == bigQueryQuotas.getBigQueryDailyUsageQuotaOverrideValueBytes()) {
+      return Optional.empty();
+    }
+    long value = bigQueryQuotas.getBigQueryDailyUsageQuotaOverrideValueBytes().longValue();
+    return Optional.of(value);
   }
 }

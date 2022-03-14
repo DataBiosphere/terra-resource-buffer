@@ -64,6 +64,8 @@ components:
           $ref: '#/components/schemas/Storage'
         kubernetesEngine:
           $ref: '#/components/schemas/KubernetesEngine'
+        serviceUsage:
+          $ref: '#/components/schemas/ServiceUsage'
       type: object
 
     ProjectIdSchema:
@@ -171,4 +173,31 @@ components:
             Whether to create a service as the default GKE node runner.
             See https://cloud.google.com/kubernetes-engine/docs/how-to/hardening-your-cluster#permissions"
           type: boolean
+      type: object
+
+    ServiceUsage:
+      description: |-
+        Service Usage Consumer Quota Overrides. Individual services correspond to properties on this
+        object.
+      properties:
+        bigQuery:
+          $ref: '#/components/schemas/BigQueryQuotas'
+      type: object
+
+    BigQueryQuotas:
+      description: Consumer Quota Overrides for BigQuery service usage
+      properties:
+        overrideBigQueryDailyUsageQuota:
+          description: |-
+            If true, apply the override value given by bigQueryDailyUsageQuotaOverrideValueBytes.
+            This two-property approach is necessary as we can't use a default with BigDecimal in Java,
+            and there's no way to generate Optional types.
+          type: boolean
+          default: false
+        bigQueryDailyUsageQuotaOverrideValueBytes:
+          description: |-
+            Daily maximum query usage per project. Ignored if overrideBigQueryDailyUsageQuota is
+            false.
+          type: number
+          format: long
       type: object

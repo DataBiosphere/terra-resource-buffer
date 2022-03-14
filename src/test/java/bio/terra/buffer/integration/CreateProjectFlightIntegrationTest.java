@@ -110,13 +110,17 @@ import com.google.api.services.compute.model.SubnetworkList;
 import com.google.api.services.dns.model.ManagedZone;
 import com.google.api.services.dns.model.ResourceRecordSet;
 import com.google.api.services.iam.v1.model.ServiceAccount;
-import com.google.api.services.serviceusage.v1.model.GoogleApiServiceusageV1Service;
+import com.google.api.services.serviceusage.v1beta1.model.GoogleApiServiceusageV1Service;
+import com.google.api.services.serviceusage.v1beta1.model.ListConsumerOverridesResponse;
+import com.google.api.services.serviceusage.v1beta1.model.QuotaOverride;
+import com.google.api.services.serviceusage.v1beta1.model.Service;
 import com.google.cloud.Policy;
 import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.StorageOptions;
 import com.google.cloud.storage.StorageRoles;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -133,6 +137,8 @@ import org.springframework.transaction.support.TransactionTemplate;
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
+
+  public static final long CONSUMER_QUOTA_OVERRIDE_VALUE_BYTES = 20_000_000_000_000L;
   @Autowired BufferDao bufferDao;
   @Autowired StairwayComponent stairwayComponent;
   @Autowired CloudComputeCow computeCow;
@@ -506,6 +512,44 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
         FlightStatus.ERROR, stairwayComponent.get().getFlightState(flightId).getFlightStatus());
   }
 
+  @Test
+  public void testCreateGoogleProject_createsConsumerOverride() throws Exception {
+    FlightManager manager =
+        new FlightManager(
+            bufferDao,
+            new StubSubmissionFlightFactory(LatchBeforeAssertResourceStep.class),
+            stairwayComponent,
+            transactionTemplate);
+    GcpProjectConfig gcpProjectConfig =
+        newBasicGcpConfig()
+            .serviceUsage(
+                new ServiceUsage()
+                    .bigQuery(
+                        new BigQueryQuotas()
+                            .overrideBigQueryDailyUsageQuota(true)
+                            .bigQueryDailyUsageQuotaOverrideValueBytes(
+                                new BigDecimal(CONSUMER_QUOTA_OVERRIDE_VALUE_BYTES))));
+    Pool pool = preparePool(bufferDao, gcpProjectConfig);
+    String flightId = manager.submitCreationFlight(pool).orElseThrow();
+    ResourceId resourceId =
+        extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
+
+    Project project = assertProjectExists(resourceId);
+    String projectNumber = getProjectNumberFromName(project.getName());
+
+    String parent =
+        String.format(
+            "projects/%s/services/bigquery.googleapis.com/consumerQuotaMetrics/"
+                + "bigquery.googleapis.com%%2Fquota%%2Fquery%%2Fusage/limits/%%2Fd%%2Fproject",
+            projectNumber);
+    ServiceUsageCow.Services.ConsumerQuotaMetrics.Limits.ConsumerOverrides.List list =
+        serviceUsageCow.services().consumerQuotaMetrics().limits().consumerOverrides().list(parent);
+    ListConsumerOverridesResponse response = list.execute();
+    assertEquals(1, response.getOverrides().size(), "single override expected");
+    QuotaOverride quotaOverride = response.getOverrides().get(0);
+    assertEquals(CONSUMER_QUOTA_OVERRIDE_VALUE_BYTES, quotaOverride.getOverrideValue());
+  }
+
   /** A {@link Flight} that will fail to create Google Project. */
   public static class ErrorCreateProjectFlight extends Flight {
     public ErrorCreateProjectFlight(FlightMap inputParameters, Object applicationContext) {
@@ -629,7 +673,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
             .execute()
             .getServices()
             .stream()
-            .map(GoogleApiServiceusageV1Service::getName)
+            .map(Service::getName)
             .collect(Collectors.toList()),
         Matchers.hasItems(serviceNames.toArray()));
   }
@@ -801,7 +845,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     ResourceRecordSet cnameRecordSet = resourceRecordSets.get(RESTRICT_API_CNAME_RECORD.getType());
 
     assertEquals(MANAGED_ZONE_TEMPLATE.getName(), managedZone.getName());
-    assertEquals(MANAGED_ZONE_TEMPLATE.getVisibility(), managedZone.getVisibility());
+    assertEquals(MANAGED_ZONE_TEMPLATE.getVisibility(), managedZone.getVisibility().toLowerCase());
     assertEquals(MANAGED_ZONE_TEMPLATE.getDescription(), managedZone.getDescription());
     assertResourceRecordSetMatch(RESTRICT_API_A_RECORD, aRecordSet);
     assertResourceRecordSetMatch(RESTRICT_API_CNAME_RECORD, cnameRecordSet);
@@ -823,7 +867,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     ResourceRecordSet cnameRecordSet = resourceRecordSets.get(GCR_CNAME_RECORD.getType());
 
     assertEquals(GCR_MANAGED_ZONE_TEMPLATE.getName(), managedZone.getName());
-    assertEquals(GCR_MANAGED_ZONE_TEMPLATE.getVisibility(), managedZone.getVisibility());
+    assertEquals(
+        GCR_MANAGED_ZONE_TEMPLATE.getVisibility(), managedZone.getVisibility().toLowerCase());
     assertEquals(GCR_MANAGED_ZONE_TEMPLATE.getDescription(), managedZone.getDescription());
     assertResourceRecordSetMatch(GCR_A_RECORD, aRecordSet);
     assertResourceRecordSetMatch(GCR_CNAME_RECORD, cnameRecordSet);
