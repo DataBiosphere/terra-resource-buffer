@@ -1,10 +1,10 @@
 # Terra Resource Buffering Server
-Cloud Resource Buffering Server for Terra. 
+Cloud Resource Buffering Server for Terra.
 
-## Pool Configuration
+## Static (Build Time) Pool Configuration
 ### File Structure
-Pool configuration manages the pool size, resources in the pool. All configuration files are under [src/main/resources/config](src/main/resources/config) folder.
-The folder structure is: 
+Pool configuration manages the pool size, and configuration of resources in the pool. All static configuration files are under [src/main/resources/config](src/main/resources/config) folder.  These static configurations are built into the Resource Buffer service at compile time.
+The folder structure is:
 ```
 -{env}
     - pool_schema.yml
@@ -12,23 +12,52 @@ The folder structure is:
         - resource_config.yml
 - resource_schema.yaml
 ```
-* `{env}` is the configuration folder Buffer service will use. Set `BUFFER_POOL_CONFIG_PATH=config/{env}` as environment variable to change folder to use.
-In Broad deployment, the value can be found at [Broad helmfile repo](https://github.com/broadinstitute/terra-helmfile/blob/master/terra/values/buffer/live/dev.yaml#L18) 
+* `{env}` is the static configuration folder Buffer service will use. Set `BUFFER_POOL_CONFIG_PATH=config/{env}` as environment variable to change folder to use.
+In Broad deployment, the value can be found at [Broad helmfile repo](https://github.com/broadinstitute/terra-helmfile/blob/master/terra/values/buffer/live/dev.yaml#L18)
 * `resource_schema.yaml` is the resource config template
 * `pool_schema.yml` lists all pools under that environment. It includes the pool size and resource config to use for that pool.
-* `resource-config` folder contains all resource configs all pools are using or used before. 
+* `resource-config` folder contains all resource configs all pools are using or used before.
 
-### Upgrade Pool Configuration
-Configuration update require to build a new docker image and redeploy the server.
+### Upgrade Static Pool Configuration
+When using static pools, a configuration update is required to build a new docker image and redeploy the server.
 
-To update pool size, just update the pool size in the configuration file. 
+To update pool size, just update the pool size in the configuration file.
 
 To update resource configs, it is the same process as creating a new pool using a new resource config. The recommended process is:
 1. Add a new resource config and a new pool in configuration file.
-2. Wait for next Buffer Service release, and it will create resources using the new config. 
+2. Wait for next Buffer Service release, and it will create resources using the new config.
 3. Client switch to use the new pool id when ready.
 4. Remove the old pool from `pool_schema.yml` and delete old resource config(optional).
 5. Next Buffer Service release will delete resoruces in the old pool
+
+## Runtime Pool Configuration
+Since version [`0.176.0`](https://github.com/DataBiosphere/terra-resource-buffer/releases/tag/0.176.0), Resource Buffer has supported runtime pool configuration.  Instead of requiring the use of a static pool configuration created at build time (and thus requiring a new version of the Resource Buffer service container to be built and published), runtime pool configuration allows for the specification of pool configurations at service runtime, read from a directory on the local filesystem.
+
+In order to use a runtime pool configuration, the environment variable `BUFFER_POOL_SYSTEM_FILE_PATH` should point at a directory on the local file system in the RBS container which stores the pool configuration.  *This will override the use of any static pool configurations built into the Resource Buffer Jarfile.*
+
+### Runtime Pool Example
+* `BUFFER_POOL_SYSTEM_FILE_PATH` is set to `/etc/config/staging`
+* Local file `/etc/config/staging/pool_schema.yaml` contains two pools,
+  ```
+  # RBS Pools Schema for staging environment
+  ---
+  poolConfigs:
+    - poolId: "resource_staging_v1"
+      size: 100
+      resourceConfigName: "resource_staging_v1"
+  poolConfigs:
+    - poolId: "resource_staging_v2"
+      size: 100
+      resourceConfigName: "resource_staging_v2"
+  ```
+* Local file `/etc/config/staging/resource_config/resource_staging_v1.yaml` contains the configuration for pool `resource_staging_v1`
+* Local file `/etc/config/staging/resource_config/resource_staging_v2.yaml` contains the configuration for pool `resource_staging_v2`
+
+### Notes
+* Pool configurations are only read at Resource Buffer start time, so changes to files in the configuration directory will require the service to be restarted for these configurations to take effect.
+* The same rules around pool modification and deletion apply for dynamically configured pools as do for static pools:
+  * For existing pools, pool sizes may change, but resource configurations may not.
+  * If a previously created pool does not exist under `BUFFER_POOL_SYSTEM_FILE_PATH`, it will be deleted.
 
 ## Development
 ### Connect to dev Buffer Service
@@ -41,7 +70,7 @@ Step 1:
 ```
 docker run --rm --cap-add IPC_LOCK -e "VAULT_TOKEN=$(cat ~/.vault-token)" -e "VAULT_ADDR=https://clotho.broadinstitute.org:8200" vault:1.1.0 vault read -format json secret/dsde/terra/kernel/dev/dev/buffer/client-sa | jq -r '.data.key' | base64 --decode > buffer-client-sa.json
 ```
-Step2: 
+Step2:
 ```
 gcloud auth activate-service-account --key-file=buffer-client-sa.json
 ```
@@ -78,11 +107,11 @@ The provided setup script clones the terra-helm and terra-helmfile git repos,
 and templates in the desired Terra environment/k8s namespace to target.
 If you need to pull changes to either terra-helm or terra-helmfile, rerun this script.
 
-To use this, first ensure Skaffold is installed on your local machine 
-(available at https://skaffold.dev/). 
+To use this, first ensure Skaffold is installed on your local machine
+(available at https://skaffold.dev/).
 
-> Older versions of Skaffold (v1.4.0 and earlier) do not have support for Helm 3 and will fail to deploy your 
-changes. If you're seeing errors like `UPGRADE FAILED: "(Release name)" has no 
+> Older versions of Skaffold (v1.4.0 and earlier) do not have support for Helm 3 and will fail to deploy your
+changes. If you're seeing errors like `UPGRADE FAILED: "(Release name)" has no
 deployed releases`, try updating Skaffold.
 
 You may need to use gcloud to provide GCR
@@ -104,7 +133,7 @@ skaffold run
 
 ### Connecting psql client using the Cloud SQL Proxy:
 Follow [Installing this instruction](https://cloud.google.com/sql/docs/mysql/sql-proxy#macos-64-bit)
-to install Cloud SQL Proxy 
+to install Cloud SQL Proxy
 
 Step 1: Go to cloud console to get the instance name you want to connect to, then start the proxy:
 ```
@@ -148,4 +177,3 @@ that mention "dependency lock state" after changing a dep, you need to do this s
 ### Jacoco
 We use [Jacoco](https://www.eclemma.org/jacoco/) as code coverage library. If you are getting Jacoco error when running
 test from intellij, change Java SDK to Java 11 will fix that. [solution](https://stackoverflow.com/questions/59945979/java-lang-nosuchfieldexception-error-from-jacoco)
-
