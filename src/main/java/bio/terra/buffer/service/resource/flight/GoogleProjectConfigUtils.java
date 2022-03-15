@@ -90,7 +90,7 @@ public class GoogleProjectConfigUtils {
    * non-null, return an Optional of the value in bigQueryDailyUsageQuotaOverrideValueBytes.
    * Otherwise, return empty.
    */
-  public static Optional<Long> bigQueryDailyUsageOverrideValueBytes(
+  public static Optional<Long> bigQueryDailyUsageOverrideValueMebibytes(
       GcpProjectConfig gcpProjectConfig) {
     Optional<BigQueryQuotas> bigQueryQuotasMaybe =
         Optional.ofNullable(gcpProjectConfig.getServiceUsage()).map(ServiceUsage::getBigQuery);
@@ -99,10 +99,10 @@ public class GoogleProjectConfigUtils {
     }
     BigQueryQuotas bigQueryQuotas = bigQueryQuotasMaybe.get();
     if (!bigQueryQuotas.isOverrideBigQueryDailyUsageQuota()
-        || null == bigQueryQuotas.getBigQueryDailyUsageQuotaOverrideValueBytes()) {
+        || null == bigQueryQuotas.getBigQueryDailyUsageQuotaOverrideValueMebibytes()) {
       return Optional.empty();
     }
-    long value = bigQueryQuotas.getBigQueryDailyUsageQuotaOverrideValueBytes().longValue();
+    long value = bigQueryQuotas.getBigQueryDailyUsageQuotaOverrideValueMebibytes().longValue();
     return Optional.of(value);
   }
 }

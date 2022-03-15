@@ -194,9 +194,9 @@ components:
             and there's no way to generate Optional types.
           type: boolean
           default: false
-        bigQueryDailyUsageQuotaOverrideValueBytes:
+        bigQueryDailyUsageQuotaOverrideValueMebibytes:
           description: |-
-            Daily maximum query usage per project. Ignored if overrideBigQueryDailyUsageQuota is
+            Daily maximum query usage per project in MB. Ignored if overrideBigQueryDailyUsageQuota is
             false.
           type: number
           format: long
