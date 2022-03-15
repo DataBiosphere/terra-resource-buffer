@@ -196,7 +196,7 @@ components:
           default: false
         bigQueryDailyUsageQuotaOverrideValueMebibytes:
           description: |-
-            Daily maximum query usage per project in MB. Ignored if overrideBigQueryDailyUsageQuota is
+            Daily maximum query usage per project in MiB. Ignored if overrideBigQueryDailyUsageQuota is
             false.
           type: number
           format: long
