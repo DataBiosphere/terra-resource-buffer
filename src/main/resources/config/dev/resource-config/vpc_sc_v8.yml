@@ -37,4 +37,4 @@ gcpProjectConfig:
   serviceUsage:
     bigQuery:
       overrideBigQueryDailyUsageQuota: true
-      bigQueryDailyUsageQuotaOverrideValueMebibytes: 43980465111040 # 40 TB
+      bigQueryDailyUsageQuotaOverrideValueBytes: 43980465111040 # should be MiB; 40,000 PB
