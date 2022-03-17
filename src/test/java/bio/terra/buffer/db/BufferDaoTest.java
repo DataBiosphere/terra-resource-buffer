@@ -115,7 +115,7 @@ public class BufferDaoTest extends BaseUnitTest {
     Pool retrievedPool = bufferDao.retrievePools().get(0);
     Pool resizedPool = pool.toBuilder().size(retrievedPool.size() + 10).build();
 
-    bufferDao.updatePoolsSize(ImmutableMap.of(poolId, resizedPool.size()));
+    bufferDao.updatePoolsSizes(ImmutableMap.of(poolId, resizedPool.size()));
     assertThat(bufferDao.retrievePools(), Matchers.containsInAnyOrder(resizedPool));
   }
 

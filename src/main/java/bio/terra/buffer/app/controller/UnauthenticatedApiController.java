@@ -48,16 +48,4 @@ public class UnauthenticatedApiController implements UnauthenticatedApi {
       return new ResponseEntity<>(systemStatus, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-
-  /** Required if using Swagger-CodeGen, but actually we don't need this. */
-  @Override
-  public Optional<ObjectMapper> getObjectMapper() {
-    return Optional.empty();
-  }
-
-  /** Required if using Swagger-CodeGen, but actually we don't need this. */
-  @Override
-  public Optional<HttpServletRequest> getRequest() {
-    return Optional.empty();
-  }
 }

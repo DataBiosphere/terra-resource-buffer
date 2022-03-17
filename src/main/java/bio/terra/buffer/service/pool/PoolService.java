@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /** Service to handle pool operations. */
@@ -75,7 +74,7 @@ public class PoolService {
   public ResourceInfo handoutResource(PoolId poolId, RequestHandoutId requestHandoutId) {
     return createResourceInfo(
         transactionTemplate.execute(
-            status -> handoutResourceTransactionally(poolId, requestHandoutId, status)),
+            unused -> handoutResourceTransactionally(poolId, requestHandoutId)),
         requestHandoutId);
   }
 
@@ -83,7 +82,7 @@ public class PoolService {
   public PoolInfo getPoolInfo(PoolId poolId) {
     Optional<PoolAndResourceStates> poolAndResourceStates =
         bufferDao.retrievePoolAndResourceStatesById(poolId);
-    if (!poolAndResourceStates.isPresent()) {
+    if (poolAndResourceStates.isEmpty()) {
       throw new NotFoundException(String.format("Pool %s not found", poolId));
     }
     Pool pool = poolAndResourceStates.get().pool();
@@ -105,11 +104,11 @@ public class PoolService {
             ResourceState.HANDED_OUT.name(), resourceStates.count(ResourceState.HANDED_OUT));
   }
 
-  /** Process handout resource in on transcation(anything failure will cause database rollback). */
+  /** Process handout resource in on transaction (anything failure will cause database rollback). */
   private Resource handoutResourceTransactionally(
-      PoolId poolId, RequestHandoutId requestHandoutId, TransactionStatus unused) {
+      PoolId poolId, RequestHandoutId requestHandoutId) {
     Optional<Pool> pool = bufferDao.retrievePool(poolId);
-    if (!pool.isPresent() || !pool.get().status().equals(PoolStatus.ACTIVE)) {
+    if (pool.isEmpty() || !pool.get().status().equals(PoolStatus.ACTIVE)) {
       throw new BadRequestException(String.format("Invalid pool id: %s.", poolId));
     }
     try {
@@ -119,40 +118,43 @@ public class PoolService {
               () -> bufferDao.updateOneReadyResourceToHandedOut(poolId, requestHandoutId),
               Duration.ofSeconds(2),
               20);
-      if (resource.isPresent()) {
-        return resource.get();
-      } else {
-        throw new NotFoundException(
-            String.format(
-                "No resource is ready to use at this moment for pool: %s. Please try later",
-                poolId));
-      }
+
+        return resource.orElseThrow(() ->
+            new NotFoundException(
+          String.format(
+              "No resource is ready to use at this moment for pool: %s. Please try later",
+              poolId)));
+
     } catch (InterruptedException | DataAccessException e) {
       throw new InternalServerErrorException(
           String.format(
-              "Failed to update one resource state from READY to HANDED_OUT for pool {}", poolId));
+              "Failed to update one resource state from READY to HANDED_OUT for pool %s", poolId));
     }
   }
 
+  /**
+   * Given parsed pool configurations, create new pools, deactivate removed pools, or update
+   * pool size, as required.
+   * @param parsedPoolConfigs - previously parsed pool/resource configurations
+   */
   @VisibleForTesting
   public void updateFromConfig(List<PoolWithResourceConfig> parsedPoolConfigs) {
     transactionTemplate.execute(
-        status -> {
-          Map<PoolId, Pool> allDbPoolsMap =
-              Maps.uniqueIndex(bufferDao.retrievePools(), pool -> pool.id());
-          Map<PoolId, PoolWithResourceConfig> parsedPoolConfigMap =
+        unused -> {
+          final Map<PoolId, Pool> allDbPoolsMap =
+              Maps.uniqueIndex(bufferDao.retrievePools(), Pool::id);
+          final Map<PoolId, PoolWithResourceConfig> parsedPoolConfigMap =
               Maps.uniqueIndex(
                   parsedPoolConfigs, config -> PoolId.create(config.poolConfig().getPoolId()));
 
-          Set<PoolId> allPoolIds = Sets.union(allDbPoolsMap.keySet(), parsedPoolConfigMap.keySet());
+          final Set<PoolId> allPoolIds = Sets.union(allDbPoolsMap.keySet(), parsedPoolConfigMap.keySet());
 
-          List<PoolWithResourceConfig> poolsToCreate = new ArrayList<>();
-          List<Pool> poolsToDeactivate = new ArrayList<>();
-          Map<PoolId, Integer> poolsToUpdateSize = new HashMap<>();
+          final List<PoolWithResourceConfig> poolsToCreate = new ArrayList<>();
+          final List<Pool> poolsToDeactivate = new ArrayList<>();
+          final Map<PoolId, Integer> poolIdToNewSize = new HashMap<>();
 
           // Compare pool ids in DB and config. Validate config change is valid then update DB based
-          // on
-          // the change.
+          // on the change.
           for (PoolId id : allPoolIds) {
             if (parsedPoolConfigMap.containsKey(id) && !allDbPoolsMap.containsKey(id)) {
               // Exists in config but not in DB.
@@ -161,13 +163,15 @@ public class PoolService {
               // Exists in DB but not in Config.
               poolsToDeactivate.add(allDbPoolsMap.get(id));
             } else {
-              Pool dbPool = allDbPoolsMap.get(id);
-              PoolWithResourceConfig configPool = parsedPoolConfigMap.get(id);
+              // Exists in DB and Config.
+              final Pool dbPool = allDbPoolsMap.get(id);
+              final PoolWithResourceConfig configPool = parsedPoolConfigMap.get(id);
               if (dbPool.status().equals(PoolStatus.DEACTIVATED)) {
+                // Attempting to re-create a deactivated pool, which isn't supported.
                 throw new RuntimeException(
                     String.format(
-                        "An existing deactivated pool with duplicate id(id= %s) found, "
-                            + "please consider change the pool id.",
+                        "An existing deactivated pool with duplicate id %s found. "
+                            + "Please consider changing the pool id.",
                         id));
               }
               if (!dbPool.resourceConfig().equals(configPool.resourceConfig())) {
@@ -176,44 +180,45 @@ public class PoolService {
                 // ResourceConfig name when loading from file.
                 throw new RuntimeException(
                     String.format(
-                        "Updating ResourceConfig on existing pool(id= %s) is not allowed, "
-                            + "please create a new pool config instead",
+                        "Updating ResourceConfig on existing pool (id= %s) is not allowed. "
+                            + "Please create a new pool config instead.",
                         id));
               } else if (dbPool.size() != (configPool.poolConfig().getSize())) {
                 // Exists in both places but need to update size.
-                poolsToUpdateSize.put(dbPool.id(), configPool.poolConfig().getSize());
+                poolIdToNewSize.put(dbPool.id(), configPool.poolConfig().getSize());
               }
             }
           }
           createPools(poolsToCreate);
           deactivatePools(poolsToDeactivate);
-          updatePoolSize(poolsToUpdateSize);
+          updatePoolSizes(poolIdToNewSize);
           return true;
         });
   }
 
-  private void createPools(List<PoolWithResourceConfig> poolsToCreate) {
-    List<Pool> pools = new ArrayList<>();
-    for (PoolWithResourceConfig poolConfig : poolsToCreate) {
-      Pool createdPool =
-          Pool.builder()
-              .id(PoolId.create(poolConfig.poolConfig().getPoolId()))
-              .size(poolConfig.poolConfig().getSize())
-              .resourceConfig(poolConfig.resourceConfig())
-              .creation(Instant.now())
-              .resourceType(
-                  ResourceConfigVisitor.visit(
-                          poolConfig.resourceConfig(), new ResourceConfigTypeVisitor())
-                      .orElseThrow(
-                          () ->
-                              new RuntimeException(
-                                  String.format(
-                                      "Unknown ResourceType for PoolConfig %s", poolConfig))))
-              .status(PoolStatus.ACTIVE)
-              .build();
-      pools.add(createdPool);
-    }
-    bufferDao.createPools(pools);
+  private void createPools(List<PoolWithResourceConfig> poolAndResourceConfigs) {
+    final List<Pool> poolsToCreate = poolAndResourceConfigs.stream()
+        .map(this::buildPoolFromConfig)
+        .collect(Collectors.toList());
+    bufferDao.createPools(poolsToCreate);
+  }
+
+  private Pool buildPoolFromConfig(PoolWithResourceConfig poolConfig) {
+    return Pool.builder()
+        .id(PoolId.create(poolConfig.poolConfig().getPoolId()))
+        .size(poolConfig.poolConfig().getSize())
+        .resourceConfig(poolConfig.resourceConfig())
+        .creation(Instant.now())
+        .resourceType(
+            ResourceConfigVisitor.visit(
+                    poolConfig.resourceConfig(), new ResourceConfigTypeVisitor())
+                .orElseThrow(
+                    () ->
+                        new RuntimeException(
+                            String.format(
+                                "Unknown ResourceType for PoolConfig %s", poolConfig))))
+        .status(PoolStatus.ACTIVE)
+        .build();
   }
 
   private void deactivatePools(List<Pool> poolsToDeactivate) {
@@ -221,8 +226,8 @@ public class PoolService {
         poolsToDeactivate.stream().map(Pool::id).collect(Collectors.toList()));
   }
 
-  private void updatePoolSize(Map<PoolId, Integer> poolSizes) {
-    bufferDao.updatePoolsSize(poolSizes);
+  private void updatePoolSizes(Map<PoolId, Integer> poolSizes) {
+    bufferDao.updatePoolsSizes(poolSizes);
   }
 
   /** Creates {@link ResourceInfo} from given {@link Resource}. */

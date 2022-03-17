@@ -52,7 +52,7 @@ public class BufferIntegrationTest extends BaseIntegrationTest {
         });
 
     // Upgrade the size from 2 to 5. Expect 3 more resources will be created.
-    bufferDao.updatePoolsSize(ImmutableMap.of(poolId, 5));
+    bufferDao.updatePoolsSizes(ImmutableMap.of(poolId, 5));
     resources = pollUntilResourcesMatch(bufferDao, poolId, ResourceState.READY, 5);
     resources.forEach(
         resource -> {

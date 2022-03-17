@@ -41,16 +41,4 @@ public class BufferApiController implements BufferApi {
   public ResponseEntity<PoolInfo> getPoolInfo(String poolId) {
     return new ResponseEntity<>(poolService.getPoolInfo(PoolId.create(poolId)), HttpStatus.OK);
   }
-
-  /** Required if using Swagger-CodeGen, but actually we don't need this. */
-  @Override
-  public Optional<ObjectMapper> getObjectMapper() {
-    return Optional.empty();
-  }
-
-  /** Required if using Swagger-CodeGen, but actually we don't need this. */
-  @Override
-  public Optional<HttpServletRequest> getRequest() {
-    return Optional.empty();
-  }
 }
