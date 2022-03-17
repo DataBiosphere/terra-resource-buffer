@@ -194,10 +194,17 @@ components:
             and there's no way to generate Optional types.
           type: boolean
           default: false
-        bigQueryDailyUsageQuotaOverrideValueBytes:
+        bigQueryDailyUsageQuotaOverrideValueMebibytes:
           description: |-
-            Daily maximum query usage per project. Ignored if overrideBigQueryDailyUsageQuota is
+            Daily maximum query usage per project in MiB. Ignored if overrideBigQueryDailyUsageQuota is
             false.
           type: number
           format: long
+        bigQueryDailyUsageQuotaOverrideValueBytes:
+          description: |-
+            Deprecated. Use bigQueryDailyUsageQuotaOverrideValueMebibytes instead.
+            Keeping this only for legacy pool; can remove once vpc_sc_v8 pool is retired.
+          type: number
+          format: long
+          deprecated: true
       type: object

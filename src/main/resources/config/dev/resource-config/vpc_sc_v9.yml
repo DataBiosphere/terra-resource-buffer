@@ -1,6 +1,6 @@
 # # Projects with VPC-SC configuration
 ---
-configName: "vpc_sc_v8"
+configName: "vpc_sc_v9"
 gcpProjectConfig:
   projectIdSchema:
     prefix: "terra-vpc-sc-dev"
@@ -37,4 +37,4 @@ gcpProjectConfig:
   serviceUsage:
     bigQuery:
       overrideBigQueryDailyUsageQuota: true
-      bigQueryDailyUsageQuotaOverrideValueBytes: 43980465111040 # should be MiB; 40,000 PB
+      bigQueryDailyUsageQuotaOverrideValueMebibytes: 38146972 # 40 TB

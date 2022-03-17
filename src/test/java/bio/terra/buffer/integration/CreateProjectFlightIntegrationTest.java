@@ -138,7 +138,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
-  public static final long CONSUMER_QUOTA_OVERRIDE_VALUE_BYTES = 20_000_000_000_000L;
+  public static final long CONSUMER_QUOTA_OVERRIDE_VALUE_MEBIBYTES = 20_000_000L; // ~20 TB
   @Autowired BufferDao bufferDao;
   @Autowired StairwayComponent stairwayComponent;
   @Autowired CloudComputeCow computeCow;
@@ -527,8 +527,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
                     .bigQuery(
                         new BigQueryQuotas()
                             .overrideBigQueryDailyUsageQuota(true)
-                            .bigQueryDailyUsageQuotaOverrideValueBytes(
-                                new BigDecimal(CONSUMER_QUOTA_OVERRIDE_VALUE_BYTES))));
+                            .bigQueryDailyUsageQuotaOverrideValueMebibytes(
+                                new BigDecimal(CONSUMER_QUOTA_OVERRIDE_VALUE_MEBIBYTES))));
     Pool pool = preparePool(bufferDao, gcpProjectConfig);
     String flightId = manager.submitCreationFlight(pool).orElseThrow();
     ResourceId resourceId =
@@ -547,7 +547,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     ListConsumerOverridesResponse response = list.execute();
     assertEquals(1, response.getOverrides().size(), "single override expected");
     QuotaOverride quotaOverride = response.getOverrides().get(0);
-    assertEquals(CONSUMER_QUOTA_OVERRIDE_VALUE_BYTES, quotaOverride.getOverrideValue());
+    assertEquals(CONSUMER_QUOTA_OVERRIDE_VALUE_MEBIBYTES, quotaOverride.getOverrideValue());
   }
 
   /** A {@link Flight} that will fail to create Google Project. */

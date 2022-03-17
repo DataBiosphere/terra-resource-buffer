@@ -35,7 +35,7 @@ public class CreateConsumerDefinedQuotaForBigQueryDailyUsageStep implements Step
   @Override
   public StepResult doStep(FlightContext context) throws InterruptedException, RetryException {
     Optional<Long> overrideValue =
-        GoogleProjectConfigUtils.bigQueryDailyUsageOverrideValueBytes(gcpProjectConfig);
+        GoogleProjectConfigUtils.bigQueryDailyUsageOverrideValueMebibytes(gcpProjectConfig);
     if (overrideValue.isEmpty()) {
       // Do not apply any quota override
       return StepResult.getStepResultSuccess();

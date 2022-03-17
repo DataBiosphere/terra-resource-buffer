@@ -13,6 +13,9 @@ poolConfigs:
   - poolId: "vpc_sc_v8"
     size: 300
     resourceConfigName: "vpc_sc_v8"
+  - poolId: "vpc_sc_v9"
+    size: 300
+    resourceConfigName: "vpc_sc_v9"
   - poolId: "datarepo_v3"
     size: 300
     resourceConfigName: "datarepo_v3"
