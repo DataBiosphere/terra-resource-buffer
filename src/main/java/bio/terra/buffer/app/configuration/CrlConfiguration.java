@@ -10,6 +10,7 @@ import bio.terra.cloudres.google.dns.DnsCow;
 import bio.terra.cloudres.google.iam.IamCow;
 import bio.terra.cloudres.google.serviceusage.ServiceUsageCow;
 import bio.terra.cloudres.google.storage.StorageCow;
+import ch.qos.logback.core.net.server.Client;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.services.cloudresourcemanager.v3.CloudResourceManager;
@@ -142,10 +143,10 @@ public class CrlConfiguration {
   /** The CRL {@link CloudResourceManagerCow} which wrappers Google Cloud Resource Manager API. */
   @Bean
   @Lazy
-  public CloudResourceManagerCow cloudResourceManagerCow()
+  public CloudResourceManagerCow cloudResourceManagerCow(ClientConfig clientConfig)
       throws IOException, GeneralSecurityException {
     return new CloudResourceManagerCow(
-        clientConfig(),
+        clientConfig,
         new CloudResourceManager.Builder(
                 GoogleNetHttpTransport.newTrustedTransport(),
                 Defaults.jsonFactory(),
@@ -159,23 +160,23 @@ public class CrlConfiguration {
   /** The CRL {@link CloudBillingClientCow} which wrappers Google Billing API. */
   @Bean
   @Lazy
-  public CloudBillingClientCow cloudBillingClientCow() throws IOException {
-    return new CloudBillingClientCow(clientConfig(), GoogleCredentials.getApplicationDefault());
+  public CloudBillingClientCow cloudBillingClientCow(ClientConfig clientConfig) throws IOException {
+    return new CloudBillingClientCow(clientConfig, GoogleCredentials.getApplicationDefault());
   }
 
   /** The CRL {@link ServiceUsageCow} which wrappers Google Cloud ServiceUsage API. */
   @Bean
   @Lazy
-  public ServiceUsageCow serviceUsageCow() throws GeneralSecurityException, IOException {
-    return ServiceUsageCow.create(clientConfig(), GoogleCredentials.getApplicationDefault());
+  public ServiceUsageCow serviceUsageCow(ClientConfig clientConfig) throws GeneralSecurityException, IOException {
+    return ServiceUsageCow.create(clientConfig, GoogleCredentials.getApplicationDefault());
   }
 
   /** The CRL {@link CloudComputeCow} which wrappers Google Compute API. */
   @Bean
   @Lazy
-  public CloudComputeCow cloudComputeCow() throws IOException, GeneralSecurityException {
+  public CloudComputeCow cloudComputeCow(ClientConfig clientConfig) throws IOException, GeneralSecurityException {
     return new CloudComputeCow(
-        clientConfig(),
+        clientConfig,
         new Compute.Builder(
                 GoogleNetHttpTransport.newTrustedTransport(),
                 Defaults.jsonFactory(),
@@ -189,9 +190,9 @@ public class CrlConfiguration {
   /** The CRL {@link DnsCow} which wrappers Google Compute API. */
   @Bean
   @Lazy
-  public DnsCow dnsCow() throws IOException, GeneralSecurityException {
+  public DnsCow dnsCow(ClientConfig clientConfig) throws IOException, GeneralSecurityException {
     return new DnsCow(
-        clientConfig(),
+        clientConfig,
         new Dns.Builder(
                 GoogleNetHttpTransport.newTrustedTransport(),
                 Defaults.jsonFactory(),
@@ -205,16 +206,16 @@ public class CrlConfiguration {
   /** The CRL {@link StorageCow} which wrappers Google Compute API. */
   @Bean
   @Lazy
-  public StorageCow storageCow() throws IOException, GeneralSecurityException {
-    return new StorageCow(clientConfig(), StorageOptions.getDefaultInstance());
+  public StorageCow storageCow(ClientConfig clientConfig) {
+    return new StorageCow(clientConfig, StorageOptions.getDefaultInstance());
   }
 
   /** The CRL {@link IamCow} which wrappers Google IAM API. */
   @Bean
   @Lazy
-  public IamCow iamCow() throws IOException, GeneralSecurityException {
+  public IamCow iamCow(ClientConfig clientConfig) throws IOException, GeneralSecurityException {
     return new IamCow(
-        clientConfig(),
+        clientConfig,
         new Iam.Builder(
                 GoogleNetHttpTransport.newTrustedTransport(),
                 Defaults.jsonFactory(),
