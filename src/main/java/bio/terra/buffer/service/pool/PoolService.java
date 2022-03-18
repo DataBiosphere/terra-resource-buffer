@@ -119,11 +119,13 @@ public class PoolService {
               Duration.ofSeconds(2),
               20);
 
-        return resource.orElseThrow(() ->
+        Resource result = resource.orElseThrow(() ->
             new NotFoundException(
           String.format(
               "No resource is ready to use at this moment for pool: %s. Please try later",
               poolId)));
+        logger.info("Handed out resource ID {}, Handout ID {}", result.cloudResourceUid(), result.requestHandoutId());
+        return result;
 
     } catch (InterruptedException | DataAccessException e) {
       throw new InternalServerErrorException(
@@ -200,6 +202,10 @@ public class PoolService {
     final List<Pool> poolsToCreate = poolAndResourceConfigs.stream()
         .map(this::buildPoolFromConfig)
         .collect(Collectors.toList());
+
+    logger.info("Creating pools {}.", poolsToCreate.stream()
+        .map(Object::toString)
+        .collect(Collectors.joining(", ")));
     bufferDao.createPools(poolsToCreate);
   }
 
@@ -222,11 +228,17 @@ public class PoolService {
   }
 
   private void deactivatePools(List<Pool> poolsToDeactivate) {
+    logger.info("Deactivating pools {}.", poolsToDeactivate.stream()
+        .map(Object::toString)
+        .collect(Collectors.joining(", ")));
     bufferDao.deactivatePools(
         poolsToDeactivate.stream().map(Pool::id).collect(Collectors.toList()));
   }
 
   private void updatePoolSizes(Map<PoolId, Integer> poolSizes) {
+    logger.info("Updating sizes for {}.", poolSizes.entrySet().stream()
+        .map(e -> "pool ID: " + e.getKey().toString() + " to size " + e.getValue())
+        .collect(Collectors.joining(", ")));
     bufferDao.updatePoolsSizes(poolSizes);
   }
 

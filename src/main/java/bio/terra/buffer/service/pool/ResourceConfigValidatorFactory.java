@@ -8,7 +8,7 @@ import bio.terra.buffer.generated.model.ResourceConfig;
 public class ResourceConfigValidatorFactory {
   public static ResourceConfigValidator getValidator(ResourceConfig resourceConfig) {
     ResourceType type =
-        ResourceConfigVisitor.visit(resourceConfig, new ResourceConfigTypeVisitor()).get();
+        ResourceConfigVisitor.visit(resourceConfig, new ResourceConfigTypeVisitor()).orElseThrow();
     if (type.equals(ResourceType.GOOGLE_PROJECT)) {
       return new GcpResourceConfigValidator();
     } else {
