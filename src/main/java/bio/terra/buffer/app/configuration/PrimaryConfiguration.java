@@ -46,8 +46,8 @@ public class PrimaryConfiguration {
   private boolean deleteExcessResources = false;
 
   /**
-   * How many resource creation flights for a pool to process simultaneously because we
-   * don't want a pool that eats all flights.
+   * How many resource creation flights for a pool to process simultaneously because we don't want a
+   * pool that eats all flights.
    */
   private int resourceCreationPerPoolLimit = 1;
 

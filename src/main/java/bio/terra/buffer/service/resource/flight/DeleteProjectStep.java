@@ -38,7 +38,7 @@ public class DeleteProjectStep implements Step {
             .getProjectId();
     try {
       Optional<Project> project = retrieveProject(rmCow, projectId);
-      if (!project.isPresent() || isProjectDeleting(project.get())) {
+      if (project.isEmpty() || isProjectDeleting(project.get())) {
         // Skip if project does not exist, or is being deleted. We know that the project is
         // created by Resource Buffer Service hence Resource Buffer Service should have owner
         // permission. So we assume 403 in this case

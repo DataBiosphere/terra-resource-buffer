@@ -120,13 +120,19 @@ public class PoolService {
               Duration.ofSeconds(2),
               20);
 
-        Resource result = resource.orElseThrow(() ->
-            new NotFoundException(
-          String.format(
-              "No resource is ready to use at this moment for pool: %s. Please try later",
-              poolId)));
-        logger.info("Handed out resource ID {}, Handout ID {}, Pool ID {}", result.cloudResourceUid(), result.requestHandoutId(), poolId);
-        return result;
+      Resource result =
+          resource.orElseThrow(
+              () ->
+                  new NotFoundException(
+                      String.format(
+                          "No resource is ready to use at this moment for pool: %s. Please try later",
+                          poolId)));
+      logger.info(
+          "Handed out resource ID {}, Handout ID {}, Pool ID {}",
+          result.cloudResourceUid(),
+          result.requestHandoutId(),
+          poolId);
+      return result;
 
     } catch (InterruptedException | DataAccessException e) {
       throw new InternalServerErrorException(
@@ -136,8 +142,9 @@ public class PoolService {
   }
 
   /**
-   * Given parsed pool configurations, create new pools, deactivate removed pools, or update
-   * pool size, as required.
+   * Given parsed pool configurations, create new pools, deactivate removed pools, or update pool
+   * size, as required.
+   *
    * @param parsedPoolConfigs - previously parsed pool/resource configurations
    */
   @VisibleForTesting
@@ -150,7 +157,8 @@ public class PoolService {
               Maps.uniqueIndex(
                   parsedPoolConfigs, config -> PoolId.create(config.poolConfig().getPoolId()));
 
-          final Set<PoolId> allPoolIds = Sets.union(allDbPoolsMap.keySet(), parsedPoolConfigMap.keySet());
+          final Set<PoolId> allPoolIds =
+              Sets.union(allDbPoolsMap.keySet(), parsedPoolConfigMap.keySet());
 
           final List<PoolWithResourceConfig> poolsToCreate = new ArrayList<>();
           final List<Pool> poolsToDeactivate = new ArrayList<>();
@@ -175,7 +183,7 @@ public class PoolService {
                     String.format(
                         "An existing deactivated pool with id %s found in config file. "
                             + "Restoring deactivated pools (or reusing their names) is not supported. "
-                        + "Please remove the pool from the config or change its name.",
+                            + "Please remove the pool from the config or change its name.",
                         id));
               }
               if (!dbPool.resourceConfig().equals(configPool.resourceConfig())) {
@@ -185,7 +193,7 @@ public class PoolService {
                 throw new BadPoolConfigException(
                     String.format(
                         "Updating ResourceConfig on existing pool (id= %s) "
-                        + "is not allowed for any attributes except size. "
+                            + "is not allowed for any attributes except size. "
                             + "Please create a new pool config instead.",
                         id));
               } else if (dbPool.size() != (configPool.poolConfig().getSize())) {
@@ -202,13 +210,12 @@ public class PoolService {
   }
 
   private void createPools(List<PoolWithResourceConfig> poolAndResourceConfigs) {
-    final List<Pool> poolsToCreate = poolAndResourceConfigs.stream()
-        .map(this::buildPoolFromConfig)
-        .collect(Collectors.toList());
+    final List<Pool> poolsToCreate =
+        poolAndResourceConfigs.stream().map(this::buildPoolFromConfig).collect(Collectors.toList());
 
-    logger.info("Creating pools {}.", poolsToCreate.stream()
-        .map(Object::toString)
-        .collect(Collectors.joining(", ")));
+    logger.info(
+        "Creating pools {}.",
+        poolsToCreate.stream().map(Object::toString).collect(Collectors.joining(", ")));
     bufferDao.createPools(poolsToCreate);
   }
 
@@ -224,24 +231,25 @@ public class PoolService {
                 .orElseThrow(
                     () ->
                         new BadPoolConfigException(
-                            String.format(
-                                "Unknown ResourceType for PoolConfig %s", poolConfig))))
+                            String.format("Unknown ResourceType for PoolConfig %s", poolConfig))))
         .status(PoolStatus.ACTIVE)
         .build();
   }
 
   private void deactivatePools(List<Pool> poolsToDeactivate) {
-    logger.info("Deactivating pools {}.", poolsToDeactivate.stream()
-        .map(Object::toString)
-        .collect(Collectors.joining(", ")));
+    logger.info(
+        "Deactivating pools {}.",
+        poolsToDeactivate.stream().map(Object::toString).collect(Collectors.joining(", ")));
     bufferDao.deactivatePools(
         poolsToDeactivate.stream().map(Pool::id).collect(Collectors.toList()));
   }
 
   private void updatePoolSizes(Map<PoolId, Integer> poolSizes) {
-    logger.info("Updating sizes: {}.", poolSizes.entrySet().stream()
-        .map(e -> "pool ID: " + e.getKey().toString() + " to size: " + e.getValue())
-        .collect(Collectors.joining(", ")));
+    logger.info(
+        "Updating sizes: {}.",
+        poolSizes.entrySet().stream()
+            .map(e -> "pool ID: " + e.getKey().toString() + " to size: " + e.getValue())
+            .collect(Collectors.joining(", ")));
     bufferDao.updatePoolsSizes(poolSizes);
   }
 

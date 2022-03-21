@@ -10,7 +10,6 @@ import bio.terra.cloudres.google.dns.DnsCow;
 import bio.terra.cloudres.google.iam.IamCow;
 import bio.terra.cloudres.google.serviceusage.ServiceUsageCow;
 import bio.terra.cloudres.google.storage.StorageCow;
-import ch.qos.logback.core.net.server.Client;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.services.cloudresourcemanager.v3.CloudResourceManager;
@@ -167,14 +166,16 @@ public class CrlConfiguration {
   /** The CRL {@link ServiceUsageCow} which wrappers Google Cloud ServiceUsage API. */
   @Bean
   @Lazy
-  public ServiceUsageCow serviceUsageCow(ClientConfig clientConfig) throws GeneralSecurityException, IOException {
+  public ServiceUsageCow serviceUsageCow(ClientConfig clientConfig)
+      throws GeneralSecurityException, IOException {
     return ServiceUsageCow.create(clientConfig, GoogleCredentials.getApplicationDefault());
   }
 
   /** The CRL {@link CloudComputeCow} which wrappers Google Compute API. */
   @Bean
   @Lazy
-  public CloudComputeCow cloudComputeCow(ClientConfig clientConfig) throws IOException, GeneralSecurityException {
+  public CloudComputeCow cloudComputeCow(ClientConfig clientConfig)
+      throws IOException, GeneralSecurityException {
     return new CloudComputeCow(
         clientConfig,
         new Compute.Builder(

@@ -101,7 +101,8 @@ public class FlightScheduler {
             && poolAndResources.resourceStates().count(ResourceState.READY) > poolSize) {
           // Only delete READY resource, we hope future schedule runs will delete resources.
           // just turns to READY from CREATING.
-          int excessReadyCount = poolAndResources.resourceStates().count(ResourceState.READY) - poolSize;
+          int excessReadyCount =
+              poolAndResources.resourceStates().count(ResourceState.READY) - poolSize;
           scheduleDeletionFlights(poolAndResources.pool(), excessReadyCount);
         }
       } else {
@@ -138,12 +139,14 @@ public class FlightScheduler {
     if (number == 0) {
       return;
     }
-    int flightsToScheduleCount = Math.min(primaryConfiguration.getResourceDeletionPerPoolLimit(), number);
+    int flightsToScheduleCount =
+        Math.min(primaryConfiguration.getResourceDeletionPerPoolLimit(), number);
     logger.info(
         "Beginning resource deletion flights for pool: {}, target submission number: {} .",
         pool.id(),
         flightsToScheduleCount);
 
+    // TODO: check pool expiration time before deleting projects
     List<Resource> resources =
         bufferDao.retrieveResourcesRandomly(pool.id(), ResourceState.READY, flightsToScheduleCount);
     int successSubmitNum = 0;

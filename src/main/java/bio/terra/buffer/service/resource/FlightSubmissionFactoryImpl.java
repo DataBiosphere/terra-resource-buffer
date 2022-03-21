@@ -26,8 +26,7 @@ public class FlightSubmissionFactoryImpl implements FlightSubmissionFactory {
     if (!CREATION_FLIGHT_MAP.containsKey(pool.resourceType())) {
       throw new UnsupportedOperationException(
           String.format(
-              "Creation for ResourceType: %s is not supported, PoolId: %s",
-              pool, pool.id()));
+              "Creation for ResourceType: %s is not supported, PoolId: %s", pool, pool.id()));
     }
     FlightMap flightMap = new FlightMap();
     pool.id().store(flightMap);
