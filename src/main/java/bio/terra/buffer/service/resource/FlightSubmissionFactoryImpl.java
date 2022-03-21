@@ -26,8 +26,7 @@ public class FlightSubmissionFactoryImpl implements FlightSubmissionFactory {
     if (!CREATION_FLIGHT_MAP.containsKey(pool.resourceType())) {
       throw new UnsupportedOperationException(
           String.format(
-              "Creation for ResourceType: %s is not supported, PoolId: %s",
-              pool.toString(), pool.id()));
+              "Creation for ResourceType: %s is not supported, PoolId: %s", pool, pool.id()));
     }
     FlightMap flightMap = new FlightMap();
     pool.id().store(flightMap);
@@ -38,7 +37,7 @@ public class FlightSubmissionFactoryImpl implements FlightSubmissionFactory {
 
   @Override
   public FlightSubmission getDeletionFlightSubmission(Resource resource, ResourceType type) {
-    if (!CREATION_FLIGHT_MAP.containsKey(type)) {
+    if (!DELETION_FLIGHT_MAP.containsKey(type)) {
       throw new UnsupportedOperationException(
           String.format("Deletion for ResourceType: %s is not supported", type.toString()));
     }

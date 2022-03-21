@@ -144,6 +144,7 @@ public class BufferDao {
   }
 
   /** Updates list of pools' status to DEACTIVATED. */
+  // TODO: consider delaying expiration so pool can be recovered
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
   public void deactivatePools(List<PoolId> poolIds) {
     String sql = "UPDATE pool SET status = :status, expiration = :expiration WHERE id = :id ";
@@ -163,7 +164,7 @@ public class BufferDao {
 
   /** Updates list of pools' size. */
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
-  public void updatePoolsSize(Map<PoolId, Integer> poolsToUpdateSize) {
+  public void updatePoolsSizes(Map<PoolId, Integer> poolsToUpdateSize) {
     String sql = "UPDATE pool SET size = :size WHERE id = :id ";
 
     MapSqlParameterSource[] sqlParameterSourceList =
@@ -288,7 +289,7 @@ public class BufferDao {
         // resource.
         throw new InternalServerErrorException(
             String.format(
-                "Unexpected handed out resource state found in pool: id: %s, requestHandoutId: %s",
+                "Unexpected handed out resource state found in pool id: %s, requestHandoutId: %s",
                 poolId, requestHandoutId));
       }
     } else {
@@ -311,7 +312,7 @@ public class BufferDao {
                 .addValue("handout_time", OffsetDateTime.now(ZoneOffset.UTC))
                 .addValue("id", selectedResource.id().id());
 
-        // Return the selectedResource if update successfully. Otherwise return empty.
+        // Return the selectedResource if update successfully. Otherwise, return empty.
         return jdbcTemplate.update(sql, params) == 1
             ? Optional.of(selectedResource)
             : Optional.empty();
@@ -363,7 +364,7 @@ public class BufferDao {
 
   /**
    * Inserts a record into cleanup_record table. A record will be inserted into clean_up table after
-   * Resource Buffer Service publish this resource message to Janitor. This is only expected to be
+   * Resource Buffer Service publishes this resource message to Janitor. This is only expected to be
    * used in testing environment to make sure resources can be cleaned up after use.
    */
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
@@ -376,7 +377,7 @@ public class BufferDao {
   }
 
   /**
-   * Retrieves resources that need to cleanup by Janitor. Those resources should be:
+   * Retrieves resources that need cleanup by Janitor. Those resources should be:
    *
    * <ul>
    *   <li>State is HANDED_OUT in resource table
@@ -447,15 +448,15 @@ public class BufferDao {
     @Override
     public List<PoolAndResourceStates> extractData(ResultSet rs)
         throws SQLException, DataAccessException {
-      Map<PoolId, PoolAndResourceStates.Builder> pools = new HashMap<>();
+      Map<PoolId, PoolAndResourceStates.Builder> poolIdToBuilder = new HashMap<>();
       int rowNum = 0;
       while (rs.next()) {
         PoolId id = PoolId.create(rs.getString("id"));
-        PoolAndResourceStates.Builder poolAndResourceStateBuilder = pools.get(id);
+        PoolAndResourceStates.Builder poolAndResourceStateBuilder = poolIdToBuilder.get(id);
         if (poolAndResourceStateBuilder == null) {
           poolAndResourceStateBuilder = PoolAndResourceStates.builder();
           poolAndResourceStateBuilder.setPool(POOL_ROW_MAPPER.mapRow(rs, rowNum));
-          pools.put(id, poolAndResourceStateBuilder);
+          poolIdToBuilder.put(id, poolAndResourceStateBuilder);
         }
         if (rs.getString("state") != null) {
           // resourceState may be null from left join for a pool with no resources.
@@ -464,7 +465,7 @@ public class BufferDao {
         }
         ++rowNum;
       }
-      return pools.values().stream()
+      return poolIdToBuilder.values().stream()
           .map(PoolAndResourceStates.Builder::build)
           .collect(Collectors.toList());
     }

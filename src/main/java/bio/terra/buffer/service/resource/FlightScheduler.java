@@ -85,24 +85,25 @@ public class FlightScheduler {
     for (PoolAndResourceStates poolAndResources : poolAndResourceStatesList) {
       recordResourceStateCount(poolAndResources);
       if (poolAndResources.pool().status().equals(PoolStatus.ACTIVE)) {
-        int size = poolAndResources.pool().size();
+        int poolSize = poolAndResources.pool().size();
         int readyAndCreatingCount =
             poolAndResources.resourceStates().count(ResourceState.CREATING)
                 + poolAndResources.resourceStates().count(ResourceState.READY);
         logger.info(
             "Pool id: {}, size:{}, readyAndCreatingCount: {}.",
             poolAndResources.pool().id(),
-            size,
+            poolSize,
             readyAndCreatingCount);
-        if (size > readyAndCreatingCount) {
-          scheduleCreationFlights(poolAndResources.pool(), size - readyAndCreatingCount);
+        if (poolSize > readyAndCreatingCount) {
+          int poolsToCreateCount = poolSize - readyAndCreatingCount;
+          scheduleCreationFlights(poolAndResources.pool(), poolsToCreateCount);
         } else if (primaryConfiguration.isDeleteExcessResources()
-            && poolAndResources.resourceStates().count(ResourceState.READY) > size) {
-          // Only deletion READY resource, we hope future schedule runs will deletion resources
+            && poolAndResources.resourceStates().count(ResourceState.READY) > poolSize) {
+          // Only delete READY resource, we hope future schedule runs will delete resources.
           // just turns to READY from CREATING.
-          scheduleDeletionFlights(
-              poolAndResources.pool(),
-              poolAndResources.resourceStates().count(ResourceState.READY) - size);
+          int excessReadyCount =
+              poolAndResources.resourceStates().count(ResourceState.READY) - poolSize;
+          scheduleDeletionFlights(poolAndResources.pool(), excessReadyCount);
         }
       } else {
         // Only deletion READY resource, we hope future schedule runs will deletion resources
@@ -133,19 +134,21 @@ public class FlightScheduler {
         pool.id());
   }
 
-  /** Schedules up to {@code number} of resources creation flight for a pool. */
+  /** Schedules up to {@code number} of resources deletion flight for a pool. */
   private void scheduleDeletionFlights(Pool pool, int number) {
     if (number == 0) {
       return;
     }
-    int flightToSchedule = Math.min(primaryConfiguration.getResourceDeletionPerPoolLimit(), number);
+    int flightsToScheduleCount =
+        Math.min(primaryConfiguration.getResourceDeletionPerPoolLimit(), number);
     logger.info(
         "Beginning resource deletion flights for pool: {}, target submission number: {} .",
         pool.id(),
-        flightToSchedule);
+        flightsToScheduleCount);
 
+    // TODO: check pool expiration time before deleting projects
     List<Resource> resources =
-        bufferDao.retrieveResourcesRandomly(pool.id(), ResourceState.READY, flightToSchedule);
+        bufferDao.retrieveResourcesRandomly(pool.id(), ResourceState.READY, flightsToScheduleCount);
     int successSubmitNum = 0;
     for (Resource resource : resources) {
       boolean submissionSuccessful =
