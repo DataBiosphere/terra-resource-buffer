@@ -90,6 +90,7 @@ public class CreateConsumerDefinedQuotaForBigQueryDailyUsageStep implements Step
     return result;
   }
 
+  // Undo will ultimately delete the created GCP project, which will take this override with it.
   @Override
   public StepResult undoStep(FlightContext context) throws InterruptedException {
     return StepResult.getStepResultSuccess();

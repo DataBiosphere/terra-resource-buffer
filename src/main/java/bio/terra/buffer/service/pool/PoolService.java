@@ -18,6 +18,7 @@ import bio.terra.buffer.generated.model.PoolConfig;
 import bio.terra.buffer.generated.model.PoolInfo;
 import bio.terra.buffer.generated.model.ResourceInfo;
 import bio.terra.common.exception.BadRequestException;
+import bio.terra.common.exception.ConflictException;
 import bio.terra.common.exception.InternalServerErrorException;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
@@ -124,7 +125,7 @@ public class PoolService {
           String.format(
               "No resource is ready to use at this moment for pool: %s. Please try later",
               poolId)));
-        logger.info("Handed out resource ID {}, Handout ID {}", result.cloudResourceUid(), result.requestHandoutId());
+        logger.info("Handed out resource ID {}, Handout ID {}, Pool ID {}", result.cloudResourceUid(), result.requestHandoutId(), poolId);
         return result;
 
     } catch (InterruptedException | DataAccessException e) {
@@ -170,19 +171,21 @@ public class PoolService {
               final PoolWithResourceConfig configPool = parsedPoolConfigMap.get(id);
               if (dbPool.status().equals(PoolStatus.DEACTIVATED)) {
                 // Attempting to re-create a deactivated pool, which isn't supported.
-                throw new RuntimeException(
+                throw new ConflictException(
                     String.format(
-                        "An existing deactivated pool with duplicate id %s found. "
-                            + "Please consider changing the pool id.",
+                        "An existing deactivated pool with id %s found in config file. "
+                            + "Restoring deactivated pools (or reusing their names) is not supported. "
+                        + "Please remove the pool from the config or change its name.",
                         id));
               }
               if (!dbPool.resourceConfig().equals(configPool.resourceConfig())) {
                 // Updating existing resource config other than size.
                 // Note that we already verify pool configs' resource_config_name matches inside
                 // ResourceConfig name when loading from file.
-                throw new RuntimeException(
+                throw new BadPoolConfigException(
                     String.format(
-                        "Updating ResourceConfig on existing pool (id= %s) is not allowed. "
+                        "Updating ResourceConfig on existing pool (id= %s) "
+                        + "is not allowed for any attributes except size. "
                             + "Please create a new pool config instead.",
                         id));
               } else if (dbPool.size() != (configPool.poolConfig().getSize())) {
@@ -220,7 +223,7 @@ public class PoolService {
                     poolConfig.resourceConfig(), new ResourceConfigTypeVisitor())
                 .orElseThrow(
                     () ->
-                        new RuntimeException(
+                        new BadPoolConfigException(
                             String.format(
                                 "Unknown ResourceType for PoolConfig %s", poolConfig))))
         .status(PoolStatus.ACTIVE)
@@ -236,8 +239,8 @@ public class PoolService {
   }
 
   private void updatePoolSizes(Map<PoolId, Integer> poolSizes) {
-    logger.info("Updating sizes for {}.", poolSizes.entrySet().stream()
-        .map(e -> "pool ID: " + e.getKey().toString() + " to size " + e.getValue())
+    logger.info("Updating sizes: {}.", poolSizes.entrySet().stream()
+        .map(e -> "pool ID: " + e.getKey().toString() + " to size: " + e.getValue())
         .collect(Collectors.joining(", ")));
     bufferDao.updatePoolsSizes(poolSizes);
   }
