@@ -200,7 +200,7 @@ public class PoolServiceTest extends BaseUnitTest {
 
   @Test
   public void updateFromConfig_createDeactivateReactivate_success() throws Exception {
-    // create two pools
+    // Create two pools so we fully exercise the batch methods in the DAO.
     PoolId poolId1 = PoolId.create("poolId1");
     PoolWithResourceConfig parsedPoolConfig1 =
         PoolWithResourceConfig.create(
