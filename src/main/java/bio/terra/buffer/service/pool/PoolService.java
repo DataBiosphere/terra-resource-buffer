@@ -18,7 +18,6 @@ import bio.terra.buffer.generated.model.PoolConfig;
 import bio.terra.buffer.generated.model.PoolInfo;
 import bio.terra.buffer.generated.model.ResourceInfo;
 import bio.terra.common.exception.BadRequestException;
-import bio.terra.common.exception.ConflictException;
 import bio.terra.common.exception.InternalServerErrorException;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
@@ -162,6 +161,7 @@ public class PoolService {
 
           final List<PoolWithResourceConfig> poolsToCreate = new ArrayList<>();
           final List<Pool> poolsToDeactivate = new ArrayList<>();
+          final List<PoolWithResourceConfig> poolsToReactivate = new ArrayList<>();
           final Map<PoolId, Integer> poolIdToNewSize = new HashMap<>();
 
           // Compare pool ids in DB and config. Validate config change is valid then update DB based
@@ -178,13 +178,9 @@ public class PoolService {
               final Pool dbPool = allDbPoolsMap.get(id);
               final PoolWithResourceConfig configPool = parsedPoolConfigMap.get(id);
               if (dbPool.status().equals(PoolStatus.DEACTIVATED)) {
-                // Attempting to re-create a deactivated pool, which isn't supported.
-                throw new ConflictException(
-                    String.format(
-                        "An existing deactivated pool with id %s found in config file. "
-                            + "Restoring deactivated pools (or reusing their names) is not supported. "
-                            + "Please remove the pool from the config or change its name.",
-                        id));
+                PoolWithResourceConfig poolWithConfig = parsedPoolConfigMap.get(id);
+                // Re-activate a deactivated pool
+                poolsToReactivate.add(poolWithConfig);
               }
               if (!dbPool.resourceConfig().equals(configPool.resourceConfig())) {
                 // Updating existing resource config other than size.
@@ -204,6 +200,7 @@ public class PoolService {
           }
           createPools(poolsToCreate);
           deactivatePools(poolsToDeactivate);
+          reactivatePools(poolsToReactivate);
           updatePoolSizes(poolIdToNewSize);
           return true;
         });
@@ -215,7 +212,7 @@ public class PoolService {
 
     logger.info(
         "Creating pools {}.",
-        poolsToCreate.stream().map(Object::toString).collect(Collectors.joining(", ")));
+        poolsToCreate.stream().map(p -> p.id().toString()).collect(Collectors.joining(", ")));
     bufferDao.createPools(poolsToCreate);
   }
 
@@ -239,9 +236,22 @@ public class PoolService {
   private void deactivatePools(List<Pool> poolsToDeactivate) {
     logger.info(
         "Deactivating pools {}.",
-        poolsToDeactivate.stream().map(Object::toString).collect(Collectors.joining(", ")));
+        poolsToDeactivate.stream().map(p -> p.id().toString()).collect(Collectors.joining(", ")));
     bufferDao.deactivatePools(
         poolsToDeactivate.stream().map(Pool::id).collect(Collectors.toList()));
+  }
+
+  private void reactivatePools(List<PoolWithResourceConfig> poolsAndConfigsToReactivate) {
+    logger.info(
+        "Re-activating pools {}.",
+        poolsAndConfigsToReactivate.stream()
+            .map(pwrc -> pwrc.poolConfig().getPoolId())
+            .collect(Collectors.joining(", ")));
+    final List<Pool> poolsToReactivate =
+        poolsAndConfigsToReactivate.stream()
+            .map(this::buildPoolFromConfig) // creation time isn't right, but will be ignored
+            .collect(Collectors.toList());
+    bufferDao.reactivatePools(poolsToReactivate);
   }
 
   private void updatePoolSizes(Map<PoolId, Integer> poolSizes) {

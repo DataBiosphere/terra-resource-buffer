@@ -27,6 +27,7 @@ import bio.terra.buffer.generated.model.ResourceInfo;
 import bio.terra.common.exception.BadRequestException;
 import com.google.common.collect.ImmutableList;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -219,6 +220,85 @@ public class PoolServiceTest extends BaseUnitTest {
 
     poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig));
     assertEquals(bufferDao.retrievePools().get(0), createdPool.toBuilder().size(size + 10).build());
+  }
+
+  @Test
+  public void updateFromConfig_createDeactivateReactivate_success() throws Exception {
+    // create two pools
+    PoolId poolId1 = PoolId.create("poolId1");
+    PoolWithResourceConfig parsedPoolConfig1 =
+        PoolWithResourceConfig.create(
+            new PoolConfig()
+                .poolId(poolId1.toString())
+                .size(10)
+                .resourceConfigName(RESOURCE_CONFIG_NAME),
+            newResourceConfig());
+
+    PoolId poolId2 = PoolId.create("poolId2");
+    PoolWithResourceConfig parsedPoolConfig2 =
+        PoolWithResourceConfig.create(
+            new PoolConfig()
+                .poolId(poolId2.toString())
+                .size(50)
+                .resourceConfigName(RESOURCE_CONFIG_NAME),
+            newResourceConfig());
+
+    poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig1, parsedPoolConfig2));
+    List<Pool> pools = bufferDao.retrievePools();
+
+    assertEquals(2, pools.size());
+    Pool createdPool1 =
+        pools.stream().filter(p -> p.id().equals(poolId1)).findFirst().orElseThrow();
+    assertEquals(poolId1, createdPool1.id());
+    assertEquals(ResourceType.GOOGLE_PROJECT, createdPool1.resourceType());
+    assertEquals(PoolStatus.ACTIVE, createdPool1.status());
+    assertEquals(parsedPoolConfig1.resourceConfig(), createdPool1.resourceConfig());
+
+    Pool createdPool2 =
+        pools.stream().filter(p -> p.id().equals(poolId2)).findFirst().orElseThrow();
+    ;
+    assertEquals(poolId2, createdPool2.id());
+    assertEquals(ResourceType.GOOGLE_PROJECT, createdPool2.resourceType());
+    assertEquals(PoolStatus.ACTIVE, createdPool2.status());
+    assertEquals(parsedPoolConfig1.resourceConfig(), createdPool1.resourceConfig());
+
+    // Deactivate both pools
+    poolService.updateFromConfig(Collections.emptyList());
+    List<Pool> deactivatedPools = bufferDao.retrievePools();
+    assertEquals(2, deactivatedPools.size());
+    Pool deactivatedPool1 =
+        deactivatedPools.stream().filter(p -> p.id().equals(poolId1)).findFirst().orElseThrow();
+    assertEquals(ResourceType.GOOGLE_PROJECT, deactivatedPool1.resourceType());
+    assertEquals(PoolStatus.DEACTIVATED, deactivatedPool1.status());
+
+    Pool deactivatedPool2 =
+        deactivatedPools.stream().filter(p -> p.id().equals(poolId2)).findFirst().orElseThrow();
+    assertEquals(ResourceType.GOOGLE_PROJECT, deactivatedPool2.resourceType());
+    assertEquals(PoolStatus.DEACTIVATED, deactivatedPool2.status());
+
+    // Re-activate pools
+    // Resize pool 2
+    PoolWithResourceConfig resizedPoolConfig2 =
+        PoolWithResourceConfig.create(
+            new PoolConfig()
+                .poolId(poolId2.toString())
+                .size(25)
+                .resourceConfigName(RESOURCE_CONFIG_NAME),
+            newResourceConfig());
+
+    poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig1, resizedPoolConfig2));
+    List<Pool> reactivatedPools = bufferDao.retrievePools();
+    Pool reactivatedPool1 =
+        reactivatedPools.stream().filter(p -> p.id().equals(poolId1)).findFirst().orElseThrow();
+    assertEquals(ResourceType.GOOGLE_PROJECT, reactivatedPool1.resourceType());
+    assertEquals(PoolStatus.ACTIVE, reactivatedPool1.status());
+    assertEquals(10, reactivatedPool1.size());
+
+    Pool reactivatedPool2 =
+        reactivatedPools.stream().filter(p -> p.id().equals(poolId2)).findFirst().orElseThrow();
+    assertEquals(ResourceType.GOOGLE_PROJECT, reactivatedPool2.resourceType());
+    assertEquals(PoolStatus.ACTIVE, reactivatedPool2.status());
+    assertEquals(25, reactivatedPool2.size());
   }
 
   @Test
