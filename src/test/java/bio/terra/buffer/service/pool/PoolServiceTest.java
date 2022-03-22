@@ -143,30 +143,6 @@ public class PoolServiceTest extends BaseUnitTest {
   }
 
   @Test
-  public void updateFromConfig_deactivatedPoolExistsWithDuplicatePoolId_throwException()
-      throws Exception {
-    PoolId poolId = PoolId.create("poolId");
-    PoolWithResourceConfig parsedPoolConfig =
-        PoolWithResourceConfig.create(
-            new PoolConfig()
-                .poolId(poolId.toString())
-                .size(10)
-                .resourceConfigName(RESOURCE_CONFIG_NAME),
-            newResourceConfig());
-
-    poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig));
-    bufferDao.deactivatePools(ImmutableList.of(poolId));
-    List<Pool> pools = bufferDao.retrievePools();
-
-    Pool createdPool = pools.get(0);
-    assertEquals(PoolStatus.DEACTIVATED, createdPool.status());
-
-    assertThrows(
-        RuntimeException.class,
-        () -> poolService.updateFromConfig(ImmutableList.of(parsedPoolConfig)));
-  }
-
-  @Test
   public void updateFromConfig_deactivatePool_updatePoolStatusSuccess() throws Exception {
     PoolId poolId = PoolId.create("poolId");
     PoolWithResourceConfig parsedPoolConfig =
