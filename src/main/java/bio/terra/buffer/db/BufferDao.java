@@ -162,6 +162,33 @@ public class BufferDao {
     jdbcTemplate.batchUpdate(sql, sqlParameterSourceList);
   }
 
+  /**
+   * Set Pools' status back to active and clear expiration column to re-activate the pools. The size
+   * and other attributes are left untouched; it would complicate matters to support re-activation
+   * and size changes in one shot.
+   *
+   * @param pools - Pool objects with size populated. Note that other attributes will be ignored as
+   *     changing them is not yet supported.
+   */
+  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+  public void reactivatePools(List<Pool> pools) {
+    String sql =
+        "UPDATE pool SET status = :status, expiration = :expiration, size = :size"
+            + " WHERE id = :id ";
+    MapSqlParameterSource[] sqlParameterSourceList =
+        pools.stream()
+            .map(
+                pool ->
+                    new MapSqlParameterSource()
+                        .addValue("id", pool.id().toString())
+                        .addValue("status", PoolStatus.ACTIVE.toString())
+                        .addValue("expiration", null)
+                        .addValue("size", pool.size()))
+            .toArray(MapSqlParameterSource[]::new);
+
+    jdbcTemplate.batchUpdate(sql, sqlParameterSourceList);
+  }
+
   /** Updates list of pools' size. */
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
   public void updatePoolsSizes(Map<PoolId, Integer> poolsToUpdateSize) {
