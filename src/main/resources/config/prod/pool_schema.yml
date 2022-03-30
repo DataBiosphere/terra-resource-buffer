@@ -22,6 +22,9 @@ poolConfigs:
   - poolId: "vpc_sc_v7"
     size: 1000
     resourceConfigName: "vpc_sc_v7"
+  - poolId: "vpc_sc_v8"
+    size: 1000
+    resourceConfigName: "vpc_sc_v8"
   - poolId: "datarepo_v1"
     size: 1000
     resourceConfigName: "datarepo_v1"
