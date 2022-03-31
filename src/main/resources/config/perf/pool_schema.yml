@@ -13,9 +13,6 @@ poolConfigs:
   - poolId: "cwb_ws_perf_v6"
     size: 500
     resourceConfigName: "cwb_ws_perf_v6"
-  - poolId: "vpc_sc_v5"
-    size: 500
-    resourceConfigName: "vpc_sc_v5"
   - poolId: "vpc_sc_v6"
     size: 500
     resourceConfigName: "vpc_sc_v6"
