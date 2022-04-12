@@ -10,7 +10,7 @@ plugins {
     id "jacoco"
     id 'io.spring.dependency-management' version '1.0.10.RELEASE'
     id 'org.hidetake.swagger.generator' version '2.18.2'
-    id 'org.springframework.boot' version '2.3.1.RELEASE'
+    id 'org.springframework.boot' version '2.6.6'
 }
 
 sourceCompatibility = JavaVersion.VERSION_11
@@ -21,7 +21,6 @@ def useMavenLocal = false
 allprojects {
     group = 'bio.terra'
     version = System.getenv('SERVICE_VERSION') != null ? System.getenv('SERVICE_VERSION') : '0.0.2-SNAPSHOT'
-    ext['log4j2.version'] = '2.17.0' // until Spring Boot 2.6.2
     ext {
         artifactGroup = "${group}.buffer"
         swaggerOutputDir = "${buildDir}/generated"
@@ -64,30 +63,21 @@ repositories {
 
 dependencies {
     // Terra deps - we get Stairway via TCL
-    implementation group: 'bio.terra', name: 'terra-common-lib', version: '0.0.52-SNAPSHOT'
-
-    implementation platform('bio.terra.cloud-resource-lib:platform:0.11.0')
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'common'
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-billing'
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-cloudresourcemanager'
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-compute'
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-dns'
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-iam'
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-serviceusage'
-    implementation group: 'bio.terra.cloud-resource-lib', name: 'google-storage'
+    implementation group: 'bio.terra', name: 'terra-common-lib', version: '0.0.56-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'terra-cloud-resource-lib', version: '1.1.1-SNAPSHOT'
 
     implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.5.0-SNAPSHOT'
 
     // Versioned direct deps
     implementation group: 'com.google.auto.value', name: 'auto-value-annotations', version: '1.7.3'
-    implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.104.1'
-    implementation group: 'com.google.guava', name: 'guava', version: '29.0-jre'
+    implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.116.3'
+    implementation group: 'com.google.guava', name: 'guava', version: '31.1-jre'
     implementation group: 'io.opencensus', name: 'opencensus-exporter-stats-stackdriver', version: '0.28.+'
     implementation group: 'org.springframework.cloud', name: 'spring-cloud-gcp-starter-logging', version: '1.2.6.RELEASE'
     implementation group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
     implementation group: 'org.liquibase', name: 'liquibase-core', version: '3.10.0'
     implementation group: 'org.webjars', name: 'webjars-locator-core', version: '0.46'
-    runtimeOnly group: 'org.postgresql', name: 'postgresql', version: '42.2.12'
+    runtimeOnly group: 'org.postgresql', name: 'postgresql', version: '42.3.3'
 
     // Deps whose versions are controlled by Spring
     implementation group: 'org.apache.commons', name: 'commons-dbcp2'

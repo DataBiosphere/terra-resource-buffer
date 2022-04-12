@@ -9,8 +9,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @Tag("unit")
-@ActiveProfiles({"test", "unit"})
+@ActiveProfiles({"test", "unit", "human-readable-logging"})
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = Main.class)
-@SpringBootTest
+@SpringBootTest(properties = {"spring.cloud.gcp.credentials.location="})
 public class BaseUnitTest {}

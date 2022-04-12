@@ -9,7 +9,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @Tag("integration")
-@ActiveProfiles({"test", "integration"})
+@ActiveProfiles({"test", "integration", "human-readable-logging"})
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = Main.class)
 @SpringBootTest
