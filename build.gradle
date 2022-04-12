@@ -5,8 +5,8 @@ plugins {
     id 'com.diffplug.spotless' version '5.8.2'
     id 'com.github.ben-manes.versions' version '0.36.0'
     id 'com.github.spotbugs' version '4.5.1'
-    id 'com.google.cloud.tools.jib' version '2.6.0'
-    id 'de.undercouch.download' version '4.0.0'
+    id 'com.google.cloud.tools.jib' version '3.2.1'
+    id 'de.undercouch.download' version '5.0.4'
     id "jacoco"
     id 'io.spring.dependency-management' version '1.0.10.RELEASE'
     id 'org.hidetake.swagger.generator' version '2.18.2'
