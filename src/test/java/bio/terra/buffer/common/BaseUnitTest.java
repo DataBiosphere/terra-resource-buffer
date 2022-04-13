@@ -12,5 +12,5 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ActiveProfiles({"test", "unit", "human-readable-logging"})
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = Main.class)
-@SpringBootTest(properties = {"spring.cloud.gcp.credentials.location="})
+@SpringBootTest
 public class BaseUnitTest {}
