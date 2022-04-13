@@ -33,5 +33,3 @@ terra:
       tracing-enabled: false
     tracing:
       stackdriverExportEnabled: false
-
-spring.profiles.include: human-readable-logging
