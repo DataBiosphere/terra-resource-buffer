@@ -21,3 +21,5 @@ include 'terra-resource-buffer-client'
 include 'buffer-clienttests'
 
 enableFeaturePreview('ONE_LOCKFILE_PER_PROJECT')
+// The next line should only be changed by the BroadBot d.b.a. bumptagbot.
+gradle.ext.resourceBufferVersion = "0.198.0-SNAPSHOT"

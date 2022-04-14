@@ -20,7 +20,7 @@ def useMavenLocal = false
 
 allprojects {
     group = 'bio.terra'
-    version = System.getenv('SERVICE_VERSION') != null ? System.getenv('SERVICE_VERSION') : '0.0.2-SNAPSHOT'
+    version = gradle.resourceBufferVersion
     ext {
         artifactGroup = "${group}.buffer"
         swaggerOutputDir = "${buildDir}/generated"
