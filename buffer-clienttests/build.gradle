@@ -28,7 +28,7 @@ dependencies {
         googleOauth2 = "0.25.5"
 
         bufferServiceClient = "0.4.3-SNAPSHOT"
-        testRunner = "0.1.3-SNAPSHOT"
+        testRunner = "0.1.4-SNAPSHOT"
     }
 
     implementation group: 'org.apache.commons', name: 'commons-math3', version: "${apacheMath}"
