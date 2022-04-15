@@ -6,7 +6,21 @@ on:
     - master
     paths-ignore:
     - 'README.md'
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Part of the version to bump: major, minor, patch'
+        required: false
+        default: 'patch'
+        type: choice
+        options:
+        - patch
+        - minor
+        - major
+      branch:
+        description: 'Branch to run the workflow on'
+        required: false
+        default: 'master'
 
 env:
   SERVICE_NAME: ${{ github.event.repository.name }}
@@ -18,18 +32,47 @@ jobs:
   tag-build-push:
     runs-on: ubuntu-latest
     steps:
+    - name: Set part of semantic version to bump
+      id: controls
+      run: |
+        SEMVER_PART=""
+        CHECKOUT_BRANCH="$GITHUB_REF"
+        if ${{github.event_name == 'push' }}; then
+          SEMVER_PART="patch"
+        elif ${{github.event_name == 'workflow_dispatch' }}; then
+          SEMVER_PART=${{ github.event.inputs.bump }}
+          CHECKOUT_BRANCH=${{ github.event.inputs.branch }}
+        fi
+        echo ::set-output name=semver-part::$SEMVER_PART
+        echo ::set-output name=checkout-branch::$CHECKOUT_BRANCH
     - name: Checkout current code
       uses: actions/checkout@master
-    - name: Bump version and push tag
+      with:
+        ref: ${{ steps.controls.outputs.checkout-branch }}
+    - name: Skip version bump merges
+      id: skiptest
+      uses: ./.github/actions/bump-skip
+      with:
+        event-name: ${{ github.event_name }}
+    - name: Bump the tag to a new version
+      if: steps.skiptest.outputs.is-bump == 'no'
+      uses: databiosphere/github-actions/actions/bumper@bumper-0.0.6
       id: tag
-      uses: broadinstitute/github-tag-action@master
       env:
+        DEFAULT_BUMP: patch
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        WITH_V: false
+        HOTFIX_BRANCHES: hotfix.*
+        OVERRIDE_BUMP: ${{ steps.controls.outputs.semver-part }}
+        RELEASE_BRANCHES: master
+        VERSION_FILE_PATH: settings.gradle
+        VERSION_LINE_MATCH: "^gradle.ext.resourceBufferVersion\\s*=\\s*\".*\""
+        VERSION_SUFFIX: SNAPSHOT
     - name: Pull Vault image
+      if: steps.skiptest.outputs.is-bump == 'no'
       run: docker pull vault:1.1.0
     # Currently, there's no way to add capabilities to Docker actions on Git, and Vault needs IPC_LOCK to run.
     - name: Get Vault token
+      if: steps.skiptest.outputs.is-bump == 'no'
       id: vault-token-step
       run: |
         VAULT_TOKEN=$(docker run --rm --cap-add IPC_LOCK \
@@ -41,6 +84,7 @@ jobs:
         echo ::set-output name=vault-token::$VAULT_TOKEN
         echo ::add-mask::$VAULT_TOKEN
     - name: Get Vault secrets
+      if: steps.skiptest.outputs.is-bump == 'no'
       id: vault-secret-step
       run: |
         GCR_EMAIL=$(docker run --rm --cap-add IPC_LOCK \
@@ -58,24 +102,28 @@ jobs:
         echo ::set-output name=gcr-key::$GCR_KEY
         echo ::add-mask::$GCR_KEY
     - name: Auth to GCR
+      if: steps.skiptest.outputs.is-bump == 'no'
       uses: google-github-actions/setup-gcloud@v0
       with:
         version: '270.0.0'
         service_account_email: ${{ steps.vault-secret-step.outputs.gcr-email }}
         service_account_key: ${{ steps.vault-secret-step.outputs.gcr-key }}
     - name: Explicitly auth Docker for GCR
+      if: steps.skiptest.outputs.is-bump == 'no'
       run: gcloud auth configure-docker --quiet
     - name: Set up AdoptOpenJDK 11
+      if: steps.skiptest.outputs.is-bump == 'no'
       uses: joschi/setup-jdk@v2
       with:
         java-version: 11
     - name: Grant execute permission for gradlew
+      if: steps.skiptest.outputs.is-bump == 'no'
       run: chmod +x gradlew
     - name: Build and push GCR image using Jib
+      if: steps.skiptest.outputs.is-bump == 'no'
       run: "./gradlew jib --image=gcr.io/${GOOGLE_PROJECT}/${SERVICE_NAME}:${{ steps.tag.outputs.tag }}"
-      env:
-        SERVICE_VERSION: ${{ steps.tag.outputs.tag }}
     - name: Update Version Mapping
+      if: steps.skiptest.outputs.is-bump == 'no'
       uses: broadinstitute/repository-dispatch@master
       with:
         token: ${{ secrets.REPO_ACCESS_TOKEN }}
