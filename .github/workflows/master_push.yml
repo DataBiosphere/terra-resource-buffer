@@ -60,7 +60,7 @@ jobs:
       id: tag
       env:
         DEFAULT_BUMP: patch
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.BROADBOT_TOKEN }}
         HOTFIX_BRANCHES: hotfix.*
         OVERRIDE_BUMP: ${{ steps.controls.outputs.semver-part }}
         RELEASE_BRANCHES: master
