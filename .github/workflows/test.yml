@@ -29,10 +29,17 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - name: Skip version bump merges
+        id: skiptest
+        uses: ./.github/actions/bump-skip
+        with:
+          event-name: ${{ github.event_name }}
       - name: Pull Vault image
+        if: steps.skiptest.outputs.is-bump == 'no'
         run: docker pull vault:1.1.0
       # Currently, there's no way to add capabilities to Docker actions on Git, and Vault needs IPC_LOCK to run.
       - name: Get Vault token
+        if: steps.skiptest.outputs.is-bump == 'no'
         id: vault-token-step
         run: |
           VAULT_TOKEN=$(docker run --rm --cap-add IPC_LOCK \
@@ -44,18 +51,23 @@ jobs:
           echo ::set-output name=vault-token::$VAULT_TOKEN
           echo ::add-mask::$VAULT_TOKEN
       - name: Grant execute permission for render-config
+        if: steps.skiptest.outputs.is-bump == 'no'
         run: chmod +x local-dev/render-config.sh
       - name: Render configuration for tests
+        if: steps.skiptest.outputs.is-bump == 'no'
         run: local-dev/render-config.sh ${{ steps.vault-token-step.outputs.vault-token }}
       - name: Initialize Postgres DB
+        if: steps.skiptest.outputs.is-bump == 'no'
         env:
           PGPASSWORD: postgres
         run: psql -h 127.0.0.1 -U postgres -f ./local-dev/local-postgres-init.sql
       - name: Set up AdoptOpenJDK 11
+        if: steps.skiptest.outputs.is-bump == 'no'
         uses: joschi/setup-jdk@v2
         with:
           java-version: 11
       - name: Cache Gradle packages
+        if: steps.skiptest.outputs.is-bump == 'no'
         uses: actions/cache@v2
         with:
           path: |
@@ -64,23 +76,27 @@ jobs:
           key: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}-${{ hashFiles('**/*.gradle') }}
           restore-keys: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}
       - name: Grant execute permission for gradlew
+        if: steps.skiptest.outputs.is-bump == 'no'
         run: chmod +x gradlew
       - name: Check Javadoc
+        if: steps.skiptest.outputs.is-bump == 'no'
         run: ./gradlew javadoc --scan
       - name: Run unit tests
+        if: steps.skiptest.outputs.is-bump == 'no'
         id: unit-test
         run: ./gradlew unitTest --scan
       - name: Run integration tests
+        if: steps.skiptest.outputs.is-bump == 'no'
         id: integration-test
         run: ./gradlew integrationTest --scan
       - name: Upload Test Reports
-        if: always()
+        if: always() && steps.skiptest.outputs.is-bump == 'no'
         uses: actions/upload-artifact@v1
         with:
           name: Test Reports
           path: build/reports
       - name: Upload Jacoco Reports
-        if: always()
+        if: always() && steps.skiptest.outputs.is-bump == 'no'
         uses: actions/upload-artifact@v2
         with:
           name: Test Reports
