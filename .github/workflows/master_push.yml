@@ -49,6 +49,7 @@ jobs:
       uses: actions/checkout@master
       with:
         ref: ${{ steps.controls.outputs.checkout-branch }}
+        token: ${{ secrets.BROADBOT_TOKEN }}
     - name: Skip version bump merges
       id: skiptest
       uses: ./.github/actions/bump-skip
