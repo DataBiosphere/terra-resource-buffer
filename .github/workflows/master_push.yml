@@ -49,6 +49,7 @@ jobs:
       uses: actions/checkout@master
       with:
         ref: ${{ steps.controls.outputs.checkout-branch }}
+        token: ${{ secrets.BROADBOT_TOKEN }}
     - name: Skip version bump merges
       id: skiptest
       uses: ./.github/actions/bump-skip
@@ -60,7 +61,7 @@ jobs:
       id: tag
       env:
         DEFAULT_BUMP: patch
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.BROADBOT_TOKEN }}
         HOTFIX_BRANCHES: hotfix.*
         OVERRIDE_BUMP: ${{ steps.controls.outputs.semver-part }}
         RELEASE_BRANCHES: master
