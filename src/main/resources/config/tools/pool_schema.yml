@@ -23,5 +23,5 @@ poolConfigs:
     size: 500
     resourceConfigName: "workspace_manager_v9"
   - poolId: "datarepo_v1"
-    size: 500
+    size: 1000
     resourceConfigName: "datarepo_v1"
