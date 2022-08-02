@@ -13,7 +13,7 @@ The folder structure is:
 - resource_schema.yaml
 ```
 * `{env}` is the static configuration folder Buffer service will use. Set `BUFFER_POOL_CONFIG_PATH=config/{env}` as environment variable to change folder to use.
-In Broad deployment, the value can be found at [Broad helmfile repo](https://github.com/broadinstitute/terra-helmfile/blob/master/terra/values/buffer/live/dev.yaml#L18)
+In Broad deployment, the value can be found at [Broad helmfile repo](https://github.com/broadinstitute/terra-helmfile/blob/326c7f220c4d3ef5466b12e8a6f8b5fa3f255ec0/values/app/buffer/live/dev.yaml#L27)
 * `resource_schema.yaml` is the resource config template
 * `pool_schema.yml` lists all pools under that environment. It includes the pool size and resource config to use for that pool.
 * `resource-config` folder contains all resource configs all pools are using or used before.
