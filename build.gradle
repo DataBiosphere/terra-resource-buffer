@@ -119,6 +119,9 @@ if (hasProperty('buildScan')) {
 java {
     withJavadocJar()
 }
+tasks.withType(Javadoc) {
+    options.addStringOption('Xdoclint:none', '-quiet')
+}
 
 // Download and extract the Cloud Profiler Java Agent
 ext {
@@ -162,14 +165,6 @@ tasks.jib.dependsOn extractProfilerAgent
 tasks.jibDockerBuild.dependsOn extractProfilerAgent
 tasks.jibBuildTar.dependsOn extractProfilerAgent
 
-// Linter
-spotless {
-    java {
-        googleJavaFormat()
-        targetExclude "${buildDir}/**"
-    }
-}
-
 // OpenAPI/Swagger Server Generation
 swaggerSources {
     server {
@@ -206,6 +201,18 @@ swaggerSources {
             ]
         }
     }
+}
+
+// Linter
+spotless {
+    java {
+        googleJavaFormat()
+        targetExclude "${buildDir}/**"
+    }
+}
+tasks.withType(com.diffplug.gradle.spotless.SpotlessTask) {
+    it.dependsOn(swaggerSources.server.code)
+    it.dependsOn(swaggerSources.resource.code)
 }
 
 // Static analysis
