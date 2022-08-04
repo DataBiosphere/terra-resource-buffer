@@ -1,75 +1,19 @@
 package bio.terra.buffer.integration;
 
-import static bio.terra.buffer.integration.IntegrationUtils.IAM_BINDINGS;
-import static bio.terra.buffer.integration.IntegrationUtils.StubSubmissionFlightFactory;
-import static bio.terra.buffer.integration.IntegrationUtils.TEST_CONFIG_NAME;
-import static bio.terra.buffer.integration.IntegrationUtils.blockUntilFlightComplete;
-import static bio.terra.buffer.integration.IntegrationUtils.extractResourceIdFromFlightState;
-import static bio.terra.buffer.integration.IntegrationUtils.newBasicGcpConfig;
-import static bio.terra.buffer.integration.IntegrationUtils.newFullGcpConfig;
-import static bio.terra.buffer.integration.IntegrationUtils.pollUntilResourcesMatch;
-import static bio.terra.buffer.integration.IntegrationUtils.preparePool;
-import static bio.terra.buffer.service.resource.FlightMapKeys.RESOURCE_CONFIG;
-import static bio.terra.buffer.service.resource.flight.CreateDnsZoneStep.GCR_MANAGED_ZONE_TEMPLATE;
-import static bio.terra.buffer.service.resource.flight.CreateDnsZoneStep.MANAGED_ZONE_TEMPLATE;
-import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_EGRESS_INTERNAL;
-import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_EGRESS_INTERNAL_RULE_NAME;
-import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_EGRESS_LEONARDO;
-import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_EGRESS_LEONARDO_RULE_NAME;
-import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_EGRESS_PRIVATE_ACCESS;
-import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_EGRESS_PRIVATE_ACCESS_RULE_NAME;
-import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INGRESS_LEONARDO_SSL_DEFAULT;
-import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INGRESS_LEONARDO_SSL_NETWORK;
-import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INTERNAL_DEFAULT_NETWORK;
-import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INTERNAL_FOR_DEFAULT_NETWORK_RULE_NAME;
-import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME;
-import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INTERNAL_VPC_NETWORK;
-import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.DENY_EGRESS;
-import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.DENY_EGRESS_LEONARDO_WORKER;
-import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.DENY_EGRESS_LEONARDO_WORKER_RULE_NAME;
-import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.DENY_EGRESS_RULE_NAME;
-import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.LEONARDO_SSL_FOR_DEFAULT_NETWORK_RULE_NAME;
-import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.LEONARDO_SSL_FOR_VPC_NETWORK_RULE_NAME;
-import static bio.terra.buffer.service.resource.flight.CreateGkeDefaultSAStep.GKE_SA_NAME;
-import static bio.terra.buffer.service.resource.flight.CreateGkeDefaultSAStep.GKE_SA_ROLES;
-import static bio.terra.buffer.service.resource.flight.CreateProjectStep.CONFIG_NAME_LABEL_KEY;
-import static bio.terra.buffer.service.resource.flight.CreateProjectStep.LEONARDO_ALLOW_HTTPS_FIREWALL_RULE_NAME_LABEL_KEY;
-import static bio.terra.buffer.service.resource.flight.CreateProjectStep.LEONARDO_ALLOW_INTERNAL_RULE_NAME_LABEL_KEY;
-import static bio.terra.buffer.service.resource.flight.CreateProjectStep.NETWORK_LABEL_KEY;
-import static bio.terra.buffer.service.resource.flight.CreateProjectStep.SUB_NETWORK_LABEL_KEY;
-import static bio.terra.buffer.service.resource.flight.CreateProjectStep.createValidLabelValue;
-import static bio.terra.buffer.service.resource.flight.CreateResourceRecordSetStep.GCR_A_RECORD;
-import static bio.terra.buffer.service.resource.flight.CreateResourceRecordSetStep.GCR_CNAME_RECORD;
-import static bio.terra.buffer.service.resource.flight.CreateResourceRecordSetStep.RESTRICT_API_A_RECORD;
-import static bio.terra.buffer.service.resource.flight.CreateResourceRecordSetStep.RESTRICT_API_CNAME_RECORD;
-import static bio.terra.buffer.service.resource.flight.CreateRouteStep.DEFAULT_GATEWAY;
-import static bio.terra.buffer.service.resource.flight.CreateRouteStep.ROUTE_NAME;
-import static bio.terra.buffer.service.resource.flight.CreateStorageLogBucketStep.STORAGE_LOGS_IDENTITY;
-import static bio.terra.buffer.service.resource.flight.CreateSubnetsStep.REGION_TO_IP_RANGE;
-import static bio.terra.buffer.service.resource.flight.CreateSubnetsStep.getSubnetLogConfig;
-import static bio.terra.buffer.service.resource.flight.DeleteDefaultFirewallRulesStep.DEFAULT_FIREWALL_NAMES;
-import static bio.terra.buffer.service.resource.flight.GoogleUtils.DEFAULT_NETWORK_NAME;
-import static bio.terra.buffer.service.resource.flight.GoogleUtils.GCR_MANAGED_ZONE_NAME;
-import static bio.terra.buffer.service.resource.flight.GoogleUtils.MANAGED_ZONE_NAME;
-import static bio.terra.buffer.service.resource.flight.GoogleUtils.NETWORK_NAME;
-import static bio.terra.buffer.service.resource.flight.GoogleUtils.RESTRICTED_GOOGLE_IP_ADDRESS;
-import static bio.terra.buffer.service.resource.flight.GoogleUtils.SUBNETWORK_NAME;
-import static bio.terra.buffer.service.resource.flight.GoogleUtils.projectIdToName;
-import static bio.terra.buffer.service.resource.flight.GoogleUtils.resourceExists;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import bio.terra.buffer.common.BaseIntegrationTest;
 import bio.terra.buffer.common.Pool;
 import bio.terra.buffer.common.Resource;
 import bio.terra.buffer.common.ResourceId;
 import bio.terra.buffer.common.ResourceState;
 import bio.terra.buffer.db.BufferDao;
-import bio.terra.buffer.generated.model.*;
+import bio.terra.buffer.generated.model.BigQueryQuotas;
+import bio.terra.buffer.generated.model.ComputeEngine;
+import bio.terra.buffer.generated.model.GcpProjectConfig;
+import bio.terra.buffer.generated.model.IamBinding;
+import bio.terra.buffer.generated.model.KubernetesEngine;
+import bio.terra.buffer.generated.model.ResourceConfig;
+import bio.terra.buffer.generated.model.ServiceUsage;
+import bio.terra.buffer.generated.model.Storage;
 import bio.terra.buffer.service.resource.FlightManager;
 import bio.terra.buffer.service.resource.FlightSubmissionFactoryImpl;
 import bio.terra.buffer.service.resource.flight.AssertResourceCreatingStep;
@@ -119,12 +63,6 @@ import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.StorageOptions;
 import com.google.cloud.storage.StorageRoles;
 import com.google.common.collect.ImmutableList;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -133,6 +71,77 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.support.TransactionTemplate;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static bio.terra.buffer.integration.IntegrationUtils.IAM_BINDINGS;
+import static bio.terra.buffer.integration.IntegrationUtils.StubSubmissionFlightFactory;
+import static bio.terra.buffer.integration.IntegrationUtils.TEST_CONFIG_NAME;
+import static bio.terra.buffer.integration.IntegrationUtils.blockUntilFlightComplete;
+import static bio.terra.buffer.integration.IntegrationUtils.extractResourceIdFromFlightState;
+import static bio.terra.buffer.integration.IntegrationUtils.newBasicGcpConfig;
+import static bio.terra.buffer.integration.IntegrationUtils.newFullGcpConfig;
+import static bio.terra.buffer.integration.IntegrationUtils.pollUntilResourcesMatch;
+import static bio.terra.buffer.integration.IntegrationUtils.preparePool;
+import static bio.terra.buffer.service.resource.FlightMapKeys.RESOURCE_CONFIG;
+import static bio.terra.buffer.service.resource.flight.CreateDnsZoneStep.GCR_MANAGED_ZONE_TEMPLATE;
+import static bio.terra.buffer.service.resource.flight.CreateDnsZoneStep.MANAGED_ZONE_TEMPLATE;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_EGRESS_INTERNAL;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_EGRESS_INTERNAL_RULE_NAME;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_EGRESS_LEONARDO;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_EGRESS_LEONARDO_RULE_NAME;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_EGRESS_PRIVATE_ACCESS;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_EGRESS_PRIVATE_ACCESS_RULE_NAME;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INGRESS_LEONARDO_SSL_DEFAULT;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INGRESS_LEONARDO_SSL_NETWORK;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INTERNAL_DEFAULT_NETWORK;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INTERNAL_FOR_DEFAULT_NETWORK_RULE_NAME;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INTERNAL_VPC_NETWORK;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.DENY_EGRESS;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.DENY_EGRESS_LEONARDO_WORKER;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.DENY_EGRESS_LEONARDO_WORKER_RULE_NAME;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.DENY_EGRESS_RULE_NAME;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.LEONARDO_SSL_FOR_DEFAULT_NETWORK_RULE_NAME;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.LEONARDO_SSL_FOR_VPC_NETWORK_RULE_NAME;
+import static bio.terra.buffer.service.resource.flight.CreateGkeDefaultSAStep.GKE_SA_NAME;
+import static bio.terra.buffer.service.resource.flight.CreateGkeDefaultSAStep.GKE_SA_ROLES;
+import static bio.terra.buffer.service.resource.flight.CreateProjectStep.CONFIG_NAME_LABEL_KEY;
+import static bio.terra.buffer.service.resource.flight.CreateProjectStep.LEONARDO_ALLOW_HTTPS_FIREWALL_RULE_NAME_LABEL_KEY;
+import static bio.terra.buffer.service.resource.flight.CreateProjectStep.LEONARDO_ALLOW_INTERNAL_RULE_NAME_LABEL_KEY;
+import static bio.terra.buffer.service.resource.flight.CreateProjectStep.NETWORK_LABEL_KEY;
+import static bio.terra.buffer.service.resource.flight.CreateProjectStep.SECURITY_GROUP_LABEL_KEY;
+import static bio.terra.buffer.service.resource.flight.CreateProjectStep.SUB_NETWORK_LABEL_KEY;
+import static bio.terra.buffer.service.resource.flight.CreateProjectStep.createValidLabelValue;
+import static bio.terra.buffer.service.resource.flight.CreateResourceRecordSetStep.GCR_A_RECORD;
+import static bio.terra.buffer.service.resource.flight.CreateResourceRecordSetStep.GCR_CNAME_RECORD;
+import static bio.terra.buffer.service.resource.flight.CreateResourceRecordSetStep.RESTRICT_API_A_RECORD;
+import static bio.terra.buffer.service.resource.flight.CreateResourceRecordSetStep.RESTRICT_API_CNAME_RECORD;
+import static bio.terra.buffer.service.resource.flight.CreateRouteStep.DEFAULT_GATEWAY;
+import static bio.terra.buffer.service.resource.flight.CreateRouteStep.ROUTE_NAME;
+import static bio.terra.buffer.service.resource.flight.CreateStorageLogBucketStep.STORAGE_LOGS_IDENTITY;
+import static bio.terra.buffer.service.resource.flight.CreateSubnetsStep.REGION_TO_IP_RANGE;
+import static bio.terra.buffer.service.resource.flight.CreateSubnetsStep.getSubnetLogConfig;
+import static bio.terra.buffer.service.resource.flight.DeleteDefaultFirewallRulesStep.DEFAULT_FIREWALL_NAMES;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.DEFAULT_NETWORK_NAME;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.GCR_MANAGED_ZONE_NAME;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.MANAGED_ZONE_NAME;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.NETWORK_NAME;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.RESTRICTED_GOOGLE_IP_ADDRESS;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.SUBNETWORK_NAME;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.projectIdToName;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.resourceExists;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -178,6 +187,11 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertDnsNotExists(project);
     assertDefaultVpcNotExists(project);
     assertDefaultServiceAccountNotExists(project);
+    assertTrue(
+        project.getLabels().entrySet().stream()
+            .filter(e -> SECURITY_GROUP_LABEL_KEY.equals(e.getKey()))
+            .findAny()
+            .isEmpty());
 
     String logBucketName = "storage-logs-" + project.getProjectId();
     assertNotNull(storageCow.get(logBucketName));
@@ -406,6 +420,11 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertSubnetsExist(project, NetworkMonitoring.ENABLED);
     assertRouteExists(project);
     assertDnsExists(project);
+    assertTrue(
+        project.getLabels().entrySet().stream()
+            .filter(e -> SECURITY_GROUP_LABEL_KEY.equals(e.getKey()))
+            .findAny()
+            .isPresent());
   }
 
   @Test
