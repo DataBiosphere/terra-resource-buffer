@@ -135,17 +135,18 @@ public class CreateProjectStep implements Step {
             .put(
                 CONFIG_NAME_LABEL_KEY,
                 createValidLabelValue(
-                    Objects.requireNonNull(flightContext
-                            .getInputParameters()
-                            .get(RESOURCE_CONFIG, ResourceConfig.class))
+                    Objects.requireNonNull(
+                            flightContext
+                                .getInputParameters()
+                                .get(RESOURCE_CONFIG, ResourceConfig.class))
                         .getConfigName()));
 
     if (createGkeDefaultSa(gcpProjectConfig)) {
       labelBuilder.put(GKE_DEFAULT_SA_LABEL_KEY, createValidLabelValue(GKE_SA_NAME));
     }
 
-    getSecurityGroup(gcpProjectConfig).ifPresent(str ->
-        labelBuilder.put(SECURITY_GROUP_LABEL_KEY, createValidLabelValue(str)));
+    getSecurityGroup(gcpProjectConfig)
+        .ifPresent(str -> labelBuilder.put(SECURITY_GROUP_LABEL_KEY, createValidLabelValue(str)));
 
     return labelBuilder.build();
   }

@@ -4,6 +4,7 @@ import bio.terra.buffer.generated.model.BigQueryQuotas;
 import bio.terra.buffer.generated.model.GcpProjectConfig;
 import bio.terra.buffer.generated.model.ServiceUsage;
 import bio.terra.buffer.generated.model.Storage;
+import com.google.common.base.Strings;
 
 import java.util.Collections;
 import java.util.List;
@@ -108,12 +109,10 @@ public class GoogleProjectConfigUtils {
   }
 
   public static Optional<String> getSecurityGroup(GcpProjectConfig gcpProjectConfig) {
-    if (gcpProjectConfig.getSecurityGroup() != null) {
-      String secGroup = gcpProjectConfig.getSecurityGroup().trim();
-      if (!secGroup.isEmpty()) {
-        return Optional.of(secGroup);
-      }
-    }
-    return Optional.empty();
+    return Optional.ofNullable(
+        Strings.emptyToNull(
+            (gcpProjectConfig.getSecurityGroup() != null)
+                ? gcpProjectConfig.getSecurityGroup().trim()
+                : null));
   }
 }
