@@ -4,6 +4,7 @@ import bio.terra.buffer.generated.model.BigQueryQuotas;
 import bio.terra.buffer.generated.model.GcpProjectConfig;
 import bio.terra.buffer.generated.model.ServiceUsage;
 import bio.terra.buffer.generated.model.Storage;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -104,5 +105,15 @@ public class GoogleProjectConfigUtils {
     }
     long value = bigQueryQuotas.getBigQueryDailyUsageQuotaOverrideValueMebibytes().longValue();
     return Optional.of(value);
+  }
+
+  public static Optional<String> getSecurityGroup(GcpProjectConfig gcpProjectConfig) {
+    if (gcpProjectConfig.getSecurityGroup() != null) {
+      String secGroup = gcpProjectConfig.getSecurityGroup().trim();
+      if (!secGroup.isEmpty()) {
+        return Optional.of(secGroup);
+      }
+    }
+    return Optional.empty();
   }
 }
