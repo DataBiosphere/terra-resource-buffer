@@ -82,8 +82,8 @@ jobs:
           vault write -field token \
             auth/approle/login role_id=${{ secrets.VAULT_APPROLE_ROLE_ID }} \
             secret_id=${{ secrets.VAULT_APPROLE_SECRET_ID }})
-        echo ::set-output name=vault-token::$VAULT_TOKEN
         echo ::add-mask::$VAULT_TOKEN
+        echo ::set-output name=vault-token::$VAULT_TOKEN
     - name: Get Vault secrets
       if: steps.skiptest.outputs.is-bump == 'no'
       id: vault-secret-step
@@ -98,10 +98,10 @@ jobs:
           -e "VAULT_ADDR=${VAULT_ADDR}" \
           vault:1.1.0 \
           vault read -field ci-gcr-sa-key ${VAULT_PATH_GCR})
-        echo ::set-output name=gcr-email::$GCR_EMAIL
         echo ::add-mask::$GCR_EMAIL
-        echo ::set-output name=gcr-key::$GCR_KEY
+        echo ::set-output name=gcr-email::$GCR_EMAIL
         echo ::add-mask::$GCR_KEY
+        echo ::set-output name=gcr-key::$GCR_KEY
     - name: Auth to GCR
       if: steps.skiptest.outputs.is-bump == 'no'
       uses: google-github-actions/setup-gcloud@v0
