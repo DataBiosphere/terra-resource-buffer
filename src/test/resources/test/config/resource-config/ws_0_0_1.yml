@@ -25,3 +25,4 @@ gcpProjectConfig:
     - "storage-api.googleapis.com"
     - "storage-component.googleapis.com"
     - "dns.googleapis.com"
+  securityGroup: "high"

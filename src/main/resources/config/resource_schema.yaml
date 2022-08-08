@@ -66,6 +66,10 @@ components:
           $ref: '#/components/schemas/KubernetesEngine'
         serviceUsage:
           $ref: '#/components/schemas/ServiceUsage'
+        securityGroup:
+          description: |-
+            The security group to be used for this project
+          type: string
       type: object
 
     ProjectIdSchema:

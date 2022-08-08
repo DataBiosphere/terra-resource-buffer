@@ -1,28 +1,40 @@
 package bio.terra.buffer.service.resource.flight;
 
-import static bio.terra.buffer.service.resource.FlightMapKeys.*;
-import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME;
-import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.LEONARDO_SSL_FOR_VPC_NETWORK_RULE_NAME;
-import static bio.terra.buffer.service.resource.flight.CreateGkeDefaultSAStep.GKE_SA_NAME;
-import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.createGkeDefaultSa;
-import static bio.terra.buffer.service.resource.flight.GoogleUtils.*;
-import static bio.terra.buffer.service.resource.flight.StepUtils.isResourceReady;
-
 import bio.terra.buffer.generated.model.GcpProjectConfig;
 import bio.terra.buffer.generated.model.ResourceConfig;
 import bio.terra.cloudres.google.api.services.common.OperationCow;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
-import bio.terra.stairway.*;
+import bio.terra.stairway.FlightContext;
+import bio.terra.stairway.Step;
+import bio.terra.stairway.StepResult;
+import bio.terra.stairway.StepStatus;
 import bio.terra.stairway.exception.RetryException;
 import com.google.api.services.cloudresourcemanager.v3.model.Project;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
+import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_NUMBER;
+import static bio.terra.buffer.service.resource.FlightMapKeys.RESOURCE_CONFIG;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.LEONARDO_SSL_FOR_VPC_NETWORK_RULE_NAME;
+import static bio.terra.buffer.service.resource.flight.CreateGkeDefaultSAStep.GKE_SA_NAME;
+import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.createGkeDefaultSa;
+import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.getSecurityGroup;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.NETWORK_NAME;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.SUBNETWORK_NAME;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.getResource;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.isProjectDeleting;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.pollUntilSuccess;
+import static bio.terra.buffer.service.resource.flight.StepUtils.isResourceReady;
 
 /** Creates the basic GCP project. */
 public class CreateProjectStep implements Step {
@@ -31,7 +43,7 @@ public class CreateProjectStep implements Step {
   @VisibleForTesting public static final String CONFIG_NAME_LABEL_KEY = "buffer-config-name";
   // GKE default service account name label. Only sets when createGkeDefaultServiceAccount is true.
   @VisibleForTesting public static final String GKE_DEFAULT_SA_LABEL_KEY = "gke-default-sa";
-  // Firewall rule name to allow https traffic for leoanrdo VMs. Empty if not having such firewall
+  // Firewall rule name to allow https traffic for leonardo VMs. Empty if not having such firewall
   // rule.
   @VisibleForTesting
   public static final String LEONARDO_ALLOW_HTTPS_FIREWALL_RULE_NAME_LABEL_KEY =
@@ -41,6 +53,9 @@ public class CreateProjectStep implements Step {
   @VisibleForTesting
   public static final String LEONARDO_ALLOW_INTERNAL_RULE_NAME_LABEL_KEY =
       "leonardo-allow-internal-firewall-name";
+
+  // Security Group used to determine allow-list to be used
+  @VisibleForTesting public static final String SECURITY_GROUP_LABEL_KEY = "security-group";
 
   private final Logger logger = LoggerFactory.getLogger(CreateProjectStep.class);
   private final CloudResourceManagerCow rmCow;
@@ -83,7 +98,7 @@ public class CreateProjectStep implements Step {
       // We assume in this case that the project does not exist, not that somebody else has
       // created a project with the same random id.
       Optional<Project> project = getResource(() -> rmCow.projects().get(projectId).execute(), 403);
-      if (!project.isPresent()) {
+      if (project.isEmpty()) {
         // The project does not exist.
         return StepResult.getStepResultSuccess();
       }
@@ -120,13 +135,19 @@ public class CreateProjectStep implements Step {
             .put(
                 CONFIG_NAME_LABEL_KEY,
                 createValidLabelValue(
-                    flightContext
-                        .getInputParameters()
-                        .get(RESOURCE_CONFIG, ResourceConfig.class)
+                    Objects.requireNonNull(
+                            flightContext
+                                .getInputParameters()
+                                .get(RESOURCE_CONFIG, ResourceConfig.class))
                         .getConfigName()));
+
     if (createGkeDefaultSa(gcpProjectConfig)) {
       labelBuilder.put(GKE_DEFAULT_SA_LABEL_KEY, createValidLabelValue(GKE_SA_NAME));
     }
+
+    getSecurityGroup(gcpProjectConfig)
+        .ifPresent(str -> labelBuilder.put(SECURITY_GROUP_LABEL_KEY, createValidLabelValue(str)));
+
     return labelBuilder.build();
   }
 
@@ -138,7 +159,7 @@ public class CreateProjectStep implements Step {
   @VisibleForTesting
   public static String createValidLabelValue(String originalName) {
     String regex = "[^a-z0-9-_]+";
-    String value = originalName.toLowerCase().replaceAll(regex, "--");
+    String value = originalName.trim().toLowerCase().replaceAll(regex, "--");
     return value.length() > 64 ? value.substring(0, 63) : value;
   }
 
