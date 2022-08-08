@@ -79,7 +79,7 @@ Step3:
 gcloud auth print-access-token
 ```
 
-To access Buffer Service in other environment, lookup for `vault.pathPrefix` in [helmfile repo](https://github.com/broadinstitute/terra-helmfile/tree/master/terra/values/buffer) to find the correct vault path.
+To access Buffer Service in other environment, lookup for `vault.pathPrefix` in [helmfile repo](https://github.com/broadinstitute/terra-helmfile/tree/master/values/app/buffer) to find the correct vault path.
 
 ### Configs Rendering
 Local Testing and Github Action tests require credentials to be able to call GCP, run
