@@ -67,6 +67,7 @@ In order to use a runtime pool configuration, the environment variable `BUFFER_P
   * If a previously created pool does not exist under `BUFFER_POOL_SYSTEM_FILE_PATH`, it will be deleted.
 
 ## Development, testing & deployment
+[Github interactions](https://github.com/DataBiosphere/terra-workspace-manager/blob/main/DEVELOPMENT.md#github-interactions)
 
 ### Connect to dev Buffer Service
 [Dev Buffer Service Swagger](https://buffer.dsde-dev.broadinstitute.org/swagger-ui.html)
