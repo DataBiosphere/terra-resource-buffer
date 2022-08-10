@@ -1,6 +1,13 @@
 # Terra Resource Buffering Server
 Cloud Resource Buffering Server for Terra.
 
+RBS Cheat sheet:
+- RBS (server) creates cloud resources based on config provided by clients. Resource details are stored in a database. 
+- Common clients of RBS: [Workspace Manager](https://github.com/DataBiosphere/terra-workspace-manager), [Terra Data Repo](https://github.com/DataBiosphere/jade-data-repo), [Rawls](https://github.com/broadinstitute/rawls)
+- Local testing: may use a local Postgres DB (native installation) or within Docker. Resource specifics are also notified to Janitor service by writing a pub-sub message if it is to be auto-deleted
+- [Buffer Service envs](https://docs.google.com/document/d/1FyYpASNoKW2iY1IIuRmWpRL6-ST06_n5iYg0m_3LP-c/)
+- [DSP playbook](https://docs.google.com/document/d/1fo5Q92sJe-8BZNRPuI2GtvrUwWqHKDY4UouD86KtVcM)
+
 ## Static (Build Time) Pool Configuration
 ### File Structure
 Pool configuration manages the pool size, and configuration of resources in the pool. All static configuration files are under [src/main/resources/config](src/main/resources/config) folder.  These static configurations are built into the Resource Buffer service at compile time.
@@ -59,7 +66,8 @@ In order to use a runtime pool configuration, the environment variable `BUFFER_P
   * For existing pools, pool sizes may change, but resource configurations may not.
   * If a previously created pool does not exist under `BUFFER_POOL_SYSTEM_FILE_PATH`, it will be deleted.
 
-## Development
+## Development, testing & deployment
+
 ### Connect to dev Buffer Service
 [Dev Buffer Service Swagger](https://buffer.dsde-dev.broadinstitute.org/swagger-ui.html)
 
@@ -79,7 +87,7 @@ Step3:
 gcloud auth print-access-token
 ```
 
-To access Buffer Service in other environment, lookup for `vault.pathPrefix` in [helmfile repo](https://github.com/broadinstitute/terra-helmfile/tree/master/terra/values/buffer) to find the correct vault path.
+To access Buffer Service in other environment, lookup for `vault.pathPrefix` in [helmfile repo](https://github.com/broadinstitute/terra-helmfile/tree/master/values/app/buffer) to find the correct vault path.
 
 ### Configs Rendering
 Local Testing and Github Action tests require credentials to be able to call GCP, run
@@ -93,14 +101,24 @@ Set executable permissions:
 chmod +x gradlew
 ```
 
-To spin up the local postgres, run:
+To spin up the local postgres (within docker), run:
 ```
 local-dev/run_postgres.sh start
 ```
-Start local server
+Start local server. Environment variables are added into this file
 ```
 local-dev/run_local.sh
 ```
+
+This starts a local instance of the Resource Buffer Service. Check the status of service on your browser
+```
+http://localhost:8080/status
+```
+
+Next, go to the Cloud Console to find the cloud project folder, identified by the parentFolderId in resource_schema.yml.
+Pool schema to be used is set via environment variable `BUFFER_POOL_CONFIG_PATH`
+
+The name of the new Google Project created by the local RBS instance above in found in console logs, search for the same on Google cloud console
 
 ### Deploy to GKE cluster:
 The provided setup script clones the terra-helm and terra-helmfile git repos,
@@ -114,26 +132,23 @@ To use this, first ensure Skaffold is installed on your local machine
 changes. If you're seeing errors like `UPGRADE FAILED: "(Release name)" has no
 deployed releases`, try updating Skaffold.
 
-You may need to use gcloud to provide GCR
- credentials with `gcloud auth configure-docker`. Finally, run local-run.sh with
-  your target environment as the first argument:
-
+You may need to use gcloud to provide GCR credentials with `gcloud auth configure-docker`.
+Alternately use `gcloud auth login <you>@broadinstitute.org` or `gcloud auth application-default login` for fine grain control of the login credentials to be used (account must have permissions to push to GKE)
 ```
-cd local/dev
+cd local-dev
 ```
+You may also use your [personal environment](https://github.com/DataBiosphere/terra/blob/main/docs/dev-guides/personal-environments.md) as the target
 ```
 ./setup_gke_deploy.sh <environment>
 ```
-
 You can now push to the specified environment by running
-
 ```
 skaffold run
 ```
 
 ### Connecting psql client using the Cloud SQL Proxy:
 Follow [Installing this instruction](https://cloud.google.com/sql/docs/mysql/sql-proxy#macos-64-bit)
-to install Cloud SQL Proxy
+to install Cloud SQL Proxy. This is used to connect to the remote SQL database used by RBS
 
 Step 1: Go to cloud console to get the instance name you want to connect to, then start the proxy:
 ```
