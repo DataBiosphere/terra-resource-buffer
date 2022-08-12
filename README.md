@@ -66,8 +66,18 @@ In order to use a runtime pool configuration, the environment variable `BUFFER_P
   * For existing pools, pool sizes may change, but resource configurations may not.
   * If a previously created pool does not exist under `BUFFER_POOL_SYSTEM_FILE_PATH`, it will be deleted.
 
+## GitHub Interactions
+
+We currently have these workflows:
+
+Workflow      | Triggers                  | Work
+--------------|---------------------------|-------
+_master_push_ | on PR merge to master     | tags, version bumps, publishes client to artifactory, pushes image to GCR
+_test-runner-nightly-perf_ | nightly at 1am ET         | runs the TestRunner-based integration test suite
+_test_ | on PR and merge to master | runs the unit and integration tests
+_trivy_ | on PR                     | Broad app-security scan on base Docker image
+
 ## Development, testing & deployment
-[Github interactions](https://github.com/DataBiosphere/terra-workspace-manager/blob/main/DEVELOPMENT.md#github-interactions)
 
 ### Connect to dev Buffer Service
 [Dev Buffer Service Swagger](https://buffer.dsde-dev.broadinstitute.org/swagger-ui.html)
@@ -138,7 +148,8 @@ Alternately use `gcloud auth login <you>@broadinstitute.org` or `gcloud auth app
 ```
 cd local-dev
 ```
-You may also use your [personal environment](https://github.com/DataBiosphere/terra/blob/main/docs/dev-guides/personal-environments.md) as the target
+The script itself permits pushing to any valid environment as the target. Developers however only have access to push to their [personal environment](https://github.com/DataBiosphere/terra/blob/main/docs/dev-guides/personal-environments.md)
+
 ```
 ./setup_gke_deploy.sh <environment>
 ```
