@@ -7,8 +7,10 @@ name: Run Tests
 on:
   push:
     branches: [ master ]
+    paths-ignore: [ '**.md',  'LICENSE.txt' ]
   pull_request:
     branches: [ '**' ]
+    paths-ignore: [ '**.md',  'LICENSE.txt' ]
 env:
   VAULT_ADDR: https://clotho.broadinstitute.org:8200
 jobs:
