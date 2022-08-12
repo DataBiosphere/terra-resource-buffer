@@ -1,10 +1,5 @@
 package bio.terra.buffer.db;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import bio.terra.buffer.app.configuration.BufferDatabaseConfiguration;
 import bio.terra.buffer.common.BaseUnitTest;
 import bio.terra.buffer.common.Pool;
@@ -23,9 +18,6 @@ import bio.terra.buffer.generated.model.ProjectIdSchema;
 import bio.terra.buffer.generated.model.ResourceConfig;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,6 +25,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.UUID;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -59,7 +61,7 @@ public class BufferDaoTest extends BaseUnitTest {
                             .scheme(ProjectIdSchema.SchemeEnum.RANDOM_CHAR)));
 
     return Pool.builder()
-        .creation(Instant.now())
+        .creation(Instant.now().truncatedTo(ChronoUnit.MILLIS))
         .id(poolId)
         .resourceType(ResourceType.GOOGLE_PROJECT)
         .size(1)
@@ -85,22 +87,7 @@ public class BufferDaoTest extends BaseUnitTest {
     bufferDao.createPools(ImmutableList.of(pool1, pool2));
     List<Pool> pools = bufferDao.retrievePools();
 
-    // assertThat(pools, Matchers.containsInAnyOrder(pool1, pool2));
-    assertThat(
-        String.format(
-            "debugText1 %s, debugText2: %s, debugText3: %s, ",
-            String.format(
-                "pool1: %d, %d", pool1.creation().getEpochSecond(), pool1.creation().getNano()),
-            String.format(
-                "pool2: %d, %d", pool2.creation().getEpochSecond(), pool2.creation().getNano()),
-            String.format(
-                "pool[1]: %d, %d, pool[2]: %d, %d",
-                bufferDao.retrievePool(pool1.id()).get().creation().getEpochSecond(),
-                bufferDao.retrievePool(pool1.id()).get().creation().getNano(),
-                bufferDao.retrievePool(pool2.id()).get().creation().getEpochSecond(),
-                bufferDao.retrievePool(pool2.id()).get().creation().getNano())),
-        pools,
-        Matchers.containsInAnyOrder(pool1, pool2));
+    assertThat(pools, Matchers.containsInAnyOrder(pool1, pool2));
     assertEquals(pool1, bufferDao.retrievePool(pool1.id()).get());
     assertEquals(pool2, bufferDao.retrievePool(pool2.id()).get());
   }
