@@ -96,6 +96,8 @@ public class BufferDaoTest extends BaseUnitTest {
             String.format(
                 "pool[1]: %d, %d, pool[2]: %d, %d",
                 bufferDao.retrievePool(pool1.id()).get().creation().getEpochSecond(),
+                bufferDao.retrievePool(pool1.id()).get().creation().getNano(),
+                bufferDao.retrievePool(pool2.id()).get().creation().getEpochSecond(),
                 bufferDao.retrievePool(pool2.id()).get().creation().getNano())),
         pools,
         Matchers.containsInAnyOrder(pool1, pool2));
