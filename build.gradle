@@ -2,15 +2,15 @@ plugins {
     id 'idea'
     id 'java'
 
-    id 'com.diffplug.spotless' version '6.9.1'
-    id 'com.github.ben-manes.versions' version '0.42.0'
-    id 'com.github.spotbugs' version '5.0.9'
+    id 'com.diffplug.spotless' version '5.8.2'
+    id 'com.github.ben-manes.versions' version '0.36.0'
+    id 'com.github.spotbugs' version '4.5.1'
     id 'com.google.cloud.tools.jib' version '3.2.1'
-    id 'de.undercouch.download' version '5.1.0'
-    id 'io.spring.dependency-management' version '1.0.13.RELEASE'
+    id 'de.undercouch.download' version '5.0.4'
     id "jacoco"
+    id 'io.spring.dependency-management' version '1.0.10.RELEASE'
     id 'org.hidetake.swagger.generator' version '2.19.2'
-    id 'org.springframework.boot' version '2.7.2'
+    id 'org.springframework.boot' version '2.6.6'
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
