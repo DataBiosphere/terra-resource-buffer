@@ -59,7 +59,7 @@ public class BufferDaoTest extends BaseUnitTest {
                             .scheme(ProjectIdSchema.SchemeEnum.RANDOM_CHAR)));
 
     return Pool.builder()
-        .creation(BufferDao.currentInstant())
+        .creation(Instant.now())
         .id(poolId)
         .resourceType(ResourceType.GOOGLE_PROJECT)
         .size(1)
@@ -72,7 +72,7 @@ public class BufferDaoTest extends BaseUnitTest {
     return Resource.builder()
         .id(ResourceId.create(UUID.randomUUID()))
         .poolId(poolId)
-        .creation(BufferDao.currentInstant())
+        .creation(Instant.now())
         .state(state)
         .build();
   }
@@ -85,7 +85,20 @@ public class BufferDaoTest extends BaseUnitTest {
     bufferDao.createPools(ImmutableList.of(pool1, pool2));
     List<Pool> pools = bufferDao.retrievePools();
 
-    assertThat(pools, Matchers.containsInAnyOrder(pool1, pool2));
+    // assertThat(pools, Matchers.containsInAnyOrder(pool1, pool2));
+    assertThat(
+        String.format(
+            "debugText1 %s, debugText2: %s, debugText3: %s, ",
+            String.format(
+                "pool1: %l, %d", pool1.creation().getEpochSecond(), pool1.creation().getNano()),
+            String.format(
+                "pool2: %l, %d", pool2.creation().getEpochSecond(), pool2.creation().getNano()),
+            String.format(
+                "pool[1]: %l, %d, pool[2]: %l, %d",
+                bufferDao.retrievePool(pool1.id()).get().creation().getEpochSecond(),
+                bufferDao.retrievePool(pool2.id()).get().creation().getNano())),
+        pools,
+        Matchers.containsInAnyOrder(pool1, pool2));
     assertEquals(pool1, bufferDao.retrievePool(pool1.id()).get());
     assertEquals(pool2, bufferDao.retrievePool(pool2.id()).get());
   }
@@ -265,7 +278,7 @@ public class BufferDaoTest extends BaseUnitTest {
     bufferDao.createPools(ImmutableList.of(pool));
     bufferDao.createResource(resource);
 
-    Instant now = BufferDao.currentInstant();
+    Instant now = Instant.now();
     bufferDao.updateResourceAsDeleted(resource.id(), now);
     resource = bufferDao.retrieveResource(resource.id()).get();
     assertEquals(now, resource.deletion());
