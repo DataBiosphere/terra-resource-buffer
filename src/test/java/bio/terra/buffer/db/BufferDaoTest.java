@@ -83,9 +83,22 @@ public class BufferDaoTest extends BaseUnitTest {
     Pool pool2 = newPool(PoolId.create("pool2"));
 
     bufferDao.createPools(ImmutableList.of(pool1, pool2));
-
     List<Pool> pools = bufferDao.retrievePools();
-    assertThat(pools, Matchers.containsInAnyOrder(pool1, pool2));
+
+    // assertThat(pools, Matchers.containsInAnyOrder(pool1, pool2));
+    assertThat(
+        String.format(
+            "debugText1 %s, debugText2: %s, debugText3: %s, ",
+            String.format(
+                "pool1: %l, %d", pool1.creation().getEpochSecond(), pool1.creation().getNano()),
+            String.format(
+                "pool2: %l, %d", pool2.creation().getEpochSecond(), pool2.creation().getNano()),
+            String.format(
+                "pool[1]: %l, %d, pool[2]: %l, %d",
+                bufferDao.retrievePool(pool1.id()).get().creation().getEpochSecond(),
+                bufferDao.retrievePool(pool2.id()).get().creation().getNano())),
+        pools,
+        Matchers.containsInAnyOrder(pool1, pool2));
     assertEquals(pool1, bufferDao.retrievePool(pool1.id()).get());
     assertEquals(pool2, bufferDao.retrievePool(pool2.id()).get());
   }
