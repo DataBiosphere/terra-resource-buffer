@@ -90,11 +90,11 @@ public class BufferDaoTest extends BaseUnitTest {
         String.format(
             "debugText1 %s, debugText2: %s, debugText3: %s, ",
             String.format(
-                "pool1: %l, %d", pool1.creation().getEpochSecond(), pool1.creation().getNano()),
+                "pool1: %d, %d", pool1.creation().getEpochSecond(), pool1.creation().getNano()),
             String.format(
-                "pool2: %l, %d", pool2.creation().getEpochSecond(), pool2.creation().getNano()),
+                "pool2: %d, %d", pool2.creation().getEpochSecond(), pool2.creation().getNano()),
             String.format(
-                "pool[1]: %l, %d, pool[2]: %l, %d",
+                "pool[1]: %d, %d, pool[2]: %d, %d",
                 bufferDao.retrievePool(pool1.id()).get().creation().getEpochSecond(),
                 bufferDao.retrievePool(pool2.id()).get().creation().getNano())),
         pools,
