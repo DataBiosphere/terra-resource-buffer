@@ -5,7 +5,6 @@ import bio.terra.buffer.generated.model.GcpProjectConfig;
 import bio.terra.buffer.generated.model.ServiceUsage;
 import bio.terra.buffer.generated.model.Storage;
 import com.google.common.base.Strings;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
