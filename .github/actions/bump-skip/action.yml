@@ -13,16 +13,16 @@ outputs:
 runs:
   using: "composite"
   steps:
-  - name: Bump test
-    id: bumptest
-    run: |
-      log=$(git log --pretty='%B')
-      echo "log=$log"
-      pattern="^bump .*"
-      IS_BUMP=no
-      if [[ "${{ inputs.event-name }}" == "push" && "$log" =~ $pattern ]]; then
-        IS_BUMP=yes
-      fi
-      echo "IS_BUMP=$IS_BUMP"
-      echo ::set-output name=is-bump::$IS_BUMP
-    shell: bash
+    - name: Bump test
+      id: bumptest
+      run: |
+        log=$(git log --pretty='%B')
+        echo "log=$log"
+        pattern="^bump .*"
+        IS_BUMP=no
+        if [[ "${{ inputs.event-name }}" == "push" && "$log" =~ $pattern ]]; then
+          IS_BUMP=yes
+        fi
+        echo "IS_BUMP=$IS_BUMP"
+        echo ::set-output name=is-bump::$IS_BUMP
+      shell: bash
