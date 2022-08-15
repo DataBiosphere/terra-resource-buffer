@@ -1,21 +1,24 @@
 package bio.terra.buffer.app.controller;
 
-import static bio.terra.buffer.common.MetricsHelper.HANDOUT_RESOURCE_REQUEST_COUNT_VIEW;
-import static bio.terra.buffer.common.testing.MetricsTestUtil.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import bio.terra.buffer.app.Main;
-import bio.terra.buffer.common.*;
+import bio.terra.buffer.common.Pool;
+import bio.terra.buffer.common.PoolId;
 import bio.terra.buffer.common.PoolStatus;
+import bio.terra.buffer.common.RequestHandoutId;
+import bio.terra.buffer.common.Resource;
+import bio.terra.buffer.common.ResourceId;
+import bio.terra.buffer.common.ResourceState;
+import bio.terra.buffer.common.ResourceType;
 import bio.terra.buffer.db.BufferDao;
-import bio.terra.buffer.generated.model.*;
+import bio.terra.buffer.generated.model.CloudResourceUid;
+import bio.terra.buffer.generated.model.GoogleProjectUid;
+import bio.terra.buffer.generated.model.HandoutRequestBody;
+import bio.terra.buffer.generated.model.PoolConfig;
+import bio.terra.buffer.generated.model.PoolInfo;
+import bio.terra.buffer.generated.model.ResourceConfig;
+import bio.terra.buffer.generated.model.ResourceInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
-import java.time.Instant;
-import java.util.UUID;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,6 +31,18 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.UUID;
+
+import static bio.terra.buffer.common.MetricsHelper.HANDOUT_RESOURCE_REQUEST_COUNT_VIEW;
+import static bio.terra.buffer.common.testing.MetricsTestUtil.assertCountIncremented;
+import static bio.terra.buffer.common.testing.MetricsTestUtil.getCurrentCount;
+import static bio.terra.buffer.common.testing.MetricsTestUtil.getPoolIdTag;
+import static bio.terra.buffer.common.testing.MetricsTestUtil.sleepForSpansExport;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Tag("unit")
 @ActiveProfiles({"test", "unit"})
@@ -52,7 +67,7 @@ public class BufferApiControllerTest {
     bufferDao.createPools(
         ImmutableList.of(
             Pool.builder()
-                .creation(Instant.now())
+                .creation(BufferDao.currentInstant())
                 .id(poolId)
                 .resourceType(ResourceType.GOOGLE_PROJECT)
                 .size(1)
@@ -64,7 +79,7 @@ public class BufferApiControllerTest {
         Resource.builder()
             .id(resourceId)
             .poolId(poolId)
-            .creation(Instant.now())
+            .creation(BufferDao.currentInstant())
             .state(ResourceState.CREATING)
             .build());
     bufferDao.updateResourceAsReady(resourceId, cloudResourceUid);
@@ -102,7 +117,7 @@ public class BufferApiControllerTest {
     bufferDao.createPools(
         ImmutableList.of(
             Pool.builder()
-                .creation(Instant.now())
+                .creation(BufferDao.currentInstant())
                 .id(poolId)
                 .resourceType(ResourceType.GOOGLE_PROJECT)
                 .size(1)
@@ -138,7 +153,7 @@ public class BufferApiControllerTest {
     bufferDao.createPools(
         ImmutableList.of(
             Pool.builder()
-                .creation(Instant.now())
+                .creation(BufferDao.currentInstant())
                 .id(poolId)
                 .resourceType(ResourceType.GOOGLE_PROJECT)
                 .size(2)
@@ -152,14 +167,14 @@ public class BufferApiControllerTest {
         Resource.builder()
             .id(resourceId1)
             .poolId(poolId)
-            .creation(Instant.now())
+            .creation(BufferDao.currentInstant())
             .state(ResourceState.CREATING)
             .build());
     bufferDao.createResource(
         Resource.builder()
             .id(resourceId2)
             .poolId(poolId)
-            .creation(Instant.now())
+            .creation(BufferDao.currentInstant())
             .state(ResourceState.CREATING)
             .build());
     bufferDao.updateResourceAsReady(

@@ -31,7 +31,6 @@ import bio.terra.stairway.FlightStatus;
 import bio.terra.stairway.RetryRule;
 import bio.terra.stairway.Step;
 import com.google.api.services.cloudresourcemanager.v3.model.Project;
-import java.time.Instant;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -108,7 +107,7 @@ public class DeleteProjectFlightIntegrationTest extends BaseIntegrationTest {
         Resource.builder()
             .id(resourceId)
             .poolId(pool.id())
-            .creation(Instant.now())
+            .creation(BufferDao.currentInstant())
             .state(ResourceState.READY)
             .build());
     Resource resource = bufferDao.retrieveResource(resourceId).get();

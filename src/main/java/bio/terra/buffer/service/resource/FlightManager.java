@@ -9,7 +9,6 @@ import bio.terra.buffer.db.BufferDao;
 import bio.terra.common.stairway.StairwayComponent;
 import bio.terra.stairway.Stairway;
 import bio.terra.stairway.exception.StairwayException;
-import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -66,7 +65,7 @@ public class FlightManager {
         Resource.builder()
             .id(resourceId)
             .poolId(pool.id())
-            .creation(Instant.now())
+            .creation(BufferDao.currentInstant())
             .state(ResourceState.CREATING)
             .build());
     return submitToStairway(

@@ -30,7 +30,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultiset;
 import com.google.common.collect.Multiset;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -91,7 +90,7 @@ public class FlightSchedulerTest extends BaseUnitTest {
     PoolId poolId = PoolId.create(UUID.randomUUID().toString());
     Pool pool =
         Pool.builder()
-            .creation(Instant.now())
+            .creation(BufferDao.currentInstant())
             .id(poolId)
             .resourceType(ResourceType.GOOGLE_PROJECT)
             .size(poolSize)
@@ -105,7 +104,7 @@ public class FlightSchedulerTest extends BaseUnitTest {
           Resource.builder()
               .id(ResourceId.create(UUID.randomUUID()))
               .poolId(poolId)
-              .creation(Instant.now())
+              .creation(BufferDao.currentInstant())
               .state(state)
               .build());
     }

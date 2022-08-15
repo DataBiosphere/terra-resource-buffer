@@ -24,7 +24,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Sets;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -221,7 +220,7 @@ public class PoolService {
         .id(PoolId.create(poolConfig.poolConfig().getPoolId()))
         .size(poolConfig.poolConfig().getSize())
         .resourceConfig(poolConfig.resourceConfig())
-        .creation(Instant.now())
+        .creation(BufferDao.currentInstant())
         .resourceType(
             ResourceConfigVisitor.visit(
                     poolConfig.resourceConfig(), new ResourceConfigTypeVisitor())

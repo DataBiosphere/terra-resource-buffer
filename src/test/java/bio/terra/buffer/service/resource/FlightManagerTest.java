@@ -10,7 +10,6 @@ import bio.terra.common.stairway.StairwayComponent;
 import bio.terra.stairway.Stairway;
 import bio.terra.stairway.exception.StairwayExecutionException;
 import com.google.common.collect.ImmutableList;
-import java.time.Instant;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,7 +48,7 @@ public class FlightManagerTest extends BaseUnitTest {
   public void submitStairwayFail_rollbackResourceFromDB() throws Exception {
     Pool pool =
         Pool.builder()
-            .creation(Instant.now())
+            .creation(BufferDao.currentInstant())
             .id(PoolId.create(UUID.randomUUID().toString()))
             .resourceType(ResourceType.GOOGLE_PROJECT)
             .size(10)
