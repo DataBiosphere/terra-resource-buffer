@@ -73,7 +73,7 @@ public class BufferDaoTest extends BaseUnitTest {
     return Resource.builder()
         .id(ResourceId.create(UUID.randomUUID()))
         .poolId(poolId)
-        .creation(Instant.now())
+        .creation(BufferDao.currentInstant())
         .state(state)
         .build();
   }
@@ -266,7 +266,7 @@ public class BufferDaoTest extends BaseUnitTest {
     bufferDao.createPools(ImmutableList.of(pool));
     bufferDao.createResource(resource);
 
-    Instant now = Instant.now();
+    Instant now = BufferDao.currentInstant();
     bufferDao.updateResourceAsDeleted(resource.id(), now);
     resource = bufferDao.retrieveResource(resource.id()).get();
     assertEquals(now, resource.deletion());
