@@ -544,8 +544,8 @@ public class BufferDao {
     }
   }
 
-  /** Helper function to return Microsecond precision instant supported by most DBs */
+  /** Helper function to return Millisecond precision instant supported by most DBs */
   public static Instant currentInstant() {
-    return Instant.now().truncatedTo(ChronoUnit.MICROS);
+    return Instant.now().truncatedTo(ChronoUnit.MILLIS);
   }
 }

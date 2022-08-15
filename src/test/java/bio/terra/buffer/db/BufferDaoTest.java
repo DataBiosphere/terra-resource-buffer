@@ -27,7 +27,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
@@ -61,7 +60,7 @@ public class BufferDaoTest extends BaseUnitTest {
                             .scheme(ProjectIdSchema.SchemeEnum.RANDOM_CHAR)));
 
     return Pool.builder()
-        .creation(Instant.now().truncatedTo(ChronoUnit.MILLIS))
+        .creation(BufferDao.currentInstant())
         .id(poolId)
         .resourceType(ResourceType.GOOGLE_PROJECT)
         .size(1)
