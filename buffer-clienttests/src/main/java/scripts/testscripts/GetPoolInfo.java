@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scripts.utils.BufferServiceUtils;
 
+/** A {@link TestScript} which gets pool info if the specified pool id exists */
 public class GetPoolInfo extends TestScript {
   private static final Logger logger = LoggerFactory.getLogger(GetPoolInfo.class);
 

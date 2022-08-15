@@ -10,13 +10,12 @@ import bio.terra.testrunner.runner.config.ServerSpecification;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.common.base.Strings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class provides a method to build an ApiClient object with the appropriate service account
@@ -78,9 +77,8 @@ public class BufferServiceUtils {
    * @param server the server we are testing against
    * @param timeout the timeout duration
    * @param mimimumSize the mimimum size of resource count
-   * @param server the server we are testing against
    * @return the PoolInfo
-   * @throws InterruptedException if interrupted
+   * @throws InterruptedException if timed out
    * @throws ApiException if api errors
    * @throws IOException if IO is invalid
    */
@@ -106,7 +104,15 @@ public class BufferServiceUtils {
     }
   }
 
-  /** Retries Handout resource API if resource is no resource is available. */
+  /**
+   * Retries Handout resource API if resource is no resource is available.
+   *
+   * @param bufferApi the api client
+   * @param handoutRequestId the request id
+   * @return the project id
+   * @throws InterruptedException if exceeds retry count
+   * @throws ApiException if api errors
+   */
   public static String retryHandout(BufferApi bufferApi, String handoutRequestId)
       throws InterruptedException, ApiException {
     int numAttempts = 1;
