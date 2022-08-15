@@ -219,11 +219,13 @@ components:
         - DEACTIVATED
 
     GoogleAiNotebookInstanceUid:
+      description: |-
+        Google AI Notebook Instance ID
       type: object
       required:
-        - projectId
-        - location
-        - instanceId
+      - projectId
+      - location
+      - instanceId
       properties:
         projectId:
           type: string
@@ -235,10 +237,12 @@ components:
           type: string
 
     GoogleBigQueryDatasetUid:
+      description: |-
+        Google Big Query Database ID
       type: object
       required:
-        - projectId
-        - datasetId
+      - projectId
+      - datasetId
       properties:
         projectId:
           type: string
@@ -246,11 +250,13 @@ components:
           type: string
 
     GoogleBigQueryTableUid:
+      description: |-
+        Google Big Query Table ID
       type: object
       required:
-        - projectId
-        - datasetId
-        - tableId
+      - projectId
+      - datasetId
+      - tableId
       properties:
         projectId:
           type: string
@@ -260,10 +266,12 @@ components:
           type: string
 
     GoogleBlobUid:
+      description: |-
+        Google Blob ID
       type: object
       required:
-        - bucketName
-        - blobName
+      - bucketName
+      - blobName
       properties:
         bucketName:
           type: string
@@ -271,27 +279,33 @@ components:
           type: string
 
     GoogleBucketUid:
+      description: |-
+        Google Bucket ID
       type: object
       required:
-        - bucketName
+      - bucketName
       properties:
         bucketName:
           type: string
 
     GoogleProjectUid:
+      description: |-
+        Google Project ID
       type: object
       required:
-        - projectId
+      - projectId
       properties:
         projectId:
           type: string
 
     AzureResourceGroup:
+      description: |-
+        Azure Resource group
       type: object
       required:
-        - tenantId
-        - subscriptionId
-        - resourceGroupName
+      - tenantId
+      - subscriptionId
+      - resourceGroupName
       properties:
         tenantId:
           description: The tenant ID.
@@ -304,10 +318,12 @@ components:
           type: string
 
     AzurePublicIp:
+      description: |-
+        Azure Public IP
       type: object
       required:
-        - resourceGroup
-        - ipName
+      - resourceGroup
+      - ipName
       properties:
         resourceGroup:
           $ref: '#/components/schemas/AzureResourceGroup'
@@ -316,10 +332,12 @@ components:
           type: string
 
     AzureDisk:
+      description: |-
+        Azure Disk
       type: object
       required:
-        - resourceGroup
-        - diskName
+      - resourceGroup
+      - diskName
       properties:
         resourceGroup:
           $ref: '#/components/schemas/AzureResourceGroup'
@@ -328,10 +346,12 @@ components:
           type: string
 
     AzureNetwork:
+      description: |-
+        Azure Network
       type: object
       required:
-        - resourceGroup
-        - networkName
+      - resourceGroup
+      - networkName
       properties:
         resourceGroup:
           $ref: '#/components/schemas/AzureResourceGroup'
@@ -340,10 +360,12 @@ components:
           type: string
 
     AzureNetworkSecurityGroup:
+      description: |-
+        Azure Network Security group
       type: object
       required:
-        - resourceGroup
-        - networkSecurityGroupName
+      - resourceGroup
+      - networkSecurityGroupName
       properties:
         resourceGroup:
           $ref: '#/components/schemas/AzureResourceGroup'
@@ -352,10 +374,12 @@ components:
           type: string
 
     AzureVirtualMachine:
+      description: |-
+        Azure Virtual Machine
       type: object
       required:
-        - resourceGroup
-        - vmName
+      - resourceGroup
+      - vmName
       properties:
         resourceGroup:
           $ref: '#/components/schemas/AzureResourceGroup'
@@ -369,6 +393,8 @@ components:
     # when using this.
     # Currently the only resource that Buffer supports is GcpProject.
     CloudResourceUid:
+      description: |-
+        Cloud Resource ID
       type: object
       properties:
         googleAiNotebookInstanceUid:
