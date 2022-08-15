@@ -1,26 +1,5 @@
 package bio.terra.buffer.service.resource.flight;
 
-import bio.terra.buffer.generated.model.GcpProjectConfig;
-import bio.terra.buffer.generated.model.ResourceConfig;
-import bio.terra.cloudres.google.api.services.common.OperationCow;
-import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
-import bio.terra.stairway.FlightContext;
-import bio.terra.stairway.Step;
-import bio.terra.stairway.StepResult;
-import bio.terra.stairway.StepStatus;
-import bio.terra.stairway.exception.RetryException;
-import com.google.api.services.cloudresourcemanager.v3.model.Project;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.time.Duration;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-
 import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
 import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_NUMBER;
 import static bio.terra.buffer.service.resource.FlightMapKeys.RESOURCE_CONFIG;
@@ -35,6 +14,26 @@ import static bio.terra.buffer.service.resource.flight.GoogleUtils.getResource;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.isProjectDeleting;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.pollUntilSuccess;
 import static bio.terra.buffer.service.resource.flight.StepUtils.isResourceReady;
+
+import bio.terra.buffer.generated.model.GcpProjectConfig;
+import bio.terra.buffer.generated.model.ResourceConfig;
+import bio.terra.cloudres.google.api.services.common.OperationCow;
+import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
+import bio.terra.stairway.FlightContext;
+import bio.terra.stairway.Step;
+import bio.terra.stairway.StepResult;
+import bio.terra.stairway.StepStatus;
+import bio.terra.stairway.exception.RetryException;
+import com.google.api.services.cloudresourcemanager.v3.model.Project;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableMap;
+import java.io.IOException;
+import java.time.Duration;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Creates the basic GCP project. */
 public class CreateProjectStep implements Step {

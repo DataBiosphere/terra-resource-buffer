@@ -1,5 +1,8 @@
 package bio.terra.buffer.integration;
 
+import static bio.terra.buffer.generated.model.ProjectIdSchema.SchemeEnum.RANDOM_CHAR;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import bio.terra.buffer.common.Pool;
 import bio.terra.buffer.common.PoolId;
 import bio.terra.buffer.common.PoolStatus;
@@ -20,17 +23,12 @@ import bio.terra.stairway.FlightMap;
 import bio.terra.stairway.FlightState;
 import bio.terra.stairway.exception.DatabaseOperationException;
 import com.google.common.collect.ImmutableList;
-
 import java.time.Duration;
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
-import static bio.terra.buffer.generated.model.ProjectIdSchema.SchemeEnum.RANDOM_CHAR;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Utilities used in integration test. */
 public class IntegrationUtils {
@@ -118,7 +116,7 @@ public class IntegrationUtils {
                     .configName(TEST_CONFIG_NAME)
                     .gcpProjectConfig(gcpProjectConfig))
             .status(PoolStatus.ACTIVE)
-            .creation(Instant.now())
+            .creation(BufferDao.currentInstant())
             .build();
     bufferDao.createPools(ImmutableList.of(pool));
     assertTrue(bufferDao.retrieveResourcesRandomly(pool.id(), ResourceState.CREATING, 1).isEmpty());

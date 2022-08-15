@@ -2,18 +2,18 @@ plugins {
     id 'idea'
     id 'java'
 
-    id 'com.diffplug.spotless' version '5.8.2'
-    id 'com.github.ben-manes.versions' version '0.36.0'
-    id 'com.github.spotbugs' version '4.5.1'
+    id 'com.diffplug.spotless' version '6.9.1'
+    id 'com.github.ben-manes.versions' version '0.42.0'
+    id 'com.github.spotbugs' version '5.0.9'
     id 'com.google.cloud.tools.jib' version '3.2.1'
-    id 'de.undercouch.download' version '5.0.4'
+    id 'de.undercouch.download' version '5.1.0'
+    id 'io.spring.dependency-management' version '1.0.13.RELEASE'
     id "jacoco"
-    id 'io.spring.dependency-management' version '1.0.10.RELEASE'
-    id 'org.hidetake.swagger.generator' version '2.18.2'
-    id 'org.springframework.boot' version '2.6.6'
+    id 'org.hidetake.swagger.generator' version '2.19.2'
+    id 'org.springframework.boot' version '2.7.2'
 }
 
-sourceCompatibility = JavaVersion.VERSION_11
+sourceCompatibility = JavaVersion.VERSION_17
 
 // If true, search local repository (~/.m2/repository/) first for dependencies.
 def useMavenLocal = false
@@ -34,8 +34,8 @@ allprojects {
             mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
         }
         dependencies {
-            dependency group: "io.swagger.core.v3", name: "swagger-annotations", version: "2.1.5"
-            dependency group: "io.swagger.codegen.v3", name: "swagger-codegen-cli", version: "3.0.22"
+            dependency group: "io.swagger.core.v3", name: "swagger-annotations", version: "2.2.2"
+            dependency group: "io.swagger.codegen.v3", name: "swagger-codegen-cli", version: "3.0.34"
         }
     }
 
@@ -65,19 +65,18 @@ dependencies {
     // Terra deps - we get Stairway via TCL
     implementation group: 'bio.terra', name: 'terra-common-lib', version: '0.0.61-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-cloud-resource-lib', version: '1.1.1-SNAPSHOT'
-
     implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.5.0-SNAPSHOT'
 
     // Versioned direct deps
-    implementation group: 'com.google.auto.value', name: 'auto-value-annotations', version: '1.7.3'
-    implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.116.3'
+    implementation group: 'com.google.auto.value', name: 'auto-value-annotations', version: '1.9'
+    implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.120.11'
     implementation group: 'com.google.guava', name: 'guava', version: '31.1-jre'
-    implementation group: 'io.opencensus', name: 'opencensus-exporter-stats-stackdriver', version: '0.28.+'
-    implementation group: 'org.springframework.cloud', name: 'spring-cloud-gcp-starter-logging', version: '1.2.6.RELEASE'
+    implementation group: 'io.opencensus', name: 'opencensus-exporter-stats-stackdriver', version: '0.31.1'
     implementation group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
-    implementation group: 'org.liquibase', name: 'liquibase-core', version: '3.10.0'
-    implementation group: 'org.webjars', name: 'webjars-locator-core', version: '0.46'
-    runtimeOnly group: 'org.postgresql', name: 'postgresql', version: '42.3.3'
+    implementation group: 'org.liquibase', name: 'liquibase-core', version: '4.15.0'
+    implementation group: 'org.springframework.cloud', name: 'spring-cloud-gcp-starter-logging', version: '1.2.6.RELEASE'
+    implementation group: 'org.webjars', name: 'webjars-locator-core', version: '0.52'
+    runtimeOnly group: 'org.postgresql', name: 'postgresql', version: '42.4.1'
 
     // Deps whose versions are controlled by Spring
     implementation group: 'org.apache.commons', name: 'commons-dbcp2'
@@ -88,20 +87,20 @@ dependencies {
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
 
     // Swagger deps
-    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.11.2'
-    implementation group: 'com.fasterxml.jackson.module', name: 'jackson-module-jaxb-annotations', version: '2.11.2'
-    implementation group: 'io.swagger', name: 'swagger-annotations', version: '1.6.2'
-    implementation group: 'io.swagger.core.v3', name: 'swagger-annotations'
+    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.13.3'
+    implementation group: 'com.fasterxml.jackson.module', name: 'jackson-module-jaxb-annotations', version: '2.13.3'
+    implementation group: 'io.swagger', name: 'swagger-annotations', version: '1.6.6'
+    implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.2'
     runtimeOnly group: 'org.webjars.npm', name: 'swagger-ui-dist', version: '3.36.2'
-    swaggerCodegen group: 'io.swagger.codegen.v3', name: 'swagger-codegen-cli'
+    swaggerCodegen group: 'io.swagger.codegen.v3', name: 'swagger-codegen-cli', version: '3.0.34'
 
     // Test deps
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
 
-    annotationProcessor group: 'com.google.auto.value', name: 'auto-value', version: '1.7.3'
-    annotationProcessor group: 'org.springframework.boot', name: 'spring-boot-configuration-processor'
+    annotationProcessor group: 'com.google.auto.value', name: 'auto-value', version: '1.9'
+    annotationProcessor group: 'org.springframework.boot', name: 'spring-boot-configuration-processor', version: '2.7.2'
 }
 
 dependencyLocking {
@@ -143,7 +142,7 @@ task extractProfilerAgent(dependsOn: downloadProfilerAgent, type: Copy) {
 
 jib {
     from {
-        image = "adoptopenjdk:11-jre-hotspot"
+        image = "eclipse-temurin:17.0.4_8-jre"
     }
     extraDirectories {
         paths = [file(jibExtraDirectory)]
@@ -307,6 +306,6 @@ sourceSets.main.java.srcDir "${swaggerOutputDir}/src/main/java"
 sourceSets.test.resources.srcDir "config/" // Allow unit tests to directly load config files.
 sourceSets {
     jacoco {
-        toolVersion '0.8.6'
+        toolVersion '0.8.8'
     }
 }

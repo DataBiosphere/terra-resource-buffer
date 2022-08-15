@@ -26,7 +26,6 @@ import bio.terra.buffer.generated.model.ResourceConfig;
 import bio.terra.buffer.generated.model.ResourceInfo;
 import bio.terra.common.exception.BadRequestException;
 import com.google.common.collect.ImmutableList;
-import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -351,7 +350,7 @@ public class PoolServiceTest extends BaseUnitTest {
   private void newReadyPool(PoolId poolId, int poolSize) {
     Pool pool =
         Pool.builder()
-            .creation(Instant.now())
+            .creation(BufferDao.currentInstant())
             .id(poolId)
             .resourceType(ResourceType.GOOGLE_PROJECT)
             .size(poolSize)
@@ -366,7 +365,7 @@ public class PoolServiceTest extends BaseUnitTest {
           Resource.builder()
               .id(id)
               .poolId(poolId)
-              .creation(Instant.now())
+              .creation(BufferDao.currentInstant())
               .state(ResourceState.CREATING)
               .build());
       bufferDao.updateResourceAsReady(id, newProjectUid());

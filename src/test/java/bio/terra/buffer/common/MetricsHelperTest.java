@@ -3,8 +3,8 @@ package bio.terra.buffer.common;
 import static bio.terra.buffer.common.MetricsHelper.*;
 import static bio.terra.buffer.common.testing.MetricsTestUtil.*;
 
+import bio.terra.buffer.db.BufferDao;
 import bio.terra.buffer.generated.model.ResourceConfig;
-import java.time.Instant;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -18,7 +18,7 @@ public class MetricsHelperTest extends BaseUnitTest {
         Pool.builder()
             .id(poolId)
             .size(10)
-            .creation(Instant.now())
+            .creation(BufferDao.currentInstant())
             .status(PoolStatus.ACTIVE)
             .resourceType(ResourceType.GOOGLE_PROJECT)
             .resourceConfig(new ResourceConfig().configName("configName"))
