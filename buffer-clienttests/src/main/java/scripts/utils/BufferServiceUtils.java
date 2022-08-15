@@ -10,12 +10,13 @@ import bio.terra.testrunner.runner.config.ServerSpecification;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.common.base.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class provides a method to build an ApiClient object with the appropriate service account
@@ -44,6 +45,7 @@ public class BufferServiceUtils {
    *
    * @param server the server we are testing against
    * @return the API client object
+   * @throws IOException if service URI or client is missing
    */
   public static ApiClient getClient(ServerSpecification server) throws IOException {
     if (Strings.isNullOrEmpty(server.bufferUri)) {
@@ -70,7 +72,18 @@ public class BufferServiceUtils {
     return apiClient;
   }
 
-  /** Poll pool info from Buffer Service until READY resource is more than expect number. */
+  /**
+   * Poll pool info from Buffer Service until READY resource is more than expect number.
+   *
+   * @param server the server we are testing against
+   * @param timeout the timeout duration
+   * @param mimimumSize the mimimum size of resource count
+   * @param server the server we are testing against
+   * @return the PoolInfo
+   * @throws InterruptedException if interrupted
+   * @throws ApiException if api errors
+   * @throws IOException if IO is invalid
+   */
   public static PoolInfo pollUntilResourceCountExceeds(
       ServerSpecification server, Duration timeout, int mimimumSize)
       throws InterruptedException, ApiException, IOException {
