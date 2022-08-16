@@ -3,7 +3,7 @@ name: Tag, Build, and Push Image
 on:
   push:
     branches: [ master ]
-    paths-ignore: [ '**.md',  'LICENSE.txt' ]
+    paths-ignore: [ '**.md' ]
   workflow_dispatch:
     inputs:
       bump:

@@ -111,8 +111,8 @@ components:
       type: object
       properties:
         ok:
-          type: boolean
           description: status of this service
+          type: boolean
         systems:
           type: object
           additionalProperties:
@@ -141,6 +141,7 @@ components:
     PoolConfigs:
       description: |-
         Terra Resource Buffer Service Reource Pools
+      type: object
       required:
         - poolConfigs
       properties:
@@ -148,11 +149,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PoolConfig'
-      type: object
 
     PoolConfig:
       description: |-
         Terra Resource Buffer Service Reource Pool Config
+        type: object
       required:
         - poolId
         - size
@@ -170,11 +171,11 @@ components:
           description: |
             The config name the pool use. Resource Buffer Service will use it to locate the actual config file.
           type: string
-      type: object
 
     ResourceInfo:
       description: |-
         Information represents a resource in Resource Buffer Service
+      type: object
       required:
         - poolId
         - requestHandoutId
@@ -190,11 +191,11 @@ components:
           type: string
         cloudResourceUid:
           $ref: '#/components/schemas/CloudResourceUid'
-      type: object
 
     PoolInfo:
       description: |-
         Information represents a pool in Resource Buffer Service
+      type: object
       required:
         - poolId
         - status
@@ -209,11 +210,10 @@ components:
           type: object
           additionalProperties:
             type: integer
-      type: object
 
     PoolStatus:
-      type: string
       description: Possible pool status.
+      type: string
       enum:
         - ACTIVE
         - DEACTIVATED
@@ -221,28 +221,30 @@ components:
     GoogleAiNotebookInstanceUid:
       type: object
       required:
-        - projectId
-        - location
-        - instanceId
+      - projectId
+      - location
+      - instanceId
       properties:
         projectId:
           type: string
         location:
-          type: string
           description: The location of the instance, e.g. 'uswest1-b'.
-        instanceId:
           type: string
+        instanceId:
           description: The user-provided instance id to identify the instance.
+          type: string
+
     GoogleBigQueryDatasetUid:
       type: object
       required:
-        - projectId
-        - datasetId
+      - projectId
+      - datasetId
       properties:
         projectId:
           type: string
         datasetId:
           type: string
+
     GoogleBigQueryTableUid:
       type: object
       required:
@@ -256,6 +258,7 @@ components:
           type: string
         tableId:
           type: string
+
     GoogleBlobUid:
       type: object
       required:
@@ -266,6 +269,7 @@ components:
           type: string
         blobName:
           type: string
+
     GoogleBucketUid:
       type: object
       required:
@@ -273,6 +277,7 @@ components:
       properties:
         bucketName:
           type: string
+
     GoogleProjectUid:
       type: object
       required:
@@ -280,77 +285,83 @@ components:
       properties:
         projectId:
           type: string
+
     AzureResourceGroup:
       type: object
       required:
-        - tenantId
+      - tenantId
         - subscriptionId
-        - resourceGroupName
+      - resourceGroupName
       properties:
         tenantId:
-          type: string
           description: The tenant ID.
+          type: string
         subscriptionId:
-          type: string
           description: The subscription ID.
-        resourceGroupName:
           type: string
+        resourceGroupName:
           description: Name of the resource group.
+          type: string
+
     AzurePublicIp:
       type: object
       required:
-        - resourceGroup
-        - ipName
+      - resourceGroup
+      - ipName
       properties:
         resourceGroup:
           $ref: '#/components/schemas/AzureResourceGroup'
         ipName:
-          type: string
           description: The user-provided name to identify the IP.
+          type: string
+
     AzureDisk:
       type: object
       required:
-        - resourceGroup
-        - diskName
+      - resourceGroup
+      - diskName
       properties:
         resourceGroup:
           $ref: '#/components/schemas/AzureResourceGroup'
         diskName:
-          type: string
           description: The user-provided name to identify the disk.
+          type: string
+
     AzureNetwork:
       type: object
       required:
-        - resourceGroup
-        - networkName
+      - resourceGroup
+      - networkName
       properties:
         resourceGroup:
           $ref: '#/components/schemas/AzureResourceGroup'
         networkName:
-          type: string
           description: The user-provided name to identify the network.
+          type: string
+
     AzureNetworkSecurityGroup:
       type: object
       required:
-        - resourceGroup
-        - networkSecurityGroupName
+      - resourceGroup
+      - networkSecurityGroupName
       properties:
         resourceGroup:
           $ref: '#/components/schemas/AzureResourceGroup'
         networkSecurityGroupName:
-          type: string
           description: The user-provided name to identify the network security group.
+          type: string
+
     AzureVirtualMachine:
       type: object
       required:
-        - resourceGroup
-        - vmName
+      - resourceGroup
+      - vmName
       properties:
         resourceGroup:
           $ref: '#/components/schemas/AzureResourceGroup'
         vmName:
-          type: string
           description: The user-provided name to identify the VM.
+          type: string
 
     # A cloud resource unique identifier. Each CloudResourceUid represents exactly one cloud resource.
     # We are not doing polymorphism at this moment because of lack of support in swagger-codegen or openApiGenerator

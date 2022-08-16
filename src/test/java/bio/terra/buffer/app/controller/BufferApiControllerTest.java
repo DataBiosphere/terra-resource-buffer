@@ -1,5 +1,15 @@
 package bio.terra.buffer.app.controller;
 
+import static bio.terra.buffer.common.MetricsHelper.HANDOUT_RESOURCE_REQUEST_COUNT_VIEW;
+import static bio.terra.buffer.common.testing.MetricsTestUtil.assertCountIncremented;
+import static bio.terra.buffer.common.testing.MetricsTestUtil.getCurrentCount;
+import static bio.terra.buffer.common.testing.MetricsTestUtil.getPoolIdTag;
+import static bio.terra.buffer.common.testing.MetricsTestUtil.sleepForSpansExport;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import bio.terra.buffer.app.Main;
 import bio.terra.buffer.common.Pool;
 import bio.terra.buffer.common.PoolId;
@@ -19,6 +29,7 @@ import bio.terra.buffer.generated.model.ResourceConfig;
 import bio.terra.buffer.generated.model.ResourceInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
+import java.util.UUID;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,18 +42,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.UUID;
-
-import static bio.terra.buffer.common.MetricsHelper.HANDOUT_RESOURCE_REQUEST_COUNT_VIEW;
-import static bio.terra.buffer.common.testing.MetricsTestUtil.assertCountIncremented;
-import static bio.terra.buffer.common.testing.MetricsTestUtil.getCurrentCount;
-import static bio.terra.buffer.common.testing.MetricsTestUtil.getPoolIdTag;
-import static bio.terra.buffer.common.testing.MetricsTestUtil.sleepForSpansExport;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Tag("unit")
 @ActiveProfiles({"test", "unit"})

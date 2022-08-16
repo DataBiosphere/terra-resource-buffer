@@ -44,6 +44,7 @@ public class BufferServiceUtils {
    *
    * @param server the server we are testing against
    * @return the API client object
+   * @throws IOException if service URI or client is missing
    */
   public static ApiClient getClient(ServerSpecification server) throws IOException {
     if (Strings.isNullOrEmpty(server.bufferUri)) {
@@ -70,7 +71,17 @@ public class BufferServiceUtils {
     return apiClient;
   }
 
-  /** Poll pool info from Buffer Service until READY resource is more than expect number. */
+  /**
+   * Poll pool info from Buffer Service until READY resource is more than expect number.
+   *
+   * @param server the server we are testing against
+   * @param timeout the timeout duration
+   * @param mimimumSize the mimimum size of resource count
+   * @return the PoolInfo
+   * @throws InterruptedException if timed out
+   * @throws ApiException if api errors
+   * @throws IOException if IO is invalid
+   */
   public static PoolInfo pollUntilResourceCountExceeds(
       ServerSpecification server, Duration timeout, int mimimumSize)
       throws InterruptedException, ApiException, IOException {
@@ -93,7 +104,15 @@ public class BufferServiceUtils {
     }
   }
 
-  /** Retries Handout resource API if resource is no resource is available. */
+  /**
+   * Retries Handout resource API if resource is no resource is available.
+   *
+   * @param bufferApi the api client
+   * @param handoutRequestId the request id
+   * @return the project id
+   * @throws InterruptedException if exceeds retry count
+   * @throws ApiException if api errors
+   */
   public static String retryHandout(BufferApi bufferApi, String handoutRequestId)
       throws InterruptedException, ApiException {
     int numAttempts = 1;
