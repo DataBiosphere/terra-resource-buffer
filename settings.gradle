@@ -22,4 +22,4 @@ include 'buffer-clienttests'
 
 enableFeaturePreview('ONE_LOCKFILE_PER_PROJECT')
 // The next line should only be changed by the BroadBot d.b.a. bumptagbot.
-gradle.ext.resourceBufferVersion = "0.198.9-SNAPSHOT"
+gradle.ext.resourceBufferVersion = "0.198.10-SNAPSHOT"
