@@ -2,7 +2,7 @@ name: dsp-appsec-trivy
 on:
   pull_request:
     branches: [ '**' ]
-    paths-ignore: [ '**.md',  'LICENSE.txt' ]
+    paths-ignore: [ '**.md' ]
 
 jobs:
   appsec-trivy:
