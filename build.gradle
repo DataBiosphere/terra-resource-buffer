@@ -75,7 +75,6 @@ dependencies {
     implementation group: 'io.opencensus', name: 'opencensus-exporter-stats-stackdriver', version: '0.31.1'
     implementation group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
     implementation group: 'org.liquibase', name: 'liquibase-core', version: '4.15.0'
-    // implementation group: 'org.springframework.cloud', name: 'spring-cloud-gcp-starter-logging', version: '1.2.6.RELEASE'
     implementation group: 'org.webjars', name: 'webjars-locator-core', version: '0.52'
     runtimeOnly group: 'org.postgresql', name: 'postgresql', version: '42.4.1'
 

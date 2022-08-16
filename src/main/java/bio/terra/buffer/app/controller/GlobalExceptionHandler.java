@@ -17,10 +17,10 @@ import org.springframework.web.servlet.NoHandlerFoundException;
  * through the controllers are caught in this handler. It converts the exceptions into standard
  * ErrorReport responses.
  *
- * <p>// TODO: move to terra-common-lib PF-1912
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+  // TODO: move to terra-common-lib PF-1912
   private final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
   // -- Error Report - one of our exceptions --
