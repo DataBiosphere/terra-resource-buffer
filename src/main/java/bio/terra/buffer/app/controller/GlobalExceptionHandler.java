@@ -16,7 +16,6 @@ import org.springframework.web.servlet.NoHandlerFoundException;
  * This module provides a top-level exception handler for controllers. All exceptions that rise
  * through the controllers are caught in this handler. It converts the exceptions into standard
  * ErrorReport responses.
- *
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
