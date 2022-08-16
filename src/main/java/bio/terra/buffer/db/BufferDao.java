@@ -543,7 +543,7 @@ public class BufferDao {
     }
   }
 
-  // TODO: move to terra-common-lib PF-1912
+  // TODO(PF-1912) move to terra-common-lib
   /** Helper function to return Millisecond precision instant supported by most DBs */
   public static Instant currentInstant() {
     return Instant.now().truncatedTo(ChronoUnit.MILLIS);

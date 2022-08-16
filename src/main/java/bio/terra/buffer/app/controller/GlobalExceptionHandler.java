@@ -19,7 +19,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-  // TODO: move to terra-common-lib PF-1912
+  // TODO(PF-1912): move to terra-common-lib
   private final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
   // -- Error Report - one of our exceptions --
