@@ -9,6 +9,7 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
 @ComponentScan(
     basePackages = {
+      "bio.terra.buffer",
       "bio.terra.common.db",
       "bio.terra.common.kubernetes",
       "bio.terra.common.stairway",
@@ -19,9 +20,7 @@ import org.springframework.context.annotation.ComponentScan;
       // Tracing-related components & configs
       "bio.terra.common.tracing",
       // Metrics exporting components & configs
-      "bio.terra.common.prometheus",
-      // Scan all service-specific packages beneath the current package
-      "bio.terra.buffer"
+      "bio.terra.common.prometheus"
     })
 public class Main {
   public static void main(String[] args) {

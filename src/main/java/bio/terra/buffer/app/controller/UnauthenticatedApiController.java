@@ -5,7 +5,10 @@ import bio.terra.buffer.generated.controller.UnauthenticatedApi;
 import bio.terra.buffer.generated.model.SystemStatus;
 import bio.terra.buffer.generated.model.SystemStatusSystems;
 import bio.terra.common.stairway.StairwayComponent;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.Connection;
+import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,5 +47,17 @@ public class UnauthenticatedApiController implements UnauthenticatedApi {
     } else {
       return new ResponseEntity<>(systemStatus, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  /** Required if using Swagger-CodeGen, but actually we don't need this. */
+  @Override
+  public Optional<ObjectMapper> getObjectMapper() {
+    return Optional.empty();
+  }
+
+  /** Required if using Swagger-CodeGen, but actually we don't need this. */
+  @Override
+  public Optional<HttpServletRequest> getRequest() {
+    return Optional.empty();
   }
 }
