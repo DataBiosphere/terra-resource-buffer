@@ -26,7 +26,7 @@ dependencies {
 
 swaggerSources {
     client {
-        inputFile = file("${resourceDir}/api/service_openapi.yaml")
+        inputFile = file("${resourceDir}/static/service_openapi.yaml")
         code {
             language = "java"
             library = "jersey2"
