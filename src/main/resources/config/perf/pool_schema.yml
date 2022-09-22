@@ -1,6 +1,8 @@
 # RBS Pools Schema for running buffer service performance test.
 ---
 poolConfigs:
+  - poolId: "cwb_ws_perf_v6"
+    size: 500
     resourceConfigName: "cwb_ws_perf_v6"
   - poolId: "datarepo_v1"
     size: 300
