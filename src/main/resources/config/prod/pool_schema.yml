@@ -1,15 +1,6 @@
 # Resource Buffer Service Pools Schema in prod environment
 ---
 poolConfigs:
-  - poolId: "cwb_ws_prod_v3"
-    size: 3000
-    resourceConfigName: "cwb_ws_prod_v3"
-  - poolId: "cwb_ws_prod_v4"
-    size: 3000
-    resourceConfigName: "cwb_ws_prod_v4"
-  - poolId: "cwb_ws_prod_v5"
-    size: 1000
-    resourceConfigName: "cwb_ws_prod_v5"
   - poolId: "cwb_ws_prod_v6"
     size: 3000
     resourceConfigName: "cwb_ws_prod_v6"
