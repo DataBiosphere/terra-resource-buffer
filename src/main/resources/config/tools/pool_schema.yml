@@ -7,6 +7,9 @@ poolConfigs:
   - poolId: "cwb_ws_quality_v6"
     size: 5000
     resourceConfigName: "cwb_ws_resource_quality_v6"
+  - poolId: "cwb_ws_quality_v7"
+    size: 5000
+    resourceConfigName: "cwb_ws_resource_quality_v7"
   - poolId: "datarepo_v1"
     size: 1000
     resourceConfigName: "datarepo_v1"
