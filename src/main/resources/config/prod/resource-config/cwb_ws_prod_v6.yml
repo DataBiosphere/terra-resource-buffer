@@ -14,6 +14,7 @@ gcpProjectConfig:
     - "container.googleapis.com"
     - "containerregistry.googleapis.com"
     - "cloudbilling.googleapis.com"
+    - "cloudbuild.googleapis.com"
     - "clouderrorreporting.googleapis.com"
     - "cloudkms.googleapis.com"
     - "cloudtrace.googleapis.com"
