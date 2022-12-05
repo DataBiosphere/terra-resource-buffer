@@ -6,6 +6,7 @@ local-dev/terra-helmfile/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**
 !**/src/test/**
+.java-version
 
 ### STS ###
 .apt_generated
