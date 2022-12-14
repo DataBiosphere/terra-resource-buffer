@@ -100,11 +100,13 @@ jobs:
           echo ::set-output name=gcr-key::$GCR_KEY
       - name: Auth to GCR
         if: steps.skiptest.outputs.is-bump == 'no'
-        uses: google-github-actions/setup-gcloud@v0
+        uses: google-github-actions/auth@v1
         with:
-          version: '270.0.0'
-          service_account_email: ${{ steps.vault-secret-step.outputs.gcr-email }}
-          service_account_key: ${{ steps.vault-secret-step.outputs.gcr-key }}
+          version: '411.0.0'
+          credentials_json: ${{ secrets.GCR_PUBLISH_KEY }}
+      - name: Setup gcloud
+        if: steps.skiptest.outputs.is-bump == 'no'
+        uses: google-github-actions/setup-gcloud@v1
       - name: Explicitly auth Docker for GCR
         if: steps.skiptest.outputs.is-bump == 'no'
         run: gcloud auth configure-docker --quiet
