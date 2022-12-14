@@ -22,8 +22,6 @@ on:
 
 env:
   SERVICE_NAME: ${{ github.event.repository.name }}
-  GOOGLE_PROJECT: terra-kernel-k8s
-  GKE_CLUSTER: terra-kernel-k8s
   VAULT_PATH_GCR: secret/dsde/terra/kernel/test
   VAULT_ADDR: https://clotho.broadinstitute.org:8200
 jobs:
@@ -121,7 +119,7 @@ jobs:
         run: chmod +x gradlew
       - name: Build and push GCR image using Jib
         if: steps.skiptest.outputs.is-bump == 'no'
-        run: "./gradlew jib --image=gcr.io/${GOOGLE_PROJECT}/${SERVICE_NAME}:${{ steps.tag.outputs.tag }}"
+        run: "./gradlew jib --image=gcr.io/broad-dsp-gcr-public/${SERVICE_NAME}:${{ steps.tag.outputs.tag }}"
       - name: Update Version Mapping
         if: steps.skiptest.outputs.is-bump == 'no'
         uses: broadinstitute/repository-dispatch@master
