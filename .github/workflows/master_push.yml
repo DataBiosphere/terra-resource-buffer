@@ -22,8 +22,6 @@ on:
 
 env:
   SERVICE_NAME: ${{ github.event.repository.name }}
-  VAULT_PATH_GCR: secret/dsde/terra/kernel/test
-  VAULT_ADDR: https://clotho.broadinstitute.org:8200
 jobs:
   tag-build-push:
     runs-on: ubuntu-latest
@@ -64,46 +62,12 @@ jobs:
           VERSION_FILE_PATH: settings.gradle
           VERSION_LINE_MATCH: "^gradle.ext.resourceBufferVersion\\s*=\\s*\".*\""
           VERSION_SUFFIX: SNAPSHOT
-      - name: Pull Vault image
-        if: steps.skiptest.outputs.is-bump == 'no'
-        run: docker pull vault:1.1.0
-      # Currently, there's no way to add capabilities to Docker actions on Git, and Vault needs IPC_LOCK to run.
-      - name: Get Vault token
-        if: steps.skiptest.outputs.is-bump == 'no'
-        id: vault-token-step
-        run: |
-          VAULT_TOKEN=$(docker run --rm --cap-add IPC_LOCK \
-            -e "VAULT_ADDR=${VAULT_ADDR}" \
-            vault:1.1.0 \
-            vault write -field token \
-              auth/approle/login role_id=${{ secrets.VAULT_APPROLE_ROLE_ID }} \
-              secret_id=${{ secrets.VAULT_APPROLE_SECRET_ID }})
-          echo ::add-mask::$VAULT_TOKEN
-          echo ::set-output name=vault-token::$VAULT_TOKEN
-      - name: Get Vault secrets
-        if: steps.skiptest.outputs.is-bump == 'no'
-        id: vault-secret-step
-        run: |
-          GCR_EMAIL=$(docker run --rm --cap-add IPC_LOCK \
-            -e "VAULT_TOKEN=${{ steps.vault-token-step.outputs.vault-token }}" \
-            -e "VAULT_ADDR=${VAULT_ADDR}" \
-            vault:1.1.0 \
-            vault read -field ci-gcr-sa-email ${VAULT_PATH_GCR})
-          GCR_KEY=$(docker run --rm --cap-add IPC_LOCK \
-            -e "VAULT_TOKEN=${{ steps.vault-token-step.outputs.vault-token }}" \
-            -e "VAULT_ADDR=${VAULT_ADDR}" \
-            vault:1.1.0 \
-            vault read -field ci-gcr-sa-key ${VAULT_PATH_GCR})
-          echo ::add-mask::$GCR_EMAIL
-          echo ::set-output name=gcr-email::$GCR_EMAIL
-          echo ::add-mask::$GCR_KEY
-          echo ::set-output name=gcr-key::$GCR_KEY
       - name: Auth to GCR
         if: steps.skiptest.outputs.is-bump == 'no'
         uses: google-github-actions/auth@v1
         with:
           version: '411.0.0'
-          credentials_json: ${{ secrets.GCR_PUBLISH_KEY }}
+          credentials_json: ${{ secrets.GCR_PUBLISH_KEY_B64 }}
       - name: Setup gcloud
         if: steps.skiptest.outputs.is-bump == 'no'
         uses: google-github-actions/setup-gcloud@v1
