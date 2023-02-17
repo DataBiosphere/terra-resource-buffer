@@ -92,10 +92,10 @@ jobs:
   report-to-sherlock:
     # Report new RBS version to Broad DevOps
     uses: broadinstitute/sherlock/.github/workflows/client-report-app-version.yaml@main
-    needs: tag-publish-job
-    if: ${{ needs.tag-publish-job.outputs.is-bump == 'no' }}
+    needs: tag-build-push
+    if: ${{ needs.tag-build-push.outputs.is-bump == 'no' }}
     with:
-      new-version: ${{ needs.tag-publish-job.outputs.tag }}
+      new-version: ${{ needs.tag-build-push.outputs.tag }}
       chart-name: 'buffer'
     permissions:
       contents: 'read'
@@ -104,10 +104,10 @@ jobs:
   set-version-in-dev:
     # Put new RBS version in Broad dev environment
     uses: broadinstitute/sherlock/.github/workflows/client-set-environment-app-version.yaml@main
-    needs: [tag-publish-job, report-to-sherlock]
-    if: ${{ needs.tag-publish-job.outputs.is-bump == 'no' }}
+    needs: [tag-build-push, report-to-sherlock]
+    if: ${{ needs.tag-build-push.outputs.is-bump == 'no' }}
     with:
-      new-version: ${{ needs.tag-publish-job.outputs.tag }}
+      new-version: ${{ needs.tag-build-push.outputs.tag }}
       chart-name: 'buffer'
       environment-name: 'dev'
     secrets:
