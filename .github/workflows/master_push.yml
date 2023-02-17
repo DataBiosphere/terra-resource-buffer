@@ -90,7 +90,7 @@ jobs:
         if: steps.skiptest.outputs.is-bump == 'no'
         run: "./gradlew jib --image=gcr.io/broad-dsp-gcr-public/${SERVICE_NAME}:${{ steps.tag.outputs.tag }}"
   report-to-sherlock:
-    # Report new WSM version to Broad DevOps
+    # Report new RBS version to Broad DevOps
     uses: broadinstitute/sherlock/.github/workflows/client-report-app-version.yaml@main
     needs: tag-publish-job
     if: ${{ needs.tag-publish-job.outputs.is-bump == 'no' }}
