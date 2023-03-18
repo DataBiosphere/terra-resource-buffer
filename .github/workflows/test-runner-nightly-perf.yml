@@ -48,7 +48,7 @@ jobs:
           TEST_RUNNER_SERVER_SPECIFICATION_FILE="buffertest.json" ./gradlew  runTest --scan --args="configs/HandoutResourcesThenWaitForRefill.json build/reports"
       - name: Upload Test Reports
         if: always()
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: Test Reports
           path: buffer-clienttests/build/reports
