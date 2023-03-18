@@ -37,7 +37,7 @@ jobs:
             | perl -pe 's/\x1b\[[0-9;]*[mG]//g' | tee build.log
           # export image name from the log
           image=$(grep 'Built image' build.log | awk '{print $NF}')
-          echo "::set-output name=image::${image}"
+          echo image=${image} >> $GITHUB_OUTPUT          
       # scan the image
       - uses: broadinstitute/dsp-appsec-trivy-action@v1
         with:
