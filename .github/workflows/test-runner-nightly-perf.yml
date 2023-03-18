@@ -34,7 +34,7 @@ jobs:
           buffer-clienttests/tools/render-config.sh buffertest ${{ steps.vault-token-step.outputs.vault-token }}
           buffer-clienttests/tools/render-config.sh yyu ${{ steps.vault-token-step.outputs.vault-token }}
       - name: Cache Gradle packages
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             .gradle/caches
