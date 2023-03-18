@@ -54,7 +54,8 @@ jobs:
               auth/approle/login role_id=${{ secrets.VAULT_APPROLE_ROLE_ID }} \
               secret_id=${{ secrets.VAULT_APPROLE_SECRET_ID }})
           echo ::add-mask::$VAULT_TOKEN
-          echo ::set-output name=vault-token::$VAULT_TOKEN
+          echo status=$pass >> $GITHUB_OUTPUT
+          echo vault-token=$VAULT_TOKEN >> $GITHUB_OUTPUT
       - name: Grant execute permission for render-config
         if: steps.skiptest.outputs.is-bump == 'no'
         run: chmod +x local-dev/render-config.sh
