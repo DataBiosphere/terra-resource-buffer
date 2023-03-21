@@ -10,7 +10,7 @@ jobs:
     name: DSP AppSec Trivy check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       # fetch JDK
       - uses: actions/setup-java@v3
@@ -19,7 +19,7 @@ jobs:
           java-version: '17'
 
       # set up Gradle cache
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: |
             ~/.gradle/caches
@@ -37,7 +37,7 @@ jobs:
             | perl -pe 's/\x1b\[[0-9;]*[mG]//g' | tee build.log
           # export image name from the log
           image=$(grep 'Built image' build.log | awk '{print $NF}')
-          echo "::set-output name=image::${image}"
+          echo image="${image}" >> $GITHUB_OUTPUT
       # scan the image
       - uses: broadinstitute/dsp-appsec-trivy-action@v1
         with:

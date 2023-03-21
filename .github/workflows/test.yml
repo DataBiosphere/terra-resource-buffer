@@ -33,7 +33,7 @@ jobs:
           - 5432:5432
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Skip version bump merges
         id: skiptest
         uses: ./.github/actions/bump-skip
@@ -54,7 +54,7 @@ jobs:
               auth/approle/login role_id=${{ secrets.VAULT_APPROLE_ROLE_ID }} \
               secret_id=${{ secrets.VAULT_APPROLE_SECRET_ID }})
           echo ::add-mask::$VAULT_TOKEN
-          echo ::set-output name=vault-token::$VAULT_TOKEN
+          echo vault-token=$VAULT_TOKEN >> $GITHUB_OUTPUT
       - name: Grant execute permission for render-config
         if: steps.skiptest.outputs.is-bump == 'no'
         run: chmod +x local-dev/render-config.sh
@@ -74,7 +74,7 @@ jobs:
           java-version: 17
       - name: Cache Gradle packages
         if: steps.skiptest.outputs.is-bump == 'no'
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.gradle/caches
@@ -97,13 +97,13 @@ jobs:
         run: ./gradlew integrationTest --scan
       - name: Upload Test Reports
         if: always() && steps.skiptest.outputs.is-bump == 'no'
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: Test Reports
           path: build/reports
       - name: Upload Jacoco Reports
         if: always() && steps.skiptest.outputs.is-bump == 'no'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: Test Reports
           path: build/jacoco

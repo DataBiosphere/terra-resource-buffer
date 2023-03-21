@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
@@ -28,13 +28,13 @@ jobs:
               auth/approle/login role_id=${{ secrets.VAULT_APPROLE_ROLE_ID }} \
               secret_id=${{ secrets.VAULT_APPROLE_SECRET_ID }})
           echo ::add-mask::$VAULT_TOKEN
-          echo ::set-output name=vault-token::$VAULT_TOKEN
+          echo vault-token=$VAULT_TOKEN >> $GITHUB_OUTPUT
       - name: Render configs for Test Runner
         run: |
           buffer-clienttests/tools/render-config.sh buffertest ${{ steps.vault-token-step.outputs.vault-token }}
           buffer-clienttests/tools/render-config.sh yyu ${{ steps.vault-token-step.outputs.vault-token }}
       - name: Cache Gradle packages
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             .gradle/caches
@@ -48,7 +48,7 @@ jobs:
           TEST_RUNNER_SERVER_SPECIFICATION_FILE="buffertest.json" ./gradlew  runTest --scan --args="configs/HandoutResourcesThenWaitForRefill.json build/reports"
       - name: Upload Test Reports
         if: always()
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: Test Reports
           path: buffer-clienttests/build/reports
