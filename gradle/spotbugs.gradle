@@ -7,17 +7,14 @@ spotbugs {
 }
 spotbugsMain {
     reports {
-        html {
-            enabled = true
-            destination = file("$buildDir/reports/spotbugs/main.html")
-        }
+        html.required true
+        html.destination file("$buildDir/reports/spotbugs/main.html")
     }
 }
+
 spotbugsTest {
     reports {
-        html {
-            enabled = true
-            destination = file("$buildDir/reports/spotbugs/test.html")
-        }
+        html.required true
+        html.destination file("$buildDir/reports/spotbugs/test.html")
     }
 }
