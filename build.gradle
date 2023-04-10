@@ -9,6 +9,7 @@ plugins {
     id 'com.google.cloud.tools.jib' version '3.2.1'
     id 'de.undercouch.download' version '5.1.0'
     id 'org.hidetake.swagger.generator' version '2.19.2'
+    id 'org.sonarqube' version '4.0.0.2929'
     id 'org.springframework.boot' version '2.7.6'
 }
 
@@ -305,3 +306,6 @@ sourceSets {
         toolVersion '0.8.8'
     }
 }
+
+def gradleIncDir= "$rootDir/gradle"
+apply from: "$gradleIncDir/sonarqube.gradle"
