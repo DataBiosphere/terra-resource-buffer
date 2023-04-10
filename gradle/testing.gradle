@@ -1,0 +1,39 @@
+test {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+// This is the path to the default Google service account for the buffer service to run as.
+def googleCredentialsFile = "${projectDir}/src/test/resources/rendered/sa-account.json"
+
+tasks.withType(Test) {
+    environment = [
+            'GOOGLE_APPLICATION_CREDENTIALS': "${googleCredentialsFile}"
+    ]
+    testLogging {
+        events = ["passed", "failed", "skipped"]
+        // Causes the correct line to be reported on an exception.
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+        reports {
+            // Write XML file (used by CircleCI, Jenkins, etc) to build/test-results/*
+            junitXml.enabled = true
+            // Write human-readable test report to build/reports/tests/*
+            html.enabled = true
+        }
+    }
+}
+
+task unitTest(type: Test) {
+    useJUnitPlatform {
+        includeTags 'unit'
+    }
+}
+
+task integrationTest(type: Test) {
+    useJUnitPlatform {
+        includeTags 'integration'
+    }
+    // Force tests to always be re-run, since integration tests involve communicating with external
+    // resources.
+    outputs.upToDateWhen { false }
+}

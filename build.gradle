@@ -5,7 +5,7 @@ plugins {
 
     id 'com.diffplug.spotless' version '6.9.1'
     id 'com.github.ben-manes.versions' version '0.42.0'
-    id 'com.github.spotbugs' version '5.0.9'
+    id 'com.github.spotbugs' version '5.0.13'
     id 'com.google.cloud.tools.jib' version '3.2.1'
     id 'de.undercouch.download' version '5.1.0'
     id 'org.hidetake.swagger.generator' version '2.19.2'
@@ -99,24 +99,7 @@ dependencies {
     }
 }
 
-dependencyLocking {
-    lockAllConfigurations() // see https://docs.gradle.org/current/userguide/dependency_locking.html
-}
 
-// for scans
-if (hasProperty('buildScan')) {
-    buildScan {
-        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
-        termsOfServiceAgree = 'yes'
-    }
-}
-
-java {
-    withJavadocJar()
-}
-tasks.withType(Javadoc) {
-    options.addStringOption('Xdoclint:none', '-quiet')
-}
 
 // Download and extract the Cloud Profiler Java Agent
 ext {
@@ -199,113 +182,24 @@ swaggerSources {
     }
 }
 
-// Linter
-spotless {
-    java {
-        googleJavaFormat()
-        targetExclude "${buildDir}/**"
-    }
-}
-tasks.withType(com.diffplug.gradle.spotless.SpotlessTask) {
-    it.dependsOn(swaggerSources.server.code)
-    it.dependsOn(swaggerSources.resource.code)
-}
-
-// Static analysis
-spotbugs {
-    effort = 'max'
-    // This makes the "html" reports come out in plain text so you can just open the file in IntelliJ
-    // and look at your bugs instead of having to switch to a browser.
-    extraArgs = ['-emacs']
-}
-spotbugsMain {
-    reports {
-        html {
-            enabled = true
-            destination = file("$buildDir/reports/spotbugs/main.html")
-        }
-    }
-}
-spotbugsTest {
-    reports {
-        html {
-            enabled = true
-            destination = file("$buildDir/reports/spotbugs/test.html")
-        }
-    }
-}
-
-tasks.withType(JacocoReport) {
-    reports {
-        xml.enabled false
-        csv.enabled false
-        html.destination file("${buildDir}/jacocoHtml")
-    }
-}
-
-jacocoTestCoverageVerification {
-    violationRules {
-        rule {
-            limit {
-                counter = 'BRANCH'
-                value = 'COVEREDRATIO'
-                minimum = 0.1
-            }
-        }
-    }
-}
-check.dependsOn jacocoTestCoverageVerification
-
-// Testing config
-
-// This is the path to the default Google service account for the buffer service to run as.
-def googleCredentialsFile = "${projectDir}/src/test/resources/rendered/sa-account.json"
-
-tasks.withType(Test) {
-    environment = [
-            'GOOGLE_APPLICATION_CREDENTIALS': "${googleCredentialsFile}"
-    ]
-    testLogging {
-        events = ["passed", "failed", "skipped"]
-        // Causes the correct line to be reported on an exception.
-        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
-        reports {
-            // Write XML file (used by CircleCI, Jenkins, etc) to build/test-results/*
-            junitXml.enabled = true
-            // Write human-readable test report to build/reports/tests/*
-            html.enabled = true
-        }
-    }
-}
-
-test {
-    useJUnitPlatform()
-    finalizedBy jacocoTestReport
-}
-
-task unitTest(type: Test) {
-    useJUnitPlatform {
-        includeTags 'unit'
-    }
-}
-
-task integrationTest(type: Test) {
-    useJUnitPlatform {
-        includeTags 'integration'
-    }
-    // Force tests to always be re-run, since integration tests involve communicating with external
-    // resources.
-    outputs.upToDateWhen { false }
-}
 
 compileJava.dependsOn swaggerSources.server.code, swaggerSources.resource.code, spotlessApply
 sourceSets.main.java.srcDir "${swaggerOutputDir}/src/main/java"
 sourceSets.test.resources.srcDir 'config/' // Allow unit tests to directly load config files.
-sourceSets {
-    jacoco {
-        toolVersion '0.8.8'
+
+// for scans
+if (hasProperty('buildScan')) {
+    buildScan {
+        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+        termsOfServiceAgree = 'yes'
     }
 }
 
 def gradleIncDir= "$rootDir/gradle"
+apply from: "$gradleIncDir/dependency-locking.gradle"
+apply from: "$gradleIncDir/jacoco.gradle"
+apply from: "$gradleIncDir/javadoc.gradle"
 apply from: "$gradleIncDir/sonarqube.gradle"
+apply from: "$gradleIncDir/spotbugs.gradle"
+apply from: "$gradleIncDir/spotless.gradle"
+apply from: "$gradleIncDir/testing.gradle"

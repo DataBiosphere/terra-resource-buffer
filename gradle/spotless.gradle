@@ -1,0 +1,16 @@
+spotless {
+    groovyGradle {
+        target "${rootDir}/**/*.gradle"
+        indentWithSpaces()
+    }
+    java {
+        googleJavaFormat()
+        removeUnusedImports()
+        targetExclude "build/**"
+    }
+}
+
+tasks.withType(com.diffplug.gradle.spotless.SpotlessTask) {
+    it.dependsOn(swaggerSources.server.code)
+    it.dependsOn(swaggerSources.resource.code)
+}
