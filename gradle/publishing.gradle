@@ -5,7 +5,7 @@ def artifactory_password = System.getenv('ARTIFACTORY_PASSWORD')
 gradle.taskGraph.whenReady { taskGraph ->
     if (taskGraph.hasTask(artifactoryPublish) &&
             (artifactory_username == null || artifactory_password == null)) {
-        throw new GradleException("Set env vars ARTIFACTORY_USERNAME and ARTIFACTORY_PASSWORD to publish")
+        throw new GradleException('Set env vars ARTIFACTORY_USERNAME and ARTIFACTORY_PASSWORD to publish')
     }
 }
 
@@ -14,7 +14,7 @@ publishing {
         bufferClientLibrary(MavenPublication) {
             from components.java
             versionMapping {
-                usage("java-runtime") {
+                usage('java-runtime') {
                     fromResolutionResult()
                 }
             }
