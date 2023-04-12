@@ -4,13 +4,13 @@ pluginManagement {
             eachPlugin {
                 if (requested.id.namespace == 'bio.terra') {
                     if (requested.id.id == 'bio.terra.test-runner-plugin' || requested.id.id == 'bio.terra.test-runner-echo-plugin') {
-                        useModule("bio.terra:terra-test-runner:" + requested.version)
+                        useModule('bio.terra:terra-test-runner:' + requested.version)
                     }
                 }
             }
         }
         maven {
-            url "https://broadinstitute.jfrog.io/broadinstitute/libs-snapshot-local/"
+            url 'https://broadinstitute.jfrog.io/broadinstitute/libs-snapshot-local/'
         }
         gradlePluginPortal()
     }
@@ -20,6 +20,5 @@ rootProject.name = 'terra-resource-buffer'
 include 'terra-resource-buffer-client'
 include 'buffer-clienttests'
 
-enableFeaturePreview('ONE_LOCKFILE_PER_PROJECT')
-// The next line should only be changed by the BroadBot d.b.a. bumptagbot.
-gradle.ext.resourceBufferVersion = "0.198.21-SNAPSHOT"
+gradle.ext.projectGroup = 'bio.terra'
+gradle.ext.rbsVersion = '0.198.21-SNAPSHOT'

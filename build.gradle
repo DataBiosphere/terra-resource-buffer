@@ -3,12 +3,13 @@ plugins {
     id 'jacoco'
     id 'java'
 
-    id 'com.diffplug.spotless' version '6.9.1'
+    id 'com.diffplug.spotless' version '6.16.0'
     id 'com.github.ben-manes.versions' version '0.42.0'
-    id 'com.github.spotbugs' version '5.0.9'
+    id 'com.github.spotbugs' version '5.0.13'
     id 'com.google.cloud.tools.jib' version '3.2.1'
     id 'de.undercouch.download' version '5.1.0'
     id 'org.hidetake.swagger.generator' version '2.19.2'
+    id 'org.sonarqube' version '4.0.0.2929'
     id 'org.springframework.boot' version '2.7.6'
 }
 
@@ -18,12 +19,13 @@ sourceCompatibility = JavaVersion.VERSION_17
 def useMavenLocal = false
 
 allprojects {
-    group = 'bio.terra'
-    version = gradle.resourceBufferVersion
+    group = gradle.projectGroup
+    version = gradle.rbsVersion
     ext {
         artifactGroup = "${group}.buffer"
         swaggerOutputDir = "${buildDir}/generated"
         resourceDir = "${rootDir}/src/main/resources"
+        isCiServer = System.getenv().containsKey("CI")
     }
 
     apply plugin: 'idea'
@@ -98,10 +100,6 @@ dependencies {
     }
 }
 
-dependencyLocking {
-    lockAllConfigurations() // see https://docs.gradle.org/current/userguide/dependency_locking.html
-}
-
 // for scans
 if (hasProperty('buildScan')) {
     buildScan {
@@ -110,198 +108,16 @@ if (hasProperty('buildScan')) {
     }
 }
 
-java {
-    withJavadocJar()
-}
-tasks.withType(Javadoc) {
-    options.addStringOption('Xdoclint:none', '-quiet')
-}
+def gradleIncDir= "$rootDir/gradle"
+apply from: "$gradleIncDir/dependency-locking.gradle"
+apply from: "$gradleIncDir/jacoco.gradle"
+apply from: "$gradleIncDir/javadoc.gradle"
+apply from: "$gradleIncDir/jib.gradle"
+apply from: "$gradleIncDir/sonarqube.gradle"
+apply from: "$gradleIncDir/spotbugs.gradle"
+apply from: "$gradleIncDir/spotless.gradle"
+apply from: "$gradleIncDir/swagger-server.gradle"
+apply from: "$gradleIncDir/testing.gradle"
 
-// Download and extract the Cloud Profiler Java Agent
-ext {
-    // where to place the Cloud Profiler agent in the container
-    cloudProfilerLocation = '/opt/cprof'
-
-    // location for jib extras, including the Java agent
-    jibExtraDirectory = "${buildDir}/jib-agents"
-}
-task downloadProfilerAgent(type: Download) {
-    // where to download the Cloud Profiler agent https://cloud.google.com/profiler/docs/profiling-java
-    src 'https://storage.googleapis.com/cloud-profiler/java/latest/profiler_java_agent.tar.gz'
-    dest "${buildDir}/cprof_java_agent_gce.tar.gz"
-}
-task extractProfilerAgent(dependsOn: downloadProfilerAgent, type: Copy) {
-    from tarTree(downloadProfilerAgent.dest)
-    into "${jibExtraDirectory}/${cloudProfilerLocation}"
-}
-
-jib {
-    from {
-        // see https://github.com/broadinstitute/dsp-appsec-blessed-images/tree/main/jre
-        image = 'us.gcr.io/broad-dsp-gcr-public/base/jre:17-debian'
-    }
-    extraDirectories {
-        paths = [file(jibExtraDirectory)]
-    }
-    container {
-        filesModificationTime = java.time.ZonedDateTime.now().toString() // to prevent ui caching
-        jvmFlags = [
-                '-agentpath:' + cloudProfilerLocation + '/profiler_java_agent.so=' +
-                        '-cprof_service=bio.terra.buffer' +
-                        ',-cprof_service_version=' + version +
-                        ',-cprof_enable_heap_sampling=true' +
-                        ',-logtostderr' +
-                        ',-minloglevel=2'
-        ]
-    }
-}
-
-tasks.jib.dependsOn extractProfilerAgent
-tasks.jibDockerBuild.dependsOn extractProfilerAgent
-tasks.jibBuildTar.dependsOn extractProfilerAgent
-
-// OpenAPI/Swagger Server Generation
-swaggerSources {
-    server {
-        inputFile = file("${resourceDir}/static/service_openapi.yaml")
-        code {
-            language = 'spring'
-            library = 'spring-boot'
-            outputDir = file("${swaggerOutputDir}")
-            components = ['models', 'apis']
-            wipeOutputDir = false
-            rawOptions = [
-                    '--api-package', "${artifactGroup}.generated.controller",
-                    '--model-package', "${artifactGroup}.generated.model",
-                    '-D', 'interfaceOnly=true,' +
-                            'useTags=true,' +
-                            'dateLibrary=java8'
-            ]
-        }
-    }
-
-    resource {
-        inputFile = file("${resourceDir}/config/resource_schema.yaml")
-        code {
-            language = 'spring'
-            library = 'spring-boot'
-            outputDir = file("${swaggerOutputDir}")
-            components = ['models']
-            wipeOutputDir = false
-            rawOptions = [
-                    '--model-package', "${artifactGroup}.generated.model",
-                    '-D', 'interfaceOnly=true,' +
-                            'useTags=true,' +
-                            'dateLibrary=java8'
-            ]
-        }
-    }
-}
-
-// Linter
-spotless {
-    java {
-        googleJavaFormat()
-        targetExclude "${buildDir}/**"
-    }
-}
-tasks.withType(com.diffplug.gradle.spotless.SpotlessTask) {
-    it.dependsOn(swaggerSources.server.code)
-    it.dependsOn(swaggerSources.resource.code)
-}
-
-// Static analysis
-spotbugs {
-    effort = 'max'
-    // This makes the "html" reports come out in plain text so you can just open the file in IntelliJ
-    // and look at your bugs instead of having to switch to a browser.
-    extraArgs = ['-emacs']
-}
-spotbugsMain {
-    reports {
-        html {
-            enabled = true
-            destination = file("$buildDir/reports/spotbugs/main.html")
-        }
-    }
-}
-spotbugsTest {
-    reports {
-        html {
-            enabled = true
-            destination = file("$buildDir/reports/spotbugs/test.html")
-        }
-    }
-}
-
-tasks.withType(JacocoReport) {
-    reports {
-        xml.enabled false
-        csv.enabled false
-        html.destination file("${buildDir}/jacocoHtml")
-    }
-}
-
-jacocoTestCoverageVerification {
-    violationRules {
-        rule {
-            limit {
-                counter = 'BRANCH'
-                value = 'COVEREDRATIO'
-                minimum = 0.1
-            }
-        }
-    }
-}
-check.dependsOn jacocoTestCoverageVerification
-
-// Testing config
-
-// This is the path to the default Google service account for the buffer service to run as.
-def googleCredentialsFile = "${projectDir}/src/test/resources/rendered/sa-account.json"
-
-tasks.withType(Test) {
-    environment = [
-            'GOOGLE_APPLICATION_CREDENTIALS': "${googleCredentialsFile}"
-    ]
-    testLogging {
-        events = ["passed", "failed", "skipped"]
-        // Causes the correct line to be reported on an exception.
-        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
-        reports {
-            // Write XML file (used by CircleCI, Jenkins, etc) to build/test-results/*
-            junitXml.enabled = true
-            // Write human-readable test report to build/reports/tests/*
-            html.enabled = true
-        }
-    }
-}
-
-test {
-    useJUnitPlatform()
-    finalizedBy jacocoTestReport
-}
-
-task unitTest(type: Test) {
-    useJUnitPlatform {
-        includeTags 'unit'
-    }
-}
-
-task integrationTest(type: Test) {
-    useJUnitPlatform {
-        includeTags 'integration'
-    }
-    // Force tests to always be re-run, since integration tests involve communicating with external
-    // resources.
-    outputs.upToDateWhen { false }
-}
-
-compileJava.dependsOn swaggerSources.server.code, swaggerSources.resource.code, spotlessApply
 sourceSets.main.java.srcDir "${swaggerOutputDir}/src/main/java"
 sourceSets.test.resources.srcDir 'config/' // Allow unit tests to directly load config files.
-sourceSets {
-    jacoco {
-        toolVersion '0.8.8'
-    }
-}

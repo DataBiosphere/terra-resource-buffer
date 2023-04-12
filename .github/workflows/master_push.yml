@@ -54,7 +54,7 @@ jobs:
           event-name: ${{ github.event_name }}
       - name: Bump the tag to a new version
         if: steps.skiptest.outputs.is-bump == 'no'
-        uses: databiosphere/github-actions/actions/bumper@bumper-0.0.6
+        uses: databiosphere/github-actions/actions/bumper@bumper-0.1.0
         id: tag
         env:
           DEFAULT_BUMP: patch
@@ -63,7 +63,7 @@ jobs:
           OVERRIDE_BUMP: ${{ steps.controls.outputs.semver-part }}
           RELEASE_BRANCHES: master
           VERSION_FILE_PATH: settings.gradle
-          VERSION_LINE_MATCH: "^gradle.ext.resourceBufferVersion\\s*=\\s*\".*\""
+          VERSION_LINE_MATCH: "^\\s*gradle.ext.rbsVersion\\s*=\\s*'.*'"
           VERSION_SUFFIX: SNAPSHOT
       - name: Auth to GCR
         if: steps.skiptest.outputs.is-bump == 'no'
