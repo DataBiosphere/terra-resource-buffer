@@ -3,7 +3,7 @@ plugins {
     id 'jacoco'
     id 'java'
 
-    id 'com.diffplug.spotless' version '6.9.1'
+    id 'com.diffplug.spotless' version '6.16.0'
     id 'com.github.ben-manes.versions' version '0.42.0'
     id 'com.github.spotbugs' version '5.0.13'
     id 'com.google.cloud.tools.jib' version '3.2.1'
@@ -19,12 +19,13 @@ sourceCompatibility = JavaVersion.VERSION_17
 def useMavenLocal = false
 
 allprojects {
-    group = 'bio.terra'
-    version = gradle.resourceBufferVersion
+    group = gradle.projectGroup
+    version = gradle.rbsVersion
     ext {
         artifactGroup = "${group}.buffer"
         swaggerOutputDir = "${buildDir}/generated"
         resourceDir = "${rootDir}/src/main/resources"
+        isCiServer = System.getenv().containsKey("CI")
     }
 
     apply plugin: 'idea'
@@ -99,94 +100,6 @@ dependencies {
     }
 }
 
-
-
-// Download and extract the Cloud Profiler Java Agent
-ext {
-    // where to place the Cloud Profiler agent in the container
-    cloudProfilerLocation = '/opt/cprof'
-
-    // location for jib extras, including the Java agent
-    jibExtraDirectory = "${buildDir}/jib-agents"
-}
-task downloadProfilerAgent(type: Download) {
-    // where to download the Cloud Profiler agent https://cloud.google.com/profiler/docs/profiling-java
-    src 'https://storage.googleapis.com/cloud-profiler/java/latest/profiler_java_agent.tar.gz'
-    dest "${buildDir}/cprof_java_agent_gce.tar.gz"
-}
-task extractProfilerAgent(dependsOn: downloadProfilerAgent, type: Copy) {
-    from tarTree(downloadProfilerAgent.dest)
-    into "${jibExtraDirectory}/${cloudProfilerLocation}"
-}
-
-jib {
-    from {
-        // see https://github.com/broadinstitute/dsp-appsec-blessed-images/tree/main/jre
-        image = 'us.gcr.io/broad-dsp-gcr-public/base/jre:17-debian'
-    }
-    extraDirectories {
-        paths = [file(jibExtraDirectory)]
-    }
-    container {
-        filesModificationTime = java.time.ZonedDateTime.now().toString() // to prevent ui caching
-        jvmFlags = [
-                '-agentpath:' + cloudProfilerLocation + '/profiler_java_agent.so=' +
-                        '-cprof_service=bio.terra.buffer' +
-                        ',-cprof_service_version=' + version +
-                        ',-cprof_enable_heap_sampling=true' +
-                        ',-logtostderr' +
-                        ',-minloglevel=2'
-        ]
-    }
-}
-
-tasks.jib.dependsOn extractProfilerAgent
-tasks.jibDockerBuild.dependsOn extractProfilerAgent
-tasks.jibBuildTar.dependsOn extractProfilerAgent
-
-// OpenAPI/Swagger Server Generation
-swaggerSources {
-    server {
-        inputFile = file("${resourceDir}/static/service_openapi.yaml")
-        code {
-            language = 'spring'
-            library = 'spring-boot'
-            outputDir = file("${swaggerOutputDir}")
-            components = ['models', 'apis']
-            wipeOutputDir = false
-            rawOptions = [
-                    '--api-package', "${artifactGroup}.generated.controller",
-                    '--model-package', "${artifactGroup}.generated.model",
-                    '-D', 'interfaceOnly=true,' +
-                            'useTags=true,' +
-                            'dateLibrary=java8'
-            ]
-        }
-    }
-
-    resource {
-        inputFile = file("${resourceDir}/config/resource_schema.yaml")
-        code {
-            language = 'spring'
-            library = 'spring-boot'
-            outputDir = file("${swaggerOutputDir}")
-            components = ['models']
-            wipeOutputDir = false
-            rawOptions = [
-                    '--model-package', "${artifactGroup}.generated.model",
-                    '-D', 'interfaceOnly=true,' +
-                            'useTags=true,' +
-                            'dateLibrary=java8'
-            ]
-        }
-    }
-}
-
-
-compileJava.dependsOn swaggerSources.server.code, swaggerSources.resource.code, spotlessApply
-sourceSets.main.java.srcDir "${swaggerOutputDir}/src/main/java"
-sourceSets.test.resources.srcDir 'config/' // Allow unit tests to directly load config files.
-
 // for scans
 if (hasProperty('buildScan')) {
     buildScan {
@@ -199,7 +112,12 @@ def gradleIncDir= "$rootDir/gradle"
 apply from: "$gradleIncDir/dependency-locking.gradle"
 apply from: "$gradleIncDir/jacoco.gradle"
 apply from: "$gradleIncDir/javadoc.gradle"
+apply from: "$gradleIncDir/jib.gradle"
 apply from: "$gradleIncDir/sonarqube.gradle"
 apply from: "$gradleIncDir/spotbugs.gradle"
 apply from: "$gradleIncDir/spotless.gradle"
+apply from: "$gradleIncDir/swagger-server.gradle"
 apply from: "$gradleIncDir/testing.gradle"
+
+sourceSets.main.java.srcDir "${swaggerOutputDir}/src/main/java"
+sourceSets.test.resources.srcDir 'config/' // Allow unit tests to directly load config files.

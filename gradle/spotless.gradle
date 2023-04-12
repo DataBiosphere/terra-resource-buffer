@@ -10,7 +10,10 @@ spotless {
     }
 }
 
-tasks.withType(com.diffplug.gradle.spotless.SpotlessTask) {
-    it.dependsOn(swaggerSources.server.code)
-    it.dependsOn(swaggerSources.resource.code)
+build {
+    if (project.isCiServer) {
+        dependsOn(spotlessCheck)
+    } else {
+        dependsOn(spotlessApply)
+    }
 }
