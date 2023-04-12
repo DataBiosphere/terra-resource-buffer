@@ -72,6 +72,13 @@ dependencies {
     implementation group: 'org.liquibase', name: 'liquibase-core', version: '4.15.0'
     implementation group: 'org.webjars', name: 'webjars-locator-core', version: '0.52'
     runtimeOnly group: 'org.postgresql', name: 'postgresql', version: '42.4.1'
+    // CRL uses version 2.0.3 which is not compatible with other RBS dependencies,
+    // force the lower version for now.
+    implementation('org.slf4j:slf4j-api') {
+        version {
+            strictly '1.7.36'
+        }
+    }
 
     // Deps whose versions are controlled by Spring
     implementation group: 'org.apache.commons', name: 'commons-dbcp2', version: '2.9.0'
