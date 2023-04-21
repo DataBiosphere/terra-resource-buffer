@@ -1,0 +1,31 @@
+# Workspace Manager buffered workspace template
+---
+configName: "workspace_manager_v10"
+gcpProjectConfig:
+  projectIdSchema:
+    prefix: "terra-wsm-d"
+    scheme: "TWO_WORDS_NUMBER"
+  parentFolderId: "421312654454" #test.firecloud.org/dev/buffer-dev/workspace_manager
+  billingAccount: "01A82E-CA8A14-367457"
+  enabledApis:
+  - "bigquery-json.googleapis.com"
+  - "bigquerydatatransfer.googleapis.com"
+  - "compute.googleapis.com"
+  - "container.googleapis.com"
+  - "cloudbilling.googleapis.com"
+  - "clouderrorreporting.googleapis.com"
+  - "cloudkms.googleapis.com"
+  - "cloudtrace.googleapis.com"
+  - "containerregistry.googleapis.com"
+  - "dataflow.googleapis.com"
+  - "dataproc.googleapis.com"
+  - "dns.googleapis.com"
+  - "genomics.googleapis.com"
+  - "lifesciences.googleapis.com"
+  - "logging.googleapis.com"
+  - "monitoring.googleapis.com"
+  - "notebooks.googleapis.com"
+  - "storage-api.googleapis.com"
+  - "storage-component.googleapis.com"
+  network:
+    enableNetworkMonitoring: "true"
