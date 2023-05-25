@@ -9,7 +9,7 @@ import bio.terra.buffer.service.resource.FlightScheduler;
 import bio.terra.buffer.service.stackdriver.StackdriverExporter;
 import bio.terra.common.migrate.LiquibaseMigrator;
 import bio.terra.common.stairway.StairwayComponent;
-import bio.terra.common.stairway.TracingHook;
+import bio.terra.common.stairway.MonitoringHook;
 import com.google.common.collect.ImmutableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +56,6 @@ public final class StartupInitializer {
         .initialize(
             stairwayDatabaseConfiguration.getDataSource(),
             applicationContext,
-            ImmutableList.of(new TracingHook()));
+            ImmutableList.of(new MonitoringHook()));
   }
 }
