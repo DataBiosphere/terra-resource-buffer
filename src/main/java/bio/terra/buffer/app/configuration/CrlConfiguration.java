@@ -27,6 +27,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.time.Duration;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -116,6 +117,12 @@ public class CrlConfiguration {
 
   public void setTestResourceTimeToLive(Duration testResourceTimeToLive) {
     this.testResourceTimeToLive = testResourceTimeToLive;
+  }
+
+  public boolean janitorConfigured() {
+    return Strings.isNotEmpty(janitorClientCredentialFilePath)
+        && Strings.isNotEmpty(janitorTrackResourceProjectId)
+        && Strings.isNotEmpty(janitorTrackResourceTopicId);
   }
 
   /**

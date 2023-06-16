@@ -411,24 +411,34 @@ public class BufferDao {
    *   <li>State is HANDED_OUT in resource table
    *   <li>Not already in cleanup_record table
    * </ul>
+   *
+   * @param limit The maximum number of resources to return
+   * @param cleanupAllPools If true, select resources from all pools regardless of the resource
+   *     config's autoDelete value.
    */
   @Transactional(propagation = Propagation.SUPPORTS)
-  public List<Resource> retrieveResourceToCleanup(int limit) {
-    String sql =
-        "select r.id, r.cloud_resource_uid, r.pool_id, r.state, r.request_handout_id, "
-            + "r.creation, r.deletion, r.handout_time "
-            + "FROM resource r "
-            + "LEFT JOIN cleanup_record c ON r.id = c.resource_id "
-            + "WHERE r.state = :state "
-            + "AND c.resource_id IS NULL "
-            + "LIMIT :limit";
+  public List<Resource> retrieveResourceToCleanup(int limit, boolean cleanupAllPools) {
+    StringBuilder sqlBuilder =
+        new StringBuilder(
+            "select r.id, r.cloud_resource_uid, r.pool_id, r.state, r.request_handout_id, "
+                + "r.creation, r.deletion, r.handout_time "
+                + "FROM resource r "
+                + "LEFT JOIN cleanup_record c ON r.id = c.resource_id "
+                + "LEFT JOIN pool p ON r.pool_id = p.id "
+                + "WHERE r.state = :state "
+                + "AND c.resource_id IS NULL ");
+    if (!cleanupAllPools) {
+      // The 'autoDelete' field is deserialized as text, not a boolean.
+      sqlBuilder.append("AND p.resource_config::jsonb->'gcpProjectConfig'->>'autoDelete' = 'true'");
+    }
+    sqlBuilder.append("LIMIT :limit");
 
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("state", ResourceState.HANDED_OUT.toString())
             .addValue("limit", limit);
 
-    return jdbcTemplate.query(sql, params, RESOURCE_ROW_MAPPER);
+    return jdbcTemplate.query(sqlBuilder.toString(), params, RESOURCE_ROW_MAPPER);
   }
 
   private static final RowMapper<Pool> POOL_ROW_MAPPER =

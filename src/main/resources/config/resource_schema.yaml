@@ -70,6 +70,12 @@ components:
           description: |-
             The security group to be used for this project
           type: string
+        autoDelete:
+          description: |-
+            Whether projects from this pool should be automatically deleted a
+            short time after being handed out.
+          type: boolean
+          default: false
       type: object
 
     ProjectIdSchema:
