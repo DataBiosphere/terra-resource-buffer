@@ -429,7 +429,8 @@ public class BufferDao {
                 + "AND c.resource_id IS NULL ");
     if (!cleanupAllPools) {
       // The 'autoDelete' field is deserialized as text, not a boolean.
-      sqlBuilder.append("AND p.resource_config::jsonb->'gcpProjectConfig'->>'autoDelete' = 'true'");
+      sqlBuilder.append(
+          "AND p.resource_config::jsonb->'gcpProjectConfig'->>'autoDelete' = 'true' ");
     }
     sqlBuilder.append("LIMIT :limit");
 
