@@ -64,11 +64,11 @@ public class CleanupScheduler {
 
   /** Initialize the CleanupScheduler, kicking off its tasks. */
   public void initialize() {
-    if (crlConfiguration.isCleanupAfterHandout()) {
+    if (crlConfiguration.janitorConfigured()) {
       logger.info("Buffer cleanup scheduling enabled.");
     } else {
-      // Do nothing if scheduling is disabled.
-      logger.info("Buffer cleanup scheduling disabled.");
+      // Do nothing if Janitor is not configured.
+      logger.info("Buffer cleanup scheduling disabled because Janitor is not configured.");
       return;
     }
     if (publisher == null) {
@@ -102,7 +102,9 @@ public class CleanupScheduler {
   }
 
   public void scheduleCleanup() {
-    List<Resource> resources = bufferDao.retrieveResourceToCleanup(MESSAGE_TO_PUBLISH_PER_RUN);
+    List<Resource> resources =
+        bufferDao.retrieveResourceToCleanup(
+            MESSAGE_TO_PUBLISH_PER_RUN, crlConfiguration.isCleanupAfterHandout());
     for (Resource resource : resources) {
       publish(resource.cloudResourceUid());
       bufferDao.insertCleanupRecord(resource.id());

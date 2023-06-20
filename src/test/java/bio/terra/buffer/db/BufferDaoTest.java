@@ -295,7 +295,7 @@ public class BufferDaoTest extends BaseUnitTest {
     // handedOutR1 is already in cleanup_record table, expect only handedOutR2 is returned.
     bufferDao.insertCleanupRecord(handedOutR1.id());
     assertThat(
-        bufferDao.retrieveResourceToCleanup(1),
+        bufferDao.retrieveResourceToCleanup(1, true),
         Matchers.contains(bufferDao.retrieveResource(handedOutR2.id()).get()));
   }
 }
