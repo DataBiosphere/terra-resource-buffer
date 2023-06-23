@@ -17,13 +17,13 @@ public class GcpProjectIdGenerator {
    * The size of project when generating random characters. Choose size as 8 based on AoU's
    * historical experience, increase if 8 is not enough for a pool's naming.
    */
-  @VisibleForTesting static final int RANDOM_ID_SIZE = 8;
+  public static final int RANDOM_ID_SIZE = 8;
 
   /** The largest number to use for random suffixes for adjective/noun project IDs. */
   @VisibleForTesting static final int RANDOM_SUFFIX_LIMIT = 10000;
 
   /** The maximum allowed length for a GCP project id. */
-  private static final int MAX_LENGTH_GCP_PROJECT_ID = 30;
+  public static final int MAX_LENGTH_GCP_PROJECT_ID = 30;
 
   /**
    * The maximum allowed length for a GCP project id prefix (e.g. "terra-") when using the
