@@ -1,6 +1,6 @@
 # Community Workbench buffered workspace template
 ---
-configName: "cwb_ws_resource_dev_v6"
+configName: "cwb_ws_resource_dev_v7"
 gcpProjectConfig:
   projectIdSchema:
     prefix: "terra-dev"

@@ -1,6 +1,6 @@
 # Community Workbench buffered workspace template
 ---
-configName: "vpc_sc_v5"
+configName: "vpc_sc_v6"
 gcpProjectConfig:
   projectIdSchema:
     prefix: "terra-vpc-sc-alpha"

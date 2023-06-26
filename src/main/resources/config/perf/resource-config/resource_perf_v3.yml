@@ -1,6 +1,6 @@
 # Resource template for running buffer service performance test
 ---
-configName: "resource_perf_v2"
+configName: "resource_perf_v3"
 gcpProjectConfig:
   projectIdSchema:
     prefix: "terra-perf"

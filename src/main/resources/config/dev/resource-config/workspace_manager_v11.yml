@@ -1,6 +1,6 @@
 # Workspace Manager buffered workspace template
 ---
-configName: "workspace_manager_v10"
+configName: "workspace_manager_v11"
 gcpProjectConfig:
   projectIdSchema:
     prefix: "terra-wsm-d"
