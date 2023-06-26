@@ -1,21 +1,18 @@
 # RBS Pools Schema in tools environment
 ---
 poolConfigs:
-  - poolId: "cwb_ws_fiab_v6"
+  - poolId: "cwb_ws_fiab_v7"
     size: 500
-    resourceConfigName: "cwb_ws_resource_fiab_v6"
-  - poolId: "cwb_ws_quality_v6"
+    resourceConfigName: "cwb_ws_resource_fiab_v7"
+  - poolId: "cwb_ws_quality_v8"
     size: 5000
-    resourceConfigName: "cwb_ws_resource_quality_v6"
-  - poolId: "cwb_ws_quality_v7"
-    size: 5000
-    resourceConfigName: "cwb_ws_resource_quality_v7"
+    resourceConfigName: "cwb_ws_resource_quality_v8"
   - poolId: "datarepo_v1"
     size: 1000
     resourceConfigName: "datarepo_v1"
-  - poolId: "vpc_sc_qa-fiab_v4"
+  - poolId: "vpc_sc_qa-fiab_v5"
     size: 100
-    resourceConfigName: "vpc_sc_qa-fiab_v4"
-  - poolId: "workspace_manager_v10"
+    resourceConfigName: "vpc_sc_qa-fiab_v5"
+  - poolId: "workspace_manager_v11"
     size: 500
-    resourceConfigName: "workspace_manager_v10"
+    resourceConfigName: "workspace_manager_v11"

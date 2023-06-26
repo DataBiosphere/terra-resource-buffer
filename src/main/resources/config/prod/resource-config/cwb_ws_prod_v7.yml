@@ -1,22 +1,22 @@
-# Resource template for running buffer service performance test
+# Community Workbench buffered workspace template
 ---
-configName: "resource_buffer_test_v1"
+configName: "cwb_ws_prod_v7"
 gcpProjectConfig:
   projectIdSchema:
-    prefix: "buffer-test"
+    prefix: "terra"
     scheme: "RANDOM_CHAR"
-  # test.firecloud.org/tools/buffertest
-  parentFolderId: "339691735869"
-  billingAccount: "01A82E-CA8A14-367457"
+  # firecloud.org/prod/CommunityWorkbench
+  parentFolderId: "710468670182"
+  billingAccount: "0106B0-41CAA9-427C96"
   enabledApis:
     - "bigquery-json.googleapis.com"
     - "compute.googleapis.com"
     - "container.googleapis.com"
+    - "containerregistry.googleapis.com"
     - "cloudbilling.googleapis.com"
     - "clouderrorreporting.googleapis.com"
     - "cloudkms.googleapis.com"
     - "cloudtrace.googleapis.com"
-    - "containerregistry.googleapis.com"
     - "dataflow.googleapis.com"
     - "dataproc.googleapis.com"
     - "dns.googleapis.com"
@@ -25,10 +25,8 @@ gcpProjectConfig:
     - "monitoring.googleapis.com"
     - "storage-api.googleapis.com"
     - "storage-component.googleapis.com"
-  iamBindings:
-    - members: [ "group:terra-rbs-test@broadinstitute.org" ]
-      role: "roles/editor"
-    - members: [ "group:terra-rbs-viewer-test@broadinstitute.org" ]
-      role: "roles/viewer"
   network:
-    enableNetworkMonitoring: "true"
+    enableNetworkMonitoring: "false"
+    enablePrivateGoogleAccess: "true"
+  kubernetesEngine:
+    createGkeDefaultServiceAccount: "true"

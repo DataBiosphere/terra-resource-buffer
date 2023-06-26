@@ -1,6 +1,6 @@
 # Resource template for running buffer service performance test
 ---
-configName: "resource_buffer_test_v1"
+configName: "resource_buffer_test_v2"
 gcpProjectConfig:
   projectIdSchema:
     prefix: "buffer-test"
