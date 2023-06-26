@@ -1,12 +1,12 @@
-# Resource template for running buffer service performance test
+# Community Workbench buffered workspace template
 ---
-configName: "resource_buffer_test_v1"
+configName: "vpc_sc_dev-fiab_v4"
 gcpProjectConfig:
   projectIdSchema:
-    prefix: "buffer-test"
+    prefix: "terra-vpc-sc-devfiab"
     scheme: "RANDOM_CHAR"
-  # test.firecloud.org/tools/buffertest
-  parentFolderId: "339691735869"
+  # test.firecloud.org/tools/for_vpc_sc_unclaimed
+  parentFolderId: "610557500976"
   billingAccount: "01A82E-CA8A14-367457"
   enabledApis:
     - "bigquery-json.googleapis.com"
@@ -25,10 +25,10 @@ gcpProjectConfig:
     - "monitoring.googleapis.com"
     - "storage-api.googleapis.com"
     - "storage-component.googleapis.com"
-  iamBindings:
-    - members: [ "group:terra-rbs-test@broadinstitute.org" ]
-      role: "roles/editor"
-    - members: [ "group:terra-rbs-viewer-test@broadinstitute.org" ]
-      role: "roles/viewer"
   network:
     enableNetworkMonitoring: "true"
+    enablePrivateGoogleAccess: "true"
+    enableCloudRegistryPrivateGoogleAccess: "true"
+    blockBatchInternetAccess: "true"
+  computeEngine:
+    keepDefaultServiceAcct: "true"

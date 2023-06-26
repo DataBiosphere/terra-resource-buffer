@@ -1,15 +1,12 @@
 # Resource Buffer Service Pools Schema in prod environment
 ---
 poolConfigs:
-  - poolId: "cwb_ws_prod_v6"
+  - poolId: "cwb_ws_prod_v7"
     size: 3000
-    resourceConfigName: "cwb_ws_prod_v6"
+    resourceConfigName: "cwb_ws_prod_v7"
   - poolId: "datarepo_v1"
     size: 1000
     resourceConfigName: "datarepo_v1"
-  - poolId: "vpc_sc_v8"
+  - poolId: "vpc_sc_v10"
     size: 1000
-    resourceConfigName: "vpc_sc_v8"
-  - poolId: "vpc_sc_v9"
-    size: 1000
-    resourceConfigName: "vpc_sc_v9"
+    resourceConfigName: "vpc_sc_v10"

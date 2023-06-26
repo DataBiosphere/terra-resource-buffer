@@ -1,6 +1,6 @@
 # RBS Pools Schema for running buffer service integration test and performace test.
 ---
 poolConfigs:
-  - poolId: "resource_buffer_test_v1"
+  - poolId: "resource_buffer_test_v2"
     size: 1500
-    resourceConfigName: "resource_buffer_test_v1"
+    resourceConfigName: "resource_buffer_test_v2"

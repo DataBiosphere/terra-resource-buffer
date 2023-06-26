@@ -20,6 +20,7 @@ gcpProjectConfig:
     - "dataflow.googleapis.com"
     - "dataproc.googleapis.com"
     - "dns.googleapis.com"
+    - "genomics.googleapis.com"
     - "lifesciences.googleapis.com"
     - "logging.googleapis.com"
     - "monitoring.googleapis.com"

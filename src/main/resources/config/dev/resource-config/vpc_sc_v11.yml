@@ -1,12 +1,12 @@
-# Resource template for running buffer service performance test
+# # Projects with VPC-SC configuration
 ---
-configName: "resource_buffer_test_v1"
+configName: "vpc_sc_v10"
 gcpProjectConfig:
   projectIdSchema:
-    prefix: "buffer-test"
+    prefix: "terra-vpc-sc-dev"
     scheme: "RANDOM_CHAR"
-  # test.firecloud.org/tools/buffertest
-  parentFolderId: "339691735869"
+  # test.firecloud.org/dev/for_vpc_sc_unclaimed
+  parentFolderId: "1061905712535"
   billingAccount: "01A82E-CA8A14-367457"
   enabledApis:
     - "bigquery-json.googleapis.com"
@@ -23,12 +23,18 @@ gcpProjectConfig:
     - "lifesciences.googleapis.com"
     - "logging.googleapis.com"
     - "monitoring.googleapis.com"
+    - "serviceusage.googleapis.com"
     - "storage-api.googleapis.com"
     - "storage-component.googleapis.com"
-  iamBindings:
-    - members: [ "group:terra-rbs-test@broadinstitute.org" ]
-      role: "roles/editor"
-    - members: [ "group:terra-rbs-viewer-test@broadinstitute.org" ]
-      role: "roles/viewer"
   network:
     enableNetworkMonitoring: "true"
+    enablePrivateGoogleAccess: "true"
+    enableCloudRegistryPrivateGoogleAccess: "true"
+    blockBatchInternetAccess: "true"
+  kubernetesEngine:
+    createGkeDefaultServiceAccount: "true"
+  serviceUsage:
+    bigQuery:
+      overrideBigQueryDailyUsageQuota: true
+      bigQueryDailyUsageQuotaOverrideValueMebibytes: 38146972 # 40 TB
+  securityGroup: "high"
