@@ -16,3 +16,6 @@ poolConfigs:
   - poolId: "workspace_manager_v11"
     size: 500
     resourceConfigName: "workspace_manager_v11"
+  - poolId: "workspace_manager_v12"
+    size: 500
+    resourceConfigName: "workspace_manager_v12"

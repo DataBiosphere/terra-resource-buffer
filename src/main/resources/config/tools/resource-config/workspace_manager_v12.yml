@@ -3,9 +3,9 @@
 configName: "workspace_manager_v12"
 gcpProjectConfig:
   projectIdSchema:
-    prefix: "terra-wsm-d"
+    prefix: "terra-wsm-t"
     scheme: "TWO_WORDS_NUMBER"
-  parentFolderId: "421312654454" #test.firecloud.org/dev/buffer-dev/workspace_manager
+  parentFolderId: "375605435272" #test.firecloud.org/tools/buffer-tools/workspace_manager
   billingAccount: "01A82E-CA8A14-367457"
   enabledApis:
     - "bigquery-json.googleapis.com"
