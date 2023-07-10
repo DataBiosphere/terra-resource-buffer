@@ -3,6 +3,7 @@ package bio.terra.buffer.service.resource.flight;
 import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
 import static bio.terra.buffer.service.resource.flight.CreateSubnetsStep.REGION_TO_IP_RANGE;
 import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.blockBatchInternetAccess;
+import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.enableDataprocIngress;
 import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.keepDefaultNetwork;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.*;
 
@@ -109,6 +110,9 @@ public class CreateFirewallRuleStep implements Step {
                   new Firewall.Allowed().setIPProtocol("tcp").setPorts(Arrays.asList("0-65535")),
                   new Firewall.Allowed().setIPProtocol("udp").setPorts(Arrays.asList("0-65535"))));
 
+  public static final Firewall ALLOW_INTERNAL_INGRESS_DATAPROC = ALLOW_INTERNAL_VPC_NETWORK.setTargetTags(
+      List.of("dataproc")).setDescription("Allow internal ingress traffic between dataproc tagged vms");
+
   @VisibleForTesting
   public static final Firewall ALLOW_INTERNAL_DEFAULT_NETWORK =
       new Firewall()
@@ -136,6 +140,9 @@ public class CreateFirewallRuleStep implements Step {
           .setAllowed(
               Arrays.asList(
                   new Firewall.Allowed().setIPProtocol("tcp").setPorts(Arrays.asList("443"))));
+
+  public static final Firewall ALOW_INTERNAL_SSL_DATAPROC = ALLOW_INGRESS_LEONARDO_SSL_NETWORK.setTargetTags(
+      List.of("dataproc")).setDescription("Allow SSL traffic for dataproc tagged vms.");
 
   @VisibleForTesting
   public static final Firewall ALLOW_INGRESS_LEONARDO_SSL_DEFAULT =
@@ -234,6 +241,17 @@ public class CreateFirewallRuleStep implements Step {
               projectId,
               appendNetworkOnFirewall(highSecurityNetwork, ALLOW_INGRESS_LEONARDO_SSL_NETWORK))
           .ifPresent(operationsToPoll::add);
+
+      // If dataproc ingress is enabled, create firewall rules that allow it
+      if (enableDataprocIngress(gcpProjectConfig)) {
+        addFirewallRule(
+            projectId, appendNetworkOnFirewall(highSecurityNetwork, ALLOW_INTERNAL_INGRESS_DATAPROC))
+            .ifPresent(operationsToPoll::add);
+        addFirewallRule(
+            projectId,
+            appendNetworkOnFirewall(highSecurityNetwork, ALOW_INTERNAL_SSL_DATAPROC))
+            .ifPresent(operationsToPoll::add);
+      }
 
       // TODO(PF-538): revisit whether we still need this flag after NF allows specifying a network
       // If the default network was not deleted, then create identical firewall rules for it.

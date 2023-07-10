@@ -127,6 +127,12 @@ components:
             Note: This might not be working if organization policy orgconstraints/compute.skipDefaultNetworkCreation is on.
           type: boolean
           default: false
+        enableDataprocIngress:
+            description: |-
+                Whether to allow Dataproc vm nodes to receive traffic from each other. If true, firewall rules will be created to allow
+                ingress traffic between vms that have the "dataproc" tag.
+            type: boolean
+            default: false
         enablePrivateGoogleAccess:
           description: |-
             Whether to config Private Google Access for storage and bigquery API. See: https://cloud.google.com/vpc/docs/configure-private-google-access

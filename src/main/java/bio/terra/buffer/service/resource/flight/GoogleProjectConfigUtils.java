@@ -27,6 +27,13 @@ public class GoogleProjectConfigUtils {
         && gcpProjectConfig.getNetwork().isKeepDefaultNetwork();
   }
 
+  /** Checks the config to see if we should enable dataproc vm firewall rules */
+  public static boolean enableDataprocIngress(GcpProjectConfig gcpProjectConfig) {
+    return gcpProjectConfig.getNetwork() != null
+        && gcpProjectConfig.getNetwork().isEnableDataprocIngress() != null
+        && gcpProjectConfig.getNetwork().isEnableDataprocIngress();
+  }
+
   /** Checks the config to see if we should keep the default compute engine service account. */
   public static boolean keepComputeEngineServiceAcct(GcpProjectConfig gcpProjectConfig) {
     // If computeEngine object or keepDefaultServiceAcct flag are not defined, then use default
