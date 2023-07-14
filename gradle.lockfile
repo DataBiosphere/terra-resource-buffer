@@ -4,7 +4,7 @@
 bio.terra:stairway-gcp:0.0.76-SNAPSHOT=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 bio.terra:stairway:0.0.76-SNAPSHOT=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 bio.terra:terra-cloud-resource-lib:1.2.13-SNAPSHOT=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
-bio.terra:terra-common-lib:0.0.89-SNAPSHOT=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+bio.terra:terra-common-lib:0.0.92-SNAPSHOT=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 bio.terra:terra-resource-janitor-client:0.113.25-SNAPSHOT=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 ch.qos.logback.contrib:logback-jackson:0.1.5=productionRuntimeClasspath,runtimeClasspath,testRuntimeClasspath
 ch.qos.logback.contrib:logback-json-classic:0.1.5=productionRuntimeClasspath,runtimeClasspath,testRuntimeClasspath
@@ -130,7 +130,7 @@ io.grpc:grpc-protobuf:1.48.0=compileClasspath,productionRuntimeClasspath,runtime
 io.grpc:grpc-services:1.48.0=productionRuntimeClasspath,runtimeClasspath,testRuntimeClasspath
 io.grpc:grpc-stub:1.47.0=compileClasspath,testCompileClasspath
 io.grpc:grpc-stub:1.48.0=productionRuntimeClasspath,runtimeClasspath,testRuntimeClasspath
-io.grpc:grpc-xds:1.48.0=productionRuntimeClasspath,runtimeClasspath,testRuntimeClasspath
+io.grpc:grpc-xds:1.56.1=productionRuntimeClasspath,runtimeClasspath,testRuntimeClasspath
 io.gsonfire:gson-fire:1.8.5=productionRuntimeClasspath,runtimeClasspath,testRuntimeClasspath
 io.kubernetes:client-java-api:16.0.0=productionRuntimeClasspath,runtimeClasspath,testRuntimeClasspath
 io.kubernetes:client-java-proto:16.0.0=productionRuntimeClasspath,runtimeClasspath,testRuntimeClasspath
