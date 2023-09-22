@@ -1,7 +1,7 @@
 // Build Script Classpath
 buildscript {
     ext {
-        springBootVersion = '2.7.10'
+        springBootVersion = '2.7.15'
     }
 }
 
@@ -59,7 +59,7 @@ repositories {
 
 dependencies {
     // Terra deps - we get Stairway via TCL
-    implementation group: 'bio.terra', name: 'terra-common-lib', version: '0.0.93-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'terra-common-lib', version: '0.0.94-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-cloud-resource-lib', version: '1.2.13-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.113.25-SNAPSHOT'
 
@@ -69,9 +69,9 @@ dependencies {
     implementation group: 'com.google.guava', name: 'guava', version: '31.1-jre'
     implementation group: 'io.opencensus', name: 'opencensus-exporter-stats-stackdriver', version: '0.31.1'
     implementation group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
-    implementation group: 'org.liquibase', name: 'liquibase-core', version: '4.15.0'
+    implementation group: 'org.liquibase', name: 'liquibase-core', version: '4.17.2'
     implementation group: 'org.webjars', name: 'webjars-locator-core', version: '0.52'
-    runtimeOnly group: 'org.postgresql', name: 'postgresql', version: '42.4.1'
+    runtimeOnly group: 'org.postgresql', name: 'postgresql', version: '42.4.3'
     // CRL uses version 2.0.3 which is not compatible with other RBS dependencies,
     // force the lower version for now.
     implementation('org.slf4j:slf4j-api') {
@@ -112,6 +112,7 @@ dependencies {
         implementation('com.nimbusds:nimbus-jose-jwt:9.25.6')
         implementation('io.projectreactor.netty:reactor-netty-http:1.0.24')
         implementation('com.fasterxml.jackson:jackson-bom:2.14.2')
+        spotbugs('org.apache.bcel:bcel:6.6.1')
     }
 }
 
