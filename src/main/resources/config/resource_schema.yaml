@@ -153,6 +153,13 @@ components:
           type: array
           items:
             type: string
+        internalAccessTargetTags:
+          description: |-
+            target tags where internal ingress rule is applied. if not set, the default is leonardo
+          type: array
+          items:
+            type: string
+          default: [ "leonardo" ]
       type: object
 
     ComputeEngine:
