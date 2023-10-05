@@ -119,8 +119,11 @@ public class GoogleProjectConfigUtils {
   /** append target tags for VM instances that should be applied the internal ingress rules. */
   public static Firewall appendInternalIngressTargetTags(
       Firewall firewall, GcpProjectConfig gcpProjectConfig) {
+    if (gcpProjectConfig.getNetwork() == null) {
+      return firewall;
+    }
     List<String> tags = gcpProjectConfig.getNetwork().getInternalAccessTargetTags();
-    if (tags !=null && !tags.isEmpty()) {
+    if (tags != null && !tags.isEmpty()) {
       firewall.setTargetTags(tags);
     }
     return firewall;
