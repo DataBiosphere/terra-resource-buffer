@@ -120,7 +120,7 @@ public class GoogleProjectConfigUtils {
   public static Firewall appendInternalIngressTargetTags(
       Firewall firewall, GcpProjectConfig gcpProjectConfig) {
     List<String> tags = gcpProjectConfig.getNetwork().getInternalAccessTargetTags();
-    if (!gcpProjectConfig.getNetwork().getInternalAccessTargetTags().isEmpty()) {
+    if (tags !=null && !tags.isEmpty()) {
       firewall.setTargetTags(tags);
     }
     return firewall;
