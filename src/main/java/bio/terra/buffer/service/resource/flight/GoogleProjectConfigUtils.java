@@ -4,6 +4,7 @@ import bio.terra.buffer.generated.model.BigQueryQuotas;
 import bio.terra.buffer.generated.model.GcpProjectConfig;
 import bio.terra.buffer.generated.model.ServiceUsage;
 import bio.terra.buffer.generated.model.Storage;
+import com.google.api.services.compute.model.Firewall;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
@@ -166,5 +167,17 @@ public class GoogleProjectConfigUtils {
     return REGION_TO_IP_RANGE.entrySet().stream()
         .filter(e -> !blockedRegions.contains(e.getKey()))
         .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
+  }
+  /** append target tags for VM instances that should be applied the internal ingress rules. */
+  public static Firewall appendInternalIngressTargetTags(
+      Firewall firewall, GcpProjectConfig gcpProjectConfig) {
+    if (gcpProjectConfig.getNetwork() == null) {
+      return firewall;
+    }
+    List<String> tags = gcpProjectConfig.getNetwork().getInternalAccessTargetTags();
+    if (tags != null && !tags.isEmpty()) {
+      firewall.setTargetTags(tags);
+    }
+    return firewall;
   }
 }

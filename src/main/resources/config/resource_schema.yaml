@@ -153,6 +153,12 @@ components:
           type: array
           items:
             type: string
+        internalAccessTargetTags:
+          description: |-
+            target tags where internal ingress rule is applied. if not set, the default is leonardo
+          type: array
+          items:
+            type: string
         enableNatGateway:
           description: Whether to use public NAT gateway for GCE VMs.
           type: boolean

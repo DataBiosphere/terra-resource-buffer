@@ -2,6 +2,7 @@ package bio.terra.buffer.service.resource.flight;
 
 import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
 import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.REGION_TO_IP_RANGE;
+import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.appendInternalIngressTargetTags;
 import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.blockBatchInternetAccess;
 import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.keepDefaultNetwork;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.*;
@@ -228,7 +229,10 @@ public class CreateFirewallRuleStep implements Step {
               .get();
 
       addFirewallRule(
-              projectId, appendNetworkOnFirewall(highSecurityNetwork, ALLOW_INTERNAL_VPC_NETWORK))
+              projectId,
+              appendNetworkOnFirewall(
+                  highSecurityNetwork,
+                  appendInternalIngressTargetTags(ALLOW_INTERNAL_VPC_NETWORK, gcpProjectConfig)))
           .ifPresent(operationsToPoll::add);
       addFirewallRule(
               projectId,
