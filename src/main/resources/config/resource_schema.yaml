@@ -159,7 +159,6 @@ components:
           type: array
           items:
             type: string
-          default: [ "leonardo" ]
       type: object
 
     ComputeEngine:
