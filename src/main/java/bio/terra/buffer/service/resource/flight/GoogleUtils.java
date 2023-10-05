@@ -35,6 +35,8 @@ public class GoogleUtils {
 
   public static final String NAT_ROUTER_NAME_PREFIX = "nat-router-";
 
+  public static final String NAT_NAME_PREFIX = "nat-gateway-";
+
   /**
    * Poll until the Google Service API operation has completed. Throws any error or timeouts as a
    * {@link RetryException}.

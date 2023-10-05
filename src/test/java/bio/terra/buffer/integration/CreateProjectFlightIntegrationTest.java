@@ -45,13 +45,18 @@ import static bio.terra.buffer.service.resource.flight.CreateResourceRecordSetSt
 import static bio.terra.buffer.service.resource.flight.CreateResourceRecordSetStep.RESTRICT_API_CNAME_RECORD;
 import static bio.terra.buffer.service.resource.flight.CreateRouteStep.DEFAULT_GATEWAY;
 import static bio.terra.buffer.service.resource.flight.CreateRouteStep.ROUTE_NAME;
+import static bio.terra.buffer.service.resource.flight.CreateRouterNatStep.NAT_IP_ALLOCATION;
+import static bio.terra.buffer.service.resource.flight.CreateRouterNatStep.SUBNETWORK_IP_RANGES_TO_NAT;
 import static bio.terra.buffer.service.resource.flight.CreateStorageLogBucketStep.STORAGE_LOGS_IDENTITY;
-import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.REGION_TO_IP_RANGE;
 import static bio.terra.buffer.service.resource.flight.CreateSubnetsStep.getSubnetLogConfig;
 import static bio.terra.buffer.service.resource.flight.DeleteDefaultFirewallRulesStep.DEFAULT_FIREWALL_NAMES;
+import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.REGION_TO_IP_RANGE;
+import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.getRegionToIpRange;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.DEFAULT_NETWORK_NAME;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.GCR_MANAGED_ZONE_NAME;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.MANAGED_ZONE_NAME;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.NAT_NAME_PREFIX;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.NAT_ROUTER_NAME_PREFIX;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.NETWORK_NAME;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.RESTRICTED_GOOGLE_IP_ADDRESS;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.SUBNETWORK_NAME;
@@ -113,6 +118,8 @@ import com.google.api.services.cloudresourcemanager.v3.model.Project;
 import com.google.api.services.compute.model.Firewall;
 import com.google.api.services.compute.model.Network;
 import com.google.api.services.compute.model.Route;
+import com.google.api.services.compute.model.Router;
+import com.google.api.services.compute.model.RouterNat;
 import com.google.api.services.compute.model.Subnetwork;
 import com.google.api.services.compute.model.SubnetworkList;
 import com.google.api.services.dns.model.ManagedZone;
@@ -268,6 +275,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertGcrDnsExists(project);
     assertDefaultVpcNotExists(project);
     assertFirewallRulesExistForBlockInternetAccess(project);
+    assertRouterNatNotExists(project);
   }
 
   @Test
@@ -354,6 +362,57 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     Project project = assertProjectExists(resourceId);
 
     assertNoSubnetsInBlockedRegions(project, ImmutableList.of(validBlockedRegion));
+  }
+
+  @Test
+  public void testCreateGoogleProject_externalTrafficThroughNat() throws Exception {
+    FlightManager manager =
+        new FlightManager(
+            bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
+    GcpProjectConfig config =
+        newBasicGcpConfig()
+            .network(
+                new bio.terra.buffer.generated.model.Network()
+                    .blockBatchInternetAccess(true)
+                    .enableNatGateway(true));
+    Pool pool = preparePool(bufferDao, config);
+
+    String flightId = manager.submitCreationFlight(pool).get();
+    ResourceId resourceId =
+        extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
+    Project project = assertProjectExists(resourceId);
+    assertNetworkExists(project);
+    assertSubnetsExist(project, NetworkMonitoring.ENABLED);
+    assertDefaultVpcNotExists(project);
+    assertFirewallRulesExistForBlockInternetAccess(project);
+    assertRouterNatExists(project, config);
+  }
+
+  @Test
+  public void testCreateGoogleProject_externalTrafficThroughNatWithBlockedRegion()
+      throws Exception {
+    FlightManager manager =
+        new FlightManager(
+            bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
+    GcpProjectConfig config =
+        newBasicGcpConfig()
+            .network(
+                new bio.terra.buffer.generated.model.Network()
+                    .blockedRegions(List.of("europe-west2"))
+                    .blockBatchInternetAccess(true)
+                    .enableNatGateway(true));
+    Pool pool = preparePool(bufferDao, config);
+
+    String flightId = manager.submitCreationFlight(pool).get();
+    ResourceId resourceId =
+        extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
+    Project project = assertProjectExists(resourceId);
+    assertNetworkExists(project);
+    assertSubnetsExist(project, NetworkMonitoring.ENABLED);
+    assertDefaultVpcNotExists(project);
+    assertFirewallRulesExistForBlockInternetAccess(project);
+    assertRouterNatExists(project, config);
+    assertRouterNatNotExistsInRegions(project, config);
   }
 
   @Test
@@ -845,6 +904,51 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertFalse(
         resourceExists(
             () -> computeCow.routes().get(project.getProjectId(), ROUTE_NAME).execute(), 404));
+  }
+
+  private void assertRouterNatExists(Project project, GcpProjectConfig gcpProjectConfig)
+      throws IOException {
+    var projectId = project.getProjectId();
+    var regions = getRegionToIpRange(gcpProjectConfig).keySet();
+    for (var region : regions) {
+      Router router =
+          computeCow.routers().get(projectId, region, NAT_ROUTER_NAME_PREFIX + region).execute();
+      List<RouterNat> nats = router.getNats();
+      assertEquals(1, nats.size());
+      var nat = nats.get(0);
+      assertEquals(NAT_NAME_PREFIX + region, nat.getName());
+      assertEquals(SUBNETWORK_IP_RANGES_TO_NAT, nat.getSourceSubnetworkIpRangesToNat());
+      assertEquals(NAT_IP_ALLOCATION, nat.getNatIpAllocateOption());
+    }
+  }
+
+  private void assertRouterNatNotExists(Project project) throws IOException {
+    var projectId = project.getProjectId();
+    for (var region : REGION_TO_IP_RANGE.keySet()) {
+      assertFalse(
+          resourceExists(
+              () ->
+                  computeCow
+                      .routers()
+                      .get(projectId, region, NAT_ROUTER_NAME_PREFIX + region)
+                      .execute(),
+              404));
+    }
+  }
+
+  private void assertRouterNatNotExistsInRegions(Project project, GcpProjectConfig gcpProjectConfig)
+      throws IOException {
+    var projectId = project.getProjectId();
+    for (var region : gcpProjectConfig.getNetwork().getBlockedRegions()) {
+      assertFalse(
+          resourceExists(
+              () ->
+                  computeCow
+                      .routers()
+                      .get(projectId, region, NAT_ROUTER_NAME_PREFIX + region)
+                      .execute(),
+              404));
+    }
   }
 
   private void assertDnsExists(Project project) throws Exception {

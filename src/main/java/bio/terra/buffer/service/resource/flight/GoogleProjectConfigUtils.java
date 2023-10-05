@@ -100,15 +100,12 @@ public class GoogleProjectConfigUtils {
         && gcpProjectConfig.getNetwork().isBlockBatchInternetAccess();
   }
 
-  /**
-   * Whether to create NAT gateway per regions.
-   */
+  /** Whether to create NAT gateway per regions. */
   public static boolean enableNatGateway(GcpProjectConfig gcpProjectConfig) {
     return gcpProjectConfig.getNetwork() != null
         && gcpProjectConfig.getNetwork().isEnableNatGateway() != null
         && gcpProjectConfig.getNetwork().isEnableNatGateway();
   }
-
 
   /** Gets blocked regions. */
   public static List<String> blockedRegions(GcpProjectConfig gcpProjectConfig) {
