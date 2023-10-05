@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -166,7 +167,7 @@ public class GoogleProjectConfigUtils {
     List<String> blockedRegions = GoogleProjectConfigUtils.blockedRegions(gcpProjectConfig);
     return REGION_TO_IP_RANGE.entrySet().stream()
         .filter(e -> !blockedRegions.contains(e.getKey()))
-        .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
+        .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
   }
   /** append target tags for VM instances that should be applied the internal ingress rules. */
   public static Firewall appendInternalIngressTargetTags(
