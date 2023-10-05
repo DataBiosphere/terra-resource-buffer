@@ -153,6 +153,10 @@ components:
           type: array
           items:
             type: string
+        enableNatGateway:
+          description: Whether to use public NAT gateway for GCE VMs.
+          type: boolean
+          default: false
       type: object
 
     ComputeEngine:

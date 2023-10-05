@@ -33,6 +33,8 @@ public class GoogleUtils {
   /** The IP address for restricted.googleapis.com. */
   public static final String RESTRICTED_GOOGLE_IP_ADDRESS = "199.36.153.4/30";
 
+  public static final String NAT_ROUTER_NAME_PREFIX = "nat-router-";
+
   /**
    * Poll until the Google Service API operation has completed. Throws any error or timeouts as a
    * {@link RetryException}.

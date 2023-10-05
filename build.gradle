@@ -66,6 +66,7 @@ dependencies {
     // Versioned direct deps
     implementation group: 'com.google.auto.value', name: 'auto-value-annotations', version: '1.9'
     implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.120.11'
+    implementation group: 'com.google.cloud', name: 'google-cloud-compute', version: '1.37.0'
     implementation group: 'com.google.guava', name: 'guava', version: '31.1-jre'
     implementation group: 'io.opencensus', name: 'opencensus-exporter-stats-stackdriver', version: '0.31.1'
     implementation group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'

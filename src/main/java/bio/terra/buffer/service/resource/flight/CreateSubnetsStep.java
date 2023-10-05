@@ -1,6 +1,7 @@
 package bio.terra.buffer.service.resource.flight;
 
 import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
+import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.getRegionToIpRange;
 import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.isNetworkMonitoringEnabled;
 import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.usePrivateGoogleAccess;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.*;
@@ -46,40 +47,6 @@ import org.slf4j.LoggerFactory;
  * subnetworks in existing Terra workspaces.
  */
 public class CreateSubnetsStep implements Step {
-  /**
-   * All current Google Compute Engine regions with the default Ip ranges listed (and manually
-   * copied) in: https://cloud.google.com/vpc/docs/vpc#ip-ranges.
-   */
-  @VisibleForTesting
-  public static final Map<String, String> REGION_TO_IP_RANGE =
-      ImmutableMap.<String, String>builder()
-          .put("asia-east1", "10.140.0.0/20")
-          .put("asia-east2", "10.170.0.0/20")
-          .put("asia-northeast1", "10.146.0.0/20")
-          .put("asia-northeast2", "10.174.0.0/20")
-          .put("asia-northeast3", "10.178.0.0/20")
-          .put("asia-south1", "10.160.0.0/20")
-          .put("asia-southeast1", "10.148.0.0/20")
-          .put("asia-southeast2", "10.184.0.0/20")
-          .put("australia-southeast1", "10.152.0.0/20")
-          .put("europe-central2", "10.186.0.0/20")
-          .put("europe-north1", "10.166.0.0/20")
-          .put("europe-west1", "10.132.0.0/20")
-          .put("europe-west2", "10.154.0.0/20")
-          .put("europe-west3", "10.156.0.0/20")
-          .put("europe-west4", "10.164.0.0/20")
-          .put("europe-west6", "10.172.0.0/20")
-          .put("northamerica-northeast1", "10.162.0.0/20")
-          .put("northamerica-northeast2", "10.188.0.0/20")
-          .put("southamerica-east1", "10.158.0.0/20")
-          .put("us-central1", "10.128.0.0/20")
-          .put("us-east1", "10.142.0.0/20")
-          .put("us-east4", "10.150.0.0/20")
-          .put("us-west1", "10.138.0.0/20")
-          .put("us-west2", "10.168.0.0/20")
-          .put("us-west3", "10.180.0.0/20")
-          .put("us-west4", "10.182.0.0/20")
-          .build();
 
   private final Logger logger = LoggerFactory.getLogger(CreateSubnetsStep.class);
   private final CloudComputeCow computeCow;
@@ -99,7 +66,7 @@ public class CreateSubnetsStep implements Step {
       Network network =
           getResource(() -> computeCow.networks().get(projectId, NETWORK_NAME).execute(), 404)
               .get();
-      for (Map.Entry<String, String> entry : getRegionToIpRange().entrySet()) {
+      for (Map.Entry<String, String> entry : getRegionToIpRange(gcpProjectConfig).entrySet()) {
         String region = entry.getKey();
         Subnetwork subnetwork =
             new Subnetwork()
@@ -139,14 +106,6 @@ public class CreateSubnetsStep implements Step {
     // Flight undo will just need to delete the project on GCP at CreateProjectStep.
     // doStep methods already checks subnets exists or not. So no need to delete subnet.
     return StepResult.getStepResultSuccess();
-  }
-
-  /** Gets a map of region to IP range. */
-  private Map<String, String> getRegionToIpRange() {
-    List<String> blockedRegions = GoogleProjectConfigUtils.blockedRegions(gcpProjectConfig);
-    return REGION_TO_IP_RANGE.entrySet().stream()
-        .filter(e -> !blockedRegions.contains(e.getKey()))
-        .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
   }
 
   /**
