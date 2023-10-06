@@ -83,6 +83,8 @@ public class CreateRouterNatStep implements Step {
             createResourceAndIgnoreConflict(
                 () -> computeCow.routers().insert(projectId, region, router).execute());
         if (insertOperation.isPresent()) {
+          LOGGER.info(
+              "start pulling insert router operation in project {} region {}", projectId, region);
           OperationCow<?> operation =
               computeCow
                   .regionalOperations()

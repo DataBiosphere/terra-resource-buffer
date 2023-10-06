@@ -322,10 +322,11 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     List<String> validBlockedRegion =
         List.of(
             "europe-west2",
-            "asia-northeast3",
+            "us-west4",
             "europe-central2",
             "asia-northeast1",
-            "asia-northeast2");
+            "asia-northeast2",
+            "asia-northeast3");
     String invalidBlockedRegion = "u-west4";
     List<String> blockedRegions = new ArrayList<>(validBlockedRegion);
     blockedRegions.add(invalidBlockedRegion);
