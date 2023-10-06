@@ -91,7 +91,7 @@ public class CreateRouterNatStep implements Step {
           natCreatedRegions.add(region);
           context.getWorkingMap().put(NAT_CREATED_REGIONS, natCreatedRegions);
         }
-      } catch (IOException | InterruptedException e) {
+      } catch (IOException e) {
         LOGGER.info("Error when creating Nat router", e);
         return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY, e);
       }

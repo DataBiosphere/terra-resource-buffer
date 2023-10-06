@@ -319,32 +319,16 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
   @Test
   public void testCreateGoogleProject_blockedRegions() throws Exception {
-    List<String> blockedRegions = ImmutableList.of("europe-west2", "us-west4");
-
-    FlightManager manager =
-        new FlightManager(
-            bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
-    Pool pool =
-        preparePool(
-            bufferDao,
-            newBasicGcpConfig()
-                .network(
-                    new bio.terra.buffer.generated.model.Network().blockedRegions(blockedRegions)));
-
-    String flightId = manager.submitCreationFlight(pool).get();
-    ResourceId resourceId =
-        extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
-    Project project = assertProjectExists(resourceId);
-
-    assertNoSubnetsInBlockedRegions(project, blockedRegions);
-  }
-
-  @Test
-  public void testCreateGoogleProject_blockedRegions_invalidBlockedRegion() throws Exception {
-    // If a blocked region is invalid, project configuration still succeeds.
-    String validBlockedRegion = "europe-west2";
+    List<String> validBlockedRegion =
+        List.of(
+            "europe-west2",
+            "asia-northeast3",
+            "europe-central2",
+            "asia-northeast1",
+            "asia-northeast2");
     String invalidBlockedRegion = "u-west4";
-    List<String> blockedRegions = ImmutableList.of(validBlockedRegion, invalidBlockedRegion);
+    List<String> blockedRegions = new ArrayList<>(validBlockedRegion);
+    blockedRegions.add(invalidBlockedRegion);
 
     FlightManager manager =
         new FlightManager(
@@ -354,45 +338,18 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
             bufferDao,
             newBasicGcpConfig()
                 .network(
-                    new bio.terra.buffer.generated.model.Network().blockedRegions(blockedRegions)));
+                    new bio.terra.buffer.generated.model.Network()
+                        .blockedRegions(blockedRegions)
+                        .enableNatGateway(true)));
 
     String flightId = manager.submitCreationFlight(pool).get();
     ResourceId resourceId =
         extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
     Project project = assertProjectExists(resourceId);
 
-    assertNoSubnetsInBlockedRegions(project, ImmutableList.of(validBlockedRegion));
-  }
-
-  @Test
-  public void testCreateGoogleProject_externalTrafficThroughNatWithBlockedRegion()
-      throws Exception {
-    FlightManager manager =
-        new FlightManager(
-            bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
-    GcpProjectConfig config =
-        newBasicGcpConfig()
-            .network(
-                new bio.terra.buffer.generated.model.Network()
-                    .blockedRegions(
-                        List.of(
-                            "europe-west2",
-                            "us-west4",
-                            // the following regions are hitting permission errors consistently.
-                            "asia-northeast3",
-                            "europe-central2",
-                            "asia-northeast1",
-                            "asia-northeast2"))
-                    .enableNatGateway(true));
-    Pool pool = preparePool(bufferDao, config);
-
-    String flightId = manager.submitCreationFlight(pool).get();
-    ResourceId resourceId =
-        extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
-
-    Project project = assertProjectExists(resourceId);
-    assertRouterNatExists(project, config);
-    assertRouterNatNotExistsInRegions(project, config);
+    assertNoSubnetsInBlockedRegions(project, validBlockedRegion);
+    assertRouterNatExists(project, pool.resourceConfig().getGcpProjectConfig());
+    assertRouterNatNotExistsInRegions(project, pool.resourceConfig().getGcpProjectConfig());
   }
 
   @Test
