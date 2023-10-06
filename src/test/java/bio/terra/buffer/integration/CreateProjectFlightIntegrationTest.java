@@ -350,7 +350,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
     assertNoSubnetsInBlockedRegions(project, validBlockedRegion);
     assertRouterNatExists(project, pool.resourceConfig().getGcpProjectConfig());
-    assertRouterNatNotExistsInRegions(project, pool.resourceConfig().getGcpProjectConfig());
+    assertRouterNatNotExistsInRegions(project, validBlockedRegion);
   }
 
   @Test
@@ -874,10 +874,10 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     }
   }
 
-  private void assertRouterNatNotExistsInRegions(Project project, GcpProjectConfig gcpProjectConfig)
+  private void assertRouterNatNotExistsInRegions(Project project, List<String> blockedRegions)
       throws IOException {
     var projectId = project.getProjectId();
-    for (var region : gcpProjectConfig.getNetwork().getBlockedRegions()) {
+    for (var region : blockedRegions) {
       assertFalse(
           resourceExists(
               () ->
