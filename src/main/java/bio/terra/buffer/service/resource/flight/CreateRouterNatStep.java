@@ -1,7 +1,7 @@
 package bio.terra.buffer.service.resource.flight;
 
 import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
-import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.blockBatchInternetAccess;
+import static bio.terra.buffer.service.resource.FlightMapKeys.NAT_CREATED_REGIONS;
 import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.enableNatGateway;
 import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.getRegionToIpRange;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.NAT_NAME_PREFIX;
@@ -19,14 +19,17 @@ import bio.terra.stairway.Step;
 import bio.terra.stairway.StepResult;
 import bio.terra.stairway.StepStatus;
 import bio.terra.stairway.exception.RetryException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.api.services.compute.model.Operation;
 import com.google.api.services.compute.model.Router;
 import com.google.api.services.compute.model.RouterNat;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,14 +52,21 @@ public class CreateRouterNatStep implements Step {
 
   @Override
   public StepResult doStep(FlightContext context) throws InterruptedException, RetryException {
-    if (!blockBatchInternetAccess(gcpProjectConfig) || !enableNatGateway(gcpProjectConfig)) {
+    if (!enableNatGateway(gcpProjectConfig)) {
       return StepResult.getStepResultSuccess();
     }
 
     String projectId = context.getWorkingMap().get(GOOGLE_PROJECT_ID, String.class);
+    Set<String> natCreatedRegions = new HashSet<>();
+    if (context.getWorkingMap().containsKey(NAT_CREATED_REGIONS)) {
+      natCreatedRegions =
+          context.getWorkingMap().get(NAT_CREATED_REGIONS, new TypeReference<>() {});
+    }
     var regions = getRegionToIpRange(gcpProjectConfig).keySet();
     for (String region : regions) {
-      // Define the NAT gateway configuration
+      if (natCreatedRegions.contains(region)) {
+        continue;
+      }
       RouterNat natGateway =
           new RouterNat()
               .setName(NAT_NAME_PREFIX + region)
@@ -78,8 +88,10 @@ public class CreateRouterNatStep implements Step {
                   .regionalOperations()
                   .operationCow(projectId, region, insertOperation.get());
           pollUntilSuccess(operation, Duration.ofSeconds(3), Duration.ofMinutes(5));
+          natCreatedRegions.add(region);
+          context.getWorkingMap().put(NAT_CREATED_REGIONS, natCreatedRegions);
         }
-      } catch (IOException e) {
+      } catch (IOException | InterruptedException e) {
         LOGGER.info("Error when creating Nat router", e);
         return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY, e);
       }

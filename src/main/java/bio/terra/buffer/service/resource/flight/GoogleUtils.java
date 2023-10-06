@@ -11,6 +11,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Optional;
+import org.apache.http.HttpStatus;
 
 /** Utilities when use Google APIs. */
 public class GoogleUtils {
@@ -107,7 +108,7 @@ public class GoogleUtils {
     try {
       return Optional.of(execute.execute());
     } catch (GoogleJsonResponseException e) {
-      if (e.getStatusCode() == 409) {
+      if (e.getStatusCode() == HttpStatus.SC_CONFLICT) {
         return Optional.empty();
       } else {
         throw e;

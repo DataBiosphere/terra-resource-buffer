@@ -14,4 +14,6 @@ public class FlightMapKeys {
    * READY.
    */
   public static final String RESOURCE_READY = "resourceReady";
+
+  public static final String NAT_CREATED_REGIONS = "natCreatedRegions";
 }

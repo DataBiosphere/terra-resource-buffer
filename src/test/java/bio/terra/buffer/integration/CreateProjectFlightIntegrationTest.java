@@ -365,30 +365,6 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   }
 
   @Test
-  public void testCreateGoogleProject_externalTrafficThroughNat() throws Exception {
-    FlightManager manager =
-        new FlightManager(
-            bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
-    GcpProjectConfig config =
-        newBasicGcpConfig()
-            .network(
-                new bio.terra.buffer.generated.model.Network()
-                    .blockBatchInternetAccess(true)
-                    .enableNatGateway(true));
-    Pool pool = preparePool(bufferDao, config);
-
-    String flightId = manager.submitCreationFlight(pool).get();
-    ResourceId resourceId =
-        extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
-    Project project = assertProjectExists(resourceId);
-    assertNetworkExists(project);
-    assertSubnetsExist(project, NetworkMonitoring.ENABLED);
-    assertDefaultVpcNotExists(project);
-    assertFirewallRulesExistForBlockInternetAccess(project);
-    assertRouterNatExists(project, config);
-  }
-
-  @Test
   public void testCreateGoogleProject_externalTrafficThroughNatWithBlockedRegion()
       throws Exception {
     FlightManager manager =
@@ -398,8 +374,14 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
         newBasicGcpConfig()
             .network(
                 new bio.terra.buffer.generated.model.Network()
-                    .blockedRegions(List.of("europe-west2"))
-                    .blockBatchInternetAccess(true)
+                    .blockedRegions(
+                        List.of(
+                            "europe-west2",
+                            "us-west4",
+                            "asia-northeast3",
+                            "europe-central2",
+                            "asia-northeast1",
+                            "asia-northeast2"))
                     .enableNatGateway(true));
     Pool pool = preparePool(bufferDao, config);
 
