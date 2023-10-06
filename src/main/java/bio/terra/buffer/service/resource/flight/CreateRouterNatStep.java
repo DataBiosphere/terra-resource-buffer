@@ -65,7 +65,7 @@ public class CreateRouterNatStep implements Step {
           new Router()
               .setName(NAT_ROUTER_NAME_PREFIX + region)
               .setRegion(region)
-              .setNetwork(NETWORK_NAME)
+              .setNetwork(networkUri(projectId, NETWORK_NAME))
               .setNats(List.of(natGateway));
       try {
         Optional<Operation> insertOperation =
@@ -90,5 +90,14 @@ public class CreateRouterNatStep implements Step {
   public StepResult undoStep(FlightContext context) throws InterruptedException {
     // Flight undo will just need to delete the project on GCP at CreateProjectStep.
     return StepResult.getStepResultSuccess();
+  }
+
+  /**
+   * Create a string matching the network URI on {@link Router#getNetwork()}, e.g.
+   * https://www.googleapis.com/compute/v1/projects/p-123/global/networks/n-456.
+   */
+  private static String networkUri(String projectId, String network) {
+    return String.format(
+        "https://www.googleapis.com/compute/v1/projects/%s/global/networks/%s", projectId, network);
   }
 }
