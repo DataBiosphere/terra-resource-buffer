@@ -8,6 +8,7 @@ import static bio.terra.buffer.service.resource.flight.GoogleUtils.NAT_NAME_PREF
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.NAT_ROUTER_NAME_PREFIX;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.NETWORK_NAME;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.createResourceAndIgnoreConflict;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.networkUri;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.pollUntilSuccess;
 
 import bio.terra.buffer.generated.model.GcpProjectConfig;
@@ -90,14 +91,5 @@ public class CreateRouterNatStep implements Step {
   public StepResult undoStep(FlightContext context) throws InterruptedException {
     // Flight undo will just need to delete the project on GCP at CreateProjectStep.
     return StepResult.getStepResultSuccess();
-  }
-
-  /**
-   * Create a string matching the network URI on {@link Router#getNetwork()}, e.g.
-   * https://www.googleapis.com/compute/v1/projects/p-123/global/networks/n-456.
-   */
-  private static String networkUri(String projectId, String network) {
-    return String.format(
-        "https://www.googleapis.com/compute/v1/projects/%s/global/networks/%s", projectId, network);
   }
 }

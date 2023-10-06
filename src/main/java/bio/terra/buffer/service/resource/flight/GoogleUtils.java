@@ -6,6 +6,7 @@ import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.stairway.exception.RetryException;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.cloudresourcemanager.v3.model.Project;
+import com.google.api.services.compute.model.Router;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.time.Duration;
@@ -118,6 +119,15 @@ public class GoogleUtils {
   public static boolean isProjectDeleting(Project project) {
     return project.getState().equals("DELETE_REQUESTED")
         || project.getState().equals("DELETE_IN_PROGRESS");
+  }
+
+  /**
+   * Create a string matching the network URI on {@link Router#getNetwork()}, e.g.
+   * https://www.googleapis.com/compute/v1/projects/p-123/global/networks/n-456.
+   */
+  public static String networkUri(String projectId, String network) {
+    return String.format(
+        "https://www.googleapis.com/compute/v1/projects/%s/global/networks/%s", projectId, network);
   }
 
   /**
