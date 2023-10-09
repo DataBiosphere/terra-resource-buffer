@@ -63,6 +63,12 @@ public class GoogleProjectConfigUtils {
         && gcpProjectConfig.getNetwork().isBlockBatchInternetAccess();
   }
 
+  /** Whether to enable ingress rule to allow ssh through IAP. */
+  public static boolean enableSshViaIap(GcpProjectConfig gcpProjectConfig) {
+    return gcpProjectConfig.getNetwork() != null
+        && Boolean.TRUE.equals(gcpProjectConfig.getNetwork().isEnableSshViaIap());
+  }
+
   /** Gets blocked regions. */
   public static List<String> blockedRegions(GcpProjectConfig gcpProjectConfig) {
     if (gcpProjectConfig.getNetwork() == null

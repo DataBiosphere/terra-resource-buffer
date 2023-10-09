@@ -20,10 +20,12 @@ import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.AL
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_EGRESS_PRIVATE_ACCESS_RULE_NAME;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INGRESS_LEONARDO_SSL_DEFAULT;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INGRESS_LEONARDO_SSL_NETWORK;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INGRESS_SSH_THROUGH_IAP;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INTERNAL_DEFAULT_NETWORK;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INTERNAL_FOR_DEFAULT_NETWORK_RULE_NAME;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_INTERNAL_VPC_NETWORK;
+import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_SSH_THROUGH_IAP;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.DENY_EGRESS;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.DENY_EGRESS_LEONARDO_WORKER;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.DENY_EGRESS_LEONARDO_WORKER_RULE_NAME;
@@ -217,7 +219,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   }
 
   @Test
-  public void testCreateGoogleProject_enablePrivateGoogleAccessAndFlowLog() throws Exception {
+  public void testCreateGoogleProject_enablePrivateGoogleAccessAndMonitoringAndSshViaIap()
+      throws Exception {
     FlightManager manager =
         new FlightManager(
             bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
@@ -228,7 +231,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
                 .network(
                     new bio.terra.buffer.generated.model.Network()
                         .enableNetworkMonitoring(true)
-                        .enablePrivateGoogleAccess(true)));
+                        .enablePrivateGoogleAccess(true)
+                        .enableSshViaIap(true)));
 
     String flightId = manager.submitCreationFlight(pool).get();
     ResourceId resourceId =
@@ -239,6 +243,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertRouteExists(project);
     assertDnsExists(project);
     assertDefaultVpcNotExists(project);
+    asserSshViaIapFirewallExists(project);
   }
 
   @Test
@@ -751,6 +756,14 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
 
     assertFirewallRuleMatch(network, ALLOW_INTERNAL_VPC_NETWORK, allowInternal);
     assertFirewallRuleMatch(network, ALLOW_INGRESS_LEONARDO_SSL_NETWORK, leonardoSsl);
+  }
+
+  private void asserSshViaIapFirewallExists(Project project) throws Exception {
+    String projectId = project.getProjectId();
+    Network network = computeCow.networks().get(project.getProjectId(), NETWORK_NAME).execute();
+    Firewall allowSsh = computeCow.firewalls().get(projectId, ALLOW_SSH_THROUGH_IAP).execute();
+
+    assertFirewallRuleMatch(network, ALLOW_INGRESS_SSH_THROUGH_IAP, allowSsh);
   }
 
   private void assertFirewallRulesExistForDefaultVpc(Project project) throws Exception {
