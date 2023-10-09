@@ -164,10 +164,11 @@ public class CreateFirewallRuleStep implements Step {
           .setName(ALLOW_SSH_THROUGH_IAP)
           .setDirection("INGRESS")
           // ip addresses that IAP uses for TCP forwarding
-          .setSourceRanges(List.of("35.235.240.0/20"))
-          .setTargetTags(List.of("ssh-through-iap-allowed"))
+          .setSourceRanges(Arrays.asList("35.235.240.0/20"))
+          .setTargetTags(Arrays.asList("ssh-through-iap-allowed"))
           .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(ALLOW_SSH_THROUGH_IAP))
-          .setAllowed(List.of(new Allowed().setIPProtocol("tcp").setPorts(List.of("22"))));
+          .setAllowed(
+              Arrays.asList(new Allowed().setIPProtocol("tcp").setPorts(Arrays.asList("22"))));
 
   @VisibleForTesting
   public static final Firewall ALLOW_EGRESS_PRIVATE_ACCESS =
