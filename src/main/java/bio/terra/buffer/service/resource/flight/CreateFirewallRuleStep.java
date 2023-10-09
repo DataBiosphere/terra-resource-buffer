@@ -163,7 +163,8 @@ public class CreateFirewallRuleStep implements Step {
       new Firewall()
           .setName(ALLOW_SSH_THROUGH_IAP)
           .setDirection("INGRESS")
-          // ip addresses that IAP uses for TCP forwarding
+          // ip addresses that IAP uses for TCP forwarding.
+          // https://cloud.google.com/iap/docs/using-tcp-forwarding#create-firewall-rule
           .setSourceRanges(Arrays.asList("35.235.240.0/20"))
           .setTargetTags(Arrays.asList("ssh-through-iap-allowed"))
           .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(ALLOW_SSH_THROUGH_IAP))
