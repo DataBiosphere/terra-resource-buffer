@@ -163,6 +163,10 @@ components:
           description: ingress rule that allows ssh to VM through IAP.
           type: boolean
           default: false
+        enableNatGateway:
+          description: Whether to use public NAT gateway for GCE VMs.
+          type: boolean
+          default: false
       type: object
 
     ComputeEngine:

@@ -72,6 +72,8 @@ public class GoogleProjectCreationFlight extends Flight {
     addStep(
         new CreateSubnetsStep(cloudComputeCow, gcpProjectConfig), newCloudApiDefaultRetryRule());
     addStep(
+        new CreateRouterNatStep(gcpProjectConfig, cloudComputeCow), newCloudApiDefaultRetryRule());
+    addStep(
         new CreateDnsZoneStep(cloudComputeCow, dnsCow, gcpProjectConfig),
         newCloudApiDefaultRetryRule());
     addStep(
