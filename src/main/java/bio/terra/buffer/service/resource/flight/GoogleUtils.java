@@ -6,10 +6,12 @@ import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.stairway.exception.RetryException;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.cloudresourcemanager.v3.model.Project;
+import com.google.api.services.compute.model.Router;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Optional;
+import org.apache.http.HttpStatus;
 
 /** Utilities when use Google APIs. */
 public class GoogleUtils {
@@ -32,6 +34,10 @@ public class GoogleUtils {
 
   /** The IP address for restricted.googleapis.com. */
   public static final String RESTRICTED_GOOGLE_IP_ADDRESS = "199.36.153.4/30";
+
+  public static final String NAT_ROUTER_NAME_PREFIX = "nat-router-";
+
+  public static final String NAT_NAME_PREFIX = "nat-gateway-";
 
   /**
    * Poll until the Google Service API operation has completed. Throws any error or timeouts as a
@@ -102,7 +108,7 @@ public class GoogleUtils {
     try {
       return Optional.of(execute.execute());
     } catch (GoogleJsonResponseException e) {
-      if (e.getStatusCode() == 409) {
+      if (e.getStatusCode() == HttpStatus.SC_CONFLICT) {
         return Optional.empty();
       } else {
         throw e;
@@ -114,6 +120,15 @@ public class GoogleUtils {
   public static boolean isProjectDeleting(Project project) {
     return project.getState().equals("DELETE_REQUESTED")
         || project.getState().equals("DELETE_IN_PROGRESS");
+  }
+
+  /**
+   * Create a string matching the network URI on {@link Router#getNetwork()}, e.g.
+   * https://www.googleapis.com/compute/v1/projects/p-123/global/networks/n-456.
+   */
+  public static String networkUri(String projectId, String network) {
+    return String.format(
+        "https://www.googleapis.com/compute/v1/projects/%s/global/networks/%s", projectId, network);
   }
 
   /**
