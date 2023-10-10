@@ -4,6 +4,7 @@ import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
 import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.REGION_TO_IP_RANGE;
 import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.appendInternalIngressTargetTags;
 import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.blockBatchInternetAccess;
+import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.enableSshViaIap;
 import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.keepDefaultNetwork;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.*;
 
@@ -16,6 +17,7 @@ import bio.terra.stairway.StepResult;
 import bio.terra.stairway.StepStatus;
 import bio.terra.stairway.exception.RetryException;
 import com.google.api.services.compute.model.Firewall;
+import com.google.api.services.compute.model.Firewall.Allowed;
 import com.google.api.services.compute.model.Network;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
@@ -67,6 +69,8 @@ public class CreateFirewallRuleStep implements Step {
   @VisibleForTesting
   public static final String ALLOW_EGRESS_INTERNAL_RULE_NAME = "allow-egress-internal";
 
+  @VisibleForTesting public static final String ALLOW_SSH_THROUGH_IAP = "allow-ssh-through-iap";
+
   /**
    * Firewall rule to priority map. The lower number is, the higher priority.
    *
@@ -84,10 +88,13 @@ public class CreateFirewallRuleStep implements Step {
   @VisibleForTesting
   public static final ImmutableMap<String, Integer> FIREWALL_RULE_PRIORITY_MAP =
       ImmutableMap.<String, Integer>builder()
+          // ingress rules
           .put(ALLOW_INTERNAL_FOR_VPC_NETWORK_RULE_NAME, 1000)
           .put(LEONARDO_SSL_FOR_VPC_NETWORK_RULE_NAME, 1000)
           .put(ALLOW_INTERNAL_FOR_DEFAULT_NETWORK_RULE_NAME, 1000)
           .put(LEONARDO_SSL_FOR_DEFAULT_NETWORK_RULE_NAME, 1000)
+          .put(ALLOW_SSH_THROUGH_IAP, 1000)
+          // egress rules
           .put(ALLOW_EGRESS_PRIVATE_ACCESS_RULE_NAME, 1000)
           .put(ALLOW_EGRESS_INTERNAL_RULE_NAME, 1000)
           .put(DENY_EGRESS_LEONARDO_WORKER_RULE_NAME, 2000)
@@ -150,6 +157,20 @@ public class CreateFirewallRuleStep implements Step {
           .setAllowed(
               Arrays.asList(
                   new Firewall.Allowed().setIPProtocol("tcp").setPorts(Arrays.asList("443"))));
+
+  @VisibleForTesting
+  public static final Firewall ALLOW_INGRESS_SSH_THROUGH_IAP =
+      new Firewall()
+          .setName(ALLOW_SSH_THROUGH_IAP)
+          .setDirection("INGRESS")
+          .setDescription("Allow ssh via IAP for VMs tagged ssh-through-iap-allowed.")
+          // ip addresses that IAP uses for TCP forwarding.
+          // https://cloud.google.com/iap/docs/using-tcp-forwarding#create-firewall-rule
+          .setSourceRanges(Arrays.asList("35.235.240.0/20"))
+          .setTargetTags(Arrays.asList("ssh-through-iap-allowed"))
+          .setPriority(FIREWALL_RULE_PRIORITY_MAP.get(ALLOW_SSH_THROUGH_IAP))
+          .setAllowed(
+              Arrays.asList(new Allowed().setIPProtocol("tcp").setPorts(Arrays.asList("22"))));
 
   @VisibleForTesting
   public static final Firewall ALLOW_EGRESS_PRIVATE_ACCESS =
@@ -272,6 +293,12 @@ public class CreateFirewallRuleStep implements Step {
                 appendNetworkOnFirewall(highSecurityNetwork, DENY_EGRESS_LEONARDO_WORKER))
             .ifPresent(operationsToPoll::add);
         addFirewallRule(projectId, appendNetworkOnFirewall(highSecurityNetwork, DENY_EGRESS))
+            .ifPresent(operationsToPoll::add);
+      }
+      if (enableSshViaIap(gcpProjectConfig)) {
+        addFirewallRule(
+                projectId,
+                appendNetworkOnFirewall(highSecurityNetwork, ALLOW_INGRESS_SSH_THROUGH_IAP))
             .ifPresent(operationsToPoll::add);
       }
 
