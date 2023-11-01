@@ -1,7 +1,7 @@
 // Build Script Classpath
 buildscript {
     ext {
-        springBootVersion = '2.7.15'
+        springBootVersion = '2.7.17'
     }
 }
 
@@ -110,7 +110,7 @@ dependencies {
         implementation('com.google.protobuf:protobuf-java:3.21.10')
         implementation('org.yaml:snakeyaml:1.33')
         implementation('com.nimbusds:nimbus-jose-jwt:9.25.6')
-        implementation('io.projectreactor.netty:reactor-netty-http:1.0.24')
+        implementation('io.projectreactor.netty:reactor-netty-http:1.1.12')
         implementation('com.fasterxml.jackson:jackson-bom:2.14.2')
         spotbugs('org.apache.bcel:bcel:6.6.1')
     }
