@@ -303,18 +303,6 @@ components:
           description: Name of the resource group.
           type: string
 
-    AzurePublicIp:
-      type: object
-      required:
-      - resourceGroup
-      - ipName
-      properties:
-        resourceGroup:
-          $ref: '#/components/schemas/AzureResourceGroup'
-        ipName:
-          description: The user-provided name to identify the IP.
-          type: string
-
     AzureDisk:
       type: object
       required:
@@ -325,30 +313,6 @@ components:
           $ref: '#/components/schemas/AzureResourceGroup'
         diskName:
           description: The user-provided name to identify the disk.
-          type: string
-
-    AzureNetwork:
-      type: object
-      required:
-      - resourceGroup
-      - networkName
-      properties:
-        resourceGroup:
-          $ref: '#/components/schemas/AzureResourceGroup'
-        networkName:
-          description: The user-provided name to identify the network.
-          type: string
-
-    AzureNetworkSecurityGroup:
-      type: object
-      required:
-      - resourceGroup
-      - networkSecurityGroupName
-      properties:
-        resourceGroup:
-          $ref: '#/components/schemas/AzureResourceGroup'
-        networkSecurityGroupName:
-          description: The user-provided name to identify the network security group.
           type: string
 
     AzureVirtualMachine:
@@ -383,14 +347,8 @@ components:
           $ref: '#/components/schemas/GoogleBucketUid'
         googleProjectUid:
           $ref: '#/components/schemas/GoogleProjectUid'
-        azurePublicIp:
-          $ref: '#/components/schemas/AzurePublicIp'
         azureDisk:
           $ref: '#/components/schemas/AzureDisk'
-        azureNetwork:
-          $ref: '#/components/schemas/AzureNetwork'
-        azureNetworkSecurityGroup:
-          $ref: '#/components/schemas/AzureNetworkSecurityGroup'
         azureVirtualMachine:
           $ref: '#/components/schemas/AzureVirtualMachine'
 
