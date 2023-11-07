@@ -20,7 +20,8 @@ import org.springframework.context.annotation.ComponentScan;
       // Tracing-related components & configs
       "bio.terra.common.tracing",
       // Metrics exporting components & configs
-      "bio.terra.common.prometheus"
+      "bio.terra.common.prometheus",
+      "bio.terra.common.gcpmetrics"
     })
 public class Main {
   public static void main(String[] args) {

@@ -1,11 +1,6 @@
 package bio.terra.buffer.service.resource;
 
-import static bio.terra.buffer.common.MetricsHelper.READY_RESOURCE_RATIO_VIEW;
-import static bio.terra.buffer.common.MetricsHelper.RESOURCE_STATE_COUNT_VIEW;
-import static bio.terra.buffer.common.testing.MetricsTestUtil.assertLastValueDoubleIs;
-import static bio.terra.buffer.common.testing.MetricsTestUtil.getPoolIdTag;
-import static bio.terra.buffer.common.testing.MetricsTestUtil.getResourceCountTags;
-import static bio.terra.buffer.common.testing.MetricsTestUtil.sleepForSpansExport;
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
@@ -15,14 +10,15 @@ import static org.mockito.Mockito.verify;
 
 import bio.terra.buffer.app.configuration.PrimaryConfiguration;
 import bio.terra.buffer.common.BaseUnitTest;
+import bio.terra.buffer.common.MetricsHelper;
 import bio.terra.buffer.common.Pool;
+import bio.terra.buffer.common.PoolAndResourceStates;
 import bio.terra.buffer.common.PoolId;
 import bio.terra.buffer.common.PoolStatus;
 import bio.terra.buffer.common.Resource;
 import bio.terra.buffer.common.ResourceId;
 import bio.terra.buffer.common.ResourceState;
 import bio.terra.buffer.common.ResourceType;
-import bio.terra.buffer.common.testing.MetricsTestUtil;
 import bio.terra.buffer.db.BufferDao;
 import bio.terra.buffer.generated.model.ResourceConfig;
 import bio.terra.common.stairway.StairwayComponent;
@@ -55,6 +51,7 @@ public class FlightSchedulerTest extends BaseUnitTest {
   @Autowired BufferDao bufferDao;
   @Autowired StairwayComponent stairwayComponent;
   @MockBean FlightManager flightManager;
+  @MockBean MetricsHelper metricsHelper;
 
   private void initializeScheduler() {
     initializeScheduler(newPrimaryConfiguration());
@@ -62,7 +59,8 @@ public class FlightSchedulerTest extends BaseUnitTest {
 
   private void initializeScheduler(PrimaryConfiguration primaryConfiguration) {
     flightScheduler =
-        new FlightScheduler(flightManager, primaryConfiguration, stairwayComponent, bufferDao);
+        new FlightScheduler(
+            flightManager, primaryConfiguration, stairwayComponent, bufferDao, metricsHelper);
     flightScheduler.initialize();
   }
 
@@ -253,6 +251,13 @@ public class FlightSchedulerTest extends BaseUnitTest {
         newPoolWithResourceCount(
             5,
             ImmutableMultiset.of(ResourceState.READY, ResourceState.READY, ResourceState.CREATING));
+    PoolAndResourceStates activatePoolResourceStates =
+        PoolAndResourceStates.builder()
+            .setPool(activatePool)
+            .setResourceStateCount(ResourceState.READY, 2)
+            .setResourceStateCount(ResourceState.CREATING, 1)
+            .build();
+
     // deactivatedPool has 1 READY and 2 CREATING resources.
     Pool deactivatedPool =
         newPoolWithResourceCount(
@@ -260,30 +265,20 @@ public class FlightSchedulerTest extends BaseUnitTest {
             ImmutableMultiset.of(
                 ResourceState.READY, ResourceState.CREATING, ResourceState.CREATING));
     bufferDao.deactivatePools(ImmutableList.of(deactivatedPool.id()));
+    PoolAndResourceStates deactivatedPoolResourceStates =
+        PoolAndResourceStates.builder()
+            .setPool(bufferDao.retrievePool(deactivatedPool.id()).orElseThrow())
+            .setResourceStateCount(ResourceState.READY, 1)
+            .setResourceStateCount(ResourceState.CREATING, 2)
+            .build();
 
     initializeScheduler();
-    sleepForSpansExport();
 
-    MetricsTestUtil.assertLongValueLongIs(
-        RESOURCE_STATE_COUNT_VIEW.getName(),
-        getResourceCountTags(activatePool.id(), ResourceState.READY, PoolStatus.ACTIVE),
-        2);
-    MetricsTestUtil.assertLongValueLongIs(
-        RESOURCE_STATE_COUNT_VIEW.getName(),
-        getResourceCountTags(activatePool.id(), ResourceState.CREATING, PoolStatus.ACTIVE),
-        1);
-    MetricsTestUtil.assertLongValueLongIs(
-        RESOURCE_STATE_COUNT_VIEW.getName(),
-        getResourceCountTags(deactivatedPool.id(), ResourceState.READY, PoolStatus.DEACTIVATED),
-        1);
-    MetricsTestUtil.assertLongValueLongIs(
-        RESOURCE_STATE_COUNT_VIEW.getName(),
-        getResourceCountTags(deactivatedPool.id(), ResourceState.CREATING, PoolStatus.DEACTIVATED),
-        2);
-    // activate pool ratio is 2/5. Deactivated pool is not recorded.
-    assertLastValueDoubleIs(
-        READY_RESOURCE_RATIO_VIEW.getName(), getPoolIdTag(activatePool.id()), 0.40);
-    assertLastValueDoubleIs(
-        READY_RESOURCE_RATIO_VIEW.getName(), getPoolIdTag(deactivatedPool.id()), 1);
+    await()
+        .untilAsserted(
+            () -> verify(metricsHelper).recordResourceStateCount(activatePoolResourceStates));
+    await()
+        .untilAsserted(
+            () -> verify(metricsHelper).recordResourceStateCount(deactivatedPoolResourceStates));
   }
 }

@@ -1,8 +1,7 @@
 package bio.terra.buffer.service.resource;
 
-import static bio.terra.buffer.common.MetricsHelper.recordResourceStateCount;
-
 import bio.terra.buffer.app.configuration.PrimaryConfiguration;
+import bio.terra.buffer.common.MetricsHelper;
 import bio.terra.buffer.common.Pool;
 import bio.terra.buffer.common.PoolAndResourceStates;
 import bio.terra.buffer.common.PoolStatus;
@@ -36,17 +35,20 @@ public class FlightScheduler {
   private final PrimaryConfiguration primaryConfiguration;
   private final StairwayComponent stairwayComponent;
   private final BufferDao bufferDao;
+  private final MetricsHelper metricsHelper;
 
   @Autowired
   public FlightScheduler(
       FlightManager flightManager,
       PrimaryConfiguration primaryConfiguration,
       StairwayComponent stairwayComponent,
-      BufferDao bufferDao) {
+      BufferDao bufferDao,
+      MetricsHelper metricsHelper) {
     this.flightManager = flightManager;
     this.primaryConfiguration = primaryConfiguration;
     this.stairwayComponent = stairwayComponent;
     this.bufferDao = bufferDao;
+    this.metricsHelper = metricsHelper;
   }
 
   /**
@@ -83,7 +85,7 @@ public class FlightScheduler {
     List<PoolAndResourceStates> poolAndResourceStatesList =
         bufferDao.retrievePoolAndResourceStates();
     for (PoolAndResourceStates poolAndResources : poolAndResourceStatesList) {
-      recordResourceStateCount(poolAndResources);
+      metricsHelper.recordResourceStateCount(poolAndResources);
       if (poolAndResources.pool().status().equals(PoolStatus.ACTIVE)) {
         int poolSize = poolAndResources.pool().size();
         int readyAndCreatingCount =

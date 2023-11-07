@@ -1,7 +1,6 @@
 package bio.terra.buffer.app.controller;
 
-import static bio.terra.buffer.common.MetricsHelper.recordHandoutResourceRequest;
-
+import bio.terra.buffer.common.MetricsHelper;
 import bio.terra.buffer.common.PoolId;
 import bio.terra.buffer.common.RequestHandoutId;
 import bio.terra.buffer.generated.controller.BufferApi;
@@ -17,16 +16,18 @@ import org.springframework.stereotype.Controller;
 @Controller
 public class BufferApiController implements BufferApi {
   private final PoolService poolService;
+  private final MetricsHelper metricsHelper;
 
   @Autowired
-  BufferApiController(PoolService poolService) {
+  BufferApiController(PoolService poolService, MetricsHelper metricsHelper) {
     this.poolService = poolService;
+    this.metricsHelper = metricsHelper;
   }
 
   @Override
   public ResponseEntity<ResourceInfo> handoutResource(
       String poolId, HandoutRequestBody handoutRequestBody) {
-    recordHandoutResourceRequest(PoolId.create(poolId));
+    metricsHelper.recordHandoutResourceRequest(PoolId.create(poolId));
     return new ResponseEntity<>(
         poolService.handoutResource(
             PoolId.create(poolId),
