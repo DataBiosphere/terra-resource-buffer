@@ -72,6 +72,12 @@ dependencies {
     implementation group: 'org.webjars', name: 'webjars-locator-core', version: '0.52'
     runtimeOnly group: 'org.postgresql', name: 'postgresql', version: '42.4.3'
 
+    // there are some dependencies that are pulling in a 2.x version for google-api-client which leads to the error
+    // "You are currently running with version 2.2.0 of google-api-client. You need at least version 1.31.1
+    // of google-api-client to run version 1.32.1 of the Cloud Resource Manager API library."
+    // force a version that works
+    implementation force: true, group: 'com.google.api-client', name: 'google-api-client', version: '1.35.1'
+
     // OpenTelemetry
     var openTelemetryVersion = '1.31.0'
     implementation "io.opentelemetry:opentelemetry-api:${openTelemetryVersion}"
