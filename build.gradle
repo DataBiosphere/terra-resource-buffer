@@ -78,6 +78,10 @@ dependencies {
     // force a version that works
     implementation force: true, group: 'com.google.api-client', name: 'google-api-client', version: '1.35.1'
 
+    // later versions of google-cloud-storage have some gson serialization issues with errors like
+    // Unable to make field private final java.time.LocalDateTime java.time.OffsetDateTime.dateTime accessible: module java.base does not "opens java.time" to unnamed module @6a2bcfcb
+    implementation force: true, group: 'com.google.cloud', name: 'google-cloud-storage', version: '2.9.2'
+
     // OpenTelemetry
     var openTelemetryVersion = '1.31.0'
     implementation "io.opentelemetry:opentelemetry-api:${openTelemetryVersion}"
