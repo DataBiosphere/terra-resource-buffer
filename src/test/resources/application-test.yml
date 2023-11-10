@@ -31,5 +31,8 @@ terra:
     stairway:
       force-clean-start: true
       tracing-enabled: false
-    tracing:
-      stackdriverExportEnabled: false
+    google:
+      monitoring:
+        enabled: false
+      tracing:
+        enabled: false

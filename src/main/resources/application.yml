@@ -35,6 +35,8 @@ terra:
       terminate-timeout: 5s
       cluster-name-suffix: buffer-stairwaycluster
   google:
+    monitoring:
+      enabled: ${TERRA_COMMON_TRACING_STACKDRIVER_EXPORT_ENABLED:true}
     tracing:
       enabled: ${TRACING_ENABLED:false}
 # Turn on debug-level logs for CRL, to include all CRL operation payloads.
