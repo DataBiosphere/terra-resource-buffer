@@ -3,7 +3,7 @@
 # This file is expected to be part of source control.
 bio.terra:stairway-gcp:0.0.76-SNAPSHOT=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 bio.terra:stairway:0.0.76-SNAPSHOT=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
-bio.terra:terra-cloud-resource-lib:1.2.28-SNAPSHOT=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+bio.terra:terra-cloud-resource-lib:1.2.30-SNAPSHOT=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 bio.terra:terra-common-lib:0.1.1-SNAPSHOT=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 bio.terra:terra-resource-janitor-client:0.113.31-SNAPSHOT=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 ch.qos.logback.contrib:logback-jackson:0.1.5=productionRuntimeClasspath,runtimeClasspath,testRuntimeClasspath
@@ -105,7 +105,6 @@ com.google.protobuf:protobuf-java-util:3.24.4=compileClasspath,productionRuntime
 com.google.protobuf:protobuf-java:3.24.4=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 com.google.re2j:re2j:1.7=productionRuntimeClasspath,runtimeClasspath,testRuntimeClasspath
 com.jayway.jsonpath:json-path:2.8.0=testCompileClasspath,testRuntimeClasspath
-com.lmax:disruptor:3.4.2=productionRuntimeClasspath,runtimeClasspath,testRuntimeClasspath
 com.microsoft.azure:msal4j-persistence-extension:1.2.0=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 com.microsoft.azure:msal4j:1.13.9=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 com.nimbusds:content-type:2.2=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
@@ -169,8 +168,6 @@ io.netty:netty-transport-native-unix-common:4.1.100.Final=compileClasspath,produ
 io.netty:netty-transport:4.1.100.Final=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 io.opencensus:opencensus-api:0.31.1=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 io.opencensus:opencensus-contrib-http-util:0.31.1=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
-io.opencensus:opencensus-impl-core:0.31.1=productionRuntimeClasspath,runtimeClasspath,testRuntimeClasspath
-io.opencensus:opencensus-impl:0.31.1=productionRuntimeClasspath,runtimeClasspath,testRuntimeClasspath
 io.opencensus:opencensus-proto:0.2.0=productionRuntimeClasspath,runtimeClasspath,testRuntimeClasspath
 io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations-support:1.31.0-alpha=productionRuntimeClasspath,runtimeClasspath,testRuntimeClasspath
 io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:1.31.0=compileClasspath,productionRuntimeClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath

@@ -23,6 +23,7 @@ import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.storage.StorageOptions;
+import io.opentelemetry.api.OpenTelemetry;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -131,8 +132,9 @@ public class CrlConfiguration {
    */
   @Bean
   @Lazy
-  public ClientConfig clientConfig() {
-    ClientConfig.Builder builder = ClientConfig.Builder.newBuilder().setClient(CLIENT_NAME);
+  public ClientConfig clientConfig(OpenTelemetry openTelemetry) {
+    ClientConfig.Builder builder =
+        ClientConfig.Builder.newBuilder().setClient(CLIENT_NAME).setOpenTelemetry(openTelemetry);
     if (testingMode) {
       builder.setCleanupConfig(
           CleanupConfig.builder()
