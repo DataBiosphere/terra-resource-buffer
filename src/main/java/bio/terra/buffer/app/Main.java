@@ -2,14 +2,8 @@ package bio.terra.buffer.app;
 
 import bio.terra.cloudres.util.MetricsHelper;
 import bio.terra.common.logging.LoggingInitializer;
-import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.sdk.metrics.InstrumentSelector;
 import io.opentelemetry.sdk.metrics.View;
-import java.util.List;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
