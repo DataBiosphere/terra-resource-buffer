@@ -34,7 +34,13 @@ terra:
       retention-check-interval: 6h
       terminate-timeout: 5s
       cluster-name-suffix: buffer-stairwaycluster
+  google:
+    monitoring:
+      enabled: ${TERRA_COMMON_TRACING_STACKDRIVER_EXPORT_ENABLED:true}
+    tracing:
+      enabled: ${TRACING_ENABLED:false}
 # Turn on debug-level logs for CRL, to include all CRL operation payloads.
+
 logging.level.bio.terra.cloudres: DEBUG
 
 server:
@@ -51,3 +57,16 @@ spring:
       max-age: 0
       must-revalidate: true
     static-locations: classpath:/api/
+
+otel:
+  sdk:
+    disabled: false # set to true to disable all open telemetry features
+  traces:
+    sampler:
+      probability: ${SAMPLING_PROBABILITY:0}
+
+  springboot:
+    resource:
+      attributes:
+        service:
+          name: ${spring.application.name}

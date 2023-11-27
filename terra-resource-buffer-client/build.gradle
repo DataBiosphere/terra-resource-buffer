@@ -13,13 +13,15 @@ repositories {
 }
 
 dependencies {
-    swaggerCodegen group: 'io.swagger.codegen.v3', name: 'swagger-codegen-cli', version: '3.0.35'
+    swaggerCodegen group: 'io.swagger.codegen.v3', name: 'swagger-codegen-cli', version: '3.0.47'
     implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.2'
-    implementation group: 'io.swagger', name: 'swagger-annotations', version: '1.6.6'
-    implementation group: 'org.glassfish.jersey.core', name: 'jersey-client', version: '2.35'
-    implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version: '2.35'
-    implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-multipart', version: '2.35'
+    implementation group: 'io.swagger', name: 'swagger-annotations', version: '1.6.12'
+    implementation group: 'org.glassfish.jersey.core', name: 'jersey-client', version: '3.1.3'
+    implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version: '3.1.3'
+    implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-multipart', version: '3.1.3'
     implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.13.4'
+    implementation group: 'jakarta.annotation', name: 'jakarta.annotation-api', version: '2.1.1'
+    implementation group: 'jakarta.ws.rs', name: 'jakarta.ws.rs-api', version: '3.0.0'
 }
 
 def gradleIncDir= "$rootDir/gradle"

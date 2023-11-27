@@ -17,6 +17,7 @@ swaggerSources {
                             'apiDocs=false,' +
                             'modelTests=false,' +
                             'modelDocs=false,' +
+                            'jakarta=true,' +
                             'dateLibrary=java8'
             ]
         }

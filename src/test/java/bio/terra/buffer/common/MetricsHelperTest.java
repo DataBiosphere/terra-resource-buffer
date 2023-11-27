@@ -1,18 +1,41 @@
 package bio.terra.buffer.common;
 
 import static bio.terra.buffer.common.MetricsHelper.*;
-import static bio.terra.buffer.common.testing.MetricsTestUtil.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import bio.terra.buffer.db.BufferDao;
 import bio.terra.buffer.generated.model.ResourceConfig;
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.metrics.SdkMeterProvider;
+import io.opentelemetry.sdk.metrics.data.DoublePointData;
+import io.opentelemetry.sdk.metrics.data.LongPointData;
+import io.opentelemetry.sdk.metrics.data.MetricData;
+import io.opentelemetry.sdk.metrics.export.PeriodicMetricReader;
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Test for {@link bio.terra.cloudres.util.MetricsHelper} */
 @Tag("unit")
 public class MetricsHelperTest extends BaseUnitTest {
+  private static final Duration METRICS_COLLECTION_INTERVAL = Duration.ofMillis(10);
+  private MetricsHelper metricsHelper;
+  private TestMetricExporter testMetricExporter;
+
+  @BeforeEach
+  void setup() {
+    testMetricExporter = new TestMetricExporter();
+    metricsHelper = new MetricsHelper(openTelemetry(testMetricExporter));
+  }
+
   @Test
-  public void testRecordResourceState() throws Exception {
+  public void testRecordResourceState() {
     PoolId poolId = PoolId.create("poolId");
     Pool pool =
         Pool.builder()
@@ -30,59 +53,103 @@ public class MetricsHelperTest extends BaseUnitTest {
             .setResourceStateCount(ResourceState.HANDED_OUT, 1)
             .build();
 
-    MetricsHelper.recordResourceStateCount(resourceStates);
-    sleepForSpansExport();
-
-    assertLongValueLongIs(
-        RESOURCE_STATE_COUNT_VIEW.getName(),
-        getResourceCountTags(poolId, ResourceState.READY, PoolStatus.ACTIVE),
-        2);
-    assertLongValueLongIs(
-        RESOURCE_STATE_COUNT_VIEW.getName(),
-        getResourceCountTags(poolId, ResourceState.HANDED_OUT, PoolStatus.ACTIVE),
-        1);
-    assertLongValueLongIs(
-        RESOURCE_STATE_COUNT_VIEW.getName(),
-        getResourceCountTags(poolId, ResourceState.DELETED, PoolStatus.ACTIVE),
-        0);
-    // 2 ready out of size 10
-    assertLastValueDoubleIs(READY_RESOURCE_RATIO_VIEW.getName(), getPoolIdTag(poolId), 0.20);
-
-    // Now decrease READY resource count to 0, verifies it can sill count.
-    PoolAndResourceStates noReadyResourceStates =
-        PoolAndResourceStates.builder()
-            .setPool(pool)
-            .setResourceStateCount(ResourceState.HANDED_OUT, 1)
+    PoolId poolId2 = PoolId.create("poolId2");
+    Pool pool2 =
+        Pool.builder()
+            .id(poolId2)
+            .size(10)
+            .creation(BufferDao.currentInstant())
+            .status(PoolStatus.DEACTIVATED)
+            .resourceType(ResourceType.GOOGLE_PROJECT)
+            .resourceConfig(new ResourceConfig().configName("configName"))
             .build();
-    MetricsHelper.recordResourceStateCount(noReadyResourceStates);
-    sleepForSpansExport();
-    assertLongValueLongIs(
-        RESOURCE_STATE_COUNT_VIEW.getName(),
-        getResourceCountTags(poolId, ResourceState.READY, PoolStatus.ACTIVE),
-        0);
-    assertLastValueDoubleIs(READY_RESOURCE_RATIO_VIEW.getName(), getPoolIdTag(poolId), 0.0);
-
-    // Now deactivate the pool and verifies READY resource ratio changed to 1.
-    PoolAndResourceStates deactivatedResourceStates =
+    PoolAndResourceStates resourceStates2 =
         PoolAndResourceStates.builder()
-            .setPool(pool.toBuilder().status(PoolStatus.DEACTIVATED).build())
-            .setResourceStateCount(ResourceState.HANDED_OUT, 1)
+            .setPool(pool2)
+            .setResourceStateCount(ResourceState.HANDED_OUT, 10)
             .build();
-    MetricsHelper.recordResourceStateCount(deactivatedResourceStates);
-    sleepForSpansExport();
-    assertLastValueDoubleIs(READY_RESOURCE_RATIO_VIEW.getName(), getPoolIdTag(poolId), 1.0);
+
+    metricsHelper.recordResourceStateCount(resourceStates);
+    metricsHelper.recordResourceStateCount(resourceStates2);
+    var metricsByName =
+        MetricsTestUtils.waitForMetrics(testMetricExporter, METRICS_COLLECTION_INTERVAL, 2).stream()
+            .collect(Collectors.toMap(MetricData::getName, Function.identity()));
+    ;
+    assertEquals(
+        Set.of(RESOURCE_STATE_COUNT_METER_NAME, READY_RESOURCE_RATIO_METER_NAME),
+        metricsByName.keySet());
+
+    // for each pool, check the count of each resource state and ready resource ratio
+    Set.of(poolId, poolId2)
+        .forEach(
+            pid -> {
+              Arrays.stream(ResourceState.values())
+                  .forEach(
+                      state -> {
+                        var dataPoint =
+                            (LongPointData)
+                                metricsByName
+                                    .get(RESOURCE_STATE_COUNT_METER_NAME)
+                                    .getData()
+                                    .getPoints()
+                                    .stream()
+                                    .filter(
+                                        point -> {
+                                          var attributes = point.getAttributes();
+                                          return pid.id().equals(attributes.get(POOL_ID_KEY))
+                                              && state
+                                                  .toString()
+                                                  .equals(attributes.get(RESOURCE_STATE_KEY));
+                                        })
+                                    .findFirst()
+                                    .orElseThrow();
+                        var expectedValue =
+                            switch (state) {
+                              case READY -> pid.equals(poolId) ? 2L : 0L;
+                              case HANDED_OUT -> pid.equals(poolId) ? 1L : 10L;
+                              default -> 0L;
+                            };
+                        assertEquals(expectedValue, dataPoint.getValue());
+                      });
+
+              var ratioPoint =
+                  (DoublePointData)
+                      metricsByName
+                          .get(READY_RESOURCE_RATIO_METER_NAME)
+                          .getData()
+                          .getPoints()
+                          .stream()
+                          .filter(
+                              point -> {
+                                var attributes = point.getAttributes();
+                                return pid.id().equals(attributes.get(POOL_ID_KEY));
+                              })
+                          .findFirst()
+                          .orElseThrow();
+              assertEquals(pid.equals(poolId) ? 0.2 : 1.0, ratioPoint.getValue());
+            });
   }
 
   @Test
-  public void testRecordHandoutResource() throws Exception {
+  public void testRecordHandoutResource() {
     PoolId poolId = PoolId.create("poolId");
-    long currentCount =
-        getCurrentCount(HANDOUT_RESOURCE_REQUEST_COUNT_VIEW.getName(), getPoolIdTag(poolId));
-    MetricsHelper.recordHandoutResourceRequest(poolId);
-    MetricsHelper.recordHandoutResourceRequest(poolId);
-    sleepForSpansExport();
 
-    assertCountIncremented(
-        HANDOUT_RESOURCE_REQUEST_COUNT_VIEW.getName(), getPoolIdTag(poolId), currentCount, 2);
+    metricsHelper.recordHandoutResourceRequest(poolId);
+    metricsHelper.recordHandoutResourceRequest(poolId);
+    var metrics = MetricsTestUtils.waitForMetrics(testMetricExporter, METRICS_COLLECTION_INTERVAL);
+    assertEquals(HANDOUT_RESOURCE_REQUEST_COUNT_METER_NAME, metrics.getName());
+    var currentCount = ((LongPointData) metrics.getData().getPoints().iterator().next()).getValue();
+    assertEquals(2, currentCount);
+  }
+
+  public OpenTelemetry openTelemetry(TestMetricExporter testMetricExporter) {
+    var sdkMeterProviderBuilder =
+        SdkMeterProvider.builder()
+            .registerMetricReader(
+                PeriodicMetricReader.builder(testMetricExporter)
+                    .setInterval(METRICS_COLLECTION_INTERVAL)
+                    .build());
+
+    return OpenTelemetrySdk.builder().setMeterProvider(sdkMeterProviderBuilder.build()).build();
   }
 }
