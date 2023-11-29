@@ -25,6 +25,7 @@ gcpProjectConfig:
     - "monitoring.googleapis.com"
     - "storage-api.googleapis.com"
     - "storage-component.googleapis.com"
+    - "networkmanagement.googleapis.com"
   network:
     enableNetworkMonitoring: "false"
     enablePrivateGoogleAccess: "true"
