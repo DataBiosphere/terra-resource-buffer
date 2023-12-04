@@ -36,7 +36,6 @@ terra:
       cluster-name-suffix: buffer-stairwaycluster
   tracing:
     sampling-ratio: ${SAMPLING_PROBABILITY:0}
-    excluded-urls: ["/status", "/version"]
   google:
     monitoring:
       enabled: ${TERRA_COMMON_TRACING_STACKDRIVER_EXPORT_ENABLED:true}

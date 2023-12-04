@@ -59,7 +59,7 @@ repositories {
 
 dependencies {
     // Terra deps - we get Stairway via TCL
-    implementation group: 'bio.terra', name: 'terra-common-lib', version: '0.1.3-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'terra-common-lib', version: '0.1.5-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-cloud-resource-lib', version: '1.2.30-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.113.31-SNAPSHOT'
 
