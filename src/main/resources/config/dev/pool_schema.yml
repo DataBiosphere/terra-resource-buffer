@@ -1,9 +1,9 @@
 # Resource Buffer Service Pools Schema in dev environment
 ---
 poolConfigs:
-  - poolId: "cwb_ws_dev_v8"
+  - poolId: "cwb_ws_dev_v7"
     size: 300
-    resourceConfigName: "cwb_ws_resource_dev_v8"
+    resourceConfigName: "cwb_ws_resource_dev_v7"
   - poolId: "datarepo_fakeprod_v1"
     size: 50
     resourceConfigName: "datarepo_fakeprod_v1"
