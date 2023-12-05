@@ -4,9 +4,9 @@ poolConfigs:
   - poolId: "cwb_ws_fiab_v7"
     size: 500
     resourceConfigName: "cwb_ws_resource_fiab_v7"
-  - poolId: "cwb_ws_quality_v8"
+  - poolId: "cwb_ws_quality_v9"
     size: 5000
-    resourceConfigName: "cwb_ws_resource_quality_v8"
+    resourceConfigName: "cwb_ws_resource_quality_v9"
   - poolId: "datarepo_v1"
     size: 1000
     resourceConfigName: "datarepo_v1"
