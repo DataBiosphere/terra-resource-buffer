@@ -22,9 +22,11 @@ public class GoogleUtils {
   @VisibleForTesting
   public static final String MANAGED_ZONE_NAME = "private-google-access-dns-zone";
 
-  /** The private DNS zone name. */
+  /** The private DNS zone name for GCR. */
   @VisibleForTesting
   public static final String GCR_MANAGED_ZONE_NAME = "private-google-access-gcr-dns-zone";
+  /** The private DNS zone name for GAR. */
+  public static final String GAR_MANAGED_ZONE_NAME = "private-google-access-gar-dns-zone";
 
   /** All project will use the same sub network name. */
   @VisibleForTesting public static final String SUBNETWORK_NAME = "subnetwork";
