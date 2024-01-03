@@ -2,7 +2,14 @@ package bio.terra.buffer.service.resource.flight;
 
 import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
 import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.*;
-import static bio.terra.buffer.service.resource.flight.GoogleUtils.*;
+import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.enableGcrPrivateGoogleAccess;
+import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.usePrivateGoogleAccess;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.GAR_MANAGED_ZONE_NAME;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.GCR_MANAGED_ZONE_NAME;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.MANAGED_ZONE_NAME;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.NETWORK_NAME;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.createResourceAndIgnoreConflict;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.getResource;
 
 import bio.terra.buffer.generated.model.GcpProjectConfig;
 import bio.terra.cloudres.google.compute.CloudComputeCow;
