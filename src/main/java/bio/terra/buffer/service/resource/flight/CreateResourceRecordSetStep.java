@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 /** Configs record set for DNS. See {@link CreateDnsZoneStep} */
 public class CreateResourceRecordSetStep implements Step {
-  private static final List<String> RESTRICT_GOOGLE_API_A_RECORD_ID_ADDRESS =
+  private static final List<String> RESTRICT_GOOGLE_API_A_RECORD_IP_ADDRESS =
       ImmutableList.of("199.36.153.4", "199.36.153.5", "199.36.153.6", "199.36.153.7");
 
   @VisibleForTesting
@@ -37,7 +37,7 @@ public class CreateResourceRecordSetStep implements Step {
       new ResourceRecordSet()
           .setType("A")
           .setName("restricted.googleapis.com.")
-          .setRrdatas(RESTRICT_GOOGLE_API_A_RECORD_ID_ADDRESS)
+          .setRrdatas(RESTRICT_GOOGLE_API_A_RECORD_IP_ADDRESS)
           .setTtl(300);
 
   @VisibleForTesting
@@ -53,7 +53,7 @@ public class CreateResourceRecordSetStep implements Step {
       new ResourceRecordSet()
           .setType("A")
           .setName("gcr.io.")
-          .setRrdatas(RESTRICT_GOOGLE_API_A_RECORD_ID_ADDRESS)
+          .setRrdatas(RESTRICT_GOOGLE_API_A_RECORD_IP_ADDRESS)
           .setTtl(300);
 
   @VisibleForTesting
@@ -69,7 +69,7 @@ public class CreateResourceRecordSetStep implements Step {
       new ResourceRecordSet()
           .setType("A")
           .setName("pkg.dev.")
-          .setRrdatas(RESTRICT_GOOGLE_API_A_RECORD_ID_ADDRESS)
+          .setRrdatas(RESTRICT_GOOGLE_API_A_RECORD_IP_ADDRESS)
           .setTtl(300);
 
   @VisibleForTesting
