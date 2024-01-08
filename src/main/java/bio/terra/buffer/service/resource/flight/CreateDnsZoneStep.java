@@ -1,8 +1,10 @@
 package bio.terra.buffer.service.resource.flight;
 
 import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
+import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.*;
 import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.enableGcrPrivateGoogleAccess;
 import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.usePrivateGoogleAccess;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.GAR_MANAGED_ZONE_NAME;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.GCR_MANAGED_ZONE_NAME;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.MANAGED_ZONE_NAME;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.NETWORK_NAME;
@@ -54,6 +56,14 @@ public class CreateDnsZoneStep implements Step {
           .setDnsName("gcr.io.")
           .setVisibility("private");
 
+  @VisibleForTesting
+  public static final ManagedZone GAR_MANAGED_ZONE_TEMPLATE =
+      new ManagedZone()
+          .setName(GAR_MANAGED_ZONE_NAME)
+          .setDescription("Routes pkg.dev to restricted.googleapis.com")
+          .setDnsName("pkg.dev.")
+          .setVisibility("private");
+
   private final Logger logger = LoggerFactory.getLogger(CreateDnsZoneStep.class);
   private final CloudComputeCow computeCow;
   private final DnsCow dnsCow;
@@ -83,6 +93,10 @@ public class CreateDnsZoneStep implements Step {
 
       if (enableGcrPrivateGoogleAccess(gcpProjectConfig)) {
         createManagedDnsZone(projectId, network, GCR_MANAGED_ZONE_TEMPLATE);
+      }
+
+      if (enableGarPrivateGoogleAccess(gcpProjectConfig)) {
+        createManagedDnsZone(projectId, network, GAR_MANAGED_ZONE_TEMPLATE);
       }
 
     } catch (IOException e) {

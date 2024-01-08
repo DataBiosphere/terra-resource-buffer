@@ -10,6 +10,7 @@ import static bio.terra.buffer.integration.IntegrationUtils.newFullGcpConfig;
 import static bio.terra.buffer.integration.IntegrationUtils.pollUntilResourcesMatch;
 import static bio.terra.buffer.integration.IntegrationUtils.preparePool;
 import static bio.terra.buffer.service.resource.FlightMapKeys.RESOURCE_CONFIG;
+import static bio.terra.buffer.service.resource.flight.CreateDnsZoneStep.GAR_MANAGED_ZONE_TEMPLATE;
 import static bio.terra.buffer.service.resource.flight.CreateDnsZoneStep.GCR_MANAGED_ZONE_TEMPLATE;
 import static bio.terra.buffer.service.resource.flight.CreateDnsZoneStep.MANAGED_ZONE_TEMPLATE;
 import static bio.terra.buffer.service.resource.flight.CreateFirewallRuleStep.ALLOW_EGRESS_INTERNAL;
@@ -41,10 +42,7 @@ import static bio.terra.buffer.service.resource.flight.CreateProjectStep.NETWORK
 import static bio.terra.buffer.service.resource.flight.CreateProjectStep.SECURITY_GROUP_LABEL_KEY;
 import static bio.terra.buffer.service.resource.flight.CreateProjectStep.SUB_NETWORK_LABEL_KEY;
 import static bio.terra.buffer.service.resource.flight.CreateProjectStep.createValidLabelValue;
-import static bio.terra.buffer.service.resource.flight.CreateResourceRecordSetStep.GCR_A_RECORD;
-import static bio.terra.buffer.service.resource.flight.CreateResourceRecordSetStep.GCR_CNAME_RECORD;
-import static bio.terra.buffer.service.resource.flight.CreateResourceRecordSetStep.RESTRICT_API_A_RECORD;
-import static bio.terra.buffer.service.resource.flight.CreateResourceRecordSetStep.RESTRICT_API_CNAME_RECORD;
+import static bio.terra.buffer.service.resource.flight.CreateResourceRecordSetStep.*;
 import static bio.terra.buffer.service.resource.flight.CreateRouteStep.DEFAULT_GATEWAY;
 import static bio.terra.buffer.service.resource.flight.CreateRouteStep.ROUTE_NAME;
 import static bio.terra.buffer.service.resource.flight.CreateRouterNatStep.NAT_IP_ALLOCATION;
@@ -54,16 +52,7 @@ import static bio.terra.buffer.service.resource.flight.CreateSubnetsStep.getSubn
 import static bio.terra.buffer.service.resource.flight.DeleteDefaultFirewallRulesStep.DEFAULT_FIREWALL_NAMES;
 import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.REGION_TO_IP_RANGE;
 import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.getRegionToIpRange;
-import static bio.terra.buffer.service.resource.flight.GoogleUtils.DEFAULT_NETWORK_NAME;
-import static bio.terra.buffer.service.resource.flight.GoogleUtils.GCR_MANAGED_ZONE_NAME;
-import static bio.terra.buffer.service.resource.flight.GoogleUtils.MANAGED_ZONE_NAME;
-import static bio.terra.buffer.service.resource.flight.GoogleUtils.NAT_NAME_PREFIX;
-import static bio.terra.buffer.service.resource.flight.GoogleUtils.NAT_ROUTER_NAME_PREFIX;
-import static bio.terra.buffer.service.resource.flight.GoogleUtils.NETWORK_NAME;
-import static bio.terra.buffer.service.resource.flight.GoogleUtils.RESTRICTED_GOOGLE_IP_ADDRESS;
-import static bio.terra.buffer.service.resource.flight.GoogleUtils.SUBNETWORK_NAME;
-import static bio.terra.buffer.service.resource.flight.GoogleUtils.projectIdToName;
-import static bio.terra.buffer.service.resource.flight.GoogleUtils.resourceExists;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -254,7 +243,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   }
 
   @Test
-  public void testCreateGoogleProject_blockInternetAccessWithGcrDnsEnabled() throws Exception {
+  public void testCreateGoogleProject_blockInternetAccessWithGcrAndGarDnsEnabled()
+      throws Exception {
     FlightManager manager =
         new FlightManager(
             bufferDao, flightSubmissionFactoryImpl, stairwayComponent, transactionTemplate);
@@ -267,6 +257,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
                         .enableNetworkMonitoring(true)
                         .enablePrivateGoogleAccess(true)
                         .enableCloudRegistryPrivateGoogleAccess(true)
+                        .enableArtifactRegistryPrivateGoogleAccess(true)
                         .blockBatchInternetAccess(true)));
 
     String flightId = manager.submitCreationFlight(pool).get();
@@ -278,6 +269,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertRouteExists(project);
     assertDnsExists(project);
     assertGcrDnsExists(project);
+    assertGarDnsExists(project);
     assertDefaultVpcNotExists(project);
     assertFirewallRulesExistForBlockInternetAccess(project);
     assertRouterNatNotExists(project);
@@ -945,6 +937,29 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertEquals(GCR_MANAGED_ZONE_TEMPLATE.getDescription(), managedZone.getDescription());
     assertResourceRecordSetMatch(GCR_A_RECORD, aRecordSet);
     assertResourceRecordSetMatch(GCR_CNAME_RECORD, cnameRecordSet);
+  }
+
+  private void assertGarDnsExists(Project project) throws Exception {
+    String projectId = project.getProjectId();
+
+    ManagedZone managedZone = dnsCow.managedZones().get(projectId, GAR_MANAGED_ZONE_NAME).execute();
+    Map<String, ResourceRecordSet> resourceRecordSets =
+        dnsCow
+            .resourceRecordSets()
+            .list(project.getProjectId(), GAR_MANAGED_ZONE_NAME)
+            .execute()
+            .getRrsets()
+            .stream()
+            .collect(Collectors.toMap(ResourceRecordSet::getType, r -> r));
+    ResourceRecordSet aRecordSet = resourceRecordSets.get(GAR_A_RECORD.getType());
+    ResourceRecordSet cnameRecordSet = resourceRecordSets.get(GAR_CNAME_RECORD.getType());
+
+    assertEquals(GAR_MANAGED_ZONE_TEMPLATE.getName(), managedZone.getName());
+    assertEquals(
+        GAR_MANAGED_ZONE_TEMPLATE.getVisibility(), managedZone.getVisibility().toLowerCase());
+    assertEquals(GAR_MANAGED_ZONE_TEMPLATE.getDescription(), managedZone.getDescription());
+    assertResourceRecordSetMatch(GAR_A_RECORD, aRecordSet);
+    assertResourceRecordSetMatch(GAR_CNAME_RECORD, cnameRecordSet);
   }
 
   private void assertDnsNotExists(Project project) throws Exception {

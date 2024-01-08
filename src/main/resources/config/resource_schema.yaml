@@ -139,6 +139,11 @@ components:
             Whether to config Private Google Access for gcr.io.
           type: boolean
           default: false
+        enableArtifactRegistryPrivateGoogleAccess:
+          description: |-
+            Whether to config Private Google Access for Google Artifact Registry.
+          type: boolean
+          default: false
         blockBatchInternetAccess:
           description: |-
             Whether to allow GCE VMs have internet access for batch analysis. If ture, few firewall rules will be created to block egress

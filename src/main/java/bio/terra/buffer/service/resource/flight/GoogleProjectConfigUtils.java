@@ -95,6 +95,13 @@ public class GoogleProjectConfigUtils {
         && gcpProjectConfig.getNetwork().isEnableCloudRegistryPrivateGoogleAccess();
   }
 
+  /** Checks if private Google Access enabled for gcr.io. */
+  public static boolean enableGarPrivateGoogleAccess(GcpProjectConfig gcpProjectConfig) {
+    return gcpProjectConfig.getNetwork() != null
+        && gcpProjectConfig.getNetwork().isEnableArtifactRegistryPrivateGoogleAccess() != null
+        && gcpProjectConfig.getNetwork().isEnableArtifactRegistryPrivateGoogleAccess();
+  }
+
   /** Whether to allow CGP VMs have internet access. */
   public static boolean blockBatchInternetAccess(GcpProjectConfig gcpProjectConfig) {
     return gcpProjectConfig.getNetwork() != null

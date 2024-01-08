@@ -13,6 +13,9 @@ poolConfigs:
   - poolId: "vpc_sc_v11"
     size: 300
     resourceConfigName: "vpc_sc_v11"
+  - poolId: "vpc_sc_v12"
+    size: 300
+    resourceConfigName: "vpc_sc_v12"
   - poolId: "workspace_manager_v11"
     size: 500
     resourceConfigName: "workspace_manager_v11"

@@ -1,8 +1,10 @@
 package bio.terra.buffer.service.resource.flight;
 
 import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
+import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.*;
 import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.enableGcrPrivateGoogleAccess;
 import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.usePrivateGoogleAccess;
+import static bio.terra.buffer.service.resource.flight.GoogleUtils.GAR_MANAGED_ZONE_NAME;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.GCR_MANAGED_ZONE_NAME;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.MANAGED_ZONE_NAME;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.getResource;
@@ -27,13 +29,15 @@ import org.slf4j.LoggerFactory;
 
 /** Configs record set for DNS. See {@link CreateDnsZoneStep} */
 public class CreateResourceRecordSetStep implements Step {
+  private static final List<String> RESTRICT_GOOGLE_API_A_RECORD_IP_ADDRESS =
+      ImmutableList.of("199.36.153.4", "199.36.153.5", "199.36.153.6", "199.36.153.7");
+
   @VisibleForTesting
   public static final ResourceRecordSet RESTRICT_API_A_RECORD =
       new ResourceRecordSet()
           .setType("A")
           .setName("restricted.googleapis.com.")
-          .setRrdatas(
-              ImmutableList.of("199.36.153.4", "199.36.153.5", "199.36.153.6", "199.36.153.7"))
+          .setRrdatas(RESTRICT_GOOGLE_API_A_RECORD_IP_ADDRESS)
           .setTtl(300);
 
   @VisibleForTesting
@@ -49,8 +53,7 @@ public class CreateResourceRecordSetStep implements Step {
       new ResourceRecordSet()
           .setType("A")
           .setName("gcr.io.")
-          .setRrdatas(
-              ImmutableList.of("199.36.153.4", "199.36.153.5", "199.36.153.6", "199.36.153.7"))
+          .setRrdatas(RESTRICT_GOOGLE_API_A_RECORD_IP_ADDRESS)
           .setTtl(300);
 
   @VisibleForTesting
@@ -59,6 +62,22 @@ public class CreateResourceRecordSetStep implements Step {
           .setType("CNAME")
           .setName("*.gcr.io.")
           .setRrdatas(ImmutableList.of("gcr.io."))
+          .setTtl(300);
+
+  @VisibleForTesting
+  public static final ResourceRecordSet GAR_A_RECORD =
+      new ResourceRecordSet()
+          .setType("A")
+          .setName("pkg.dev.")
+          .setRrdatas(RESTRICT_GOOGLE_API_A_RECORD_IP_ADDRESS)
+          .setTtl(300);
+
+  @VisibleForTesting
+  public static final ResourceRecordSet GAR_CNAME_RECORD =
+      new ResourceRecordSet()
+          .setType("CNAME")
+          .setName("*.pkg.dev.")
+          .setRrdatas(ImmutableList.of("pkg.dev."))
           .setTtl(300);
 
   private final Logger logger = LoggerFactory.getLogger(CreateResourceRecordSetStep.class);
@@ -86,6 +105,10 @@ public class CreateResourceRecordSetStep implements Step {
       if (enableGcrPrivateGoogleAccess(gcpProjectConfig)) {
         createRecordSetForDnsZone(
             projectId, GCR_MANAGED_ZONE_NAME, ImmutableList.of(GCR_A_RECORD, GCR_CNAME_RECORD));
+      }
+      if (enableGarPrivateGoogleAccess(gcpProjectConfig)) {
+        createRecordSetForDnsZone(
+            projectId, GAR_MANAGED_ZONE_NAME, ImmutableList.of(GAR_A_RECORD, GAR_CNAME_RECORD));
       }
     } catch (IOException e) {
       logger.info("Error when configuring ResourceRecordSets ", e);
