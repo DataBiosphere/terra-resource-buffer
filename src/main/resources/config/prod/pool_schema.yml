@@ -10,3 +10,6 @@ poolConfigs:
   - poolId: "vpc_sc_v10"
     size: 1000
     resourceConfigName: "vpc_sc_v10"
+  - poolId: "vpc_sc_v11"
+    size: 1000
+    resourceConfigName: "vpc_sc_v11"
