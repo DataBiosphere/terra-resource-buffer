@@ -1,4 +1,5 @@
 # RBS Pools Schema in tools environment
+# READY resource ratio by pool over time: https://grafana.dsp-devops.broadinstitute.org/goto/qHOGMufSk?orgId=1
 ---
 poolConfigs:
   - poolId: "cwb_ws_fiab_v7"
@@ -11,7 +12,7 @@ poolConfigs:
     size: 5000
     resourceConfigName: "cwb_ws_resource_quality_v10"
   - poolId: "datarepo_v1"
-    size: 1500
+    size: 2000
     resourceConfigName: "datarepo_v1"
   - poolId: "vpc_sc_qa-fiab_v5"
     size: 100
