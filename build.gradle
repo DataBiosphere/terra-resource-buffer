@@ -1,7 +1,7 @@
 // Build Script Classpath
 buildscript {
     ext {
-        springBootVersion = '3.2.3'
+        springBootVersion = '3.2.5'
     }
 }
 
@@ -59,7 +59,7 @@ repositories {
 
 dependencies {
     // Terra deps - we get Stairway via TCL
-    implementation group: 'bio.terra', name: 'terra-common-lib', version: '1.1.6-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'terra-common-lib', version: '1.1.11-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-cloud-resource-lib', version: '1.2.30-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.113.31-SNAPSHOT'
 
@@ -70,7 +70,7 @@ dependencies {
     implementation group: 'jakarta.validation', name: 'jakarta.validation-api', version: '3.0.2'
     implementation group: 'org.liquibase', name: 'liquibase-core', version: '4.22.0'
     implementation group: 'org.webjars', name: 'webjars-locator-core', version: '0.52'
-    runtimeOnly group: 'org.postgresql', name: 'postgresql', version: '42.7.3'
+    runtimeOnly group: 'org.postgresql', name: 'postgresql'
 
     // OpenTelemetry
     var openTelemetryVersion = '1.31.0'
