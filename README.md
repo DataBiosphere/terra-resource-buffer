@@ -206,3 +206,36 @@ that mention "dependency lock state" after changing a dep, you need to do this s
 
 ### Jacoco
 We use [Jacoco](https://www.eclemma.org/jacoco/) as code coverage library
+
+## SourceClear
+
+[SourceClear](https://srcclr.github.io) is a static analysis tool that scans a project's Java
+dependencies for known vulnerabilities. If you are working on addressing dependency vulnerabilities
+in response to a SourceClear finding, you may want to run a scan off of a feature branch and/or local code.
+
+### Github Action
+
+You can trigger RBS's SCA scan on demand via its
+[Github Action](https://github.com/broadinstitute/dsp-appsec-sourceclear-github-actions/actions/workflows/z-manual-terra-resource-buffer.yml),
+and optionally specify a Github ref (branch, tag, or SHA) to check out from the repo to scan.  By default,
+the scan is run off of RBS's `master` branch.
+
+High-level results are outputted in the Github Actions run.
+
+### Running Locally
+
+You will need to get the API token from Vault before running the Gradle `srcclr` task.
+
+```sh
+export SRCCLR_API_TOKEN=$(vault read -field=api_token secret/secops/ci/srcclr/gradle-agent)
+./gradlew srcclr
+```
+
+High-level results are outputted to the terminal.
+
+### Veracode
+
+Full results including dependency graphs are uploaded to
+[Veracode](https://sca.analysiscenter.veracode.com/workspaces/jppForw/projects/544768/issues)
+(if running off of a feature branch, navigate to Project Details > Selected Branch > Change to select your feature branch).
+You can request a Veracode account to view full results from #dsp-infosec-champions.
