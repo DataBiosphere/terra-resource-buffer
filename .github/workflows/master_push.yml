@@ -79,13 +79,12 @@ jobs:
         run: gcloud auth configure-docker --quiet
       - name: Set up JDK 17
         if: steps.skiptest.outputs.is-bump == 'no'
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: 17
-      - name: Grant execute permission for gradlew
-        if: steps.skiptest.outputs.is-bump == 'no'
-        run: chmod +x gradlew
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
       - name: Build and push GCR image using Jib
         if: steps.skiptest.outputs.is-bump == 'no'
         run: "./gradlew jib --image=gcr.io/broad-dsp-gcr-public/${SERVICE_NAME}:${{ steps.tag.outputs.tag }}"
