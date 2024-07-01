@@ -118,7 +118,7 @@ dependencies {
     // transitive dependencies.
     constraints {
         implementation('com.google.protobuf:protobuf-java:3.21.10')
-        implementation('org.yaml:snakeyaml:1.33')
+        implementation('org.yaml:snakeyaml:2.2')
         implementation('com.nimbusds:nimbus-jose-jwt:9.25.6')
         implementation('io.projectreactor.netty:reactor-netty-http:1.1.12')
         implementation('com.fasterxml.jackson:jackson-bom:2.14.2')
