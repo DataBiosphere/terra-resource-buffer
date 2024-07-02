@@ -242,8 +242,8 @@ public class CrlConfiguration {
           new FileInputStream(janitorClientCredentialFilePath));
     } catch (Exception e) {
       throw new RuntimeException(
-          "Unable to load Janitor GoogleCredentials from configuration"
-              + janitorClientCredentialFilePath,
+          "Unable to load Janitor GoogleCredentials from configuration: "
+              + janitorClientCredentialFilePath + " CWD: " + System.getProperty("user.dir"),
           e);
     }
   }
