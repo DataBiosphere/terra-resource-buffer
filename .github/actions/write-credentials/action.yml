@@ -18,6 +18,13 @@ runs:
       id: 'setup-user-delegated-creds'
       run: |
         mkdir -p rendered
+        
+        BUFFER_APP_SA_B64=${{ inputs.buffer-app-sa-b64 }}
+        echo ::add-mask::BUFFER_APP_SA_B64
+        BUFFER_APP_SA=$(echo $BUFFER_APP_SA_B64 | base64 --decode)
+        echo ::add-mask::$BUFFER_APP_SA
+        echo $BUFFER_APP_SA > rendered/sa-account.json  
+        
         JANITOR_SA_B64=${{ inputs.janitor-sa-b64 }}
         echo ::add-mask::$JANITOR_SA_B64
         JANITOR_SA=$(echo $JANITOR_SA_B64 | base64 --decode)
