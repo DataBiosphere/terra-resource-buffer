@@ -19,6 +19,8 @@ runs:
       run: |
         mkdir -p rendered
         
+        echo "$(dirname $0)"
+        
         BUFFER_APP_SA_B64=${{ inputs.buffer-app-sa-b64 }}
         echo ::add-mask::BUFFER_APP_SA_B64
         BUFFER_APP_SA=$(echo $BUFFER_APP_SA_B64 | base64 --decode)
