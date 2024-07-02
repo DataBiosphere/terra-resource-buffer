@@ -19,10 +19,10 @@ runs:
       run: |
         mkdir -p rendered
         
-        BUFFER_APP_SA_B64=${{ inputs.buffer-app-sa-b64 }} ?
-        echo ::add-mask::BUFFER_APP_SA_B64 ?
-        USER_DELEGATED_SA=$(echo BUFFER_APP_SA_B64 | base64 --decode) ?
-        echo ::add-mask::$BUFFER_APP_SA ?
+        BUFFER_APP_SA_B64=${{ inputs.buffer-app-sa-b64 }}
+        echo ::add-mask::BUFFER_APP_SA_B64
+        USER_DELEGATED_SA=$(echo BUFFER_APP_SA_B64 | base64 --decode)
+        echo ::add-mask::$BUFFER_APP_SA
         echo $BUFFER_APP_SA > rendered/sa-account.json
         
         JANITOR_SA_B64=${{ inputs.janitor-sa-b64 }}
