@@ -1,7 +1,7 @@
 name: 'write-credentials'
 description: |
-  Collect the needed credentials for testing and place them in the
-  appropriate config directory. Note that all of these secrets are
+  Collect the needed credentials for integration testing and place them in a
+  directory named "rendered". Note that all of these secrets are
   assumed to be base64-encoded JSON service account keys.
 inputs:
   buffer-app-sa-b64:
@@ -30,7 +30,4 @@ runs:
         JANITOR_SA=$(echo $JANITOR_SA_B64 | base64 --decode)
         echo ::add-mask::$JANITOR_SA
         echo $JANITOR_SA > rendered/janitor-client-sa-account.json
-        
-        echo "$(ls -d $PWD*/)"
-        echo "$(ls -l rendered)"
       shell: bash
