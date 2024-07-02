@@ -39,7 +39,7 @@ jobs:
         uses: ./.github/actions/bump-skip
         with:
           event-name: ${{ github.event_name }}
-      - name: Write credentials
+      - name: Write credentials for integration tests
         if: steps.skiptest.outputs.is-bump == 'no'
         id: write-credentials
         uses: ./.github/actions/write-credentials
