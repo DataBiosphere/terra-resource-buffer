@@ -33,5 +33,6 @@ runs:
         echo ::add-mask::$JANITOR_SA
         echo $JANITOR_SA > rendered/janitor-client-sa-account.json
         
-        echo "$ls -l rendered"
+        echo "$(ls -d $PWD*/)"
+        echo "$(ls -l rendered)"
       shell: bash
