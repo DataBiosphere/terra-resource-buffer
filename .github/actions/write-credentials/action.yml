@@ -32,4 +32,6 @@ runs:
         JANITOR_SA=$(echo $JANITOR_SA_B64 | base64 --decode)
         echo ::add-mask::$JANITOR_SA
         echo $JANITOR_SA > rendered/janitor-client-sa-account.json
+        
+        echo "$ls -l rendered"
       shell: bash
