@@ -66,7 +66,7 @@ dependencies {
     // Versioned direct deps
     implementation group: 'com.google.auto.value', name: 'auto-value-annotations', version: '1.9'
     implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.120.11'
-    implementation group: 'com.google.guava', name: 'guava', version: '31.1-jre'
+    implementation group: 'com.google.guava', name: 'guava', version: '33.2.1-jre'
     implementation group: 'jakarta.validation', name: 'jakarta.validation-api', version: '3.0.2'
     implementation group: 'org.liquibase', name: 'liquibase-core', version: '4.22.0'
     implementation group: 'org.webjars', name: 'webjars-locator-core', version: '0.52'
