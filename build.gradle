@@ -98,7 +98,7 @@ dependencies {
     implementation group: 'org.springframework.retry', name: 'spring-retry', version: '2.0.6'
 
     // Swagger deps
-    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.13.3'
+    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.17.2'
     implementation group: 'io.swagger', name: 'swagger-annotations', version: '1.6.6'
     implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.2'
     runtimeOnly group: 'org.webjars.npm', name: 'swagger-ui-dist', version: '5.17.14'
@@ -121,7 +121,7 @@ dependencies {
         implementation('org.yaml:snakeyaml:2.2')
         implementation('com.nimbusds:nimbus-jose-jwt:9.25.6')
         implementation('io.projectreactor.netty:reactor-netty-http:1.1.12')
-        implementation('com.fasterxml.jackson:jackson-bom:2.14.2')
+        implementation('com.fasterxml.jackson:jackson-bom:2.17.2')
     }
 }
 
