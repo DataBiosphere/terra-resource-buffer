@@ -78,14 +78,14 @@ dependencies {
     implementation "io.opentelemetry:opentelemetry-sdk:${openTelemetryVersion}"
     implementation "io.opentelemetry:opentelemetry-sdk-metrics:${openTelemetryVersion}"
     implementation "io.opentelemetry:opentelemetry-exporter-logging:${openTelemetryVersion}"
-    implementation "io.opentelemetry.semconv:opentelemetry-semconv:1.21.0-alpha"
+    implementation "io.opentelemetry.semconv:opentelemetry-semconv:1.25.0-alpha"
     implementation "io.opentelemetry.instrumentation:opentelemetry-spring-webmvc-6.0:${openTelemetryVersion}-alpha"
     implementation "io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:${openTelemetryVersion}"
     implementation "io.opentelemetry.instrumentation:opentelemetry-spring-boot:${openTelemetryVersion}-alpha"
     implementation "io.opentelemetry:opentelemetry-exporter-prometheus:${openTelemetryVersion}-alpha"
 
     // Google cloud open telemetry exporters
-    var gcpOpenTelemetryExporterVersion = '0.25.2'
+    var gcpOpenTelemetryExporterVersion = '0.30.0'
     implementation "com.google.cloud.opentelemetry:exporter-trace:${gcpOpenTelemetryExporterVersion}"
     implementation "com.google.cloud.opentelemetry:exporter-metrics:${gcpOpenTelemetryExporterVersion}"
 
