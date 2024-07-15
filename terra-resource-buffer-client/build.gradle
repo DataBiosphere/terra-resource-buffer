@@ -2,7 +2,7 @@ plugins {
     id 'java-library'
     id 'maven-publish'
 
-    id 'com.jfrog.artifactory' version '5.2.2'
+    id 'com.jfrog.artifactory' version '5.2.3'
     id 'org.hidetake.swagger.generator' version '2.19.2'
 }
 
