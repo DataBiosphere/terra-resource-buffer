@@ -65,10 +65,10 @@ dependencies {
 
     // Versioned direct deps
     implementation group: 'com.google.auto.value', name: 'auto-value-annotations', version: '1.11.0'
-    implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.131.0'
+    implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.132.0'
     implementation group: 'com.google.guava', name: 'guava', version: '33.2.1-jre'
     implementation group: 'jakarta.validation', name: 'jakarta.validation-api', version: '3.1.0'
-    implementation group: 'org.liquibase', name: 'liquibase-core', version: '4.29.0'
+    implementation group: 'org.liquibase', name: 'liquibase-core', version: '4.29.1'
     implementation group: 'org.webjars', name: 'webjars-locator-core', version: '0.59'
     runtimeOnly group: 'org.postgresql', name: 'postgresql'
 
@@ -102,7 +102,7 @@ dependencies {
     implementation group: 'io.swagger', name: 'swagger-annotations', version: '1.6.14'
     implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.22'
     runtimeOnly group: 'org.webjars.npm', name: 'swagger-ui-dist', version: '5.17.14'
-    swaggerCodegen group: 'io.swagger.codegen.v3', name: 'swagger-codegen-cli', version: '3.0.59'
+    swaggerCodegen group: 'io.swagger.codegen.v3', name: 'swagger-codegen-cli', version: '3.0.60'
 
     // Test deps
     testImplementation 'org.awaitility:awaitility:4.2.1'
