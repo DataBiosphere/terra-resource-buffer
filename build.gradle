@@ -66,7 +66,7 @@ dependencies {
     // Versioned direct deps
     implementation group: 'com.google.auto.value', name: 'auto-value-annotations', version: '1.11.0'
     implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.132.0'
-    implementation group: 'com.google.guava', name: 'guava', version: '33.2.1-jre'
+    implementation group: 'com.google.guava', name: 'guava', version: '33.3.0-jre'
     implementation group: 'jakarta.validation', name: 'jakarta.validation-api', version: '3.1.0'
     implementation group: 'org.liquibase', name: 'liquibase-core', version: '4.29.1'
     implementation group: 'org.webjars', name: 'webjars-locator-core', version: '0.59'
@@ -95,7 +95,7 @@ dependencies {
     implementation group: 'org.apache.commons', name: 'commons-pool2', version: '2.12.0'
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jdbc', version: "${springBootVersion}"
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: "${springBootVersion}"
-    implementation group: 'org.springframework.retry', name: 'spring-retry', version: '2.0.7'
+    implementation group: 'org.springframework.retry', name: 'spring-retry', version: '2.0.8'
 
     // Swagger deps
     implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.17.2'
@@ -120,7 +120,7 @@ dependencies {
         implementation('com.google.protobuf:protobuf-java:3.21.10')
         implementation('org.yaml:snakeyaml:2.2')
         implementation('com.nimbusds:nimbus-jose-jwt:9.40')
-        implementation('io.projectreactor.netty:reactor-netty-http:1.1.21')
+        implementation('io.projectreactor.netty:reactor-netty-http:1.1.22')
         implementation('com.fasterxml.jackson:jackson-bom:2.17.2')
     }
 }
