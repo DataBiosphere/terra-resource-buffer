@@ -1,7 +1,7 @@
 // Build Script Classpath
 buildscript {
     ext {
-        springBootVersion = '3.3.2'
+        springBootVersion = '3.3.3'
     }
 }
 
@@ -59,13 +59,13 @@ repositories {
 
 dependencies {
     // Terra deps - we get Stairway via TCL
-    implementation group: 'bio.terra', name: 'terra-common-lib', version: '1.1.17-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'terra-common-lib', version: '1.1.18-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-cloud-resource-lib', version: '1.2.30-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.114.0-SNAPSHOT'
 
     // Versioned direct deps
     implementation group: 'com.google.auto.value', name: 'auto-value-annotations', version: '1.11.0'
-    implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.132.0'
+    implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.132.1'
     implementation group: 'com.google.guava', name: 'guava', version: '33.3.0-jre'
     implementation group: 'jakarta.validation', name: 'jakarta.validation-api', version: '3.1.0'
     implementation group: 'org.liquibase', name: 'liquibase-core', version: '4.29.1'
@@ -78,7 +78,7 @@ dependencies {
     implementation "io.opentelemetry:opentelemetry-sdk:${openTelemetryVersion}"
     implementation "io.opentelemetry:opentelemetry-sdk-metrics:${openTelemetryVersion}"
     implementation "io.opentelemetry:opentelemetry-exporter-logging:${openTelemetryVersion}"
-    implementation "io.opentelemetry.semconv:opentelemetry-semconv:1.26.0-alpha"
+    implementation "io.opentelemetry.semconv:opentelemetry-semconv:1.27.0-alpha"
     implementation "io.opentelemetry.instrumentation:opentelemetry-spring-webmvc-6.0:${openTelemetryVersion}-alpha"
     implementation "io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:${openTelemetryVersion}"
     implementation "io.opentelemetry.instrumentation:opentelemetry-spring-boot:${openTelemetryVersion}-alpha"
