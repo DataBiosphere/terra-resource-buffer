@@ -30,7 +30,7 @@ public class MetricsHelper implements AutoCloseable {
   /** Unit string for resource count to pool size ratio. */
   private static final String RESOURCE_TO_POOL_SIZE_RATIO = "num/pool";
 
-  private final LongCounter resourceStateCount;
+  private final ObservableDoubleGauge resourceStateCount;
 
   private final ObservableDoubleGauge readyResourceRatioGauge;
 
@@ -42,15 +42,28 @@ public class MetricsHelper implements AutoCloseable {
    */
   private final ConcurrentHashMap<String, Double> currentReadyRatioByPoolId =
       new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<Pool, Multiset<ResourceState>> currentResourceStatesByPool = new ConcurrentHashMap<>();
 
   public MetricsHelper(OpenTelemetry openTelemetry) {
     var meter = openTelemetry.getMeter(bio.terra.common.stairway.MetricsHelper.class.getName());
     resourceStateCount =
         meter
-            .counterBuilder(RESOURCE_STATE_COUNT_METER_NAME)
+            .gaugeBuilder(RESOURCE_STATE_COUNT_METER_NAME)
             .setDescription("Counts resource number by state")
             .setUnit(RESOURCE_TO_POOL_SIZE_RATIO)
-            .build();
+            .buildWithCallback(
+                (ObservableDoubleMeasurement m) ->
+                    currentResourceStatesByPool.forEach(
+                        (pool, resources) -> {
+                          for (ResourceState state : ResourceState.values()) {
+                            Attributes attributes =
+                                Attributes.of(
+                                    RESOURCE_STATE_KEY, state.toString(),
+                                    POOL_ID_KEY, pool.id().id(),
+                                    POOL_STATUS_KEY, pool.status().toString());
+                            m.record(resources.count(state), attributes);
+                          }
+                        }));
     readyResourceRatioGauge =
         meter
             .gaugeBuilder(READY_RESOURCE_RATIO_METER_NAME)
@@ -74,15 +87,7 @@ public class MetricsHelper implements AutoCloseable {
    */
   public void recordResourceStateCount(PoolAndResourceStates poolAndResourceStates) {
     Multiset<ResourceState> resourceStates = poolAndResourceStates.resourceStates();
-    for (ResourceState state : ResourceState.values()) {
-      Attributes attributes =
-          Attributes.of(
-              RESOURCE_STATE_KEY, state.toString(),
-              POOL_ID_KEY, poolAndResourceStates.pool().id().id(),
-              POOL_STATUS_KEY, poolAndResourceStates.pool().status().toString());
-      resourceStateCount.add(resourceStates.count(state), attributes);
-    }
-
+    this.currentResourceStatesByPool.put(poolAndResourceStates.pool(), resourceStates);
     this.currentReadyRatioByPoolId.put(
         poolAndResourceStates.pool().id().id(), getReadyResourceRatio(poolAndResourceStates));
   }
