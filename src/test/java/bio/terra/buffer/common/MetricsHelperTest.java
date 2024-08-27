@@ -87,7 +87,7 @@ public class MetricsHelperTest extends BaseUnitTest {
                   .forEach(
                       state -> {
                         var dataPoint =
-                            (LongPointData)
+                            (DoublePointData)
                                 metricsByName
                                     .get(RESOURCE_STATE_COUNT_METER_NAME)
                                     .getData()
