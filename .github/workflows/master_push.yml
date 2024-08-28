@@ -113,3 +113,17 @@ jobs:
       sync-git-token: ${{ secrets.BROADBOT_TOKEN }}
     permissions:
       id-token: 'write'
+
+  set-version-in-tools:
+    # Put new RBS version in Broad tools environment
+    uses: broadinstitute/sherlock/.github/workflows/client-set-environment-app-version.yaml@main
+    needs: [tag-build-push, report-to-sherlock]
+    if: ${{ needs.tag-build-push.outputs.is-bump == 'no' }}
+    with:
+      new-version: ${{ needs.tag-build-push.outputs.tag }}
+      chart-name: 'buffer'
+      environment-name: 'tools'
+    secrets:
+      sync-git-token: ${{ secrets.BROADBOT_TOKEN }}
+    permissions:
+      id-token: 'write'
