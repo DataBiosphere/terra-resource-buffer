@@ -59,7 +59,7 @@ repositories {
 
 dependencies {
     // Terra deps - we get Stairway via TCL
-    implementation group: 'bio.terra', name: 'terra-common-lib', version: '1.1.18-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'terra-common-lib', version: '1.1.19-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-cloud-resource-lib', version: '1.2.30-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.114.0-SNAPSHOT'
 
@@ -71,18 +71,6 @@ dependencies {
     implementation group: 'org.liquibase', name: 'liquibase-core', version: '4.29.1'
     implementation group: 'org.webjars', name: 'webjars-locator-core', version: '0.59'
     runtimeOnly group: 'org.postgresql', name: 'postgresql'
-
-    // OpenTelemetry
-    var openTelemetryVersion = '1.31.0'
-    implementation "io.opentelemetry:opentelemetry-api:${openTelemetryVersion}"
-    implementation "io.opentelemetry:opentelemetry-sdk:${openTelemetryVersion}"
-    implementation "io.opentelemetry:opentelemetry-sdk-metrics:${openTelemetryVersion}"
-    implementation "io.opentelemetry:opentelemetry-exporter-logging:${openTelemetryVersion}"
-    implementation "io.opentelemetry.semconv:opentelemetry-semconv:1.27.0-alpha"
-    implementation "io.opentelemetry.instrumentation:opentelemetry-spring-webmvc-6.0:${openTelemetryVersion}-alpha"
-    implementation "io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:${openTelemetryVersion}"
-    implementation "io.opentelemetry.instrumentation:opentelemetry-spring-boot:${openTelemetryVersion}-alpha"
-    implementation "io.opentelemetry:opentelemetry-exporter-prometheus:${openTelemetryVersion}-alpha"
 
     // Google cloud open telemetry exporters
     var gcpOpenTelemetryExporterVersion = '0.31.0'
