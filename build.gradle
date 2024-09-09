@@ -59,7 +59,7 @@ repositories {
 
 dependencies {
     // Terra deps - we get Stairway via TCL
-    implementation group: 'bio.terra', name: 'terra-common-lib', version: '1.1.18-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'terra-common-lib', version: '1.1.19-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-cloud-resource-lib', version: '1.2.30-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.114.0-SNAPSHOT'
 
@@ -68,7 +68,7 @@ dependencies {
     implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.132.1'
     implementation group: 'com.google.guava', name: 'guava', version: '33.3.0-jre'
     implementation group: 'jakarta.validation', name: 'jakarta.validation-api', version: '3.1.0'
-    implementation group: 'org.liquibase', name: 'liquibase-core', version: '4.29.1'
+    implementation group: 'org.liquibase', name: 'liquibase-core', version: '4.29.2'
     implementation group: 'org.webjars', name: 'webjars-locator-core', version: '0.59'
     runtimeOnly group: 'org.postgresql', name: 'postgresql'
 
@@ -91,7 +91,7 @@ dependencies {
 
     // Deps whose versions are controlled by Spring
     implementation group: 'org.apache.commons', name: 'commons-dbcp2', version: '2.12.0'
-    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.16.0'
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.17.0'
     implementation group: 'org.apache.commons', name: 'commons-pool2', version: '2.12.0'
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jdbc', version: "${springBootVersion}"
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: "${springBootVersion}"
@@ -100,7 +100,7 @@ dependencies {
     // Swagger deps
     implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.17.2'
     implementation group: 'io.swagger', name: 'swagger-annotations', version: '1.6.14'
-    implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.22'
+    implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.23'
     runtimeOnly group: 'org.webjars.npm', name: 'swagger-ui-dist', version: '5.17.14'
     swaggerCodegen group: 'io.swagger.codegen.v3', name: 'swagger-codegen-cli', version: '3.0.61'
 
@@ -118,7 +118,7 @@ dependencies {
     // transitive dependencies.
     constraints {
         implementation('com.google.protobuf:protobuf-java:3.21.10')
-        implementation('org.yaml:snakeyaml:2.2')
+        implementation('org.yaml:snakeyaml:2.3')
         implementation('com.nimbusds:nimbus-jose-jwt:9.40')
         implementation('io.projectreactor.netty:reactor-netty-http:1.1.22')
         implementation('com.fasterxml.jackson:jackson-bom:2.17.2')
