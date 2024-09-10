@@ -9,7 +9,7 @@ buffer:
     scheduler-enabled: true
   resource-table-cleanup-job:
     schedule: 0 0 4 * * * # every day at 4 am
-    enabled: true
+    enabled: false
     retention-days: 30
     batch-size: 1000
   pool:

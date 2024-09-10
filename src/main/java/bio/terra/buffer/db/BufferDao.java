@@ -405,13 +405,11 @@ public class BufferDao {
   }
 
   @Transactional
-  public int removeDeadCleanupRecords(long retentionDays, int batchSize) {
+  public int removeDeadCleanupRecords(int retentionDays, int batchSize) {
     String sql =
         "DELETE FROM cleanup_record WHERE resource_id IN ("
             + "SELECT resource_id FROM cleanup_record "
-            + "WHERE created_at < NOW() - INTERVAL '"
-            + retentionDays
-            + " DAY' "
+            + "WHERE created_at < NOW() - MAKE_INTERVAL(days => :retentionDays) "
             + "LIMIT :batchSize "
             + ")";
     MapSqlParameterSource params =
@@ -423,14 +421,12 @@ public class BufferDao {
   }
 
   @Transactional
-  public int removeDeadResourceRecords(long retentionDays, int batchSize) {
+  public int removeDeadResourceRecords(int retentionDays, int batchSize) {
     String sql =
         "DELETE FROM resource WHERE id IN ("
             + "SELECT id FROM resource "
             + "WHERE state IN (:handedOutState, :deletedState) AND "
-            + " (handout_time < NOW() - INTERVAL '"
-            + retentionDays
-            + " DAY' OR handout_time IS NULL) "
+            + " (handout_time < NOW() - MAKE_INTERVAL(days => :retentionDays) OR handout_time IS NULL) "
             + "LIMIT :batchSize "
             + ")";
     MapSqlParameterSource params =

@@ -3,7 +3,10 @@ package bio.terra.buffer.app;
 import bio.terra.buffer.app.configuration.BufferDatabaseConfiguration;
 import bio.terra.buffer.app.configuration.BufferDatabaseProperties;
 import bio.terra.buffer.app.configuration.StairwayDatabaseConfiguration;
+import bio.terra.buffer.service.cleanup.CleanupScheduler;
 import bio.terra.buffer.service.cleanup.ResourceTableCleanupJob;
+import bio.terra.buffer.service.pool.PoolService;
+import bio.terra.buffer.service.resource.FlightScheduler;
 import bio.terra.common.migrate.LiquibaseMigrator;
 import bio.terra.common.stairway.MonitoringHook;
 import bio.terra.common.stairway.StairwayComponent;
@@ -39,9 +42,9 @@ public final class StartupInitializer {
     }
     initializeStairwayComponent(applicationContext);
     applicationContext.getBean(ResourceTableCleanupJob.class).initialize();
-    // applicationContext.getBean(PoolService.class).initialize();
-    // applicationContext.getBean(FlightScheduler.class).initialize();
-    // applicationContext.getBean(CleanupScheduler.class).initialize();
+    applicationContext.getBean(PoolService.class).initialize();
+    applicationContext.getBean(FlightScheduler.class).initialize();
+    applicationContext.getBean(CleanupScheduler.class).initialize();
   }
 
   // Initialize StairwayComponent's DataSource. This is necessary because the data source is
