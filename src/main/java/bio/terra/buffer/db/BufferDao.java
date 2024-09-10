@@ -404,6 +404,45 @@ public class BufferDao {
     jdbcTemplate.update(sql, params);
   }
 
+  @Transactional
+  public int removeDeadCleanupRecords(long retentionDays, int batchSize) {
+    String sql =
+        "DELETE FROM cleanup_record WHERE resource_id IN ("
+            + "SELECT resource_id FROM cleanup_record "
+            + "WHERE created_at < NOW() - INTERVAL '"
+            + retentionDays
+            + " DAY' "
+            + "LIMIT :batchSize "
+            + ")";
+    MapSqlParameterSource params =
+        new MapSqlParameterSource()
+            .addValue("retentionDays", retentionDays)
+            .addValue("batchSize", batchSize);
+
+    return jdbcTemplate.update(sql, params);
+  }
+
+  @Transactional
+  public int removeDeadResourceRecords(long retentionDays, int batchSize) {
+    String sql =
+        "DELETE FROM resource WHERE id IN ("
+            + "SELECT id FROM resource "
+            + "WHERE state IN (:handedOutState, :deletedState) AND "
+            + " (handout_time < NOW() - INTERVAL '"
+            + retentionDays
+            + " DAY' OR handout_time IS NULL) "
+            + "LIMIT :batchSize "
+            + ")";
+    MapSqlParameterSource params =
+        new MapSqlParameterSource()
+            .addValue("handedOutState", ResourceState.HANDED_OUT.toString())
+            .addValue("deletedState", ResourceState.DELETED.toString())
+            .addValue("retentionDays", retentionDays)
+            .addValue("batchSize", batchSize);
+
+    return jdbcTemplate.update(sql, params);
+  }
+
   /**
    * Retrieves resources that need cleanup by Janitor. Those resources should be:
    *

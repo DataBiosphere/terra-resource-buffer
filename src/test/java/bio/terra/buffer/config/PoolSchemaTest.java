@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 @Tag("unit")
 public class PoolSchemaTest {
   private static final String CONFIG_FOLDER = "config/";
+
   /** List of pool config folders for all environments, e.g. prod, staging, dev. */
   private static final List<String> POOL_CONFIG_FOLDERS =
       ImmutableList.of(

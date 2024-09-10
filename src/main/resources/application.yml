@@ -7,6 +7,11 @@ buffer:
     username:
   primary:
     scheduler-enabled: true
+  resource-table-cleanup-job:
+    schedule: 0 0 4 * * * # every day at 4 am
+    enabled: true
+    retention-days: 30
+    batch-size: 1000
   pool:
     # The Folder to have all Resource Buffer Service configs.
     # TODO: Investigate where and how to put those files.

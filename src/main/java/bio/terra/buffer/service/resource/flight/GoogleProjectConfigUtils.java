@@ -182,6 +182,7 @@ public class GoogleProjectConfigUtils {
         .filter(e -> !blockedRegions.contains(e.getKey()))
         .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
   }
+
   /** append target tags for VM instances that should be applied the internal ingress rules. */
   public static Firewall appendInternalIngressTargetTags(
       Firewall firewall, GcpProjectConfig gcpProjectConfig) {

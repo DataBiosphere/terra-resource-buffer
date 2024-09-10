@@ -46,6 +46,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 public class CrlConfiguration {
   /** The client name required by CRL. */
   public static final String CLIENT_NAME = "terra-resource-buffer";
+
   /**
    * Whether we're running Resource Buffer Service in test mode with Cloud Resource Library. If so,
    * we enable to the Janitor to auto-delete all created cloud resources.

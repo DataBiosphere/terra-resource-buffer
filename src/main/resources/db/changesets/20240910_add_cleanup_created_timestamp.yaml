@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add_cleanup_created_timestamp
+      author: aherbst
+      comment: Add created_at column to cleanup_record table so we can periodically clean it out
+      changes:
+        - addColumn:
+            tableName:  cleanup_record
+            column:
+              name:  created_at
+              type: timestamptz
+              constraints:
+                nullable: false
+              defaultValueComputed:  CURRENT_TIMESTAMP
+
+        - createIndex:
+            indexName:  created_at_index
+            tableName:  cleanup_record
+            column:
+              name: created_at

@@ -39,9 +39,11 @@ public class CreateRouterNatStep implements Step {
   private static final Logger LOGGER = LoggerFactory.getLogger(CreateRouterNatStep.class);
   private final GcpProjectConfig gcpProjectConfig;
   private final CloudComputeCow computeCow;
+
   /** All of the IP ranges in every Subnetwork are allowed to Nat. */
   @VisibleForTesting
   public static final String SUBNETWORK_IP_RANGES_TO_NAT = "ALL_SUBNETWORKS_ALL_IP_RANGES";
+
   /** Nat IPs are allocated by Google Cloud Platform; customers can't specify any Nat IPs. */
   @VisibleForTesting public static final String NAT_IP_ALLOCATION = "AUTO_ONLY";
 
