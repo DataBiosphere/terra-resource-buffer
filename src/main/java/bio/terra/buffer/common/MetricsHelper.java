@@ -27,6 +27,7 @@ public class MetricsHelper implements AutoCloseable {
 
   /** Unit string for count. */
   private static final String COUNT = "1";
+
   /** Unit string for resource count to pool size ratio. */
   private static final String RESOURCE_TO_POOL_SIZE_RATIO = "num/pool";
 
@@ -42,7 +43,9 @@ public class MetricsHelper implements AutoCloseable {
    */
   private final ConcurrentHashMap<String, Double> currentReadyRatioByPoolId =
       new ConcurrentHashMap<>();
-  private final ConcurrentHashMap<Pool, Multiset<ResourceState>> currentResourceStatesByPool = new ConcurrentHashMap<>();
+
+  private final ConcurrentHashMap<Pool, Multiset<ResourceState>> currentResourceStatesByPool =
+      new ConcurrentHashMap<>();
 
   public MetricsHelper(OpenTelemetry openTelemetry) {
     var meter = openTelemetry.getMeter(bio.terra.common.stairway.MetricsHelper.class.getName());

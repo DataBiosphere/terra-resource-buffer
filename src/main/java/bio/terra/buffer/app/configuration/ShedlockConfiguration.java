@@ -18,19 +18,19 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableSchedulerLock(defaultLockAtMostFor = "PT4H")
 public class ShedlockConfiguration {
 
-    private final JdbcTemplate jdbcTemplate;
+  private final JdbcTemplate jdbcTemplate;
 
-    @Autowired
-    public ShedlockConfiguration(BufferDatabaseConfiguration jdbcConfiguration) {
-        this.jdbcTemplate = new JdbcTemplate(jdbcConfiguration.getDataSource());
-    }
+  @Autowired
+  public ShedlockConfiguration(BufferDatabaseConfiguration jdbcConfiguration) {
+    this.jdbcTemplate = new JdbcTemplate(jdbcConfiguration.getDataSource());
+  }
 
-    @Bean
-    public LockProvider lockProvider() {
-        return new JdbcTemplateLockProvider(
-                JdbcTemplateLockProvider.Configuration.builder()
-                        .withJdbcTemplate(jdbcTemplate)
-                        .usingDbTime()
-                        .build());
-    }
+  @Bean
+  public LockProvider lockProvider() {
+    return new JdbcTemplateLockProvider(
+        JdbcTemplateLockProvider.Configuration.builder()
+            .withJdbcTemplate(jdbcTemplate)
+            .usingDbTime()
+            .build());
+  }
 }

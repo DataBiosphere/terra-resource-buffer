@@ -42,11 +42,13 @@ public class CreateProjectStep implements Step {
   @VisibleForTesting public static final String CONFIG_NAME_LABEL_KEY = "buffer-config-name";
   // GKE default service account name label. Only sets when createGkeDefaultServiceAccount is true.
   @VisibleForTesting public static final String GKE_DEFAULT_SA_LABEL_KEY = "gke-default-sa";
+
   // Firewall rule name to allow https traffic for leonardo VMs. Empty if not having such firewall
   // rule.
   @VisibleForTesting
   public static final String LEONARDO_ALLOW_HTTPS_FIREWALL_RULE_NAME_LABEL_KEY =
       "leonardo-allow-https-firewall-name";
+
   // Firewall rule name to allow internal traffic within VPC for leonardo VMs. Empty if not having
   // such firewall rule.
   @VisibleForTesting

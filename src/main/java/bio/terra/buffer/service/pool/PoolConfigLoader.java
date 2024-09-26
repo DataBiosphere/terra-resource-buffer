@@ -34,6 +34,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 public class PoolConfigLoader {
   /** Pool schema file name should be the same name for all environments. */
   private static final String POOL_SCHEMA_NAME = "pool_schema.yml";
+
   /** Resource configs folder name should be the same name for all environments. */
   private static final String RESOURCE_CONFIG_SUB_DIR_NAME = "resource-config";
 

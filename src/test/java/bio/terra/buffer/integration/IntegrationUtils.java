@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 public class IntegrationUtils {
   /** The folder to create project within in test. */
   public static final String FOLDER_ID = "637867149294";
+
   /** The billing account to use in test. */
   public static final String BILLING_ACCOUNT_NAME = "01A82E-CA8A14-367457";
 
