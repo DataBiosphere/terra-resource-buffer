@@ -3,4 +3,5 @@
     <include file="changesets/20200925_initial_schema.yaml" relativeToChangelogFile="true"/>
     <include file="changesets/20210405_add_resource_state_index.yaml" relativeToChangelogFile="true"/>
     <include file="changesets/20240926_shedlock.yaml" relativeToChangelogFile="true"/>
+    <include file="changesets/20240926_add_cleanup_created_at.yaml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

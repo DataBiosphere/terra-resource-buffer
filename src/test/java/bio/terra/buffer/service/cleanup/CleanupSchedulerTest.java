@@ -65,7 +65,7 @@ public class CleanupSchedulerTest extends BaseUnitTest {
   @Autowired BufferDao bufferDao;
 
   private CrlConfiguration crlConfiguration = new CrlConfiguration();
-  private CleanupScheduler cleanupScheduler;
+  private JanitorResourceCleanupScheduler cleanupScheduler;
   private ObjectMapper objectMapper =
       new ObjectMapper()
           .registerModule(new Jdk8Module())
@@ -81,7 +81,8 @@ public class CleanupSchedulerTest extends BaseUnitTest {
     crlConfiguration.setJanitorTrackResourceTopicId("topicId");
     crlConfiguration.setTestResourceTimeToLive(Duration.ofHours(10));
     cleanupScheduler =
-        new CleanupScheduler(bufferDao, crlConfiguration, Clock.fixed(CREATION, ZoneId.of("UTC")));
+        new JanitorResourceCleanupScheduler(
+            bufferDao, crlConfiguration, Clock.fixed(CREATION, ZoneId.of("UTC")));
     cleanupScheduler.providePublisher(mockPublisher);
     when(mockPublisher.publish(any())).thenReturn(mockMessageIdFuture);
     when(mockMessageIdFuture.get()).thenReturn("message");
