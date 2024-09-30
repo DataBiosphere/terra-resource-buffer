@@ -1,6 +1,7 @@
 buffer:
+  crl:
+    publish-schedule: "*/10 * * * *"
   db:
-
     password:
     recreate-db-on-start: false
     update-db-on-start: true

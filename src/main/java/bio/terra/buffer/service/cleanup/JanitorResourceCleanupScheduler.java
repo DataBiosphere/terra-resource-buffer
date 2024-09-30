@@ -23,12 +23,11 @@ import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 /** Scheduler service to publish message to Janitor to cleanup resource. */
@@ -38,9 +37,6 @@ public class JanitorResourceCleanupScheduler {
   private static final Integer MESSAGE_TO_PUBLISH_PER_RUN = 100;
 
   private final Logger logger = LoggerFactory.getLogger(JanitorResourceCleanupScheduler.class);
-
-  /** Only need as many threads as we have scheduled tasks. */
-  private final ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(1);
 
   private final BufferDao bufferDao;
   private final CrlConfiguration crlConfiguration;
@@ -92,16 +88,10 @@ public class JanitorResourceCleanupScheduler {
             .registerModule(new Jdk8Module())
             .registerModule(new JavaTimeModule())
             .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-
-    // The scheduled task will not execute concurrently with itself even if it takes a long time.
-    // See javadoc on ScheduledExecutorService#scheduleAtFixedRate.
-    executor.scheduleAtFixedRate(
-        new LogThrowables(this::scheduleCleanup),
-        /* initialDelay= */ 0,
-        /* period= */ 10,
-        TimeUnit.MINUTES);
   }
 
+  @Scheduled(cron = "${buffer.crl.publish-schedule}")
+  @SchedulerLock(name = "CRLJanitor", lockAtMostFor = "PT10M")
   public void scheduleCleanup() {
     List<Resource> resources =
         bufferDao.retrieveResourceToCleanup(
@@ -141,37 +131,6 @@ public class JanitorResourceCleanupScheduler {
     } catch (InterruptedException | ExecutionException e) {
       throw new RuntimeException(
           String.format("Failed to publish message: [%s] ", data.toString()), e);
-    }
-  }
-
-  public void shutdown() {
-    // Don't schedule  anything new during shutdown.
-    executor.shutdown();
-  }
-
-  /**
-   * Wraps a runnable to log any thrown errors to allow the runnable to still be run with a {@link
-   * ScheduledExecutorService}.
-   *
-   * <p>ScheduledExecutorService scheduled tasks that throw errors stop executing.
-   */
-  private class LogThrowables implements Runnable {
-    private final Runnable task;
-
-    private LogThrowables(Runnable task) {
-      this.task = task;
-    }
-
-    @Override
-    public void run() {
-      try {
-        task.run();
-      } catch (Throwable t) {
-        logger.error(
-            "Caught exception in CleanupSchedule ScheduledExecutorService. StackTrace:\n"
-                + t.getStackTrace(),
-            t);
-      }
     }
   }
 }
