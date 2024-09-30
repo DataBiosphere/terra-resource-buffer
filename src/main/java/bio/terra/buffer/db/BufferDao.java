@@ -416,7 +416,10 @@ public class BufferDao {
     jdbcTemplate.update(sql, params);
   }
 
-  /** TODO document */
+  /**
+   * Inserts a record into cleanup_record table with creation timestamp. This is a convenience
+   * method for testing
+   */
   @VisibleForTesting
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
   public void insertCleanupRecordWithCreationTimestamp(ResourceId resourceId, Instant creation) {
@@ -468,6 +471,15 @@ public class BufferDao {
     return jdbcTemplate.query(sqlBuilder.toString(), params, RESOURCE_ROW_MAPPER);
   }
 
+  /**
+   * Given a retention period, remove dead resource records that are either: 1) handed out and older
+   * than the retention period, or 2) marked as deleted
+   *
+   * @param retentionDays retention period in days for handed out resource records before they are
+   *     eligible for deletion
+   * @param batchSize number of records to delete in one batch
+   * @return number of records deleted
+   */
   @Transactional
   public int removeDeadResourceRecords(int retentionDays, int batchSize) {
     String sql =
@@ -490,6 +502,14 @@ public class BufferDao {
     return jdbcTemplate.update(sql, params);
   }
 
+  /**
+   * Given a retention period, remove dead cleanup records that are older than the retention period.
+   *
+   * @param retentionDays retention period in days for cleanup records before they are eligible for
+   *     deletion
+   * @param batchSize number of records to delete in one batch
+   * @return number of records deleted
+   */
   @Transactional
   public int removeDeadCleanupRecords(int retentionDays, int batchSize) {
     String sql =
