@@ -8,7 +8,7 @@ buffer:
     username:
     cleanup-job:
       enabled: false
-      schedule: 0 0 4 * * * # every day at 4 am
+      schedule: 0 0 10 * * * # every day at 4 am
       retention-days: 30
       batch-size: 1000
   primary:
