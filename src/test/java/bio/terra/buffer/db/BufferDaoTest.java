@@ -31,6 +31,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 
@@ -45,6 +46,8 @@ public class BufferDaoTest extends BaseUnitTest {
   @BeforeEach
   public void setup() {
     jdbcTemplate = new NamedParameterJdbcTemplate(jdbcConfiguration.getDataSource());
+    jdbcTemplate.update("DELETE FROM cleanup_record", new MapSqlParameterSource());
+    jdbcTemplate.update("DELETE FROM resource", new MapSqlParameterSource());
   }
 
   private static Pool newPool(PoolId poolId) {
@@ -73,6 +76,16 @@ public class BufferDaoTest extends BaseUnitTest {
         .id(ResourceId.create(UUID.randomUUID()))
         .poolId(poolId)
         .creation(BufferDao.currentInstant())
+        .state(state)
+        .build();
+  }
+
+  private static Resource newResourceWithCreationTimestamp(
+      PoolId poolId, ResourceState state, Instant creation) {
+    return Resource.builder()
+        .id(ResourceId.create(UUID.randomUUID()))
+        .poolId(poolId)
+        .creation(creation)
         .state(state)
         .build();
   }
@@ -270,6 +283,83 @@ public class BufferDaoTest extends BaseUnitTest {
     resource = bufferDao.retrieveResource(resource.id()).get();
     assertEquals(now, resource.deletion());
     assertEquals(ResourceState.DELETED, resource.state());
+  }
+
+  @Test
+  void removeDeadCleanupRecords() {
+    Instant now = Instant.now();
+    Pool pool = newPool(PoolId.create("poolId"));
+    bufferDao.createPools(ImmutableList.of(pool));
+
+    var tenDayOldResource =
+        newResourceWithCreationTimestamp(
+            pool.id(), ResourceState.HANDED_OUT, now.minusSeconds(86400 * 10));
+    var fiveDayOldResource =
+        newResourceWithCreationTimestamp(
+            pool.id(), ResourceState.HANDED_OUT, now.minusSeconds(86400 * 5));
+    bufferDao.createResource(tenDayOldResource);
+    bufferDao.createResource(fiveDayOldResource);
+    bufferDao.insertCleanupRecordWithCreationTimestamp(
+        tenDayOldResource.id(), now.minusSeconds(86400 * 10));
+    bufferDao.insertCleanupRecordWithCreationTimestamp(
+        fiveDayOldResource.id(), now.minusSeconds(86400 * 5));
+
+    // Verify initial state
+    var initialCount =
+        jdbcTemplate.queryForObject(
+            "SELECT COUNT(*) FROM cleanup_record", new MapSqlParameterSource(), Integer.class);
+    assertEquals(2, initialCount);
+
+    var numDeleted = bufferDao.removeDeadCleanupRecords(7, 10);
+
+    assertThat(numDeleted, Matchers.is(1));
+
+    // Verify final state
+    var finalCount =
+        jdbcTemplate.queryForObject(
+            "SELECT COUNT(*) FROM cleanup_record", new MapSqlParameterSource(), Integer.class);
+    assertEquals(1, finalCount);
+    var remainingRecord =
+        jdbcTemplate.queryForObject(
+            "SELECT resource_id FROM cleanup_record", new MapSqlParameterSource(), UUID.class);
+    assertEquals(fiveDayOldResource.id().id(), remainingRecord);
+  }
+
+  @Test
+  void removeDeadResourceRecords() {
+    Instant now = Instant.now();
+    Pool pool = newPool(PoolId.create("poolId"));
+    bufferDao.createPools(ImmutableList.of(pool));
+
+    var tenDayOldHandedOutResource = newResource(pool.id(), ResourceState.HANDED_OUT);
+    var fiveDayOldHandedOutResource = newResource(pool.id(), ResourceState.HANDED_OUT);
+    var deletedResource = newResource(pool.id(), ResourceState.DELETED);
+
+    bufferDao.createResource(tenDayOldHandedOutResource);
+    bufferDao.createResource(fiveDayOldHandedOutResource);
+    bufferDao.createResource(deletedResource);
+
+    bufferDao.updateResourceHandoutTime(
+        tenDayOldHandedOutResource.id(), now.minusSeconds(86400 * 10));
+    bufferDao.updateResourceHandoutTime(
+        fiveDayOldHandedOutResource.id(), now.minusSeconds(86400 * 5));
+
+    // Verify initial state
+    int initialCount =
+        jdbcTemplate.queryForObject(
+            "SELECT COUNT(*) FROM resource", new MapSqlParameterSource(), Integer.class);
+    assertEquals(3, initialCount);
+    var numDeleted = bufferDao.removeDeadResourceRecords(7, 10);
+
+    assertThat(numDeleted, Matchers.is(2));
+    int finalCount =
+        jdbcTemplate.queryForObject(
+            "SELECT COUNT(*) FROM resource", new MapSqlParameterSource(), Integer.class);
+    assertEquals(1, finalCount);
+    var remainingResource =
+        jdbcTemplate.queryForObject(
+            "SELECT id FROM resource", new MapSqlParameterSource(), UUID.class);
+    assertEquals(fiveDayOldHandedOutResource.id().id(), remainingResource);
   }
 
   @Test

@@ -25,6 +25,7 @@ public class GoogleUtils {
   /** The private DNS zone name for GCR. */
   @VisibleForTesting
   public static final String GCR_MANAGED_ZONE_NAME = "private-google-access-gcr-dns-zone";
+
   /** The private DNS zone name for GAR. */
   public static final String GAR_MANAGED_ZONE_NAME = "private-google-access-gar-dns-zone";
 

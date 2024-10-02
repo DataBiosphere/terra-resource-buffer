@@ -33,11 +33,11 @@ import org.springframework.stereotype.Component;
 
 /** Scheduler service to publish message to Janitor to cleanup resource. */
 @Component
-public class CleanupScheduler {
+public class JanitorResourceCleanupScheduler {
   // Number of message to publish per scheduler run.
   private static final Integer MESSAGE_TO_PUBLISH_PER_RUN = 100;
 
-  private final Logger logger = LoggerFactory.getLogger(CleanupScheduler.class);
+  private final Logger logger = LoggerFactory.getLogger(JanitorResourceCleanupScheduler.class);
 
   /** Only need as many threads as we have scheduled tasks. */
   private final ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(1);
@@ -50,7 +50,8 @@ public class CleanupScheduler {
   private Publisher publisher;
 
   @Autowired
-  public CleanupScheduler(BufferDao bufferDao, CrlConfiguration crlConfiguration, Clock clock) {
+  public JanitorResourceCleanupScheduler(
+      BufferDao bufferDao, CrlConfiguration crlConfiguration, Clock clock) {
     this.bufferDao = bufferDao;
     this.crlConfiguration = crlConfiguration;
     this.clock = clock;

@@ -19,6 +19,7 @@ import bio.terra.common.exception.InternalServerErrorException;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.annotations.VisibleForTesting;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -290,6 +291,17 @@ public class BufferDao {
     return jdbcTemplate.update(sql, params) == 1;
   }
 
+  @VisibleForTesting
+  @Transactional
+  public void updateResourceHandoutTime(ResourceId id, Instant handoutTime) {
+    String sql = "UPDATE resource SET handout_time = :handout_time WHERE id = :id";
+    MapSqlParameterSource params =
+        new MapSqlParameterSource()
+            .addValue("handout_time", handoutTime.atOffset(ZoneOffset.UTC))
+            .addValue("id", id.id());
+    jdbcTemplate.update(sql, params);
+  }
+
   /**
    * Pick one READY resource and handed it out to client. The steps are:
    *
@@ -405,6 +417,23 @@ public class BufferDao {
   }
 
   /**
+   * Inserts a record into cleanup_record table with creation timestamp. This is a convenience
+   * method for testing
+   */
+  @VisibleForTesting
+  @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
+  public void insertCleanupRecordWithCreationTimestamp(ResourceId resourceId, Instant creation) {
+    String sql =
+        "INSERT INTO cleanup_record (resource_id, created_at) values (:resource_id, :created_at)";
+    MapSqlParameterSource params =
+        new MapSqlParameterSource()
+            .addValue("resource_id", resourceId.id())
+            .addValue("created_at", OffsetDateTime.ofInstant(creation, ZoneOffset.UTC));
+
+    jdbcTemplate.update(sql, params);
+  }
+
+  /**
    * Retrieves resources that need cleanup by Janitor. Those resources should be:
    *
    * <ul>
@@ -440,6 +469,61 @@ public class BufferDao {
             .addValue("limit", limit);
 
     return jdbcTemplate.query(sqlBuilder.toString(), params, RESOURCE_ROW_MAPPER);
+  }
+
+  /**
+   * Given a retention period, remove dead resource records that are either: 1) handed out and older
+   * than the retention period, or 2) marked as deleted
+   *
+   * @param retentionDays retention period in days for handed out resource records before they are
+   *     eligible for deletion
+   * @param batchSize number of records to delete in one batch
+   * @return number of records deleted
+   */
+  @Transactional
+  public int removeDeadResourceRecords(int retentionDays, int batchSize) {
+    String sql =
+        "DELETE FROM resource WHERE id IN ("
+            + "SELECT id FROM resource "
+            + "WHERE state IN (:handedOutState, :deletedState) AND "
+            + " ("
+            + "     (state = :handedOutState AND handout_time < NOW() - MAKE_INTERVAL(days => :retentionDays)) OR "
+            + "     (state = :deletedState) "
+            + " ) "
+            + "LIMIT :batchSize "
+            + ")";
+    MapSqlParameterSource params =
+        new MapSqlParameterSource()
+            .addValue("handedOutState", ResourceState.HANDED_OUT.toString())
+            .addValue("deletedState", ResourceState.DELETED.toString())
+            .addValue("retentionDays", retentionDays)
+            .addValue("batchSize", batchSize);
+
+    return jdbcTemplate.update(sql, params);
+  }
+
+  /**
+   * Given a retention period, remove dead cleanup records that are older than the retention period.
+   *
+   * @param retentionDays retention period in days for cleanup records before they are eligible for
+   *     deletion
+   * @param batchSize number of records to delete in one batch
+   * @return number of records deleted
+   */
+  @Transactional
+  public int removeDeadCleanupRecords(int retentionDays, int batchSize) {
+    String sql =
+        "DELETE FROM cleanup_record WHERE resource_id IN ("
+            + "SELECT resource_id FROM cleanup_record "
+            + "WHERE created_at < NOW() - MAKE_INTERVAL(days => :retentionDays) "
+            + "LIMIT :batchSize "
+            + ")";
+    MapSqlParameterSource params =
+        new MapSqlParameterSource()
+            .addValue("retentionDays", retentionDays)
+            .addValue("batchSize", batchSize);
+
+    return jdbcTemplate.update(sql, params);
   }
 
   private static final RowMapper<Pool> POOL_ROW_MAPPER =

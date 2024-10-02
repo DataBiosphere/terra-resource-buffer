@@ -1,10 +1,16 @@
 buffer:
   db:
+
     password:
     recreate-db-on-start: false
     update-db-on-start: true
     uri: jdbc:postgresql://127.0.0.1:5432/${BUFFER_DATABASE_NAME}
     username:
+    cleanup-job:
+      enabled: false
+      schedule: 0 0 10 * * * # every day at 10 am
+      retention-days: 30
+      batch-size: 1000
   primary:
     scheduler-enabled: true
   pool:
