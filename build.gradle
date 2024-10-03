@@ -107,7 +107,6 @@ dependencies {
     // These are not directly included, they are just constrained if they are pulled in as
     // transitive dependencies.
     constraints {
-        implementation('com.google.protobuf:protobuf-java:3.21.10')
         implementation('org.yaml:snakeyaml:2.3')
         implementation('com.nimbusds:nimbus-jose-jwt:9.41.1')
         implementation('io.projectreactor.netty:reactor-netty-http:1.1.22')
@@ -124,7 +123,6 @@ if (hasProperty('buildScan')) {
 }
 
 def gradleIncDir= "$rootDir/gradle"
-apply from: "$gradleIncDir/dependency-locking.gradle"
 apply from: "$gradleIncDir/jacoco.gradle"
 apply from: "$gradleIncDir/javadoc.gradle"
 apply from: "$gradleIncDir/jib.gradle"

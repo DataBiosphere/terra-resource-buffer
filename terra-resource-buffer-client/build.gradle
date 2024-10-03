@@ -25,7 +25,6 @@ dependencies {
 }
 
 def gradleIncDir= "$rootDir/gradle"
-apply from: "$gradleIncDir/dependency-locking.gradle"
 apply from: "$gradleIncDir/publishing.gradle"
 apply from: "$gradleIncDir/swagger-client.gradle"
 
