@@ -67,7 +67,7 @@ dependencies {
     implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '5.16.0'
     implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '5.16.0'
     implementation group: 'com.google.auto.value', name: 'auto-value-annotations', version: '1.11.0'
-    implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.132.3'
+    implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.133.0'
     implementation group: 'com.google.guava', name: 'guava', version: '33.3.1-jre'
     implementation group: 'jakarta.validation', name: 'jakarta.validation-api', version: '3.1.0'
     implementation group: 'org.liquibase', name: 'liquibase-core', version: '4.29.2'
@@ -90,7 +90,7 @@ dependencies {
     // Swagger deps
     implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.18.0'
     implementation group: 'io.swagger', name: 'swagger-annotations', version: '1.6.14'
-    implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.24'
+    implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.25'
     runtimeOnly group: 'org.webjars.npm', name: 'swagger-ui-dist', version: '5.17.14'
     swaggerCodegen group: 'io.swagger.codegen.v3', name: 'swagger-codegen-cli', version: '3.0.61'
 
@@ -108,7 +108,7 @@ dependencies {
     // transitive dependencies.
     constraints {
         implementation('org.yaml:snakeyaml:2.3')
-        implementation('com.nimbusds:nimbus-jose-jwt:9.41.1')
+        implementation('com.nimbusds:nimbus-jose-jwt:9.41.2')
         implementation('io.projectreactor.netty:reactor-netty-http:1.1.22')
         implementation('com.fasterxml.jackson:jackson-bom:2.18.0')
     }
