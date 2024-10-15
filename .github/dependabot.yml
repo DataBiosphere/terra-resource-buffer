@@ -16,9 +16,9 @@ updates:
       timezone: "America/New_York"
     target-branch: "master"
     reviewers:
-      - "@DataBiosphere/broadworkspaces"
+      - "@DataBiosphere/broad-core-services"
     labels:
       - "dependency"
       - "gradle"
     commit-message:
-      prefix: "[WOR-1448]"
+      prefix: "[CORE-69]"
