@@ -12,7 +12,7 @@ plugins {
 
     id 'com.diffplug.spotless' version '6.25.0'
     id 'com.github.ben-manes.versions' version '0.51.0'
-    id 'com.google.cloud.tools.jib' version '3.4.1'
+    id 'com.google.cloud.tools.jib' version '3.4.4'
     id 'de.undercouch.download' version '5.6.0'
     id 'org.hidetake.swagger.generator' version '2.19.2'
     id 'org.sonarqube' version '5.1.0.4882'
@@ -59,9 +59,9 @@ repositories {
 
 dependencies {
     // Terra deps - we get Stairway via TCL
-    implementation group: 'bio.terra', name: 'terra-common-lib', version: '1.1.20-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'terra-common-lib', version: '1.1.22-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-cloud-resource-lib', version: '1.2.31-SNAPSHOT'
-    implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.113.37-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.114.0-SNAPSHOT'
 
     // Versioned direct deps
     implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '5.16.0'
@@ -85,7 +85,7 @@ dependencies {
     implementation group: 'org.apache.commons', name: 'commons-pool2', version: '2.12.0'
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jdbc', version: "${springBootVersion}"
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: "${springBootVersion}"
-    implementation group: 'org.springframework.retry', name: 'spring-retry', version: '2.0.9'
+    implementation group: 'org.springframework.retry', name: 'spring-retry', version: '2.0.10'
 
     // Swagger deps
     implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.18.0'
