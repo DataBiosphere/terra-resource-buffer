@@ -85,7 +85,7 @@ dependencies {
     implementation group: 'org.apache.commons', name: 'commons-pool2', version: '2.12.0'
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jdbc', version: "${springBootVersion}"
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: "${springBootVersion}"
-    implementation group: 'org.springframework.retry', name: 'spring-retry', version: '2.0.9'
+    implementation group: 'org.springframework.retry', name: 'spring-retry', version: '2.0.10'
 
     // Swagger deps
     implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.18.0'
