@@ -1,7 +1,7 @@
 // Build Script Classpath
 buildscript {
     ext {
-        springBootVersion = '3.3.4'
+        springBootVersion = '3.3.5'
     }
 }
 
@@ -61,13 +61,13 @@ dependencies {
     // Terra deps - we get Stairway via TCL
     implementation group: 'bio.terra', name: 'terra-common-lib', version: '1.1.20-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-cloud-resource-lib', version: '1.2.31-SNAPSHOT'
-    implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.113.37-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.113.38-SNAPSHOT'
 
     // Versioned direct deps
     implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '5.16.0'
     implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '5.16.0'
     implementation group: 'com.google.auto.value', name: 'auto-value-annotations', version: '1.11.0'
-    implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.133.1'
+    implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.134.1'
     implementation group: 'com.google.guava', name: 'guava', version: '33.3.1-jre'
     implementation group: 'jakarta.validation', name: 'jakarta.validation-api', version: '3.1.0'
     implementation group: 'org.liquibase', name: 'liquibase-core', version: '4.29.2'
@@ -108,7 +108,7 @@ dependencies {
     // transitive dependencies.
     constraints {
         implementation('org.yaml:snakeyaml:2.3')
-        implementation('com.nimbusds:nimbus-jose-jwt:9.41.2')
+        implementation('com.nimbusds:nimbus-jose-jwt:9.42')
         implementation('io.projectreactor.netty:reactor-netty-http:1.1.23')
         implementation('com.fasterxml.jackson:jackson-bom:2.18.0')
     }
