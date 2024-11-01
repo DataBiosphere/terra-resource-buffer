@@ -1,0 +1,35 @@
+# Resource template for running buffer service performance test
+---
+configName: "resource_buffer_test_v3"
+gcpProjectConfig:
+  projectIdSchema:
+    prefix: "buffer-test"
+    scheme: "RANDOM_CHAR"
+  # test.firecloud.org/tools/buffertest
+  parentFolderId: "339691735869"
+  billingAccount: "01A82E-CA8A14-367457"
+  enabledApis:
+    - "bigquery-json.googleapis.com"
+    - "batch.googleapis.com"
+    - "compute.googleapis.com"
+    - "container.googleapis.com"
+    - "cloudbilling.googleapis.com"
+    - "clouderrorreporting.googleapis.com"
+    - "cloudkms.googleapis.com"
+    - "cloudtrace.googleapis.com"
+    - "containerregistry.googleapis.com"
+    - "dataflow.googleapis.com"
+    - "dataproc.googleapis.com"
+    - "dns.googleapis.com"
+    - "lifesciences.googleapis.com"
+    - "logging.googleapis.com"
+    - "monitoring.googleapis.com"
+    - "storage-api.googleapis.com"
+    - "storage-component.googleapis.com"
+  iamBindings:
+    - members: [ "group:terra-rbs-test@broadinstitute.org" ]
+      role: "roles/editor"
+    - members: [ "group:terra-rbs-viewer-test@broadinstitute.org" ]
+      role: "roles/viewer"
+  network:
+    enableNetworkMonitoring: "true"
