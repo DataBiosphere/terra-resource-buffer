@@ -108,9 +108,6 @@ dependencies {
     annotationProcessor group: 'com.google.auto.value', name: 'auto-value', version: '1.11.0'
     annotationProcessor group: 'org.springframework.boot', name: 'spring-boot-configuration-processor', version: "${springBootVersion}"
 
-
-
-
     // Transitive dependency constraints due to security vulnurabilities in prior versions.
     // These are not directly included, they are just constrained if they are pulled in as
     // transitive dependencies.
@@ -119,11 +116,8 @@ dependencies {
         implementation('com.nimbusds:nimbus-jose-jwt:9.42')
         implementation('io.projectreactor.netty:reactor-netty-http:1.1.23')
         implementation('com.fasterxml.jackson:jackson-bom:2.18.0')
-
     }
 }
-
-
 
 // for scans
 if (hasProperty('buildScan')) {
