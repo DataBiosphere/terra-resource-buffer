@@ -3,9 +3,11 @@ buildscript {
     ext {
         springBootVersion = '3.3.5'
     }
-//    dependencies {
-//        classpath group: 'org.apache.commons', name: 'commons-compress', version: '1.26.0'
-//    }
+    dependencies {
+        // jib build requires this dependency;
+        // see https://github.com/GoogleContainerTools/jib/issues/4235
+        classpath group: 'org.apache.commons', name: 'commons-compress', version: '1.26.0'
+    }
 }
 
 plugins {
