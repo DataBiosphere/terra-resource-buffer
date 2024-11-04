@@ -27,9 +27,14 @@ jobs:
           # build sources and store the plain log without colors
           ./gradlew jibDockerBuild --console=plain \
             | perl -pe 's/\x1b\[[0-9;]*[mG]//g' | tee build.log
+          # capture exit code of jib build; because it is piped through perl and tee,
+          # any build failures would be otherwise hidden
+          jib_code=${PIPESTATUS[0]}
           # export image name from the log
           image=$(grep 'Built image' build.log | awk '{print $NF}')
           echo image="${image}" >> $GITHUB_OUTPUT
+          # fail this step if the jib build failed
+          exit $jib_code
       # scan the image
       - uses: broadinstitute/dsp-appsec-trivy-action@v1
         with:
