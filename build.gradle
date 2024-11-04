@@ -6,7 +6,7 @@ buildscript {
     dependencies {
         // jib build requires this dependency;
         // see https://github.com/GoogleContainerTools/jib/issues/4235
-        classpath group: 'org.apache.commons', name: 'commons-compress', version: '1.26.0'
+        classpath group: 'org.apache.commons', name: 'commons-compress', version: '1.27.1'
     }
 }
 
@@ -64,7 +64,7 @@ repositories {
 
 dependencies {
     // Terra deps - we get Stairway via TCL
-    implementation group: 'bio.terra', name: 'terra-common-lib', version: '1.1.20-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'terra-common-lib', version: '1.1.22-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-cloud-resource-lib', version: '1.2.31-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.113.38-SNAPSHOT'
 
@@ -93,7 +93,7 @@ dependencies {
     implementation group: 'org.springframework.retry', name: 'spring-retry', version: '2.0.10'
 
     // Swagger deps
-    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.18.0'
+    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.18.1'
     implementation group: 'io.swagger', name: 'swagger-annotations', version: '1.6.14'
     implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.25'
     runtimeOnly group: 'org.webjars.npm', name: 'swagger-ui-dist', version: '5.17.14'
@@ -113,9 +113,9 @@ dependencies {
     // transitive dependencies.
     constraints {
         implementation('org.yaml:snakeyaml:2.3')
-        implementation('com.nimbusds:nimbus-jose-jwt:9.42')
+        implementation('com.nimbusds:nimbus-jose-jwt:9.45')
         implementation('io.projectreactor.netty:reactor-netty-http:1.1.23')
-        implementation('com.fasterxml.jackson:jackson-bom:2.18.0')
+        implementation('com.fasterxml.jackson:jackson-bom:2.18.1')
     }
 }
 
