@@ -1,9 +1,6 @@
 # Resource Buffer Service Pools Schema in dev environment
 ---
 poolConfigs:
-  - poolId: "cwb_ws_dev_v7"
-    size: 300
-    resourceConfigName: "cwb_ws_resource_dev_v7"
   - poolId: "cwb_ws_dev_v8"
     size: 300
     resourceConfigName: "cwb_ws_resource_dev_v8"
@@ -13,15 +10,9 @@ poolConfigs:
   - poolId: "datarepo_v3"
     size: 300
     resourceConfigName: "datarepo_v3"
-  - poolId: "vpc_sc_v12"
-    size: 300
-    resourceConfigName: "vpc_sc_v12"
   - poolId: "vpc_sc_v13"
     size: 300
     resourceConfigName: "vpc_sc_v13"
-  - poolId: "workspace_manager_v11"
-    size: 500
-    resourceConfigName: "workspace_manager_v11"
   - poolId: "workspace_manager_v12"
     size: 500
     resourceConfigName: "workspace_manager_v12"
