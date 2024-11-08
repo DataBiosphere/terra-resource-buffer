@@ -2,12 +2,6 @@
 # READY resource ratio by pool over time: https://grafana.dsp-devops.broadinstitute.org/goto/qHOGMufSk?orgId=1
 ---
 poolConfigs:
-  - poolId: "cwb_ws_fiab_v7"
-    size: 500
-    resourceConfigName: "cwb_ws_resource_fiab_v7"
-  - poolId: "cwb_ws_fiab_v8"
-    size: 500
-    resourceConfigName: "cwb_ws_resource_fiab_v8"
   - poolId: "cwb_ws_quality_v11"
     size: 1000
     resourceConfigName: "cwb_ws_resource_quality_v11"
