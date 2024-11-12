@@ -6,7 +6,7 @@ buildscript {
     dependencies {
         // jib build requires this dependency;
         // see https://github.com/GoogleContainerTools/jib/issues/4235
-        classpath group: 'org.apache.commons', name: 'commons-compress', version: '1.26.0'
+        classpath group: 'org.apache.commons', name: 'commons-compress', version: '1.27.1'
     }
 }
 
@@ -75,7 +75,7 @@ dependencies {
     implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.134.1'
     implementation group: 'com.google.guava', name: 'guava', version: '33.3.1-jre'
     implementation group: 'jakarta.validation', name: 'jakarta.validation-api', version: '3.1.0'
-    implementation group: 'org.liquibase', name: 'liquibase-core', version: '4.29.2'
+    implementation group: 'org.liquibase', name: 'liquibase-core', version: '4.30.0'
     implementation group: 'org.webjars', name: 'webjars-locator-core', version: '0.59'
     runtimeOnly group: 'org.postgresql', name: 'postgresql'
 
@@ -93,10 +93,10 @@ dependencies {
     implementation group: 'org.springframework.retry', name: 'spring-retry', version: '2.0.10'
 
     // Swagger deps
-    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.18.0'
+    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.18.1'
     implementation group: 'io.swagger', name: 'swagger-annotations', version: '1.6.14'
     implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.25'
-    runtimeOnly group: 'org.webjars.npm', name: 'swagger-ui-dist', version: '5.17.14'
+    runtimeOnly group: 'org.webjars.npm', name: 'swagger-ui-dist', version: '5.18.2'
     swaggerCodegen group: 'io.swagger.codegen.v3', name: 'swagger-codegen-cli', version: '3.0.61'
 
     // Test deps
@@ -113,9 +113,9 @@ dependencies {
     // transitive dependencies.
     constraints {
         implementation('org.yaml:snakeyaml:2.3')
-        implementation('com.nimbusds:nimbus-jose-jwt:9.42')
+        implementation('com.nimbusds:nimbus-jose-jwt:9.46')
         implementation('io.projectreactor.netty:reactor-netty-http:1.1.23')
-        implementation('com.fasterxml.jackson:jackson-bom:2.18.0')
+        implementation('com.fasterxml.jackson:jackson-bom:2.18.1')
     }
 }
 
