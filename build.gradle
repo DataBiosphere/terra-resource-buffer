@@ -139,3 +139,7 @@ apply from: "$gradleIncDir/srcclr.gradle"
 
 sourceSets.main.java.srcDir "${swaggerOutputDir}/src/main/java"
 sourceSets.test.resources.srcDir 'config/' // Allow unit tests to directly load config files.
+
+tasks.withType(Test).configureEach {
+    jvmArgs = jvmArgs + ['--add-opens=java.base/java.lang=ALL-UNNAMED']
+}
