@@ -7,14 +7,11 @@ set -e
 VAULT_TOKEN=${1:-$(cat $HOME/.vault-token)}
 DSDE_TOOLBOX_DOCKER_IMAGE=broadinstitute/dsde-toolbox:dev
 VAULT_SERVICE_ACCOUNT_PATH=secret/dsde/terra/kernel/integration/toolsalpha/buffer/app-sa
-VAULT_JANITOR_CLIENT_SERVICE_ACCOUNT_PATH=secret/dsde/terra/kernel/integration/tools/crl_janitor/client-sa
 SERVICE_ACCOUNT_OUTPUT_FILE_PATH="$(dirname $0)"/../src/test/resources/rendered/sa-account.json
 JANITOR_CLIENT_SERVICE_ACCOUNT_OUTPUT_FILE_PATH="$(dirname $0)"/../src/test/resources/rendered/janitor-client-sa-account.json
 
 docker run --rm -e VAULT_TOKEN=$VAULT_TOKEN ${DSDE_TOOLBOX_DOCKER_IMAGE} \
             vault read -format json ${VAULT_SERVICE_ACCOUNT_PATH} \
             | jq -r .data.key | base64 -d > ${SERVICE_ACCOUNT_OUTPUT_FILE_PATH}
-docker run --rm --cap-add IPC_LOCK \
-            -e VAULT_TOKEN=$VAULT_TOKEN ${DSDE_TOOLBOX_DOCKER_IMAGE} \
-            vault read -format json ${VAULT_JANITOR_CLIENT_SERVICE_ACCOUNT_PATH} \
-            | jq -r .data.key | base64 -d > ${JANITOR_CLIENT_SERVICE_ACCOUNT_OUTPUT_FILE_PATH}
+
+gcloud secrets versions access latest --secret=crljanitor-client-sa --project=broad-dsde-qa | jq -r '.key' | base64 -d >"${JANITOR_CLIENT_SERVICE_ACCOUNT_OUTPUT_FILE_PATH}"
