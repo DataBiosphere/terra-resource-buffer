@@ -18,7 +18,7 @@ dependencies {
         apacheMath = '3.6.1'
         findbugsAnnotations = "3.0.1u2"
         guava = "33.3.1-jre"
-        jackson = "2.18.0"
+        jackson = "2.18.1"
         jersey = "3.1.9"
         kubernetesClient = "21.0.2"
         logback = "1.5.12"
