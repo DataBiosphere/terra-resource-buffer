@@ -64,7 +64,7 @@ repositories {
 
 dependencies {
     // Terra deps - we get Stairway via TCL
-    implementation group: 'bio.terra', name: 'terra-common-lib', version: '1.1.20-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'terra-common-lib', version: '1.1.24-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-cloud-resource-lib', version: '1.2.31-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.113.38-SNAPSHOT'
 
@@ -113,8 +113,8 @@ dependencies {
     // transitive dependencies.
     constraints {
         implementation('org.yaml:snakeyaml:2.3')
-        implementation('com.nimbusds:nimbus-jose-jwt:9.46')
-        implementation('io.projectreactor.netty:reactor-netty-http:1.1.23')
+        implementation('com.nimbusds:nimbus-jose-jwt:9.47')
+        implementation('io.projectreactor.netty:reactor-netty-http:1.2.0')
         implementation('com.fasterxml.jackson:jackson-bom:2.18.1')
     }
 }
