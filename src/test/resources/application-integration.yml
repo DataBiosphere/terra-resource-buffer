@@ -7,4 +7,4 @@ buffer:
     janitor-track-resource-project-id: terra-kernel-k8s
     janitor-track-resource-topic-id: crljanitor-tools-pubsub-topic
   pool:
-    config-path: config/toolsalpha
+    config-path: config/buffertest
