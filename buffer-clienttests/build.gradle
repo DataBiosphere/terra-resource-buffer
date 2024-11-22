@@ -25,7 +25,7 @@ dependencies {
         slf4j = "2.0.16"
         hamcrest = "3.0"
 
-        googleOauth2 = "1.30.0"
+        googleOauth2 = "1.29.0"
 
         bufferServiceClient = "0.4.3-SNAPSHOT"
         testRunner = "0.2.0-SNAPSHOT"
