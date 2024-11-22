@@ -39,7 +39,8 @@ public class CreateGkeDefaultSAStep implements Step {
           "roles/logging.logWriter",
           "roles/monitoring.metricWriter",
           "roles/monitoring.viewer",
-          "roles/stackdriver.resourceMetadata.writer");
+          "roles/stackdriver.resourceMetadata.writer",
+          "roles/secretmanager.secretAccessor");
 
   private final Logger logger = LoggerFactory.getLogger(CreateGkeDefaultSAStep.class);
   private final IamCow iamCow;
