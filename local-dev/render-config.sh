@@ -6,7 +6,7 @@ set -e
 
 VAULT_TOKEN=${1:-$(cat $HOME/.vault-token)}
 DSDE_TOOLBOX_DOCKER_IMAGE=broadinstitute/dsde-toolbox:dev
-VAULT_SERVICE_ACCOUNT_PATH=secret/dsde/terra/kernel/integration/toolsalpha/buffer/app-sa
+VAULT_SERVICE_ACCOUNT_PATH=secret/dsde/terra/kernel/integration/buffertest/buffer/app-sa
 VAULT_JANITOR_CLIENT_SERVICE_ACCOUNT_PATH=secret/dsde/terra/kernel/integration/tools/crl_janitor/client-sa
 SERVICE_ACCOUNT_OUTPUT_FILE_PATH="$(dirname $0)"/../src/test/resources/rendered/sa-account.json
 JANITOR_CLIENT_SERVICE_ACCOUNT_OUTPUT_FILE_PATH="$(dirname $0)"/../src/test/resources/rendered/janitor-client-sa-account.json
