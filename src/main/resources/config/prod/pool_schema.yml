@@ -4,6 +4,9 @@ poolConfigs:
   - poolId: "cwb_ws_prod_v7"
     size: 3000
     resourceConfigName: "cwb_ws_prod_v7"
+  - poolId: "cwb_ws_prod_v8"
+    size: 3000
+    resourceConfigName: "cwb_ws_prod_v8"
   - poolId: "datarepo_v1"
     size: 1000
     resourceConfigName: "datarepo_v1"
@@ -13,3 +16,6 @@ poolConfigs:
   - poolId: "vpc_sc_v11"
     size: 1000
     resourceConfigName: "vpc_sc_v11"
+  - poolId: "vpc_sc_v12"
+    size: 1000
+    resourceConfigName: "vpc_sc_v12"
