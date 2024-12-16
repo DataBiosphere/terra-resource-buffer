@@ -65,7 +65,7 @@ repositories {
 
 dependencies {
     // Terra deps - we get Stairway via TCL
-    implementation group: 'bio.terra', name: 'terra-common-lib', version: '1.1.22-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'terra-common-lib', version: '1.1.26-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-cloud-resource-lib', version: '1.2.34-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.113.38-SNAPSHOT'
 
@@ -73,7 +73,7 @@ dependencies {
     implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '5.16.0'
     implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '5.16.0'
     implementation group: 'com.google.auto.value', name: 'auto-value-annotations', version: '1.11.0'
-    implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.134.2'
+    implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.135.0'
     implementation group: 'com.google.guava', name: 'guava', version: '33.3.1-jre'
     implementation group: 'jakarta.validation', name: 'jakarta.validation-api', version: '3.1.0'
     implementation group: 'org.liquibase', name: 'liquibase-core', version: '4.30.0'
@@ -91,12 +91,12 @@ dependencies {
     implementation group: 'org.apache.commons', name: 'commons-pool2', version: '2.12.0'
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jdbc', version: "${springBootVersion}"
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: "${springBootVersion}"
-    implementation group: 'org.springframework.retry', name: 'spring-retry', version: '2.0.10'
+    implementation group: 'org.springframework.retry', name: 'spring-retry', version: '2.0.11'
 
     // Swagger deps
     implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.18.2'
     implementation group: 'io.swagger', name: 'swagger-annotations', version: '1.6.14'
-    implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.26'
+    implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.27'
     runtimeOnly group: 'org.webjars.npm', name: 'swagger-ui-dist', version: '5.18.2'
     swaggerCodegen group: 'io.swagger.codegen.v3', name: 'swagger-codegen-cli', version: '3.0.61'
 
@@ -115,7 +115,7 @@ dependencies {
     constraints {
         implementation('org.yaml:snakeyaml:2.3')
         implementation('com.nimbusds:nimbus-jose-jwt:9.47')
-        implementation('io.projectreactor.netty:reactor-netty-http:1.2.0')
+        implementation('io.projectreactor.netty:reactor-netty-http:1.2.1')
         implementation('com.fasterxml.jackson:jackson-bom:2.18.2')
     }
 }
