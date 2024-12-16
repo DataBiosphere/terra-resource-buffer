@@ -71,7 +71,7 @@ dependencies {
 
     // Versioned direct deps
     implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '5.16.0'
-    implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '5.16.0'
+    implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '6.0.2'
     implementation group: 'com.google.auto.value', name: 'auto-value-annotations', version: '1.11.0'
     implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.134.2'
     implementation group: 'com.google.guava', name: 'guava', version: '33.3.1-jre'
