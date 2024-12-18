@@ -21,4 +21,4 @@ include 'terra-resource-buffer-client'
 include 'buffer-clienttests'
 
 gradle.ext.projectGroup = 'bio.terra'
-gradle.ext.rbsVersion = '0.198.107-SNAPSHOT'
+gradle.ext.rbsVersion = '0.198.108-SNAPSHOT'
