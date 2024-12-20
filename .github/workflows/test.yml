@@ -72,13 +72,13 @@ jobs:
         run: ./gradlew integrationTest --scan
       - name: Upload Test Reports
         if: always() && steps.skiptest.outputs.is-bump == 'no'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Test Reports
           path: build/reports
       - name: Upload Jacoco Reports
         if: always() && steps.skiptest.outputs.is-bump == 'no'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Test Reports
           path: build/jacoco
