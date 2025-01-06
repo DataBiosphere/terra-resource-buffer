@@ -114,7 +114,7 @@ dependencies {
     // transitive dependencies.
     constraints {
         implementation('org.yaml:snakeyaml:2.3')
-        implementation('com.nimbusds:nimbus-jose-jwt:9.48')
+        implementation('com.nimbusds:nimbus-jose-jwt:10.0.1')
         implementation('io.projectreactor.netty:reactor-netty-http:1.2.1')
         implementation('com.fasterxml.jackson:jackson-bom:2.18.2')
     }
