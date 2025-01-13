@@ -65,15 +65,15 @@ repositories {
 
 dependencies {
     // Terra deps - we get Stairway via TCL
-    implementation group: 'bio.terra', name: 'terra-common-lib', version: '1.1.26-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'terra-common-lib', version: '1.1.30-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-cloud-resource-lib', version: '1.2.34-SNAPSHOT'
-    implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.113.38-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.113.39-SNAPSHOT'
 
     // Versioned direct deps
-    implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '6.0.2'
-    implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '6.0.2'
+    implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '6.2.0'
+    implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '6.2.0'
     implementation group: 'com.google.auto.value', name: 'auto-value-annotations', version: '1.11.0'
-    implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.135.0'
+    implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.136.0'
     implementation group: 'com.google.guava', name: 'guava', version: '33.4.0-jre'
     implementation group: 'jakarta.validation', name: 'jakarta.validation-api', version: '3.1.0'
     implementation group: 'org.liquibase', name: 'liquibase-core', version: '4.30.0'
