@@ -1,7 +1,7 @@
 // Build Script Classpath
 buildscript {
     ext {
-        springBootVersion = '3.4.1'
+        springBootVersion = '3.4.2'
     }
     dependencies {
         // jib build requires this dependency;
@@ -17,7 +17,7 @@ plugins {
     id 'java'
 
     id 'com.diffplug.spotless' version '6.25.0'
-    id 'com.github.ben-manes.versions' version '0.51.0'
+    id 'com.github.ben-manes.versions' version '0.52.0'
     id 'com.google.cloud.tools.jib' version '3.4.4'
     id 'de.undercouch.download' version '5.6.0'
     id 'org.hidetake.swagger.generator' version '2.19.2'
