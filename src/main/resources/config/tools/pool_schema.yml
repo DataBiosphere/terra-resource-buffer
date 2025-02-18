@@ -3,7 +3,7 @@
 ---
 poolConfigs:
   - poolId: "cwb_ws_quality_v11"
-    size: 1000
+    size: 200
     resourceConfigName: "cwb_ws_resource_quality_v11"
   - poolId: "datarepo_v1"
     size: 1000
@@ -12,5 +12,5 @@ poolConfigs:
     size: 100
     resourceConfigName: "vpc_sc_qa-fiab_v6"
   - poolId: "workspace_manager_v12"
-    size: 500
+    size: 100
     resourceConfigName: "workspace_manager_v12"
