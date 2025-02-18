@@ -25,8 +25,7 @@ public class PoolSchemaTest {
 
   /** List of pool config folders for all environments, e.g. prod, staging, dev. */
   private static final List<String> POOL_CONFIG_FOLDERS =
-      ImmutableList.of(
-          "alpha/", "buffertest/", "dev/", "prod/", "perf/", "staging/", "tools/");
+      ImmutableList.of("alpha/", "buffertest/", "dev/", "prod/", "perf/", "staging/", "tools/");
 
   @Test
   public void testConfigValid() {
