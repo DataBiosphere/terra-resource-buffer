@@ -2,7 +2,7 @@
 ---
 poolConfigs:
   - poolId: "cwb_ws_prod_v8"
-    size: 3000
+    size: 1000
     resourceConfigName: "cwb_ws_prod_v8"
   - poolId: "datarepo_v1"
     size: 1000

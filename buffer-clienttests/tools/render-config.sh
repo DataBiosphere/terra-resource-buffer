@@ -14,13 +14,7 @@ VAULT_TOKEN=${2:-$(cat $HOME/.vault-token)}
 DSDE_TOOLBOX_DOCKER_IMAGE=broadinstitute/dsde-toolbox:consul-0.20.0
 VAULT_CLIENT_SERVICE_ACCOUNT_PATH=secret/dsde/terra/kernel/integration/${ENV}/buffer/client-sa
 CLIENT_SERVICE_ACCOUNT_OUTPUT_FILE_PATH="$(dirname $0)"/../rendered/${ENV}-buffer-client-sa-key.json
-# We uses different Vault for personal envs and perf/dev environments. We need a better solution once we start using
-# preview environment for test.
-if [ "$ENV" = "perf" ]; then
-  VAULT_CLIENT_SERVICE_ACCOUNT_PATH=secret/dsde/terra/kernel/${ENV}/${ENV}/buffer/client-sa
-else
-  VAULT_CLIENT_SERVICE_ACCOUNT_PATH=secret/dsde/terra/kernel/integration/${ENV}/buffer/client-sa
-fi
+VAULT_CLIENT_SERVICE_ACCOUNT_PATH=secret/dsde/terra/kernel/integration/${ENV}/buffer/client-sa
 
 mkdir -p ../rendered
 docker run --rm -e VAULT_TOKEN=$VAULT_TOKEN ${DSDE_TOOLBOX_DOCKER_IMAGE} \

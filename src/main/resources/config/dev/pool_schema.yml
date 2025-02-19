@@ -2,17 +2,17 @@
 ---
 poolConfigs:
   - poolId: "cwb_ws_dev_v8"
-    size: 300
+    size: 100
     resourceConfigName: "cwb_ws_resource_dev_v8"
   - poolId: "datarepo_fakeprod_v1"
     size: 50
     resourceConfigName: "datarepo_fakeprod_v1"
   - poolId: "datarepo_v3"
-    size: 300
+    size: 100
     resourceConfigName: "datarepo_v3"
   - poolId: "vpc_sc_v13"
-    size: 300
+    size: 100
     resourceConfigName: "vpc_sc_v13"
   - poolId: "workspace_manager_v12"
-    size: 500
+    size: 50
     resourceConfigName: "workspace_manager_v12"
