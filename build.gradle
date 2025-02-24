@@ -1,7 +1,7 @@
 // Build Script Classpath
 buildscript {
     ext {
-        springBootVersion = '3.4.2'
+        springBootVersion = '3.4.3'
     }
     dependencies {
         // jib build requires this dependency;
@@ -65,9 +65,9 @@ repositories {
 
 dependencies {
     // Terra deps - we get Stairway via TCL
-    implementation group: 'bio.terra', name: 'terra-common-lib', version: '1.1.35-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'terra-common-lib', version: '1.1.36-SNAPSHOT'
     implementation group: 'bio.terra', name: 'terra-cloud-resource-lib', version: '1.2.34-SNAPSHOT'
-    implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.113.42-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.113.44-SNAPSHOT'
 
     // Versioned direct deps
     implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '6.3.0'
@@ -76,7 +76,7 @@ dependencies {
     implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.137.0'
     implementation group: 'com.google.guava', name: 'guava', version: '33.4.0-jre'
     implementation group: 'jakarta.validation', name: 'jakarta.validation-api', version: '3.1.1'
-    implementation group: 'org.liquibase', name: 'liquibase-core', version: '4.31.0'
+    implementation group: 'org.liquibase', name: 'liquibase-core', version: '4.31.1'
     implementation group: 'org.webjars', name: 'webjars-locator-core', version: '0.59'
     runtimeOnly group: 'org.postgresql', name: 'postgresql'
 
@@ -97,11 +97,11 @@ dependencies {
     implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.18.2'
     implementation group: 'io.swagger', name: 'swagger-annotations', version: '1.6.15'
     implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.28'
-    runtimeOnly group: 'org.webjars.npm', name: 'swagger-ui-dist', version: '5.18.3'
+    runtimeOnly group: 'org.webjars.npm', name: 'swagger-ui-dist', version: '5.19.0'
     swaggerCodegen group: 'io.swagger.codegen.v3', name: 'swagger-codegen-cli', version: '3.0.61'
 
     // Test deps
-    testImplementation 'org.awaitility:awaitility:4.2.2'
+    testImplementation 'org.awaitility:awaitility:4.3.0'
     testImplementation("org.springframework.boot:spring-boot-starter-test:${springBootVersion}") {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
