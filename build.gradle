@@ -73,7 +73,7 @@ dependencies {
     implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '6.3.0'
     implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '6.3.0'
     implementation group: 'com.google.auto.value', name: 'auto-value-annotations', version: '1.11.0'
-    implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.137.1'
+    implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.138.0'
     implementation group: 'com.google.guava', name: 'guava', version: '33.4.0-jre'
     implementation group: 'jakarta.validation', name: 'jakarta.validation-api', version: '3.1.1'
     implementation group: 'org.liquibase', name: 'liquibase-core', version: '4.31.1'
@@ -96,8 +96,8 @@ dependencies {
     // Swagger deps
     implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.18.3'
     implementation group: 'io.swagger', name: 'swagger-annotations', version: '1.6.15'
-    implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.28'
-    runtimeOnly group: 'org.webjars.npm', name: 'swagger-ui-dist', version: '5.20.0'
+    implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.29'
+    runtimeOnly group: 'org.webjars.npm', name: 'swagger-ui-dist', version: '5.20.1'
     swaggerCodegen group: 'io.swagger.codegen.v3', name: 'swagger-codegen-cli', version: '3.0.61'
 
     // Test deps
@@ -115,7 +115,7 @@ dependencies {
     constraints {
         implementation('org.yaml:snakeyaml:2.4')
         implementation('com.nimbusds:nimbus-jose-jwt:10.0.2')
-        implementation('io.projectreactor.netty:reactor-netty-http:1.2.3')
+        implementation('io.projectreactor.netty:reactor-netty-http:1.2.4')
         implementation('com.fasterxml.jackson:jackson-bom:2.18.3')
     }
 }
