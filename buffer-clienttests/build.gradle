@@ -17,11 +17,11 @@ dependencies {
     ext {
         apacheMath = '3.6.1'
         findbugsAnnotations = "3.0.1u2"
-        guava = "33.4.0-jre"
+        guava = "33.4.5-jre"
         jackson = "2.18.3"
         jersey = "3.1.10"
         kubernetesClient = "23.0.0-legacy"
-        logback = "1.5.17"
+        logback = "1.5.18"
         slf4j = "2.0.17"
         hamcrest = "3.0"
 
