@@ -20,7 +20,7 @@ dependencies {
         guava = "33.4.8-jre"
         jackson = "2.19.0"
         jersey = "3.1.10"
-        kubernetesClient = "23.0.0-legacy"
+        kubernetesClient = "24.0.0-legacy"
         logback = "1.5.18"
         slf4j = "2.0.17"
         hamcrest = "3.0"
