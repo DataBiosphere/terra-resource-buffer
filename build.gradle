@@ -76,7 +76,7 @@ dependencies {
     implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '6.8.0'
     implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '6.8.0'
     implementation group: 'com.google.auto.value', name: 'auto-value-annotations', version: '1.11.0'
-    implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.139.1'
+    implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.139.4'
     implementation group: 'com.google.guava', name: 'guava', version: '33.4.8-jre'
     implementation group: 'jakarta.validation', name: 'jakarta.validation-api', version: '3.1.1'
     implementation group: 'org.liquibase', name: 'liquibase-core', version: '4.32.0'
@@ -98,9 +98,9 @@ dependencies {
 
     // Swagger deps
     implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.19.0'
-    implementation group: 'io.swagger', name: 'swagger-annotations', version: '1.6.15'
-    implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.30'
-    runtimeOnly group: 'org.webjars.npm', name: 'swagger-ui-dist', version: '5.21.0'
+    implementation group: 'io.swagger', name: 'swagger-annotations', version: '1.6.16'
+    implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.32'
+    runtimeOnly group: 'org.webjars.npm', name: 'swagger-ui-dist', version: '5.22.0'
     swaggerCodegen group: 'io.swagger.codegen.v3', name: 'swagger-codegen-cli', version: '3.0.61'
 
     // Test deps
@@ -117,8 +117,8 @@ dependencies {
     // transitive dependencies.
     constraints {
         implementation('org.yaml:snakeyaml:2.4')
-        implementation('com.nimbusds:nimbus-jose-jwt:10.2')
-        implementation('io.projectreactor.netty:reactor-netty-http:1.2.5')
+        implementation('com.nimbusds:nimbus-jose-jwt:10.3')
+        implementation('io.projectreactor.netty:reactor-netty-http:1.2.6')
         implementation('com.fasterxml.jackson:jackson-bom:2.19.0')
     }
 }
