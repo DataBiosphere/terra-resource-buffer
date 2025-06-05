@@ -84,7 +84,7 @@ dependencies {
     runtimeOnly group: 'org.postgresql', name: 'postgresql'
 
     // Google cloud open telemetry exporters
-    var gcpOpenTelemetryExporterVersion = '0.35.0'
+    var gcpOpenTelemetryExporterVersion = '0.34.0'
     implementation "com.google.cloud.opentelemetry:exporter-trace:${gcpOpenTelemetryExporterVersion}"
     implementation "com.google.cloud.opentelemetry:exporter-metrics:${gcpOpenTelemetryExporterVersion}"
 
