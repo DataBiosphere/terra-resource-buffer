@@ -70,13 +70,13 @@ dependencies {
         exclude(group: 'com.microsoft.azure')
         exclude(group: 'com.azure')
     }
-    implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.113.49-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.113.50-SNAPSHOT'
 
     // Versioned direct deps
     implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '6.8.0'
     implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '6.8.0'
     implementation group: 'com.google.auto.value', name: 'auto-value-annotations', version: '1.11.0'
-    implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.139.4'
+    implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.140.0'
     implementation group: 'com.google.guava', name: 'guava', version: '33.4.8-jre'
     implementation group: 'jakarta.validation', name: 'jakarta.validation-api', version: '3.1.1'
     implementation group: 'org.liquibase', name: 'liquibase-core', version: '4.32.0'
@@ -84,7 +84,7 @@ dependencies {
     runtimeOnly group: 'org.postgresql', name: 'postgresql'
 
     // Google cloud open telemetry exporters
-    var gcpOpenTelemetryExporterVersion = '0.34.0'
+    var gcpOpenTelemetryExporterVersion = '0.35.0'
     implementation "com.google.cloud.opentelemetry:exporter-trace:${gcpOpenTelemetryExporterVersion}"
     implementation "com.google.cloud.opentelemetry:exporter-metrics:${gcpOpenTelemetryExporterVersion}"
 
