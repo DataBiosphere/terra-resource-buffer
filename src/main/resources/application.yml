@@ -67,6 +67,13 @@ spring:
     static-locations: classpath:/api/
 
 otel:
+  metrics:
+    exporter: none
+  traces:
+    exporter: none
+  metrics-exporter: none
+  traces-exporter: none
+
   sdk:
     disabled: false # set to true to disable all open telemetry features
 

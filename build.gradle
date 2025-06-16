@@ -85,7 +85,7 @@ dependencies {
 
     // Google cloud open telemetry exporters
     // upgrading to 0.35.0 causes integration tests to fail. Why?
-    var gcpOpenTelemetryExporterVersion = '0.34.0'
+    var gcpOpenTelemetryExporterVersion = '0.35.0'
     implementation "com.google.cloud.opentelemetry:exporter-trace:${gcpOpenTelemetryExporterVersion}"
     implementation "com.google.cloud.opentelemetry:exporter-metrics:${gcpOpenTelemetryExporterVersion}"
 
