@@ -84,10 +84,11 @@ dependencies {
     runtimeOnly group: 'org.postgresql', name: 'postgresql'
 
     // Google cloud open telemetry exporters
+    //    ... are specified by terra-common-lib, so we don't need to specify them here.
     // upgrading to 0.35.0 causes integration tests to fail. Why?
-    var gcpOpenTelemetryExporterVersion = '0.35.0'
-    implementation "com.google.cloud.opentelemetry:exporter-trace:${gcpOpenTelemetryExporterVersion}"
-    implementation "com.google.cloud.opentelemetry:exporter-metrics:${gcpOpenTelemetryExporterVersion}"
+//    var gcpOpenTelemetryExporterVersion = '0.35.0'
+//    implementation "com.google.cloud.opentelemetry:exporter-trace:${gcpOpenTelemetryExporterVersion}"
+//    implementation "com.google.cloud.opentelemetry:exporter-metrics:${gcpOpenTelemetryExporterVersion}"
 
     // Deps whose versions are controlled by Spring
     implementation group: 'org.apache.commons', name: 'commons-dbcp2', version: '2.13.0'
