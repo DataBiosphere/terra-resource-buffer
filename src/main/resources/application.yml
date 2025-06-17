@@ -68,7 +68,7 @@ spring:
 
 otel:
   sdk:
-    disabled: true # set to true to disable all open telemetry features
+    disabled: false # set to true to disable all open telemetry features
 
   springboot:
     resource:
