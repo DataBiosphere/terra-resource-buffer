@@ -83,13 +83,8 @@ dependencies {
     implementation group: 'org.webjars', name: 'webjars-locator-core', version: '0.59'
     runtimeOnly group: 'org.postgresql', name: 'postgresql'
 
-    // Google cloud open telemetry exporters
-//    //    ... are specified by terra-common-lib; we should use the same versions here.
-//    var gcpOpenTelemetryExporterVersion = '0.35.0'
-//    implementation "com.google.cloud.opentelemetry:exporter-trace:${gcpOpenTelemetryExporterVersion}"
-//    implementation "com.google.cloud.opentelemetry:exporter-metrics:${gcpOpenTelemetryExporterVersion}"
-    // need to pull in the opentelemetry sdk because some classes use its objects directly.
-    // otel version should match the same version used by Spring Boot and terra-common-lib.
+    // Pull in the opentelemetry sdk because some classes use its objects directly.
+    // This otel version should match the same version used by Spring Boot and terra-common-lib.
     var openTelemetrySdkVersion = '1.49.0'
     implementation "io.opentelemetry:opentelemetry-sdk:${openTelemetrySdkVersion}"
 
