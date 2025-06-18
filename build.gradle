@@ -7,7 +7,7 @@ buildscript {
         // jib build requires this dependency;
         // see https://github.com/GoogleContainerTools/jib/issues/4235
         classpath group: 'org.apache.commons', name: 'commons-compress', version: '1.27.1'
-        classpath group: 'com.fasterxml.jackson', name: 'jackson-bom', version: '2.19.0'
+        classpath group: 'com.fasterxml.jackson', name: 'jackson-bom', version: '2.19.1'
     }
 }
 
@@ -70,13 +70,13 @@ dependencies {
         exclude(group: 'com.microsoft.azure')
         exclude(group: 'com.azure')
     }
-    implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.113.49-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.113.50-SNAPSHOT'
 
     // Versioned direct deps
-    implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '6.8.0'
-    implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '6.8.0'
+    implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '6.9.0'
+    implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '6.9.0'
     implementation group: 'com.google.auto.value', name: 'auto-value-annotations', version: '1.11.0'
-    implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.139.4'
+    implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.140.1'
     implementation group: 'com.google.guava', name: 'guava', version: '33.4.8-jre'
     implementation group: 'jakarta.validation', name: 'jakarta.validation-api', version: '3.1.1'
     implementation group: 'org.liquibase', name: 'liquibase-core', version: '4.32.0'
@@ -85,7 +85,7 @@ dependencies {
 
     // Pull in the opentelemetry sdk because some classes use its objects directly.
     // This otel version should match the same version used by Spring Boot and terra-common-lib.
-    var openTelemetrySdkVersion = '1.49.0'
+    var openTelemetrySdkVersion = '1.51.0'
     implementation "io.opentelemetry:opentelemetry-sdk:${openTelemetrySdkVersion}"
 
     // Deps whose versions are controlled by Spring
@@ -97,10 +97,10 @@ dependencies {
     implementation group: 'org.springframework.retry', name: 'spring-retry', version: '2.0.12'
 
     // Swagger deps
-    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.19.0'
+    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.19.1'
     implementation group: 'io.swagger', name: 'swagger-annotations', version: '1.6.16'
-    implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.32'
-    runtimeOnly group: 'org.webjars.npm', name: 'swagger-ui-dist', version: '5.22.0'
+    implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.33'
+    runtimeOnly group: 'org.webjars.npm', name: 'swagger-ui-dist', version: '5.25.2'
     swaggerCodegen group: 'io.swagger.codegen.v3', name: 'swagger-codegen-cli', version: '3.0.61'
 
     // Test deps
@@ -118,8 +118,8 @@ dependencies {
     constraints {
         implementation('org.yaml:snakeyaml:2.4')
         implementation('com.nimbusds:nimbus-jose-jwt:10.3')
-        implementation('io.projectreactor.netty:reactor-netty-http:1.2.6')
-        implementation('com.fasterxml.jackson:jackson-bom:2.19.0')
+        implementation('io.projectreactor.netty:reactor-netty-http:1.2.7')
+        implementation('com.fasterxml.jackson:jackson-bom:2.19.1')
     }
 }
 
