@@ -85,7 +85,7 @@ dependencies {
 
     // Pull in the opentelemetry sdk because some classes use its objects directly.
     // This otel version should match the same version used by Spring Boot and terra-common-lib.
-    var openTelemetrySdkVersion = '1.51.0'
+    var openTelemetrySdkVersion = '1.49.0'
     implementation "io.opentelemetry:opentelemetry-sdk:${openTelemetrySdkVersion}"
 
     // Deps whose versions are controlled by Spring
