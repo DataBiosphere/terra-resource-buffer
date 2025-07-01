@@ -4,9 +4,15 @@ poolConfigs:
   - poolId: "cwb_ws_staging_v8"
     size: 100
     resourceConfigName: "cwb_ws_resource_staging_v8"
+  - poolId: "cwb_ws_staging_v9"
+    size: 100
+    resourceConfigName: "cwb_ws_resource_staging_v9"
   - poolId: "datarepo_v1"
     size: 100
     resourceConfigName: "datarepo_v1"
   - poolId: "vpc_sc_v7"
     size: 100
     resourceConfigName: "vpc_sc_v7"
+  - poolId: "vpc_sc_v8"
+    size: 100
+    resourceConfigName: "vpc_sc_v8"

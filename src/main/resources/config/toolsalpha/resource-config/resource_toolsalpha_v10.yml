@@ -1,11 +1,11 @@
-# All Of Us buffered workspace template
+# Resource template for local testing and personal environment on GKE
 ---
-configName: "ws_resource_v2"
+configName: "resource_toolsalpha_v10"
 gcpProjectConfig:
   projectIdSchema:
-    prefix: "aou-rw-test"
+    prefix: "terra-toolsalpha"
     scheme: "RANDOM_CHAR"
-  # Resource Buffer Service Testing
+  # RBS Testing
   parentFolderId: "637867149294"
   billingAccount: "01A82E-CA8A14-367457"
   enabledApis:
@@ -20,8 +20,21 @@ gcpProjectConfig:
     - "containerregistry.googleapis.com"
     - "dataflow.googleapis.com"
     - "dataproc.googleapis.com"
+    - "dns.googleapis.com"
     - "logging.googleapis.com"
     - "monitoring.googleapis.com"
     - "storage-api.googleapis.com"
     - "storage-component.googleapis.com"
-    - "dns.googleapis.com"
+  network:
+    enableNetworkMonitoring: "true"
+    enablePrivateGoogleAccess: "true"
+    enableCloudRegistryPrivateGoogleAccess: "true"
+    blockBatchInternetAccess: "true"
+  kubernetesEngine:
+    createGkeDefaultServiceAccount: "true"
+  iamBindings:
+    - members: ["group:terra-rbs-test@broadinstitute.org"]
+      role: "roles/editor"
+    - members: ["group:terra-rbs-viewer-test@broadinstitute.org"]
+      role: "roles/viewer"
+  securityGroup: "high"

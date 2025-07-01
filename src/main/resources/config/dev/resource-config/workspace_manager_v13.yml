@@ -1,15 +1,15 @@
-# All Of Us buffered workspace template
+# Workspace Manager buffered workspace template
 ---
-configName: "ws_resource_v2"
+configName: "workspace_manager_v13"
 gcpProjectConfig:
   projectIdSchema:
-    prefix: "aou-rw-test"
-    scheme: "RANDOM_CHAR"
-  # Resource Buffer Service Testing
-  parentFolderId: "637867149294"
+    prefix: "terra-wsm-d"
+    scheme: "TWO_WORDS_NUMBER"
+  parentFolderId: "421312654454" #test.firecloud.org/dev/buffer-dev/workspace_manager
   billingAccount: "01A82E-CA8A14-367457"
   enabledApis:
     - "bigquery-json.googleapis.com"
+    - "bigquerydatatransfer.googleapis.com"
     - "batch.googleapis.com"
     - "compute.googleapis.com"
     - "container.googleapis.com"
@@ -20,8 +20,11 @@ gcpProjectConfig:
     - "containerregistry.googleapis.com"
     - "dataflow.googleapis.com"
     - "dataproc.googleapis.com"
+    - "dns.googleapis.com"
     - "logging.googleapis.com"
     - "monitoring.googleapis.com"
+    - "notebooks.googleapis.com"
     - "storage-api.googleapis.com"
     - "storage-component.googleapis.com"
-    - "dns.googleapis.com"
+  network:
+    enableNetworkMonitoring: "true"

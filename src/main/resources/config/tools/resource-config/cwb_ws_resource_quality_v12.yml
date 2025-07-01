@@ -1,12 +1,12 @@
-# All Of Us buffered workspace template
+# Community Workbench buffered workspace template
 ---
-configName: "ws_resource_v2"
+configName: "cwb_ws_resource_quality_v12"
 gcpProjectConfig:
   projectIdSchema:
-    prefix: "aou-rw-test"
+    prefix: "terra-quality"
     scheme: "RANDOM_CHAR"
-  # Resource Buffer Service Testing
-  parentFolderId: "637867149294"
+  # quality.firecloud.org/quality/CommunityWorkbench
+  parentFolderId: "180789000311"
   billingAccount: "01A82E-CA8A14-367457"
   enabledApis:
     - "bigquery-json.googleapis.com"
@@ -20,8 +20,17 @@ gcpProjectConfig:
     - "containerregistry.googleapis.com"
     - "dataflow.googleapis.com"
     - "dataproc.googleapis.com"
+    - "dns.googleapis.com"
     - "logging.googleapis.com"
     - "monitoring.googleapis.com"
     - "storage-api.googleapis.com"
     - "storage-component.googleapis.com"
-    - "dns.googleapis.com"
+    - "networkmanagement.googleapis.com"
+    - "iap.googleapis.com"
+  network:
+    enableNetworkMonitoring: "false"
+    enablePrivateGoogleAccess: "true"
+  kubernetesEngine:
+    createGkeDefaultServiceAccount: "true"
+  computeEngine:
+    keepDefaultServiceAcct: "true"
