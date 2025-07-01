@@ -334,7 +334,7 @@ public class BufferDao {
       }
     } else {
       List<Resource> resources = retrieveResourcesRandomly(poolId, ResourceState.READY, 1);
-      if (resources.size() == 0) {
+      if (resources.isEmpty()) {
         logger.warn("No resource is ready to use at this moment for pool: {}.", poolId);
         return Optional.empty();
       } else {
