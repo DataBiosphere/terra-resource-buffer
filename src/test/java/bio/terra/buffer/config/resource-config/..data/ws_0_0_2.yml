@@ -10,6 +10,7 @@ gcpProjectConfig:
   billingAccount: "01A82E-CA8A14-367457"
   enabledApis:
     - "bigquery-json.googleapis.com"
+    - "batch.googleapis.com"
     - "compute.googleapis.com"
     - "container.googleapis.com"
     - "cloudbilling.googleapis.com"
@@ -19,7 +20,6 @@ gcpProjectConfig:
     - "containerregistry.googleapis.com"
     - "dataflow.googleapis.com"
     - "dataproc.googleapis.com"
-    - "lifesciences.googleapis.com"
     - "logging.googleapis.com"
     - "monitoring.googleapis.com"
     - "storage-api.googleapis.com"
