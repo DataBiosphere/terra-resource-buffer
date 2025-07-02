@@ -100,7 +100,7 @@ dependencies {
     implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.19.1'
     implementation group: 'io.swagger', name: 'swagger-annotations', version: '1.6.16'
     implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.34'
-    runtimeOnly group: 'org.webjars.npm', name: 'swagger-ui-dist', version: '5.25.3'
+    runtimeOnly group: 'org.webjars.npm', name: 'swagger-ui-dist', version: '5.26.0'
     swaggerCodegen group: 'io.swagger.codegen.v3', name: 'swagger-codegen-cli', version: '3.0.61'
 
     // Test deps
