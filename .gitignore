@@ -51,3 +51,6 @@ pom.xml
 *.zip
 *.tar.gz
 *.rar
+
+# Ignore generated credentials from google-github-actions/auth
+gha-creds-*.json
