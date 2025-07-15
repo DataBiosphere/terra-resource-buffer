@@ -1,13 +1,6 @@
-def artifactory_repo_key = System.getenv('ARTIFACTORY_REPO_KEY') != null ? System.getenv('ARTIFACTORY_REPO_KEY') : 'libs-snapshot-local'
-def artifactory_username = System.getenv('ARTIFACTORY_USERNAME')
-def artifactory_password = System.getenv('ARTIFACTORY_PASSWORD')
-
-gradle.taskGraph.whenReady { taskGraph ->
-    if (taskGraph.hasTask(artifactoryPublish) &&
-            (artifactory_username == null || artifactory_password == null)) {
-        throw new GradleException('Set env vars ARTIFACTORY_USERNAME and ARTIFACTORY_PASSWORD to publish')
-    }
-}
+def garProjectId = System.getenv("GOOGLE_CLOUD_PROJECT")
+def garLocation = System.getenv("GAR_LOCATION")
+def garRepoId = System.getenv("GAR_REPOSITORY_ID")
 
 publishing {
     publications {
@@ -20,21 +13,9 @@ publishing {
             }
         }
     }
-}
-
-// Upload Maven artifacts to Artifactory using the Artifactory plugin.
-artifactory {
-    publish {
-        contextUrl = 'https://broadinstitute.jfrog.io/broadinstitute/'
-        repository {
-            repoKey = "${artifactory_repo_key}"
-            username = "${artifactory_username}"
-            password = "${artifactory_password}"
-        }
-        defaults {
-            publications('bufferClientLibrary')
-            publishArtifacts = true
-            publishPom = true
+    repositories {
+        maven {
+            url = uri("artifactregistry://${garLocation}-maven.pkg.dev/${garProjectId}/${garRepoId}")
         }
     }
 }
