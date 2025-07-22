@@ -8,9 +8,11 @@ import bio.terra.buffer.common.PoolStatus;
 import bio.terra.buffer.common.Resource;
 import bio.terra.buffer.common.ResourceState;
 import bio.terra.buffer.db.BufferDao;
+import bio.terra.buffer.generated.model.GoogleProjectUid;
 import bio.terra.common.stairway.StairwayComponent;
 import com.google.common.base.Preconditions;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -163,6 +165,10 @@ public class FlightScheduler {
         "Successfully submitted {} number of resource deletion flights for pool: {} .",
         successSubmitNum,
         pool.id());
+  }
+
+  public Optional<String> submitRepairResourceFlight(Pool pool, GoogleProjectUid projectUid) {
+    return flightManager.submitRepairResourceFlight(pool, projectUid);
   }
 
   public void shutdown() {

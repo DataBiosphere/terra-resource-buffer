@@ -29,6 +29,36 @@ paths:
           description: Service is broken
           $ref: '#/components/responses/StatusResponse'
 
+  '/api/resource/v1/{projectId}/repair':
+    post:
+      summary: Re-enable any Google APIs that are disabled on this resource to match the original pool configuration.
+      operationId: repairResource
+      parameters:
+        - $ref: '#/components/parameters/GoogleProjectUid'
+#      requestBody:
+#        required: true
+#        content:
+#          application/json:
+#            schema:
+#              $ref: '#/components/schemas/HandoutRequestBody'
+      tags:
+        - resource
+      responses:
+        '200':
+          description: OK, resource is repaired.
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/ResourceInfo'
+        '404':
+          description: Project id not found.
+        '500':
+          description: Get request error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorReport'
+
   '/api/pool/v1/{poolId}/resource':
     put:
       summary: Get a resource from pool and update the resource state, each handoutRequestId is assigned to the resource no more than once. Using the same handoutRequestId will get the same ResourceInfo
@@ -90,6 +120,15 @@ components:
       in: path
       description: |-
         Unique identity of a pool
+      required: true
+      schema:
+        type: string
+
+    GoogleProjectUid:
+      name: projectId
+      in: path
+      description: |-
+        Google Cloud Project ID
       required: true
       schema:
         type: string

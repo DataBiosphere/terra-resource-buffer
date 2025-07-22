@@ -11,10 +11,7 @@ import bio.terra.buffer.common.ResourceId;
 import bio.terra.buffer.common.ResourceState;
 import bio.terra.buffer.common.ResourceType;
 import bio.terra.buffer.db.BufferDao;
-import bio.terra.buffer.generated.model.GcpProjectConfig;
-import bio.terra.buffer.generated.model.IamBinding;
-import bio.terra.buffer.generated.model.ProjectIdSchema;
-import bio.terra.buffer.generated.model.ResourceConfig;
+import bio.terra.buffer.generated.model.*;
 import bio.terra.buffer.service.resource.FlightMapKeys;
 import bio.terra.buffer.service.resource.FlightSubmissionFactory;
 import bio.terra.common.stairway.StairwayComponent;
@@ -166,6 +163,15 @@ public class IntegrationUtils {
       FlightMap flightMap = new FlightMap();
       resource.id().store(flightMap);
       flightMap.put(FlightMapKeys.CLOUD_RESOURCE_UID, resource.cloudResourceUid());
+      return FlightSubmission.create(flightClass, flightMap);
+    }
+
+    @Override
+    public FlightSubmission getRepairFlightSubmission(Pool pool, GoogleProjectUid projectUid) {
+      FlightMap flightMap = new FlightMap();
+      pool.id().store(flightMap);
+      flightMap.put(FlightMapKeys.GOOGLE_PROJECT_ID, projectUid.getProjectId());
+      flightMap.put(FlightMapKeys.RESOURCE_CONFIG, pool.resourceConfig());
       return FlightSubmission.create(flightClass, flightMap);
     }
   }
