@@ -7,6 +7,7 @@ import bio.terra.buffer.common.ResourceType;
 import bio.terra.buffer.generated.model.GoogleProjectUid;
 import bio.terra.buffer.service.resource.flight.GoogleProjectCreationFlight;
 import bio.terra.buffer.service.resource.flight.GoogleProjectDeletionFlight;
+import bio.terra.buffer.service.resource.flight.GoogleProjectRepairFlight;
 import bio.terra.stairway.Flight;
 import bio.terra.stairway.FlightMap;
 import com.google.common.collect.ImmutableMap;
@@ -24,7 +25,7 @@ public class FlightSubmissionFactoryImpl implements FlightSubmissionFactory {
 
   /** Supported resource repair flight map. */
   private static final ImmutableMap<ResourceType, Class<? extends Flight>> REPAIR_FLIGHT_MAP =
-          ImmutableMap.of(ResourceType.GOOGLE_PROJECT, GoogleProjectDeletionFlight.class);
+          ImmutableMap.of(ResourceType.GOOGLE_PROJECT, GoogleProjectRepairFlight.class);
 
   @Override
   public FlightSubmission getCreationFlightSubmission(Pool pool, ResourceId resourceId) {

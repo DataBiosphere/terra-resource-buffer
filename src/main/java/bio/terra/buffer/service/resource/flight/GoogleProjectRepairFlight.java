@@ -17,7 +17,6 @@ public class GoogleProjectRepairFlight extends Flight {
 
   public GoogleProjectRepairFlight(FlightMap inputParameters, Object applicationContext) {
     super(inputParameters, applicationContext);
-    BufferDao bufferDao = ((ApplicationContext) applicationContext).getBean(BufferDao.class);
     CloudBillingClientCow billingCow =
         ((ApplicationContext) applicationContext).getBean(CloudBillingClientCow.class);
     ServiceUsageCow serviceUsageCow =
@@ -25,9 +24,9 @@ public class GoogleProjectRepairFlight extends Flight {
     GcpProjectConfig gcpProjectConfig =
         inputParameters.get(RESOURCE_CONFIG, ResourceConfig.class).getGcpProjectConfig();
 
-    // Check that billing is enabled for the project.
+    addStep(new CheckBillingEnabledStep(billingCow), newCloudApiDefaultRetryRule());
     addStep(
         new EnableServicesStep(serviceUsageCow, gcpProjectConfig), newCloudApiDefaultRetryRule());
-    // check that the storage log bucket exists and create it if not?
+    // TODO: check that the storage log bucket exists and create it if not?
   }
 }
