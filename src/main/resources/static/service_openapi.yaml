@@ -46,10 +46,10 @@ paths:
       responses:
         '200':
           description: OK, resource is repaired.
-#          content:
-#            application/json:
-#              schema:
-#                $ref: '#/components/schemas/ResourceInfo'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobModel'
         '404':
           description: Project id not found.
         '500':
@@ -390,7 +390,46 @@ components:
           $ref: '#/components/schemas/AzureDisk'
         azureVirtualMachine:
           $ref: '#/components/schemas/AzureVirtualMachine'
-
+    JobModel:
+      required:
+        - id
+        - job_status
+        - status_code
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/ShortIdProperty'
+        description:
+          type: string
+          description: Description of the job's flight from description flight input
+            parameter
+        job_status:
+          type: string
+          description: Status of job
+          enum:
+            - running
+            - succeeded
+            - failed
+        status_code:
+          type: integer
+          description: HTTP code
+        submitted:
+          type: string
+          description: Timestamp when the flight was created
+        completed:
+          type: string
+          description: Timestamp when the flight was completed; not present if not
+            complete
+        class_name:
+          type: string
+          description: Class name of the flight
+      description: >
+        Status of job
+    ShortIdProperty:
+      pattern: '[A-Za-z0-9_\\-]{22}'
+      type: string
+      description: >
+        Unique identifier for flights, jobs, etc.
   responses:
     ErrorResponse:
       description: common error response

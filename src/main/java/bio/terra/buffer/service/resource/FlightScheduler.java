@@ -9,7 +9,13 @@ import bio.terra.buffer.common.Resource;
 import bio.terra.buffer.common.ResourceState;
 import bio.terra.buffer.db.BufferDao;
 import bio.terra.buffer.generated.model.GoogleProjectUid;
+import bio.terra.buffer.generated.model.JobModel;
+import bio.terra.buffer.service.resource.job.exception.InvalidResultStateException;
+import bio.terra.buffer.service.resource.job.exception.JobServiceShutdownException;
 import bio.terra.common.stairway.StairwayComponent;
+import bio.terra.stairway.FlightMap;
+import bio.terra.stairway.FlightState;
+import bio.terra.stairway.FlightStatus;
 import com.google.common.base.Preconditions;
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 /**
@@ -170,6 +177,79 @@ public class FlightScheduler {
   public Optional<String> submitRepairResourceFlight(Pool pool, GoogleProjectUid projectUid) {
     return flightManager.submitRepairResourceFlight(pool, projectUid);
   }
+
+  public JobModel retrieveJob(String jobId) {
+    try {
+      FlightState flightState = stairwayComponent.get().getFlightState(jobId);
+      return mapFlightStateToJobModel(flightState);
+    } catch (InterruptedException ex) {
+      Thread.currentThread().interrupt();
+      throw new JobServiceShutdownException("Job service interrupted", ex);
+    }
+  }
+
+  public JobModel mapFlightStateToJobModel(FlightState flightState) {
+    FlightMap inputParameters = flightState.getInputParameters();
+    String description = inputParameters.get(FlightMapKeys.DESCRIPTION, String.class);
+    String submittedDate = flightState.getSubmitted().toString();
+    JobModel.JobStatusEnum jobStatus = getJobStatus(flightState);
+
+    String completedDate = null;
+    HttpStatus statusCode = HttpStatus.ACCEPTED;
+
+    if (flightState.getCompleted().isPresent()) {
+      FlightMap resultMap = getResultMap(flightState);
+      // The STATUS_CODE return only needs to be used to return alternate success responses.
+      // If it is not present, then we set it to the default OK status.
+      statusCode = resultMap.get(FlightMapKeys.STATUS_CODE, HttpStatus.class);
+      if (statusCode == null) {
+        statusCode = HttpStatus.OK;
+      }
+
+      completedDate = flightState.getCompleted().get().toString();
+    }
+
+    return new JobModel()
+            .id(flightState.getFlightId())
+            .className(flightState.getClassName())
+            .description(description)
+            .jobStatus(jobStatus)
+            .statusCode(statusCode.value())
+            .submitted(submittedDate)
+            .completed(completedDate);
+  }
+
+  private JobModel.JobStatusEnum getJobStatus(FlightState flightState) {
+    FlightStatus flightStatus = flightState.getFlightStatus();
+    switch (flightStatus) {
+      case ERROR:
+      case FATAL:
+        return JobModel.JobStatusEnum.FAILED;
+      case RUNNING:
+        return JobModel.JobStatusEnum.RUNNING;
+      case SUCCESS:
+//        if (getCompletionToFailureException(flightState).isPresent()) {
+//          return JobModel.JobStatusEnum.FAILED;
+//        }
+        return JobModel.JobStatusEnum.SUCCEEDED;
+    }
+    return JobModel.JobStatusEnum.FAILED;
+  }
+
+  private FlightMap getResultMap(FlightState flightState) {
+    FlightMap resultMap = flightState.getResultMap().orElse(null);
+    if (resultMap == null) {
+      throw new InvalidResultStateException("No result map returned from flight");
+    }
+    return resultMap;
+  }
+
+//  private Optional<Exception> getCompletionToFailureException(FlightState flightState) {
+//    return flightState
+//            .getResultMap()
+//            .filter(rm -> rm.containsKey(CommonMapKeys.COMPLETION_TO_FAILURE_EXCEPTION))
+//            .map(rm -> rm.get(CommonMapKeys.COMPLETION_TO_FAILURE_EXCEPTION, Exception.class));
+//  }
 
   public void shutdown() {
     // Don't schedule  anything new during shutdown.
