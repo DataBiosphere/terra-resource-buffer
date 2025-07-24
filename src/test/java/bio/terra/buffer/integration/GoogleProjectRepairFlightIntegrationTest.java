@@ -46,7 +46,6 @@ public class GoogleProjectRepairFlightIntegrationTest extends BaseIntegrationTes
     Project project = IntegrationUtils.assertProjectExists(bufferDao, rmCow, resourceId);
     GoogleProjectUid googleProjectId = new GoogleProjectUid().projectId(project.getProjectId());
     String apiToEnable = gcpProjectConfig.getEnabledApis().get(0);
-//    serviceUsageCow.services().disable(projectId, apiToEnable).execute();
 
     String repairFlightId = manager.submitRepairResourceFlight(pool, googleProjectId).get();
     blockUntilFlightComplete(stairwayComponent, repairFlightId);
