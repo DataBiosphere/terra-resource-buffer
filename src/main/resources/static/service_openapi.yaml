@@ -113,6 +113,89 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorReport'
 
+  /api/jobs/v1/{id}:
+    get:
+      tags:
+        - jobs
+      description: Retrieve a job's status by id
+      operationId: retrieveJob
+      parameters:
+        - name: id
+          in: path
+          description: A UUID to used to identify an object in the repository
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Redirect for object successful creation
+          headers:
+            location:
+              description: url for the job result
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobModel'
+        202:
+          description: Job status
+          headers:
+            location:
+              description: url for the job polling
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobModel'
+        400:
+          description: Bad request - invalid id, badly formed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorReport'
+        403:
+          description: No permission to see job
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorReport'
+        404:
+          description: Not found - job id does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorReport'
+
+  /api/jobs/v1/{id}/result:
+    get:
+      tags:
+        - jobs
+      description: Retrieve a job's result by id
+      operationId: retrieveJobResult
+      parameters:
+        - name: id
+          in: path
+          description: A UUID to used to identify an object in the repository
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: Successful responses return the type of model specified by
+            the job; otherwise, ErrorModel
+          content:
+            application/json:
+              schema:
+                type: object
+        202:
+          description: The job is currently running
+          content:
+            application/json:
+              schema:
+                type: object
+
 components:
   parameters:
     PoolId:
@@ -390,6 +473,7 @@ components:
           $ref: '#/components/schemas/AzureDisk'
         azureVirtualMachine:
           $ref: '#/components/schemas/AzureVirtualMachine'
+
     JobModel:
       required:
         - id
@@ -425,11 +509,20 @@ components:
           description: Class name of the flight
       description: >
         Status of job
+
     ShortIdProperty:
       pattern: '[A-Za-z0-9_\\-]{22}'
       type: string
       description: >
         Unique identifier for flights, jobs, etc.
+
+    SqlSortDirectionDescDefault:
+      type: string
+      enum: [ asc, desc ]
+      default: desc
+      description: >
+        The sort direction of a query result
+
   responses:
     ErrorResponse:
       description: common error response

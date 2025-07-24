@@ -12,6 +12,7 @@ import bio.terra.stairway.Step;
 import bio.terra.stairway.StepResult;
 import bio.terra.stairway.StepStatus;
 import bio.terra.stairway.exception.RetryException;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.serviceusage.v1beta1.model.BatchEnableServicesRequest;
 import java.io.IOException;
 import java.time.Duration;
@@ -52,6 +53,9 @@ public class EnableServicesStep implements Step {
                               .setServiceIds(gcpProjectConfig.getEnabledApis()))
                       .execute());
       pollUntilSuccess(operation, Duration.ofSeconds(5), Duration.ofMinutes(5));
+    }  catch (GoogleJsonResponseException e) {
+      logger.error("Error enabling services GCP project, id: {}", projectId, e);
+      return new StepResult(StepStatus.STEP_RESULT_FAILURE_FATAL, e);
     } catch (IOException | InterruptedException e) {
       logger.info("Error enabling services GCP project, id: {}", projectId, e);
       return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY, e);

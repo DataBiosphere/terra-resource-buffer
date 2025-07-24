@@ -10,12 +10,15 @@ import bio.terra.buffer.common.ResourceState;
 import bio.terra.buffer.db.BufferDao;
 import bio.terra.buffer.generated.model.GoogleProjectUid;
 import bio.terra.buffer.generated.model.JobModel;
-import bio.terra.buffer.service.resource.job.exception.InvalidResultStateException;
-import bio.terra.buffer.service.resource.job.exception.JobServiceShutdownException;
+import bio.terra.buffer.service.job.exception.InvalidResultStateException;
+import bio.terra.buffer.service.job.exception.JobResponseException;
+import bio.terra.buffer.service.job.exception.JobServiceShutdownException;
 import bio.terra.common.stairway.StairwayComponent;
 import bio.terra.stairway.FlightMap;
 import bio.terra.stairway.FlightState;
 import bio.terra.stairway.FlightStatus;
+import bio.terra.stairway.exception.FlightNotFoundException;
+import bio.terra.stairway.exception.StairwayException;
 import com.google.common.base.Preconditions;
 import java.util.List;
 import java.util.Optional;
@@ -188,6 +191,46 @@ public class FlightScheduler {
     }
   }
 
+  /**
+   * There are four cases to handle here:
+   *
+   * <ol>
+   *   <li>Flight is still running. Return a 202 (Accepted) response
+   *   <li>Successful flight: extract the resultMap RESPONSE as the target class. If a
+   *       statusContainer is present, we try to retrieve the STATUS_CODE from the resultMap and
+   *       store it in the container. That allows flight steps used in async REST API endpoints to
+   *       set alternate success status codes. The status code defaults to OK, if it is not set in
+   *       the resultMap.
+   *   <li>Failed flight: if there is an exception, throw it. Note that we can only throw
+   *       RuntimeExceptions to be handled by the global exception handler. Non-runtime exceptions
+   *       require throw clauses on the controller methods; those are not present in the
+   *       swagger-generated code, so it introduces a mismatch. Instead, in this code if the caught
+   *       exception is not a runtime exception, then we throw JobResponseException passing in the
+   *       Throwable to the exception. In the global exception handler, we retrieve the Throwable
+   *       and use the error text from that in the error model
+   *   <li>Failed flight: no exception present. We throw InvalidResultState exception
+   * </ol>
+   *
+   * @param jobId to process
+   * @return object of the result class pulled from the result map
+   */
+  public <T> JobResultWithStatus<T> retrieveJobResult(
+          String jobId, Class<T> resultClass) {
+//    boolean canListAnyJob = checkUserCanListAnyJob(userReq);
+
+    try {
+      // if the user has access to all jobs, then fetch the requested result
+      // otherwise, check that the user has access to it first
+//      if (!canListAnyJob) {
+//        verifyUserAccess(jobId, userReq); // jobId=flightId
+//      }
+      return retrieveJobResultWorker(jobId, resultClass);
+    } catch (InterruptedException ex) {
+      Thread.currentThread().interrupt();
+      throw new JobServiceShutdownException("Job service interrupted", ex);
+    }
+  }
+
   public JobModel mapFlightStateToJobModel(FlightState flightState) {
     FlightMap inputParameters = flightState.getInputParameters();
     String description = inputParameters.get(FlightMapKeys.DESCRIPTION, String.class);
@@ -228,13 +271,55 @@ public class FlightScheduler {
       case RUNNING:
         return JobModel.JobStatusEnum.RUNNING;
       case SUCCESS:
-//        if (getCompletionToFailureException(flightState).isPresent()) {
-//          return JobModel.JobStatusEnum.FAILED;
-//        }
         return JobModel.JobStatusEnum.SUCCEEDED;
     }
     return JobModel.JobStatusEnum.FAILED;
   }
+
+  private <T> JobResultWithStatus<T> retrieveJobResultWorker(String jobId, Class<T> resultClass)
+          throws StairwayException, InterruptedException {
+
+    FlightState flightState = stairwayComponent.get().getFlightState(jobId);
+
+    JobModel.JobStatusEnum jobStatus = getJobStatus(flightState);
+
+    switch (jobStatus) {
+      case FAILED:
+        final Exception exceptionToThrow;
+
+        if (flightState.getException().isPresent()) {
+          exceptionToThrow = flightState.getException().get();
+        } else {
+          exceptionToThrow =
+                  new InvalidResultStateException("Failed operation with no exception reported");
+        }
+        if (exceptionToThrow instanceof RuntimeException) {
+          throw (RuntimeException) exceptionToThrow;
+        } else {
+          throw new JobResponseException("wrap non-runtime exception", exceptionToThrow);
+        }
+      case SUCCEEDED:
+        FlightMap resultMap = flightState.getResultMap().orElse(null);
+        if (resultMap == null) {
+          throw new InvalidResultStateException("No result map returned from flight");
+        }
+        HttpStatus statusCode =
+                resultMap.get(FlightMapKeys.STATUS_CODE, HttpStatus.class);
+        if (statusCode == null) {
+          statusCode = HttpStatus.OK;
+        }
+        return new JobResultWithStatus<T>()
+                .statusCode(statusCode)
+                .result(resultMap.get(FlightMapKeys.RESPONSE, resultClass));
+
+      case RUNNING:
+        return new JobResultWithStatus<T>().statusCode(HttpStatus.ACCEPTED);
+
+      default:
+        throw new InvalidResultStateException("Impossible case reached");
+    }
+  }
+
 
   private FlightMap getResultMap(FlightState flightState) {
     FlightMap resultMap = flightState.getResultMap().orElse(null);
@@ -243,13 +328,6 @@ public class FlightScheduler {
     }
     return resultMap;
   }
-
-//  private Optional<Exception> getCompletionToFailureException(FlightState flightState) {
-//    return flightState
-//            .getResultMap()
-//            .filter(rm -> rm.containsKey(CommonMapKeys.COMPLETION_TO_FAILURE_EXCEPTION))
-//            .map(rm -> rm.get(CommonMapKeys.COMPLETION_TO_FAILURE_EXCEPTION, Exception.class));
-//  }
 
   public void shutdown() {
     // Don't schedule  anything new during shutdown.
@@ -280,6 +358,29 @@ public class FlightScheduler {
                 + t.getStackTrace(),
             t);
       }
+    }
+  }
+
+  public static class JobResultWithStatus<T> {
+    private T result;
+    private HttpStatus statusCode;
+
+    public T getResult() {
+      return result;
+    }
+
+    public JobResultWithStatus<T> result(T result) {
+      this.result = result;
+      return this;
+    }
+
+    public HttpStatus getStatusCode() {
+      return statusCode;
+    }
+
+    public JobResultWithStatus<T> statusCode(HttpStatus httpStatus) {
+      this.statusCode = httpStatus;
+      return this;
     }
   }
 }
