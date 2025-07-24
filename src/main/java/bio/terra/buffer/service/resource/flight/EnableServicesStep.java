@@ -36,6 +36,9 @@ public class EnableServicesStep implements Step {
       return StepResult.getStepResultSuccess();
     }
     String projectId = flightContext.getWorkingMap().get(GOOGLE_PROJECT_ID, String.class);
+    if (projectId == null) {
+      projectId = flightContext.getInputParameters().get(GOOGLE_PROJECT_ID, String.class);
+    }
     try {
       OperationCow<?> operation =
           serviceUsageCow

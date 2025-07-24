@@ -17,14 +17,11 @@ public class GoogleProjectRepairFlight extends Flight {
 
   public GoogleProjectRepairFlight(FlightMap inputParameters, Object applicationContext) {
     super(inputParameters, applicationContext);
-    CloudBillingClientCow billingCow =
-        ((ApplicationContext) applicationContext).getBean(CloudBillingClientCow.class);
     ServiceUsageCow serviceUsageCow =
         ((ApplicationContext) applicationContext).getBean(ServiceUsageCow.class);
     GcpProjectConfig gcpProjectConfig =
         inputParameters.get(RESOURCE_CONFIG, ResourceConfig.class).getGcpProjectConfig();
 
-    addStep(new CheckBillingEnabledStep(billingCow), newCloudApiDefaultRetryRule());
     addStep(
         new EnableServicesStep(serviceUsageCow, gcpProjectConfig), newCloudApiDefaultRetryRule());
     // TODO: check that the storage log bucket exists and create it if not?
