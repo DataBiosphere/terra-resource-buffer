@@ -1,6 +1,7 @@
 package bio.terra.buffer.integration;
 
 import static bio.terra.buffer.generated.model.ProjectIdSchema.SchemeEnum.RANDOM_CHAR;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.buffer.common.Pool;
@@ -14,11 +15,13 @@ import bio.terra.buffer.db.BufferDao;
 import bio.terra.buffer.generated.model.*;
 import bio.terra.buffer.service.resource.FlightMapKeys;
 import bio.terra.buffer.service.resource.FlightSubmissionFactory;
+import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.common.stairway.StairwayComponent;
 import bio.terra.stairway.Flight;
 import bio.terra.stairway.FlightMap;
 import bio.terra.stairway.FlightState;
 import bio.terra.stairway.exception.DatabaseOperationException;
+import com.google.api.services.cloudresourcemanager.v3.model.Project;
 import com.google.common.collect.ImmutableList;
 import java.time.Duration;
 import java.util.Arrays;
@@ -139,6 +142,16 @@ public class IntegrationUtils {
         .iamBindings(IAM_BINDINGS)
         .network(new bio.terra.buffer.generated.model.Network().enableNetworkMonitoring(true))
         .securityGroup("secGroup");
+  }
+
+  public static Project assertProjectExists(BufferDao bufferDao, CloudResourceManagerCow rmCow, ResourceId resourceId) throws Exception {
+    Resource resource = bufferDao.retrieveResource(resourceId).get();
+    Project project = rmCow
+                    .projects()
+                    .get(resource.cloudResourceUid().getGoogleProjectUid().getProjectId())
+                    .execute();
+    assertEquals("ACTIVE", project.getState());
+    return project;
   }
 
   /** A {@link FlightSubmissionFactory} used in test. */

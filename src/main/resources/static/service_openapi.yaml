@@ -516,13 +516,6 @@ components:
       description: >
         Unique identifier for flights, jobs, etc.
 
-    SqlSortDirectionDescDefault:
-      type: string
-      enum: [ asc, desc ]
-      default: desc
-      description: >
-        The sort direction of a query result
-
   responses:
     ErrorResponse:
       description: common error response
