@@ -58,14 +58,7 @@ public class JobService {
      */
     public <T> JobService.JobResultWithStatus<T> retrieveJobResult(
             String jobId, Class<T> resultClass) {
-//    boolean canListAnyJob = checkUserCanListAnyJob(userReq);
-
         try {
-            // if the user has access to all jobs, then fetch the requested result
-            // otherwise, check that the user has access to it first
-//      if (!canListAnyJob) {
-//        verifyUserAccess(jobId, userReq); // jobId=flightId
-//      }
             return retrieveJobResultWorker(jobId, resultClass);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
