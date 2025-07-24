@@ -12,11 +12,11 @@ public final class ControllerUtils {
   public static ResponseEntity<JobModel> jobToResponse(JobModel job) {
     if (job.getJobStatus() == JobModel.JobStatusEnum.RUNNING) {
       return ResponseEntity.status(HttpStatus.ACCEPTED)
-          .header("Location", String.format("/api/repository/v1/jobs/%s", job.getId()))
+          .header("Location", String.format("/api/jobs/v1/%s", job.getId()))
           .body(job);
     } else {
       return ResponseEntity.status(HttpStatus.OK)
-          .header("Location", String.format("/api/repository/v1/jobs/%s/result", job.getId()))
+          .header("Location", String.format("/api/jobs/v1/%s/result", job.getId()))
           .body(job);
     }
   }
