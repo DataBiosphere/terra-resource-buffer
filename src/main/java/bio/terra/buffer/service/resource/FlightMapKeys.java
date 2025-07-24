@@ -16,4 +16,9 @@ public class FlightMapKeys {
   public static final String RESOURCE_READY = "resourceReady";
 
   public static final String NAT_CREATED_REGIONS = "natCreatedRegions";
+
+  // parameters for all flight types
+  public static final String DESCRIPTION = "description";
+  public static final String STATUS_CODE = "status_code";
+  public static final String RESPONSE = "response";
 }

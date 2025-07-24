@@ -1,6 +1,7 @@
 package bio.terra.buffer.integration;
 
 import static bio.terra.buffer.generated.model.ProjectIdSchema.SchemeEnum.RANDOM_CHAR;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.buffer.common.Pool;
@@ -11,17 +12,16 @@ import bio.terra.buffer.common.ResourceId;
 import bio.terra.buffer.common.ResourceState;
 import bio.terra.buffer.common.ResourceType;
 import bio.terra.buffer.db.BufferDao;
-import bio.terra.buffer.generated.model.GcpProjectConfig;
-import bio.terra.buffer.generated.model.IamBinding;
-import bio.terra.buffer.generated.model.ProjectIdSchema;
-import bio.terra.buffer.generated.model.ResourceConfig;
+import bio.terra.buffer.generated.model.*;
 import bio.terra.buffer.service.resource.FlightMapKeys;
 import bio.terra.buffer.service.resource.FlightSubmissionFactory;
+import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.common.stairway.StairwayComponent;
 import bio.terra.stairway.Flight;
 import bio.terra.stairway.FlightMap;
 import bio.terra.stairway.FlightState;
 import bio.terra.stairway.exception.DatabaseOperationException;
+import com.google.api.services.cloudresourcemanager.v3.model.Project;
 import com.google.common.collect.ImmutableList;
 import java.time.Duration;
 import java.util.Arrays;
@@ -144,6 +144,16 @@ public class IntegrationUtils {
         .securityGroup("secGroup");
   }
 
+  public static Project assertProjectExists(BufferDao bufferDao, CloudResourceManagerCow rmCow, ResourceId resourceId) throws Exception {
+    Resource resource = bufferDao.retrieveResource(resourceId).get();
+    Project project = rmCow
+                    .projects()
+                    .get(resource.cloudResourceUid().getGoogleProjectUid().getProjectId())
+                    .execute();
+    assertEquals("ACTIVE", project.getState());
+    return project;
+  }
+
   /** A {@link FlightSubmissionFactory} used in test. */
   public static class StubSubmissionFlightFactory implements FlightSubmissionFactory {
     public final Class<? extends Flight> flightClass;
@@ -166,6 +176,15 @@ public class IntegrationUtils {
       FlightMap flightMap = new FlightMap();
       resource.id().store(flightMap);
       flightMap.put(FlightMapKeys.CLOUD_RESOURCE_UID, resource.cloudResourceUid());
+      return FlightSubmission.create(flightClass, flightMap);
+    }
+
+    @Override
+    public FlightSubmission getRepairFlightSubmission(Pool pool, GoogleProjectUid projectUid) {
+      FlightMap flightMap = new FlightMap();
+      pool.id().store(flightMap);
+      flightMap.put(FlightMapKeys.GOOGLE_PROJECT_ID, projectUid.getProjectId());
+      flightMap.put(FlightMapKeys.RESOURCE_CONFIG, pool.resourceConfig());
       return FlightSubmission.create(flightClass, flightMap);
     }
   }

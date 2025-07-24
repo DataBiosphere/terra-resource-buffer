@@ -258,6 +258,20 @@ public class BufferDao {
         DataAccessUtils.singleResult(jdbcTemplate.query(sql, params, RESOURCE_ROW_MAPPER)));
   }
 
+  /** Retrieve a resource by id. */
+  @Transactional(propagation = Propagation.SUPPORTS)
+  public Optional<Resource> retrieveResource(CloudResourceUid cloudResourceUid) {
+    String sql =
+            "select id, pool_id, creation, handout_time, state, request_handout_id, cloud_resource_uid, deletion "
+                    + "FROM resource "
+                    + "WHERE cloud_resource_uid = :cloud_resource_uid::jsonb";
+
+    MapSqlParameterSource params = new MapSqlParameterSource().addValue("cloud_resource_uid", serializeResourceUid(cloudResourceUid));
+
+    return Optional.ofNullable(
+            DataAccessUtils.singleResult(jdbcTemplate.query(sql, params, RESOURCE_ROW_MAPPER)));
+  }
+
   /** Randomly retrieve resources match the {@link ResourceState}. */
   @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE)
   public List<Resource> retrieveResourcesRandomly(PoolId poolId, ResourceState state, int limit) {

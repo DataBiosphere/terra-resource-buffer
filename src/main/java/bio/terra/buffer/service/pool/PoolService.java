@@ -14,9 +14,7 @@ import bio.terra.buffer.common.ResourceConfigVisitor;
 import bio.terra.buffer.common.ResourceState;
 import bio.terra.buffer.common.exception.NotFoundException;
 import bio.terra.buffer.db.BufferDao;
-import bio.terra.buffer.generated.model.PoolConfig;
-import bio.terra.buffer.generated.model.PoolInfo;
-import bio.terra.buffer.generated.model.ResourceInfo;
+import bio.terra.buffer.generated.model.*;
 import bio.terra.common.exception.BadRequestException;
 import bio.terra.common.exception.InternalServerErrorException;
 import com.google.common.annotations.VisibleForTesting;
@@ -101,6 +99,17 @@ public class PoolService {
             ResourceState.DELETED.name(), resourceStates.count(ResourceState.DELETED))
         .putResourceStateCountItem(
             ResourceState.HANDED_OUT.name(), resourceStates.count(ResourceState.HANDED_OUT));
+  }
+
+  public Pool getPoolForGoogleProject(GoogleProjectUid projectId) {
+    CloudResourceUid cloudResourceUid = new CloudResourceUid().googleProjectUid(projectId);
+    Optional<Resource> resource = bufferDao.retrieveResource(cloudResourceUid);
+    if (resource.isEmpty()) {
+      throw new NotFoundException(String.format("Resource id does not exist: %s.", projectId));
+    }
+    PoolId poolId = resource.get().poolId();
+    return bufferDao.retrievePool(poolId)
+            .orElseThrow(() -> new NotFoundException(String.format("Pool for this resource does not exist: %s.", poolId)));
   }
 
   /** Process handout resource in on transaction (anything failure will cause database rollback). */

@@ -6,6 +6,7 @@ import bio.terra.buffer.common.ResourceId;
 import bio.terra.buffer.common.ResourceState;
 import bio.terra.buffer.common.ResourceType;
 import bio.terra.buffer.db.BufferDao;
+import bio.terra.buffer.generated.model.GoogleProjectUid;
 import bio.terra.common.stairway.StairwayComponent;
 import bio.terra.stairway.Stairway;
 import bio.terra.stairway.exception.StairwayException;
@@ -51,6 +52,12 @@ public class FlightManager {
         status -> updateResourceAsDeletingAndSubmitFlight(resource, resourceType, status));
   }
 
+  public Optional<String> submitRepairResourceFlight(Pool pool, GoogleProjectUid projectUid) {
+    return transactionTemplate.execute(
+            status -> submitRepairFlight(pool, projectUid, status));
+  }
+
+
   /**
    * Create entity in resource table with CREATING and submit creation flight.
    *
@@ -87,6 +94,12 @@ public class FlightManager {
     }
     logger.info("Failed to submit resource deletion flight for resource{}", resource.id());
     return Optional.empty();
+  }
+
+  private Optional<String> submitRepairFlight(
+          Pool pool, GoogleProjectUid projectUid, TransactionStatus status) {
+    return submitToStairway(
+              flightSubmissionFactory.getRepairFlightSubmission(pool, projectUid), status);
   }
 
   private Optional<String> submitToStairway(
