@@ -187,7 +187,7 @@ Step 3.2: To connect to Buffer Stairway Database, run:
 psql "host=127.0.0.1 sslmode=disable dbname=buffer-stairway user=buffer-stairway"
 ```
 #### Connect to Broad Deployment Buffer Database
-For Broad engineer, the INSTANCE_CONNECTION_NAME and BUFFER_DB_PASSWORD can be found in vault. For example, to connect to Dev Buffer Database, run:
+For Broad engineer, the INSTANCE_CONNECTION_NAME and BUFFER_DB_PASSWORD can be found in gsm. For example, to connect to Dev Buffer Database, run:
 ```
 export DB_REGION=$(gcloud secrets versions access latest --secret=buffer-postgres-instance --project=broad-dsde-dev | jq -r ".region")
 export DB_INSTANCE=$(gcloud secrets versions access latest --secret=buffer-postgres-instance --project=broad-dsde-dev | jq -r ".name")
