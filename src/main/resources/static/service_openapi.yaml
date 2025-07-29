@@ -138,6 +138,17 @@ paths:
           description: Filter by the flight's class
           schema:
             type: string
+        - name: inputs
+          in: query
+          description: >
+            Filter by the flight's inputs (must be in the form of key=value pairs).
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
       responses:
         200:
           description: List of jobs

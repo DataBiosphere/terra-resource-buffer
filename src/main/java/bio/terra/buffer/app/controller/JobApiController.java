@@ -27,11 +27,11 @@ public class JobApiController implements JobsApi {
 
     @Override
     public ResponseEntity<List<JobModel>> enumerateJobs(
-            Integer offset, Integer limit, SqlSortDirectionDescDefault direction, String className) {
+            Integer offset, Integer limit, SqlSortDirectionDescDefault direction, String className, List<String> inputs) {
         validateOffsetAndLimit(offset, limit);
         List<JobModel> results =
                 jobService.enumerateJobs(
-                        offset, limit, SqlSortDirection.from(direction), className);
+                        offset, limit, SqlSortDirection.from(direction), className, inputs);
         return new ResponseEntity<>(results, HttpStatus.OK);
     }
 

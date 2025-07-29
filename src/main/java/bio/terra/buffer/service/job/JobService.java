@@ -40,11 +40,12 @@ public class JobService {
             int offset,
             int limit,
             SqlSortDirection direction,
-            String className) {
+            String className,
+            List<String> inputs) {
 
         // if the user has access to all jobs, then fetch everything
         // otherwise, filter the jobs on the user
-        FlightFilter filter = new FlightFilter(createFlightFilter(className));
+        FlightFilter filter = new FlightFilter(createFlightFilter(className, inputs));
         // Set the order to use to return values
         switch (direction) {
             case ASC -> filter.submittedTimeSortDirection(FlightFilterSortDirection.ASC);
@@ -61,7 +62,7 @@ public class JobService {
         }
     }
 
-    private FlightFilter.FlightBooleanOperationExpression createFlightFilter(String className) {
+    private FlightFilter.FlightBooleanOperationExpression createFlightFilter(String className, List<String> inputs) {
         List<FlightFilter.FlightFilterPredicateInterface> topLevelBooleans = new ArrayList<>();
         if (!StringUtils.isEmpty(className)) {
             topLevelBooleans.add(makePredicateFlightClass(FlightFilterOp.EQUAL, className));
@@ -73,6 +74,16 @@ public class JobService {
                 makePredicateSubmitTime(
                         FlightFilterOp.GREATER_THAN,
                         Instant.now().minus(Duration.ofDays(MAX_NUMBER_OF_DAYS_TO_SHOW_JOBS))));
+
+        inputs.stream().map(input -> {
+            String[] parts = input.split("=", 2);
+            if (parts.length != 2) {
+                throw new IllegalArgumentException("Input must be in 'key=value' format: " + input);
+            }
+            String key = parts[0].trim();
+            String value = parts[1].trim();
+            return makePredicateInput(key, FlightFilterOp.EQUAL, value);
+        }).forEach(topLevelBooleans::add);
 
         return makeAnd(topLevelBooleans.toArray(new FlightFilter.FlightFilterPredicateInterface[0]));
     }
