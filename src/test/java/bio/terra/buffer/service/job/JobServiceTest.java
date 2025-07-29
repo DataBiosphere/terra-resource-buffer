@@ -1,5 +1,8 @@
 package bio.terra.buffer.service.job;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import bio.terra.buffer.common.SqlSortDirection;
 import bio.terra.buffer.generated.model.JobModel;
 import bio.terra.buffer.service.job.exception.InvalidResultStateException;
@@ -8,18 +11,14 @@ import bio.terra.buffer.service.job.exception.JobServiceShutdownException;
 import bio.terra.buffer.service.resource.FlightMapKeys;
 import bio.terra.buffer.service.resource.FlightScheduler;
 import bio.terra.stairway.*;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-import org.springframework.http.HttpStatus;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.http.HttpStatus;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 class JobServiceTest {
     private FlightScheduler flightScheduler;
