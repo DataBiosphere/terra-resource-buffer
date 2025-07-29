@@ -29,6 +29,30 @@ paths:
           description: Service is broken
           $ref: '#/components/responses/StatusResponse'
 
+  '/api/resource/v1/{projectId}/repair':
+    post:
+      summary: Re-enable any Google APIs that are disabled on this resource to match the original pool configuration.
+      operationId: repairResource
+      parameters:
+        - $ref: '#/components/parameters/GoogleProjectUid'
+      tags:
+        - resource
+      responses:
+        '200':
+          description: OK, resource is repaired.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobModel'
+        '404':
+          description: Project id not found.
+        '500':
+          description: Get request error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorReport'
+
   '/api/pool/v1/{poolId}/resource':
     put:
       summary: Get a resource from pool and update the resource state, each handoutRequestId is assigned to the resource no more than once. Using the same handoutRequestId will get the same ResourceInfo
@@ -83,6 +107,89 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorReport'
 
+  /api/jobs/v1/{id}:
+    get:
+      tags:
+        - jobs
+      description: Retrieve a job's status by id
+      operationId: retrieveJob
+      parameters:
+        - name: id
+          in: path
+          description: A UUID to used to identify an object in the repository
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Redirect for object successful creation
+          headers:
+            location:
+              description: url for the job result
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobModel'
+        202:
+          description: Job status
+          headers:
+            location:
+              description: url for the job polling
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobModel'
+        400:
+          description: Bad request - invalid id, badly formed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorReport'
+        403:
+          description: No permission to see job
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorReport'
+        404:
+          description: Not found - job id does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorReport'
+
+  /api/jobs/v1/{id}/result:
+    get:
+      tags:
+        - jobs
+      description: Retrieve a job's result by id
+      operationId: retrieveJobResult
+      parameters:
+        - name: id
+          in: path
+          description: A UUID to used to identify an object in the repository
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: Successful responses return the type of model specified by
+            the job; otherwise, ErrorModel
+          content:
+            application/json:
+              schema:
+                type: object
+        202:
+          description: The job is currently running
+          content:
+            application/json:
+              schema:
+                type: object
+
 components:
   parameters:
     PoolId:
@@ -90,6 +197,15 @@ components:
       in: path
       description: |-
         Unique identity of a pool
+      required: true
+      schema:
+        type: string
+
+    GoogleProjectUid:
+      name: projectId
+      in: path
+      description: |-
+        Google Cloud Project ID
       required: true
       schema:
         type: string
@@ -351,6 +467,48 @@ components:
           $ref: '#/components/schemas/AzureDisk'
         azureVirtualMachine:
           $ref: '#/components/schemas/AzureVirtualMachine'
+
+    JobModel:
+      required:
+        - id
+        - job_status
+        - status_code
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/ShortIdProperty'
+        description:
+          type: string
+          description: Description of the job's flight from description flight input
+            parameter
+        job_status:
+          type: string
+          description: Status of job
+          enum:
+            - running
+            - succeeded
+            - failed
+        status_code:
+          type: integer
+          description: HTTP code
+        submitted:
+          type: string
+          description: Timestamp when the flight was created
+        completed:
+          type: string
+          description: Timestamp when the flight was completed; not present if not
+            complete
+        class_name:
+          type: string
+          description: Class name of the flight
+      description: >
+        Status of job
+
+    ShortIdProperty:
+      pattern: '[A-Za-z0-9_\\-]{22}'
+      type: string
+      description: >
+        Unique identifier for flights, jobs, etc.
 
   responses:
     ErrorResponse:

@@ -79,7 +79,7 @@ _trivy_ | on PR                     | Broad app-security scan on base Docker ima
 
 ## Development, testing & deployment
 
-### Connect to dev Buffer Service
+### Authenticating to Dev Buffer Service
 [Dev Buffer Service Swagger](https://buffer.dsde-dev.broadinstitute.org/swagger-ui.html)
 
 In Broad deployment, use a valid Google Service Account(created by [Terraform](https://github.com/broadinstitute/terraform-ap-modules/blob/master/buffer/sa.tf#L83)) is required for service authorization. This can be retrieved in Vault.
@@ -87,11 +87,12 @@ To get client service account access token:
 
 Step 1:
 ```
-docker run --rm --cap-add IPC_LOCK -e "VAULT_TOKEN=$(cat ~/.vault-token)" -e "VAULT_ADDR=https://clotho.broadinstitute.org:8200" vault:1.1.0 vault read -format json secret/dsde/terra/kernel/dev/dev/buffer/client-sa | jq -r '.data.key' | base64 --decode > buffer-client-sa.json
+export DEV_SERVICE_ACCOUNT_PATH=./src/test/resources/rendered/dev-buffer-client-sa.json
+gcloud secrets versions access latest --secret=buffer-client-sa-b64 --project=broad-dsde-dev | jq -r '.key' | base64 -d > ${DEV_SERVICE_ACCOUNT_PATH}
 ```
 Step2:
 ```
-gcloud auth activate-service-account --key-file=buffer-client-sa.json
+gcloud auth activate-service-account --key-file=${DEV_SERVICE_ACCOUNT_PATH}
 ```
 Step3:
 ```
@@ -165,9 +166,13 @@ skaffold run
 Follow [Installing this instruction](https://cloud.google.com/sql/docs/mysql/sql-proxy#macos-64-bit)
 to install Cloud SQL Proxy. This is used to connect to the remote SQL database used by RBS
 
-Step 1: Go to cloud console to get the instance name you want to connect to, then start the proxy:
+Step 1: Go to cloud console to get the instance name you want to connect to, then start the proxy. If connecting to the dev instance, first run:
 ```
-./cloud_sql_proxy -instances=<INSTANCE_CONNECTION_NAME>=tcp:5432
+gcloud auth login <broad email>
+```
+Then run the Cloud SQL Proxy with the instance connection name. For example, to connect to Dev Buffer Database, run:
+```
+cloud-sql-proxy $INSTANCE_CONNECTION_NAME -g
 ```
 Step 2: Then set database password as `PGPASSWORD`:
 ```
@@ -177,19 +182,20 @@ Step 3.1: To connect to Buffer Database, run:
 ```
 psql "host=127.0.0.1 sslmode=disable dbname=buffer user=buffer"
 ```
-Step 3.2: To connect to Buffer Stariway Database, run:
+Step 3.2: To connect to Buffer Stairway Database, run:
 ```
 psql "host=127.0.0.1 sslmode=disable dbname=buffer-stairway user=buffer-stairway"
 ```
 #### Connect to Broad Deployment Buffer Database
-For Broad engineer, BUFFER_DB_PASSWORD can be found in vault. For example, to connect to Dev Buffer Database, run:
+For Broad engineer, the INSTANCE_CONNECTION_NAME and BUFFER_DB_PASSWORD can be found in gsm. For example, to connect to Dev Buffer Database, run:
 ```
-export PGPASSWORD=$(docker run -e VAULT_TOKEN=$(cat ~/.vault-token) -it broadinstitute/dsde-toolbox:dev vault read -field='password' secret/dsde/terra/kernel/dev/dev/buffer/postgres/db-creds)
+export DB_REGION=$(gcloud secrets versions access latest --secret=buffer-postgres-instance --project=broad-dsde-dev | jq -r ".region")
+export DB_INSTANCE=$(gcloud secrets versions access latest --secret=buffer-postgres-instance --project=broad-dsde-dev | jq -r ".name")
+export INSTANCE_CONNECTION_NAME="broad-dsde-dev:${DB_REGION}:${DB_INSTANCE}"
+export PGPASSWORD=$(gcloud secrets versions access latest --secret=buffer-postgres-creds --project=broad-dsde-dev | jq -r ".password")
 ```
-Then:
-```
-psql "host=127.0.0.1 sslmode=disable dbname=buffer user=buffer"
-```
+
+Then follow the steps above to connect to the database.
 
 Note that you must stop the local postgres first to free the 5432 port.
 See [this document](https://cloud.google.com/sql/docs/postgres/connect-admin-proxy) for more details.

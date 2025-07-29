@@ -1,22 +1,21 @@
 package bio.terra.buffer.service.resource.flight;
 
-import static bio.terra.buffer.service.resource.FlightMapKeys.GOOGLE_PROJECT_ID;
+import static bio.terra.buffer.service.resource.FlightMapKeys.*;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.pollUntilSuccess;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.projectIdToName;
 
 import bio.terra.buffer.generated.model.GcpProjectConfig;
 import bio.terra.cloudres.google.api.services.common.OperationCow;
 import bio.terra.cloudres.google.serviceusage.ServiceUsageCow;
-import bio.terra.stairway.FlightContext;
-import bio.terra.stairway.Step;
-import bio.terra.stairway.StepResult;
-import bio.terra.stairway.StepStatus;
+import bio.terra.stairway.*;
 import bio.terra.stairway.exception.RetryException;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.serviceusage.v1beta1.model.BatchEnableServicesRequest;
 import java.io.IOException;
 import java.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 
 /** Enable services for project. */
 public class EnableServicesStep implements Step {
@@ -35,7 +34,12 @@ public class EnableServicesStep implements Step {
     if (gcpProjectConfig.getEnabledApis() == null || gcpProjectConfig.getEnabledApis().isEmpty()) {
       return StepResult.getStepResultSuccess();
     }
-    String projectId = flightContext.getWorkingMap().get(GOOGLE_PROJECT_ID, String.class);
+
+    FlightMap workingMap = flightContext.getWorkingMap();
+    String projectId = workingMap.get(GOOGLE_PROJECT_ID, String.class);
+    if (projectId == null) {
+      projectId = flightContext.getInputParameters().get(GOOGLE_PROJECT_ID, String.class);
+    }
     try {
       OperationCow<?> operation =
           serviceUsageCow
@@ -49,10 +53,16 @@ public class EnableServicesStep implements Step {
                               .setServiceIds(gcpProjectConfig.getEnabledApis()))
                       .execute());
       pollUntilSuccess(operation, Duration.ofSeconds(5), Duration.ofMinutes(5));
+    }  catch (GoogleJsonResponseException e) {
+      logger.error("Error enabling services GCP project, id: {}", projectId, e);
+      return new StepResult(StepStatus.STEP_RESULT_FAILURE_FATAL, e);
     } catch (IOException | InterruptedException e) {
       logger.info("Error enabling services GCP project, id: {}", projectId, e);
       return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY, e);
     }
+    // Set job response
+    workingMap.put(DESCRIPTION, "Repaired project " + projectId);
+    workingMap.put(STATUS_CODE, HttpStatus.OK);
     return StepResult.getStepResultSuccess();
   }
 

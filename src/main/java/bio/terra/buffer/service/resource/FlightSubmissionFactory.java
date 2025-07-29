@@ -4,6 +4,7 @@ import bio.terra.buffer.common.Pool;
 import bio.terra.buffer.common.Resource;
 import bio.terra.buffer.common.ResourceId;
 import bio.terra.buffer.common.ResourceType;
+import bio.terra.buffer.generated.model.GoogleProjectUid;
 import bio.terra.stairway.Flight;
 import bio.terra.stairway.FlightMap;
 import com.google.auto.value.AutoValue;
@@ -15,6 +16,8 @@ public interface FlightSubmissionFactory {
   FlightSubmission getCreationFlightSubmission(Pool pool, ResourceId resourceId);
 
   FlightSubmission getDeletionFlightSubmission(Resource resource, ResourceType type);
+
+  FlightSubmission getRepairFlightSubmission(Pool pool, GoogleProjectUid projectUid);
 
   /** A value class of the parameters needed to submit a new flight to Stairway. */
   @AutoValue

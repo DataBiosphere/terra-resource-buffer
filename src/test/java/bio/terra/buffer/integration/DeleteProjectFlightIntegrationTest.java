@@ -58,7 +58,7 @@ public class DeleteProjectFlightIntegrationTest extends BaseIntegrationTest {
     ResourceId resourceId =
         extractResourceIdFromFlightState(
             blockUntilFlightComplete(stairwayComponent, createFlightId));
-    Project project = assertProjectExists(resourceId);
+    Project project = IntegrationUtils.assertProjectExists(bufferDao, rmCow, resourceId);
     Resource resource =
         bufferDao.retrieveResourcesRandomly(pool.id(), ResourceState.READY, 1).get(0);
 
@@ -132,17 +132,6 @@ public class DeleteProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertEquals(
         FlightStatus.ERROR,
         stairwayComponent.get().getFlightState(deleteFlightId).getFlightStatus());
-  }
-
-  private Project assertProjectExists(ResourceId resourceId) throws Exception {
-    Resource resource = bufferDao.retrieveResource(resourceId).get();
-    Project project =
-        rmCow
-            .projects()
-            .get(resource.cloudResourceUid().getGoogleProjectUid().getProjectId())
-            .execute();
-    assertEquals("ACTIVE", project.getState());
-    return project;
   }
 
   private void assertProjectDeleting(String projectId) throws Exception {

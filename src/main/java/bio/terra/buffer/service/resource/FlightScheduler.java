@@ -8,9 +8,12 @@ import bio.terra.buffer.common.PoolStatus;
 import bio.terra.buffer.common.Resource;
 import bio.terra.buffer.common.ResourceState;
 import bio.terra.buffer.db.BufferDao;
+import bio.terra.buffer.generated.model.GoogleProjectUid;
 import bio.terra.common.stairway.StairwayComponent;
+import bio.terra.stairway.Stairway;
 import com.google.common.base.Preconditions;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -74,6 +77,10 @@ public class FlightScheduler {
         /* initialDelay= */ 0,
         /* period= */ primaryConfiguration.getFlightSubmissionPeriod().toMillis(),
         TimeUnit.MILLISECONDS);
+  }
+
+  public Stairway getStairway() {
+    return stairwayComponent.get();
   }
 
   /**
@@ -165,6 +172,10 @@ public class FlightScheduler {
         pool.id());
   }
 
+  public Optional<String> submitRepairResourceFlight(Pool pool, GoogleProjectUid projectUid) {
+    return flightManager.submitRepairResourceFlight(pool, projectUid);
+  }
+
   public void shutdown() {
     // Don't schedule  anything new during shutdown.
     executor.shutdown();
@@ -196,4 +207,5 @@ public class FlightScheduler {
       }
     }
   }
+
 }
