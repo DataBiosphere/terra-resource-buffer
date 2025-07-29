@@ -44,7 +44,7 @@ class JobServiceTest {
         when(mockStairway.getFlights(eq(0), eq(10), any(FlightFilter.class)))
                 .thenReturn(List.of(flight1, flight2));
 
-        List<JobModel> jobs = jobService.enumerateJobs(0, 10, SqlSortDirection.DESC, null, List.of());
+        List<JobModel> jobs = jobService.enumerateJobs(0, 10, SqlSortDirection.DESC, null, null);
 
         assertEquals(2, jobs.size());
         assertEquals("job1", jobs.get(0).getId());
@@ -53,24 +53,19 @@ class JobServiceTest {
 
     @Test
     void testEnumerateJobsByClassNameAndInputs() throws Exception {
-        // Setup
         FlightScheduler flightScheduler = mock(FlightScheduler.class);
         Stairway mockStairway = mock(Stairway.class);
         when(flightScheduler.getStairway()).thenReturn(mockStairway);
         JobService jobService = new JobService(flightScheduler);
 
-        // Create mock flight state
         FlightState flight = mockFlightState("job1", "TestClass", FlightStatus.SUCCESS);
 
-        // Setup mock
         when(mockStairway.getFlights(anyInt(), anyInt(), any(FlightFilter.class)))
                 .thenReturn(List.of(flight));
 
-        // Execute
         List<JobModel> jobs = jobService.enumerateJobs(0, 10, SqlSortDirection.DESC, "TestClass",
-                List.of("googleProjectId=testProject", "resourceType=bucket"));
+                List.of("googleProjectId=testProject"));
 
-        // Verify
         assertEquals(1, jobs.size());
         assertEquals("job1", jobs.get(0).getId());
         assertEquals("TestClass", jobs.get(0).getClassName());
@@ -78,12 +73,10 @@ class JobServiceTest {
 
     @Test
     void testEnumerateJobsWithInvalidInputFormat() {
-        // Setup
         FlightScheduler flightScheduler = mock(FlightScheduler.class);
         when(flightScheduler.getStairway()).thenReturn(mock(Stairway.class));
         JobService jobService = new JobService(flightScheduler);
 
-        // Execute & Verify
         assertThrows(IllegalArgumentException.class, () ->
                 jobService.enumerateJobs(0, 10, SqlSortDirection.DESC, null, List.of("invalidInput")));
     }

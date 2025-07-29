@@ -39,8 +39,6 @@ public class JobService {
             String className,
             List<String> inputs) {
 
-        // if the user has access to all jobs, then fetch everything
-        // otherwise, filter the jobs on the user
         FlightFilter filter = new FlightFilter(createFlightFilter(className, inputs));
         // Set the order to use to return values
         switch (direction) {
