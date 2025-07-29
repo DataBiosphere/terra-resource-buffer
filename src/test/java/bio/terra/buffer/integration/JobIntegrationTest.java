@@ -36,9 +36,9 @@ public class JobIntegrationTest extends BaseIntegrationTest {
   @Autowired JobService jobService;
 
   String CREATE_RESOURCE_FLIGHT_NAME =
-      "bio.terra.buffer.service.resource.flight.CreateResourceFlight";
+      "bio.terra.buffer.service.resource.flight.GoogleProjectCreationFlight";
   String REPAIR_RESOURCE_FLIGHT_NAME =
-      "bio.terra.buffer.service.resource.flight.RepairResourceFlight";
+      "bio.terra.buffer.service.resource.flight.GoogleProjectRepairFlight";
 
   @Test
   public void testEnumerateJobs() throws Exception {
