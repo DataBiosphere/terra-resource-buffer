@@ -60,7 +60,7 @@ public class JobIntegrationTest extends BaseIntegrationTest {
     blockUntilFlightComplete(stairwayComponent, repairFlightId);
 
     List<JobModel> allJobs =
-        jobService.enumerateJobs(0, 10, SqlSortDirection.DESC, null, List.of());
+        jobService.enumerateJobs(0, 10, SqlSortDirection.DESC, null, null);
     assertEquals(2, allJobs.size());
     List<String> allJobClasses = allJobs.stream().map(JobModel::getClassName).toList();
     assertTrue(
@@ -68,7 +68,7 @@ public class JobIntegrationTest extends BaseIntegrationTest {
             List.of(CREATE_RESOURCE_FLIGHT_NAME, REPAIR_RESOURCE_FLIGHT_NAME)));
 
     List<JobModel> repairResourceJobs =
-        jobService.enumerateJobs(0, 10, SqlSortDirection.DESC, "RepairResourceFlight", List.of());
+        jobService.enumerateJobs(0, 10, SqlSortDirection.DESC, REPAIR_RESOURCE_FLIGHT_NAME, null);
     assertEquals(1, repairResourceJobs.size());
     List<String> repairResourceClassNames =
         repairResourceJobs.stream().map(JobModel::getClassName).toList();
@@ -80,7 +80,7 @@ public class JobIntegrationTest extends BaseIntegrationTest {
             10,
             SqlSortDirection.DESC,
             null,
-            List.of("googleProjectId:" + googleProjectId.getProjectId()));
+            List.of("googleProjectId=" + googleProjectId.getProjectId()));
     assertEquals(1, googleProjectIdJobs.size());
     // Inputs are not a part of the JobModel, so we cannot assert on them directly.
     List<String> result = repairResourceJobs.stream().map(JobModel::getId).toList();
