@@ -1,9 +1,8 @@
 package bio.terra.buffer.app.controller.converters;
 
 import bio.terra.buffer.generated.model.SqlSortDirectionDescDefault;
-import org.springframework.stereotype.Component;
-
 import java.util.Arrays;
+import org.springframework.stereotype.Component;
 
 @Component
 public class SqlSortDirectionDescDefaultConverter

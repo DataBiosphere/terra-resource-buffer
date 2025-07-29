@@ -1,6 +1,5 @@
 package bio.terra.buffer.common;
 
-
 import bio.terra.buffer.generated.model.SqlSortDirectionAscDefault;
 import bio.terra.buffer.generated.model.SqlSortDirectionDescDefault;
 
