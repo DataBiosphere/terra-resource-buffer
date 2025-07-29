@@ -7,7 +7,6 @@ import bio.terra.buffer.service.job.exception.JobResponseException;
 import bio.terra.buffer.service.job.exception.JobServiceShutdownException;
 import bio.terra.buffer.service.resource.FlightMapKeys;
 import bio.terra.buffer.service.resource.FlightScheduler;
-import bio.terra.common.iam.AuthenticatedUserRequest;
 import bio.terra.stairway.*;
 import bio.terra.stairway.exception.StairwayException;
 import org.apache.commons.lang3.StringUtils;
@@ -19,11 +18,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Stream;
 
 import static bio.terra.stairway.FlightFilter.FlightBooleanOperationExpression.makeAnd;
-import static bio.terra.stairway.FlightFilter.FlightBooleanOperationExpression.makeOr;
 import static bio.terra.stairway.FlightFilter.FlightFilterPredicate.*;
 
 @Component
@@ -75,15 +71,17 @@ public class JobService {
                         FlightFilterOp.GREATER_THAN,
                         Instant.now().minus(Duration.ofDays(MAX_NUMBER_OF_DAYS_TO_SHOW_JOBS))));
 
-        inputs.stream().map(input -> {
-            String[] parts = input.split("=", 2);
-            if (parts.length != 2) {
-                throw new IllegalArgumentException("Input must be in 'key=value' format: " + input);
-            }
-            String key = parts[0].trim();
-            String value = parts[1].trim();
-            return makePredicateInput(key, FlightFilterOp.EQUAL, value);
-        }).forEach(topLevelBooleans::add);
+        if (!(inputs == null || inputs.isEmpty())) {
+            inputs.stream().map(input -> {
+                String[] parts = input.split("=", 2);
+                if (parts.length != 2) {
+                    throw new IllegalArgumentException("Input must be in 'key=value' format: " + input);
+                }
+                String key = parts[0].trim();
+                String value = parts[1].trim();
+                return makePredicateInput(key, FlightFilterOp.EQUAL, value);
+            }).forEach(topLevelBooleans::add);
+        }
 
         return makeAnd(topLevelBooleans.toArray(new FlightFilter.FlightFilterPredicateInterface[0]));
     }

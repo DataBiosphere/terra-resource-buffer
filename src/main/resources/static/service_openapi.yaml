@@ -141,7 +141,8 @@ paths:
         - name: inputs
           in: query
           description: >
-            Filter by the flight's inputs (must be in the form of key=value pairs).
+            Filter by flight inputs in the form of key=value pairs. For example, filtering by googleProjectId=buffer-test-123 will return all 
+            repair flights for that project, while filtering by PoolId=resource_buffer_pool will return all project creation flights for that pool.
           required: false
           style: form
           explode: true
