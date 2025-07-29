@@ -107,6 +107,47 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorReport'
 
+  /api/repository/v1/jobs:
+    get:
+      tags:
+        - jobs
+      description: >
+        Returns a list of all recently submitted jobs that the caller has access to
+      operationId: enumerateJobs
+      parameters:
+        - name: offset
+          in: query
+          description: The number of items to skip before starting to collect the result
+            set.
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          in: query
+          description: The numbers of items to return.
+          schema:
+            type: integer
+            default: 10
+        - name: direction
+          in: query
+          description: The direction to sort based on job creation time (default is descending).
+          schema:
+            $ref: '#/components/schemas/SqlSortDirectionDescDefault'
+        - name: className
+          in: query
+          description: Filter by the flight's class
+          schema:
+            type: string
+      responses:
+        200:
+          description: List of jobs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/JobModel'
+
   /api/jobs/v1/{id}:
     get:
       tags:
@@ -504,11 +545,26 @@ components:
       description: >
         Status of job
 
+
     ShortIdProperty:
       pattern: '[A-Za-z0-9_\\-]{22}'
       type: string
       description: >
         Unique identifier for flights, jobs, etc.
+
+    SqlSortDirectionAscDefault:
+      type: string
+      enum: [ asc, desc ]
+      default: asc
+      description: >
+        The sort direction of a query result
+
+    SqlSortDirectionDescDefault:
+      type: string
+      enum: [ asc, desc ]
+      default: desc
+      description: >
+        The sort direction of a query result
 
   responses:
     ErrorResponse:

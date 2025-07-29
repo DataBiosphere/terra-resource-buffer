@@ -1,26 +1,80 @@
 package bio.terra.buffer.service.job;
 
+import bio.terra.buffer.common.SqlSortDirection;
 import bio.terra.buffer.generated.model.JobModel;
 import bio.terra.buffer.service.job.exception.InvalidResultStateException;
 import bio.terra.buffer.service.job.exception.JobResponseException;
 import bio.terra.buffer.service.job.exception.JobServiceShutdownException;
 import bio.terra.buffer.service.resource.FlightMapKeys;
 import bio.terra.buffer.service.resource.FlightScheduler;
-import bio.terra.stairway.FlightMap;
-import bio.terra.stairway.FlightState;
-import bio.terra.stairway.FlightStatus;
+import bio.terra.common.iam.AuthenticatedUserRequest;
+import bio.terra.stairway.*;
 import bio.terra.stairway.exception.StairwayException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
+
+import static bio.terra.stairway.FlightFilter.FlightBooleanOperationExpression.makeAnd;
+import static bio.terra.stairway.FlightFilter.FlightBooleanOperationExpression.makeOr;
+import static bio.terra.stairway.FlightFilter.FlightFilterPredicate.*;
+
 @Component
 public class JobService {
+    private final int MAX_NUMBER_OF_DAYS_TO_SHOW_JOBS = 30;
     private final FlightScheduler flightScheduler;
 
     @Autowired
     public JobService(FlightScheduler flightScheduler) {
         this.flightScheduler = flightScheduler;
+    }
+
+    public List<JobModel> enumerateJobs(
+            int offset,
+            int limit,
+            SqlSortDirection direction,
+            String className) {
+
+        // if the user has access to all jobs, then fetch everything
+        // otherwise, filter the jobs on the user
+        FlightFilter filter = new FlightFilter(createFlightFilter(className));
+        // Set the order to use to return values
+        switch (direction) {
+            case ASC -> filter.submittedTimeSortDirection(FlightFilterSortDirection.ASC);
+            case DESC -> filter.submittedTimeSortDirection(FlightFilterSortDirection.DESC);
+        }
+
+        try {
+            return flightScheduler.getStairway().getFlights(offset, limit, filter).stream()
+                    .map(this::mapFlightStateToJobModel)
+                    .toList();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new JobServiceShutdownException("Job service interrupted", e);
+        }
+    }
+
+    private FlightFilter.FlightBooleanOperationExpression createFlightFilter(String className) {
+        List<FlightFilter.FlightFilterPredicateInterface> topLevelBooleans = new ArrayList<>();
+        if (!StringUtils.isEmpty(className)) {
+            topLevelBooleans.add(makePredicateFlightClass(FlightFilterOp.EQUAL, className));
+        }
+
+        // Only return recent flights. This is a performance enhancement since it causes the query to
+        // NOT do a full table scan.
+        topLevelBooleans.add(
+                makePredicateSubmitTime(
+                        FlightFilterOp.GREATER_THAN,
+                        Instant.now().minus(Duration.ofDays(MAX_NUMBER_OF_DAYS_TO_SHOW_JOBS))));
+
+        return makeAnd(topLevelBooleans.toArray(new FlightFilter.FlightFilterPredicateInterface[0]));
     }
 
     public JobModel retrieveJob(String jobId) {
