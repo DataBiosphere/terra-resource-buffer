@@ -1,26 +1,87 @@
 package bio.terra.buffer.service.job;
 
+import bio.terra.buffer.common.SqlSortDirection;
 import bio.terra.buffer.generated.model.JobModel;
 import bio.terra.buffer.service.job.exception.InvalidResultStateException;
 import bio.terra.buffer.service.job.exception.JobResponseException;
 import bio.terra.buffer.service.job.exception.JobServiceShutdownException;
 import bio.terra.buffer.service.resource.FlightMapKeys;
 import bio.terra.buffer.service.resource.FlightScheduler;
-import bio.terra.stairway.FlightMap;
-import bio.terra.stairway.FlightState;
-import bio.terra.stairway.FlightStatus;
+import bio.terra.stairway.*;
 import bio.terra.stairway.exception.StairwayException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+
+import static bio.terra.stairway.FlightFilter.FlightBooleanOperationExpression.makeAnd;
+import static bio.terra.stairway.FlightFilter.FlightFilterPredicate.*;
+
 @Component
 public class JobService {
+    private final int MAX_NUMBER_OF_DAYS_TO_SHOW_JOBS = 30;
     private final FlightScheduler flightScheduler;
 
     @Autowired
     public JobService(FlightScheduler flightScheduler) {
         this.flightScheduler = flightScheduler;
+    }
+
+    public List<JobModel> enumerateJobs(
+            int offset,
+            int limit,
+            SqlSortDirection direction,
+            String className,
+            List<String> inputs) {
+
+        FlightFilter filter = new FlightFilter(createFlightFilter(className, inputs));
+        // Set the order to use to return values
+        switch (direction) {
+            case ASC -> filter.submittedTimeSortDirection(FlightFilterSortDirection.ASC);
+            case DESC -> filter.submittedTimeSortDirection(FlightFilterSortDirection.DESC);
+        }
+
+        try {
+            return flightScheduler.getStairway().getFlights(offset, limit, filter).stream()
+                    .map(this::mapFlightStateToJobModel)
+                    .toList();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new JobServiceShutdownException("Job service interrupted", e);
+        }
+    }
+
+    private FlightFilter.FlightBooleanOperationExpression createFlightFilter(String className, List<String> inputs) {
+        List<FlightFilter.FlightFilterPredicateInterface> topLevelBooleans = new ArrayList<>();
+        if (!StringUtils.isEmpty(className)) {
+            topLevelBooleans.add(makePredicateFlightClass(FlightFilterOp.EQUAL, className));
+        }
+
+        // Only return recent flights. This is a performance enhancement since it causes the query to
+        // NOT do a full table scan.
+        topLevelBooleans.add(
+                makePredicateSubmitTime(
+                        FlightFilterOp.GREATER_THAN,
+                        Instant.now().minus(Duration.ofDays(MAX_NUMBER_OF_DAYS_TO_SHOW_JOBS))));
+
+        if (!(inputs == null || inputs.isEmpty())) {
+            inputs.stream().map(input -> {
+                String[] parts = input.split("=", 2);
+                if (parts.length != 2) {
+                    throw new IllegalArgumentException("Input must be in 'key=value' format: " + input);
+                }
+                String key = parts[0].trim();
+                String value = parts[1].trim();
+                return makePredicateInput(key, FlightFilterOp.EQUAL, value);
+            }).forEach(topLevelBooleans::add);
+        }
+
+        return makeAnd(topLevelBooleans.toArray(new FlightFilter.FlightFilterPredicateInterface[0]));
     }
 
     public JobModel retrieveJob(String jobId) {

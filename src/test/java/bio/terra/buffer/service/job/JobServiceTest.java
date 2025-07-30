@@ -1,24 +1,24 @@
 package bio.terra.buffer.service.job;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+import bio.terra.buffer.common.SqlSortDirection;
 import bio.terra.buffer.generated.model.JobModel;
 import bio.terra.buffer.service.job.exception.InvalidResultStateException;
 import bio.terra.buffer.service.job.exception.JobResponseException;
 import bio.terra.buffer.service.job.exception.JobServiceShutdownException;
 import bio.terra.buffer.service.resource.FlightMapKeys;
 import bio.terra.buffer.service.resource.FlightScheduler;
-import bio.terra.stairway.FlightMap;
-import bio.terra.stairway.FlightState;
-import bio.terra.stairway.FlightStatus;
+import bio.terra.stairway.*;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 
-import java.time.Instant;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 class JobServiceTest {
     private FlightScheduler flightScheduler;
@@ -29,6 +29,78 @@ class JobServiceTest {
         flightScheduler = mock(FlightScheduler.class);
         when(flightScheduler.getStairway()).thenReturn(Mockito.mock(bio.terra.stairway.Stairway.class));
         jobService = new JobService(flightScheduler);
+    }
+
+    @Test
+    void testEnumerateAllJobs() throws Exception {
+        FlightScheduler flightScheduler = mock(FlightScheduler.class);
+        Stairway mockStairway = mock(Stairway.class);
+        when(flightScheduler.getStairway()).thenReturn(mockStairway);
+        JobService jobService = new JobService(flightScheduler);
+
+        FlightState flight1 = mockFlightState("job1", "Class1", FlightStatus.SUCCESS);
+        FlightState flight2 = mockFlightState("job2", "Class2", FlightStatus.RUNNING);
+
+        when(mockStairway.getFlights(eq(0), eq(10), any(FlightFilter.class)))
+                .thenReturn(List.of(flight1, flight2));
+
+        List<JobModel> jobs = jobService.enumerateJobs(0, 10, SqlSortDirection.DESC, null, null);
+
+        assertEquals(2, jobs.size());
+        assertEquals("job1", jobs.get(0).getId());
+        assertEquals("job2", jobs.get(1).getId());
+    }
+
+    @Test
+    void testEnumerateJobsByClassNameAndInputs() throws Exception {
+        FlightScheduler flightScheduler = mock(FlightScheduler.class);
+        Stairway mockStairway = mock(Stairway.class);
+        when(flightScheduler.getStairway()).thenReturn(mockStairway);
+        JobService jobService = new JobService(flightScheduler);
+
+        FlightState flight = mockFlightState("job1", "TestClass", FlightStatus.SUCCESS);
+
+        when(mockStairway.getFlights(anyInt(), anyInt(), any(FlightFilter.class)))
+                .thenReturn(List.of(flight));
+
+        List<JobModel> jobs = jobService.enumerateJobs(0, 10, SqlSortDirection.DESC, "TestClass",
+                List.of("googleProjectId=testProject"));
+
+        assertEquals(1, jobs.size());
+        assertEquals("job1", jobs.get(0).getId());
+        assertEquals("TestClass", jobs.get(0).getClassName());
+    }
+
+    @Test
+    void testEnumerateJobsWithInvalidInputFormat() {
+        FlightScheduler flightScheduler = mock(FlightScheduler.class);
+        when(flightScheduler.getStairway()).thenReturn(mock(Stairway.class));
+        JobService jobService = new JobService(flightScheduler);
+
+        assertThrows(IllegalArgumentException.class, () ->
+                jobService.enumerateJobs(0, 10, SqlSortDirection.DESC, null, List.of("invalidInput")));
+    }
+
+    private FlightState mockFlightState(String id, String className, FlightStatus status) {
+        FlightState flightState = mock(FlightState.class);
+        FlightMap inputMap = new FlightMap();
+        inputMap.put(FlightMapKeys.DESCRIPTION, "test description");
+
+        when(flightState.getFlightId()).thenReturn(id);
+        when(flightState.getClassName()).thenReturn(className);
+        when(flightState.getInputParameters()).thenReturn(inputMap);
+        when(flightState.getSubmitted()).thenReturn(Instant.now());
+        when(flightState.getFlightStatus()).thenReturn(status);
+        when(flightState.getCompleted()).thenReturn(Optional.empty());
+
+        if (status == FlightStatus.SUCCESS) {
+            FlightMap resultMap = new FlightMap();
+            resultMap.put(FlightMapKeys.STATUS_CODE, HttpStatus.OK);
+            when(flightState.getCompleted()).thenReturn(Optional.of(Instant.now()));
+            when(flightState.getResultMap()).thenReturn(Optional.of(resultMap));
+        }
+
+        return flightState;
     }
 
     @Test
