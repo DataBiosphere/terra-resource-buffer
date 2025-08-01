@@ -3,7 +3,7 @@ plugins {
     id 'maven-publish'
 
     id 'org.hidetake.swagger.generator' version '2.19.2'
-    id 'com.google.cloud.artifactregistry.gradle-plugin' version '2.1.5'
+    id 'com.google.cloud.artifactregistry.gradle-plugin' version '2.2.5'
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_8 // Rawls consumes this and is Java 8
@@ -14,12 +14,12 @@ repositories {
 
 dependencies {
     swaggerCodegen group: 'io.swagger.codegen.v3', name: 'swagger-codegen-cli', version: '3.0.61'
-    implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.34'
+    implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.35'
     implementation group: 'io.swagger', name: 'swagger-annotations', version: '1.6.16'
     implementation group: 'org.glassfish.jersey.core', name: 'jersey-client', version: '3.1.10'
     implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version: '3.1.10'
     implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-multipart', version: '3.1.10'
-    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.19.1'
+    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.19.2'
     implementation group: 'jakarta.annotation', name: 'jakarta.annotation-api', version: '3.0.0'
     implementation group: 'jakarta.ws.rs', name: 'jakarta.ws.rs-api', version: '4.0.0'
 }
