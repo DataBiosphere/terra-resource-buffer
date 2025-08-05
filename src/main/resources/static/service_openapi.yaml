@@ -37,9 +37,18 @@ paths:
         - $ref: '#/components/parameters/GoogleProjectUid'
       tags:
         - resource
+      requestBody:
+        content:
+          application/json: {}
       responses:
         '200':
           description: OK, resource is repaired.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobModel'
+        '202':
+          description: Resource repair in progress.
           content:
             application/json:
               schema:
