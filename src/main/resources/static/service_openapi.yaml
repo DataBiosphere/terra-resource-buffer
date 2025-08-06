@@ -253,7 +253,6 @@ paths:
             application/json:
               schema:
                 type: object
-
 components:
   parameters:
     PoolId:
@@ -574,7 +573,21 @@ components:
       type: string
       description: >
         Unique identifier for flights, jobs, etc.
-
+    ErrorModel:
+      required:
+        - message
+      type: object
+      properties:
+        message:
+          type: string
+        errorDetail:
+          type: array
+          items:
+            type: string
+      description: >
+        Representation of an error that occurred while processing a request.
+        Some errors provide error details. For example, validation of input may report several problems.
+        Each of those are reported in a separate error detail.
     SqlSortDirectionAscDefault:
       type: string
       enum: [ asc, desc ]
