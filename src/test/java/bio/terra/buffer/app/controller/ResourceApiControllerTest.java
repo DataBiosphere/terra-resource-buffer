@@ -88,7 +88,8 @@ public class ResourceApiControllerTest {
     String response = this.mvc
             .perform(
                     post("/api/resource/v1/" + projectId + "/repair")
-                            .contentType(MediaType.APPLICATION_JSON))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{}")) // no request body is needed for this endpoint
             .andExpect(status().isAccepted())
             .andReturn()
             .getResponse()
@@ -110,7 +111,8 @@ public class ResourceApiControllerTest {
     this.mvc
             .perform(
                     post("/api/resource/v1/" + projectId + "/repair")
-                            .contentType(MediaType.APPLICATION_JSON))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{}"))
             .andExpect(status().isNotFound());
   }
 
@@ -134,7 +136,8 @@ public class ResourceApiControllerTest {
     this.mvc
             .perform(
                     post("/api/resource/v1/" + projectId + "/repair")
-                            .contentType(MediaType.APPLICATION_JSON))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{}"))
             .andExpect(status().isNotFound());
   }
 }

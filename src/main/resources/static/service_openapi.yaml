@@ -39,7 +39,9 @@ paths:
         - resource
       requestBody:
         content:
-          application/json: {}
+          application/json:
+            schema:
+              type: object
       responses:
         '200':
           description: OK, resource is repaired.
