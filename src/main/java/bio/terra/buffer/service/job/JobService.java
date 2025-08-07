@@ -178,7 +178,6 @@ public class JobService {
         FlightState flightState = flightScheduler.getStairway().getFlightState(jobId);
 
         JobModel.JobStatusEnum jobStatus = getJobStatus(flightState);
-
         switch (jobStatus) {
             case FAILED:
                 final Exception exceptionToThrow;
