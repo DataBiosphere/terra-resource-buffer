@@ -3,6 +3,7 @@ package bio.terra.buffer.service.resource.flight;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.stairway.*;
 import bio.terra.stairway.exception.RetryException;
+import com.google.api.services.cloudresourcemanager.v3.model.Binding;
 import com.google.api.services.cloudresourcemanager.v3.model.GetIamPolicyRequest;
 import com.google.api.services.cloudresourcemanager.v3.model.Policy;
 import com.google.api.services.cloudresourcemanager.v3.model.SetIamPolicyRequest;
@@ -11,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static bio.terra.buffer.service.resource.FlightMapKeys.*;
@@ -30,16 +32,13 @@ public class RemoveServiceAccountIAMRoles implements Step {
 
     try {
       GoogleCredentials credentials = GoogleCredentials.getApplicationDefault();
-      List<String> rolesToRemove = List.of("roles/serviceusage.serviceUsageAdmin", "roles/resourcemanager.projectIamAdmin");
       String memberToRemove = ((com.google.auth.oauth2.ServiceAccountCredentials) credentials).getClientEmail();
+      List<String> rolesToRemove = List.of("roles/serviceusage.serviceUsageAdmin", "roles/resourcemanager.projectIamAdmin");
 
       Policy policy = rmCow.projects().getIamPolicy(projectId, new GetIamPolicyRequest()).execute();
-      policy.getBindings().removeIf(binding ->
-              binding.getMembers() != null && binding.getMembers().contains(memberToRemove) && rolesToRemove.contains(binding.getRole())
-      );
-
+      Policy updatedPolicy = GoogleUtils.removeUserRolesFromPolicy(policy, memberToRemove, rolesToRemove);
       rmCow.projects()
-            .setIamPolicy(projectId, new SetIamPolicyRequest().setPolicy(policy))
+            .setIamPolicy(projectId, new SetIamPolicyRequest().setPolicy(updatedPolicy))
             .execute();
 
     } catch (IOException e) {
