@@ -2,6 +2,7 @@ package bio.terra.buffer.service.resource.flight;
 
 import bio.terra.buffer.generated.model.GcpProjectConfig;
 import bio.terra.buffer.generated.model.ResourceConfig;
+import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.cloudres.google.serviceusage.ServiceUsageCow;
 import bio.terra.stairway.Flight;
 import bio.terra.stairway.FlightMap;
@@ -15,6 +16,7 @@ public class GoogleProjectRepairFlight extends Flight {
 
   public GoogleProjectRepairFlight(FlightMap inputParameters, Object applicationContext) {
     super(inputParameters, applicationContext);
+    CloudResourceManagerCow rmCow = ((ApplicationContext) applicationContext).getBean(CloudResourceManagerCow.class);
     ServiceUsageCow serviceUsageCow =
         ((ApplicationContext) applicationContext).getBean(ServiceUsageCow.class);
     GcpProjectConfig gcpProjectConfig =
@@ -22,6 +24,8 @@ public class GoogleProjectRepairFlight extends Flight {
 
     addStep(
         new EnableServicesStep(serviceUsageCow, gcpProjectConfig), newCloudApiDefaultRetryRule());
+    addStep(
+        new RemoveServiceAccountIAMRoles(rmCow), newCloudApiDefaultRetryRule());
     // TODO: check that the storage log bucket exists and create it if not?
   }
 }

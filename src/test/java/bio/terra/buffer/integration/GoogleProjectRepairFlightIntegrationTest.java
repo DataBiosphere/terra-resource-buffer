@@ -20,6 +20,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.util.List;
+
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class GoogleProjectRepairFlightIntegrationTest extends BaseIntegrationTest {
@@ -61,5 +63,19 @@ public class GoogleProjectRepairFlightIntegrationTest extends BaseIntegrationTes
             .map(Service::getName)
             .anyMatch(name -> name.endsWith(apiToEnable));
     assertTrue(apiEnabled, "API should be enabled after repair flight");
+
+    // Assert permissions were removed
+    com.google.api.services.cloudresourcemanager.v3.model.Policy policy =
+            rmCow.projects().getIamPolicy(project.getProjectId(), new com.google.api.services.cloudresourcemanager.v3.model.GetIamPolicyRequest()).execute();
+
+    com.google.auth.oauth2.GoogleCredentials credentials = com.google.auth.oauth2.GoogleCredentials.getApplicationDefault();
+    String serviceAccountEmail = ((com.google.auth.oauth2.ServiceAccountCredentials) credentials).getClientEmail();
+    String member = "serviceAccount:" + serviceAccountEmail;
+    List<String> rolesToRemove = List.of("roles/serviceusage.serviceUsageAdmin", "roles/resourcemanager.projectIamAdmin");
+
+    boolean hasBinding = policy.getBindings().stream()
+            .filter(b -> rolesToRemove.contains(b.getRole()))
+            .anyMatch(b -> b.getMembers() != null && b.getMembers().contains(member));
+    assertTrue(!hasBinding, "Service account should not have the removed roles");
   }
 }
