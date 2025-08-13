@@ -5,11 +5,15 @@ import bio.terra.cloudres.google.api.services.common.OperationUtils;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.stairway.exception.RetryException;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+import com.google.api.services.cloudresourcemanager.v3.model.Binding;
+import com.google.api.services.cloudresourcemanager.v3.model.Policy;
 import com.google.api.services.cloudresourcemanager.v3.model.Project;
 import com.google.api.services.compute.model.Router;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import org.apache.http.HttpStatus;
 
@@ -141,5 +145,20 @@ public class GoogleUtils {
   @FunctionalInterface
   public interface CloudExecute<R> {
     R execute() throws IOException;
+  }
+
+  public static Policy removeUserRolesFromPolicy(
+      Policy policy, String userEmail, List<String> rolesToRemove) {
+    if (policy == null || policy.getBindings() == null) {
+      return policy;
+    }
+    List<Binding> bindings = new ArrayList<>(policy.getBindings());
+    bindings.removeIf(binding ->
+            binding.getMembers() != null
+                    && binding.getMembers().contains(userEmail)
+                    && rolesToRemove.contains(binding.getRole())
+    );
+    policy.setBindings(bindings);
+    return policy;
   }
 }

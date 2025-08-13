@@ -39,7 +39,9 @@ paths:
         - resource
       requestBody:
         content:
-          application/json: {}
+          application/json:
+            schema:
+              type: object
       responses:
         '200':
           description: OK, resource is repaired.
@@ -251,7 +253,18 @@ paths:
             application/json:
               schema:
                 type: object
-
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorReport'
+        503:
+          description: Job service interrupted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorReport'
 components:
   parameters:
     PoolId:
@@ -572,7 +585,6 @@ components:
       type: string
       description: >
         Unique identifier for flights, jobs, etc.
-
     SqlSortDirectionAscDefault:
       type: string
       enum: [ asc, desc ]

@@ -29,7 +29,7 @@ public class ResourceApiController implements ResourceApi {
     }
 
     @Override
-    public ResponseEntity<JobModel> repairResource(String projectId) {
+    public ResponseEntity<JobModel> repairResource(String projectId, Object requestBody) {
         GoogleProjectUid googleProjectUid = new GoogleProjectUid().projectId(projectId);
         Pool pool = poolService.getPoolForGoogleProject(googleProjectUid);
         Optional<String> flightId = flightScheduler.submitRepairResourceFlight(pool, googleProjectUid);
