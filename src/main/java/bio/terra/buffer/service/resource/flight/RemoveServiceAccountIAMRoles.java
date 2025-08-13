@@ -27,17 +27,22 @@ public class RemoveServiceAccountIAMRoles implements Step {
   @Override
   public StepResult doStep(FlightContext flightContext) throws RetryException {
     String projectId = flightContext.getInputParameters().get(GOOGLE_PROJECT_ID, String.class);
+    logger.info("Removing IAM roles for service account in project: {}", projectId);
 
     try {
       GoogleCredentials credentials = GoogleCredentials.getApplicationDefault();
-      String memberToRemove = ((com.google.auth.oauth2.ServiceAccountCredentials) credentials).getClientEmail();
+      String clientEmail = ((com.google.auth.oauth2.ServiceAccountCredentials) credentials).getClientEmail();
+      String memberToRemove = "serviceAccount:" + clientEmail;
       List<String> rolesToRemove = List.of("roles/serviceusage.serviceUsageAdmin", "roles/resourcemanager.projectIamAdmin");
 
       Policy policy = rmCow.projects().getIamPolicy(projectId, new GetIamPolicyRequest()).execute();
       Policy updatedPolicy = GoogleUtils.removeUserRolesFromPolicy(policy, memberToRemove, rolesToRemove);
+      logger.info("Updating policy to " + updatedPolicy.toString());
       rmCow.projects()
             .setIamPolicy(projectId, new SetIamPolicyRequest().setPolicy(updatedPolicy))
             .execute();
+      Policy policyChanges = rmCow.projects().getIamPolicy(projectId, new GetIamPolicyRequest()).execute();
+      logger.info(policyChanges.toString());
 
     } catch (IOException e) {
       logger.info("Error when removing IAM policy", e);
@@ -48,6 +53,7 @@ public class RemoveServiceAccountIAMRoles implements Step {
 
   @Override
   public StepResult undoStep(FlightContext flightContext) {
+    logger.info("FAIl: UNDO STEP");
     return StepResult.getStepResultSuccess();
   }
 }
