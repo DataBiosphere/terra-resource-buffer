@@ -13,6 +13,7 @@ import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.serviceusage.v1beta1.model.BatchEnableServicesRequest;
 import java.io.IOException;
 import java.time.Duration;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -54,8 +55,13 @@ public class EnableServicesStep implements Step {
                       .execute());
       pollUntilSuccess(operation, Duration.ofSeconds(5), Duration.ofMinutes(5));
     }  catch (GoogleJsonResponseException e) {
-      logger.error("Error enabling services GCP project, id: {}", projectId, e);
-      return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY, e);
+      boolean canIgnoreError = e.getMessage() != null && e.getMessage().contains("is not available to this consumer");
+      if (canIgnoreError) {
+        logger.error("Skip enabling service(s): {}", e.getMessage());
+      } else {
+        logger.error("Error enabling services GCP project, id: {}", projectId, e);
+        return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY, e);
+      }
     } catch (IOException | InterruptedException e) {
       logger.info("Error enabling services GCP project, id: {}", projectId, e);
       return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY, e);
