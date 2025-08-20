@@ -4,6 +4,7 @@ import bio.terra.cloudres.google.api.services.common.OperationCow;
 import bio.terra.cloudres.google.api.services.common.OperationUtils;
 import bio.terra.cloudres.google.cloudresourcemanager.CloudResourceManagerCow;
 import bio.terra.stairway.exception.RetryException;
+import com.google.api.client.googleapis.json.GoogleJsonError;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.cloudresourcemanager.v3.model.Binding;
 import com.google.api.services.cloudresourcemanager.v3.model.Policy;
@@ -161,4 +162,45 @@ public class GoogleUtils {
     policy.setBindings(bindings);
     return policy;
   }
+
+  /**
+   * Checks if the error indicates that a service is not available to this consumer.
+   *
+   * @param e GoogleJsonResponseException from a failed Service Usage API call
+   * @return true if the error is due to "Service ... is not available to this consumer"
+   */
+  public static boolean isNotAvailableToConsumer(GoogleJsonResponseException e) {
+    if (e == null) {
+      return false;
+    }
+
+    String errorMessage = "not available to this consumer";
+    if (e.getMessage() != null &&
+            e.getMessage().contains(errorMessage)) {
+      return true;
+    }
+
+    GoogleJsonError details = e.getDetails();
+    if (details != null) {
+      if (details.getMessage() != null &&
+              details.getMessage().contains(errorMessage)) {
+        return true;
+      }
+
+      if (details.getErrors() != null) {
+        for (GoogleJsonError.ErrorInfo err : details.getErrors()) {
+          if (("global".equals(err.getDomain()) &&
+                  err.getMessage() != null &&
+                  err.getMessage().contains(errorMessage)) ||
+                  "SERVICE_DISABLED".equals(err.getReason())) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
 }
+
