@@ -55,8 +55,7 @@ public class EnableServicesStep implements Step {
                       .execute());
       pollUntilSuccess(operation, Duration.ofSeconds(5), Duration.ofMinutes(5));
     }  catch (GoogleJsonResponseException e) {
-      boolean canIgnoreError = e.getMessage() != null && e.getMessage().contains("is not available to this consumer");
-      if (canIgnoreError) {
+      if (GoogleUtils.isNotAvailableToConsumer(e)) {
         logger.error("Skip enabling service(s): {}", e.getMessage());
       } else {
         logger.error("Error enabling services GCP project, id: {}", projectId, e);
@@ -66,6 +65,7 @@ public class EnableServicesStep implements Step {
       logger.info("Error enabling services GCP project, id: {}", projectId, e);
       return new StepResult(StepStatus.STEP_RESULT_FAILURE_RETRY, e);
     }
+
     // Set job response
     workingMap.put(DESCRIPTION, "Repaired project " + projectId);
     workingMap.put(STATUS_CODE, HttpStatus.OK);
