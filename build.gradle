@@ -1,7 +1,7 @@
 // Build Script Classpath
 buildscript {
     ext {
-        springBootVersion = '3.5.5'
+        springBootVersion = '3.5.3'
     }
     dependencies {
         // jib build requires this dependency;
