@@ -6,11 +6,11 @@ buffer:
     update-db-on-start: true
     uri: jdbc:postgresql://127.0.0.1:5432/${BUFFER_DATABASE_NAME}
     username:
-    cleanup-job:
-      enabled: false
-      schedule: 0 0 10 * * * # every day at 10 am
-      retention-days: 30
-      batch-size: 1000
+  db-cleanup-job:
+    enabled: false
+    schedule: 0 0 10 * * * # every day at 10 am
+    retention-days: 30
+    batch-size: 1000
   primary:
     scheduler-enabled: true
   pool:
@@ -20,7 +20,7 @@ buffer:
     # Whether to update pool when config changes during server startup.
     # Might be useful to avoid potential backward compatibility caused by config change and make tests easier.
     update-pool-on-start: true
-    # Alternative system file path to read the config files from. If not set, fall back to reading from config-path. 	    
+    # Alternative system file path to read the config files from. If not set, fall back to reading from config-path.
     system-file-path:
   stairway:
     db:
