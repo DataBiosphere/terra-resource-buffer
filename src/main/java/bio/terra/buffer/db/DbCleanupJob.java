@@ -31,7 +31,7 @@ public class DbCleanupJob {
     logger.info("DB table cleanup job schedule = {}", config.getSchedule());
   }
 
-  @Scheduled(cron = "${buffer.db-cleanup-job.schedule}")
+  @Scheduled(cron = "${buffer.db.cleanup-job.schedule}")
   @SchedulerLock(name = "Table Cleanup Job", lockAtMostFor = "PT1H")
   public void tableCleanupJob() {
     if (!config.isEnabled()) {

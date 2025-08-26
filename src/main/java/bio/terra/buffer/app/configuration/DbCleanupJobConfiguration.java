@@ -4,7 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConfigurationProperties(prefix = "buffer.db-cleanup-job")
+@ConfigurationProperties(prefix = "buffer.db.cleanup-job")
 public class DbCleanupJobConfiguration {
 
   private String schedule;
