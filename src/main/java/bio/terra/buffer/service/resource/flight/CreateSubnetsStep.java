@@ -5,7 +5,6 @@ import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.
 import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.isNetworkMonitoringEnabled;
 import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.usePrivateGoogleAccess;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.*;
-import static bio.terra.buffer.service.resource.flight.GoogleUtils.NETWORK_NAME;
 
 import bio.terra.buffer.generated.model.GcpProjectConfig;
 import bio.terra.cloudres.google.api.services.common.OperationCow;
