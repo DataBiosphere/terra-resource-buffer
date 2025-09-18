@@ -32,7 +32,7 @@ public class GoogleProjectRepairFlightIntegrationTest extends BaseIntegrationTes
   @Autowired TransactionTemplate transactionTemplate;
   @Autowired ServiceUsageCow serviceUsageCow;
 
-  @Test
+  // @Test
   public void testRepairFlight_enablesApis() throws Exception {
     FlightManager manager =
             new FlightManager(

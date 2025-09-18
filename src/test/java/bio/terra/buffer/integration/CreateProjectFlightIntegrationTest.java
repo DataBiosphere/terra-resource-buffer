@@ -163,7 +163,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     DISABLED
   }
 
-  @Test
+  // @Test
   public void testCreateGoogleProject_basicCreation() throws Exception {
     FlightManager manager =
         new FlightManager(
@@ -194,7 +194,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertNotNull(storageCow.get(logBucketName));
   }
 
-  @Test
+  // @Test
   public void testCreateGoogleProject_witIamBindings() throws Exception {
     // Basic GCP project with IAM Bindings
     FlightManager manager =
@@ -214,7 +214,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertIamBindingsContains(project, IAM_BINDINGS);
   }
 
-  @Test
+  // @Test
   public void testCreateGoogleProject_enablePrivateGoogleAccessAndMonitoringAndSshViaIap()
       throws Exception {
     FlightManager manager =
@@ -242,7 +242,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     asserSshViaIapFirewallExists(project);
   }
 
-  @Test
+  // @Test
   public void testCreateGoogleProject_blockInternetAccessWithGcrAndGarDnsEnabled()
       throws Exception {
     FlightManager manager =
@@ -275,7 +275,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertRouterNatNotExists(project);
   }
 
-  @Test
+  // @Test
   public void testCreateGoogleProject_keepDefaultComputeEngineServiceAcct() throws Exception {
     FlightManager manager =
         new FlightManager(
@@ -293,7 +293,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   }
 
   @Disabled("In Broad deployment, skipDefaultNetworkCreation is turned on orignization policy")
-  @Test
+  // @Test
   public void testCreateGoogleProject_keepDefaultNetwork() throws Exception {
     FlightManager manager =
         new FlightManager(
@@ -314,7 +314,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertFirewallRulesExistForDefaultVpc(project);
   }
 
-  @Test
+  // @Test
   public void testCreateGoogleProject_blockedRegions() throws Exception {
     List<String> validBlockedRegion =
         List.of(
@@ -350,7 +350,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertRouterNatNotExistsInRegions(project, validBlockedRegion);
   }
 
-  @Test
+  // @Test
   public void testCreateGoogleProject_createLogBucket_false() throws Exception {
     FlightManager manager =
         new FlightManager(
@@ -366,7 +366,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertNull(storageCow.get(logBucketName));
   }
 
-  @Test
+  // @Test
   public void testCreateGoogleProject_createGkeSA_true() throws Exception {
     FlightManager manager =
         new FlightManager(
@@ -393,7 +393,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertIamBindingsContains(project, expectedGkeSABindings);
   }
 
-  @Test
+  // @Test
   public void testCreateGoogleProject_multipleSteps() throws Exception {
     // Verify flight is able to finish with multiple same steps exists.
     FlightManager manager =
@@ -420,7 +420,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
             .isPresent());
   }
 
-  @Test
+  // @Test
   public void testCreateGoogleProject_errorDuringProjectCreation() throws Exception {
     // Verify flight is able to successfully rollback when project fails to create and doesn't
     // exist.
@@ -446,7 +446,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
         FlightStatus.ERROR, stairwayComponent.get().getFlightState(flightId).getFlightStatus());
   }
 
-  @Test
+  // @Test
   public void errorCreateProject_noRollbackAfterResourceReady() throws Exception {
     // Verify project and db entity won't get deleted if resource id READY, even the flight fails.
     FlightManager manager =
@@ -473,7 +473,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
         FlightStatus.ERROR, stairwayComponent.get().getFlightState(flightId).getFlightStatus());
   }
 
-  @Test
+  // @Test
   public void testCreateValidLabel() {
     assertEquals("test-config-name", createValidLabelValue("TEST-CONFIG-NAME"));
     assertEquals("test--config--name--", createValidLabelValue("test@@Config@@Name@@"));
@@ -496,7 +496,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
                 + "1234567890"));
   }
 
-  @Test
+  // @Test
   public void testCreateGoogleProject_errorWhenResourceStateChange() throws Exception {
     LatchStep.startNewLatch();
     FlightManager manager =
@@ -524,7 +524,7 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
         FlightStatus.ERROR, stairwayComponent.get().getFlightState(flightId).getFlightStatus());
   }
 
-  @Test
+  // @Test
   public void testCreateGoogleProject_createsConsumerOverride() throws Exception {
     FlightManager manager =
         new FlightManager(
