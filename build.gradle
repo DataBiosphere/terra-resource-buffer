@@ -73,7 +73,7 @@ dependencies {
     implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.113.50-SNAPSHOT'
 
     // temp for testing versions
-    implementation platform('com.google.cloud:libraries-bom:26.61.0')
+    implementation platform('com.google.cloud:libraries-bom:26.64.0')
 
     // Versioned direct deps
     implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '6.9.2'
