@@ -74,7 +74,7 @@ dependencies {
 
     // ====================================================================================================
     // temp for testing versions
-    implementation platform('com.google.cloud:libraries-bom:26.64.0')
+    implementation platform('com.google.cloud:libraries-bom:26.65.0')
     implementation 'bio.terra:stairway-gcp:1.1.25-SNAPSHOT'
     // END temp for testing versions
     // ====================================================================================================
