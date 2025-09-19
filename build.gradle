@@ -76,6 +76,10 @@ dependencies {
     // temp for testing versions
     implementation platform('com.google.cloud:libraries-bom:26.65.0')
     implementation 'bio.terra:stairway-gcp:1.1.25-SNAPSHOT'
+    implementation (group: 'bio.terra', name: 'stairway-azure', version: '1.1.25-SNAPSHOT') {
+        exclude(group: 'com.microsoft.azure')
+        exclude(group: 'com.azure')
+    }
     // END temp for testing versions
     // ====================================================================================================
 
