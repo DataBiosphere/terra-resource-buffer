@@ -83,6 +83,10 @@ dependencies {
     implementation group: 'org.webjars', name: 'webjars-locator-core', version: '0.59'
     runtimeOnly group: 'org.postgresql', name: 'postgresql'
 
+    // temp for experimenting: use latest Resource Manager client lib
+    implementation 'com.google.apis:google-api-services-cloudresourcemanager:v3-rev20250606-2.0.0'
+
+
     // Pull in the opentelemetry sdk because some classes use its objects directly.
     // This otel version should match the same version used by Spring Boot and terra-common-lib.
     var openTelemetrySdkVersion = '1.49.0'
