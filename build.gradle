@@ -80,6 +80,7 @@ dependencies {
         exclude(group: 'com.microsoft.azure')
         exclude(group: 'com.azure')
     }
+    implementation group: 'org.broadinstitute.dsde.workbench', name: 'sam-client_2.13', version: 'v0.0.407-3bcdd55-SNAP'
     // END temp for testing versions
     // ====================================================================================================
 
