@@ -1,7 +1,7 @@
 // Build Script Classpath
 buildscript {
     ext {
-        springBootVersion = '3.5.5'
+        springBootVersion = '3.5.4'
     }
     dependencies {
         // jib build requires this dependency;
@@ -65,7 +65,7 @@ repositories {
 
 dependencies {
     // Terra deps - we get Stairway via TCL
-    implementation group: 'bio.terra', name: 'terra-common-lib', version: '1.1.50-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'terra-common-lib', version: '1.1.46-SNAPSHOT'
     implementation (group: 'bio.terra', name: 'terra-cloud-resource-lib', version: '1.2.39-SNAPSHOT') {
         exclude(group: 'com.microsoft.azure')
         exclude(group: 'com.azure')
@@ -82,10 +82,6 @@ dependencies {
     implementation group: 'org.liquibase', name: 'liquibase-core', version: '4.33.0'
     implementation group: 'org.webjars', name: 'webjars-locator-core', version: '0.59'
     runtimeOnly group: 'org.postgresql', name: 'postgresql'
-
-    // temp for experimenting: use latest Resource Manager client lib
-    implementation 'com.google.apis:google-api-services-cloudresourcemanager:v3-rev20250606-2.0.0'
-
 
     // Pull in the opentelemetry sdk because some classes use its objects directly.
     // This otel version should match the same version used by Spring Boot and terra-common-lib.
