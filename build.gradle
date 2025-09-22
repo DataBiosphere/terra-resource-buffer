@@ -78,8 +78,8 @@ dependencies {
 
     // ====================================================================================================
     // temp for testing versions
-    implementation "io.opentelemetry.contrib:opentelemetry-gcp-resources:1.46.0-alpha"
-    implementation "io.opentelemetry.contrib:opentelemetry-gcp-auth-extension:1.46.0-alpha"
+//    implementation "io.opentelemetry.contrib:opentelemetry-gcp-resources:1.46.0-alpha"
+//    implementation "io.opentelemetry.contrib:opentelemetry-gcp-auth-extension:1.46.0-alpha"
     // END temp for testing versions
     // ====================================================================================================
 
