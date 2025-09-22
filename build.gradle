@@ -74,6 +74,8 @@ dependencies {
     }
     implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.113.50-SNAPSHOT'
 
+
+
     // ====================================================================================================
     // temp for testing versions
     implementation platform('com.google.cloud:libraries-bom:26.65.0')
@@ -84,6 +86,11 @@ dependencies {
     }
     implementation group: 'org.broadinstitute.dsde.workbench', name: 'sam-client_2.13', version: 'v0.0.407-3bcdd55-SNAP'
     implementation group: 'com.google.apis', name: 'google-api-services-logging', version: 'v2-rev20250704-2.0.0'
+
+    implementation 'com.google.cloud.opentelemetry:exporter-metrics:0.36.0'
+    implementation 'com.google.cloud.opentelemetry:exporter-trace:0.36.0'
+    implementation 'com.google.cloud.opentelemetry:shared-resourcemapping:0.36.0'
+
     // END temp for testing versions
     // ====================================================================================================
 
