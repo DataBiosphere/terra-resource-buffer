@@ -78,24 +78,8 @@ dependencies {
 
     // ====================================================================================================
     // temp for testing versions
-//    implementation platform('com.google.cloud:libraries-bom:26.65.0')
-//    implementation 'bio.terra:stairway-gcp:1.1.25-SNAPSHOT'
-//    implementation (group: 'bio.terra', name: 'stairway-azure', version: '1.1.25-SNAPSHOT') {
-//        exclude(group: 'com.microsoft.azure')
-//        exclude(group: 'com.azure')
-//    }
-//    implementation group: 'org.broadinstitute.dsde.workbench', name: 'sam-client_2.13', version: 'v0.0.407-3bcdd55-SNAP'
-//    implementation group: 'com.google.apis', name: 'google-api-services-logging', version: 'v2-rev20250704-2.0.0'
-//
-//    implementation 'com.google.cloud.opentelemetry:exporter-metrics:0.36.0'
-//    implementation 'com.google.cloud.opentelemetry:exporter-trace:0.36.0'
-//    implementation 'com.google.cloud.opentelemetry:shared-resourcemapping:0.36.0'
-//    implementation 'io.opentelemetry.semconv:opentelemetry-semconv-incubating:1.32.0-alpha'
-//    implementation 'io.opentelemetry.semconv:opentelemetry-semconv:1.32.0'
-
     implementation "io.opentelemetry.contrib:opentelemetry-gcp-resources:1.46.0-alpha"
     implementation "io.opentelemetry.contrib:opentelemetry-gcp-auth-extension:1.46.0-alpha"
-
     // END temp for testing versions
     // ====================================================================================================
 
