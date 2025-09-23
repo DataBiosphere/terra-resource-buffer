@@ -40,7 +40,7 @@ public class JobIntegrationTest extends BaseIntegrationTest {
   String REPAIR_RESOURCE_FLIGHT_NAME =
       "bio.terra.buffer.service.resource.flight.GoogleProjectRepairFlight";
 
-  // @Test
+  @Test
   public void testEnumerateJobs() throws Exception {
     FlightManager manager =
         new FlightManager(

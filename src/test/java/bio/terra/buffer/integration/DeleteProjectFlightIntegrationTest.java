@@ -47,7 +47,7 @@ public class DeleteProjectFlightIntegrationTest extends BaseIntegrationTest {
   @Autowired FlightSubmissionFactoryImpl flightSubmissionFactoryImpl;
   @Autowired TransactionTemplate transactionTemplate;
 
-  // @Test
+  @Test
   public void testDeleteGoogleProject_success() throws Exception {
     FlightManager manager =
         new FlightManager(
@@ -69,7 +69,7 @@ public class DeleteProjectFlightIntegrationTest extends BaseIntegrationTest {
     assertProjectDeleting(project.getProjectId());
   }
 
-  // @Test
+  @Test
   public void testDeleteGoogleProject_fatalIfHasError() throws Exception {
     FlightManager manager =
         new FlightManager(
@@ -98,7 +98,7 @@ public class DeleteProjectFlightIntegrationTest extends BaseIntegrationTest {
         stairwayComponent.get().getFlightState(deleteFlightId).getFlightStatus());
   }
 
-  // @Test
+  @Test
   public void testDeleteGoogleProject_errorWhenResourceStateChange() throws Exception {
     LatchStep.startNewLatch();
     Pool pool = preparePool(bufferDao, newBasicGcpConfig());
