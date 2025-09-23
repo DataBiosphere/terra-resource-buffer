@@ -66,7 +66,7 @@ repositories {
 dependencies {
     // Terra deps - we get Stairway via TCL
     implementation group: 'bio.terra', name: 'terra-common-lib', version: '1.1.43-SNAPSHOT'
-    implementation (group: 'bio.terra', name: 'terra-cloud-resource-lib', version: '1.2.39-SNAPSHOT') {
+    implementation (group: 'bio.terra', name: 'terra-cloud-resource-lib', version: '1.2.40-SNAPSHOT') {
         exclude(group: 'com.microsoft.azure')
         exclude(group: 'com.azure')
         // exclude(group: 'bio.terra', module: 'stairway-azure')
