@@ -65,24 +65,12 @@ repositories {
 
 dependencies {
     // Terra deps - we get Stairway via TCL
-    implementation group: 'bio.terra', name: 'terra-common-lib', version: '1.1.49-SNAPSHOT'
-    implementation (group: 'bio.terra', name: 'terra-cloud-resource-lib', version: '1.2.40-SNAPSHOT') {
+    implementation group: 'bio.terra', name: 'terra-common-lib', version: '1.1.52-SNAPSHOT'
+    implementation (group: 'bio.terra', name: 'terra-cloud-resource-lib', version: '1.2.41-SNAPSHOT') {
         exclude(group: 'com.microsoft.azure')
         exclude(group: 'com.azure')
-        // exclude(group: 'bio.terra', module: 'stairway-azure')
-        // exclude(group: 'org.broadinstitute.dsde.workbench', module: 'sam-client_2.13')
     }
     implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.113.50-SNAPSHOT'
-
-
-
-    // ====================================================================================================
-    // temp for testing versions
-//    implementation "io.opentelemetry.contrib:opentelemetry-gcp-resources:1.46.0-alpha"
-//    implementation "io.opentelemetry.contrib:opentelemetry-gcp-auth-extension:1.46.0-alpha"
-    // END temp for testing versions
-    // ====================================================================================================
-
 
     // Versioned direct deps
     implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '6.9.2'
