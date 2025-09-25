@@ -36,8 +36,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -50,8 +50,9 @@ public class FlightSchedulerTest extends BaseUnitTest {
 
   @Autowired BufferDao bufferDao;
   @Autowired StairwayComponent stairwayComponent;
-  @MockBean FlightManager flightManager;
-  @MockBean MetricsHelper metricsHelper;
+  @MockitoBean FlightManager flightManager;
+  @MockitoBean
+  MetricsHelper metricsHelper;
 
   private void initializeScheduler() {
     initializeScheduler(newPrimaryConfiguration());
