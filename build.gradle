@@ -1,13 +1,13 @@
 // Build Script Classpath
 buildscript {
     ext {
-        springBootVersion = '3.5.4'
+        springBootVersion = '3.5.6'
     }
     dependencies {
         // jib build requires this dependency;
         // see https://github.com/GoogleContainerTools/jib/issues/4235
         classpath group: 'org.apache.commons', name: 'commons-compress', version: '1.28.0'
-        classpath group: 'com.fasterxml.jackson', name: 'jackson-bom', version: '2.19.2'
+        classpath group: 'com.fasterxml.jackson', name: 'jackson-bom', version: '2.20.0'
     }
 }
 
@@ -17,11 +17,11 @@ plugins {
     id 'java'
 
     id 'com.diffplug.spotless' version '7.2.1'
-    id 'com.github.ben-manes.versions' version '0.52.0'
+    id 'com.github.ben-manes.versions' version '0.53.0'
     id 'com.google.cloud.tools.jib' version '3.4.5'
     id 'de.undercouch.download' version '5.6.0'
     id 'org.hidetake.swagger.generator' version '2.19.2'
-    id 'org.sonarqube' version '6.2.0.5505'
+    id 'org.sonarqube' version '6.3.1.5724'
     id 'org.springframework.boot' version "${springBootVersion}"
     id 'com.srcclr.gradle' version '3.1.12'
 }
@@ -65,7 +65,7 @@ repositories {
 
 dependencies {
     // Terra deps - we get Stairway via TCL
-    implementation group: 'bio.terra', name: 'terra-common-lib', version: '1.1.52-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'terra-common-lib', version: '1.1.53-SNAPSHOT'
     implementation (group: 'bio.terra', name: 'terra-cloud-resource-lib', version: '1.2.41-SNAPSHOT') {
         exclude(group: 'com.microsoft.azure')
         exclude(group: 'com.azure')
@@ -73,11 +73,11 @@ dependencies {
     implementation group: 'bio.terra', name: 'terra-resource-janitor-client', version: '0.113.50-SNAPSHOT'
 
     // Versioned direct deps
-    implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '6.9.2'
-    implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '6.9.2'
+    implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '6.10.0'
+    implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '6.10.0'
     implementation group: 'com.google.auto.value', name: 'auto-value-annotations', version: '1.11.0'
-    implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.141.2'
-    implementation group: 'com.google.guava', name: 'guava', version: '33.4.8-jre'
+    implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.141.5'
+    implementation group: 'com.google.guava', name: 'guava', version: '33.5.0-jre'
     implementation group: 'jakarta.validation', name: 'jakarta.validation-api', version: '3.1.1'
     implementation group: 'org.liquibase', name: 'liquibase-core', version: '4.33.0'
     implementation group: 'org.webjars', name: 'webjars-locator-core', version: '0.59'
@@ -90,17 +90,17 @@ dependencies {
 
     // Deps whose versions are controlled by Spring
     implementation group: 'org.apache.commons', name: 'commons-dbcp2', version: '2.13.0'
-    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.18.0'
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.19.0'
     implementation group: 'org.apache.commons', name: 'commons-pool2', version: '2.12.1'
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jdbc', version: "${springBootVersion}"
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: "${springBootVersion}"
     implementation group: 'org.springframework.retry', name: 'spring-retry', version: '2.0.12'
 
     // Swagger deps
-    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.19.2'
+    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.20.0'
     implementation group: 'io.swagger', name: 'swagger-annotations', version: '1.6.16'
-    implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.35'
-    runtimeOnly group: 'org.webjars.npm', name: 'swagger-ui-dist', version: '5.27.1'
+    implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.37'
+    runtimeOnly group: 'org.webjars.npm', name: 'swagger-ui-dist', version: '5.29.0'
     swaggerCodegen group: 'io.swagger.codegen.v3', name: 'swagger-codegen-cli', version: '3.0.61'
 
     // Test deps
@@ -116,10 +116,10 @@ dependencies {
     // These are not directly included, they are just constrained if they are pulled in as
     // transitive dependencies.
     constraints {
-        implementation('org.yaml:snakeyaml:2.4')
-        implementation('com.nimbusds:nimbus-jose-jwt:10.4.1')
-        implementation('io.projectreactor.netty:reactor-netty-http:1.2.8')
-        implementation('com.fasterxml.jackson:jackson-bom:2.19.2')
+        implementation('org.yaml:snakeyaml:2.5')
+        implementation('com.nimbusds:nimbus-jose-jwt:10.5')
+        implementation('io.projectreactor.netty:reactor-netty-http:1.2.10')
+        implementation('com.fasterxml.jackson:jackson-bom:2.20.0')
     }
 }
 
