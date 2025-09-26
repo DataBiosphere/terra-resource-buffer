@@ -17,15 +17,15 @@ dependencies {
     ext {
         apacheMath = '3.6.1'
         findbugsAnnotations = "3.0.1u2"
-        guava = "33.4.8-jre"
-        jackson = "2.19.2"
+        guava = "33.5.0-jre"
+        jackson = "2.20.0"
         jersey = "3.1.10"
         kubernetesClient = "24.0.0-legacy"
         logback = "1.5.18"
         slf4j = "2.0.17"
         hamcrest = "3.0"
 
-        googleOauth2 = "1.37.1"
+        googleOauth2 = "1.39.1"
 
         bufferServiceClient = "0.4.3-SNAPSHOT"
         testRunner = "0.2.1-SNAPSHOT"
