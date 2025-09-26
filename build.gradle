@@ -7,7 +7,7 @@ buildscript {
         // jib build requires this dependency;
         // see https://github.com/GoogleContainerTools/jib/issues/4235
         classpath group: 'org.apache.commons', name: 'commons-compress', version: '1.28.0'
-        classpath group: 'com.fasterxml.jackson', name: 'jackson-bom', version: '2.20.0'
+        classpath group: 'com.fasterxml.jackson', name: 'jackson-bom', version: '2.19.2'
     }
 }
 
@@ -66,7 +66,7 @@ repositories {
 dependencies {
     // Terra deps - we get Stairway via TCL
     implementation group: 'bio.terra', name: 'terra-common-lib', version: '1.1.53-SNAPSHOT'
-    implementation (group: 'bio.terra', name: 'terra-cloud-resource-lib', version: '1.2.41-SNAPSHOT') {
+    implementation(group: 'bio.terra', name: 'terra-cloud-resource-lib', version: '1.2.41-SNAPSHOT') {
         exclude(group: 'com.microsoft.azure')
         exclude(group: 'com.azure')
     }
@@ -131,7 +131,7 @@ if (hasProperty('buildScan')) {
     }
 }
 
-def gradleIncDir= "$rootDir/gradle"
+def gradleIncDir = "$rootDir/gradle"
 apply from: "$gradleIncDir/jacoco.gradle"
 apply from: "$gradleIncDir/javadoc.gradle"
 apply from: "$gradleIncDir/jib.gradle"
