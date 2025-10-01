@@ -79,7 +79,7 @@ dependencies {
     implementation group: 'com.google.cloud', name: 'google-cloud-pubsub', version: '1.141.5'
     implementation group: 'com.google.guava', name: 'guava', version: '33.5.0-jre'
     implementation group: 'jakarta.validation', name: 'jakarta.validation-api', version: '3.1.1'
-    implementation group: 'org.liquibase', name: 'liquibase-core', version: '4.33.0'
+    implementation group: 'org.liquibase', name: 'liquibase-core', version: '5.0.0'
     implementation group: 'org.webjars', name: 'webjars-locator-core', version: '0.59'
     runtimeOnly group: 'org.postgresql', name: 'postgresql'
 
