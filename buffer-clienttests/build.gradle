@@ -1,6 +1,6 @@
 plugins {
     // Terra Test Runner Plugin
-    id "bio.terra.test-runner-plugin" version "0.2.0-SNAPSHOT"
+    id "bio.terra.test-runner-plugin" version "0.2.2-SNAPSHOT"
 }
 
 repositories {
@@ -21,7 +21,7 @@ dependencies {
         jackson = "2.20.0"
         jersey = "3.1.10"
         kubernetesClient = "24.0.0-legacy"
-        logback = "1.5.18"
+        logback = "1.5.19"
         slf4j = "2.0.17"
         hamcrest = "3.0"
 
