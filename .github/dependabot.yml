@@ -25,4 +25,4 @@ updates:
       # As of this writing, Jib requires this specific version, and we want Dependabot
       # to leave it alone. All other instances of jackson-bom are already updated to 2.20.0
       - dependency-name: "com.fasterxml.jackson:jackson-bom"
-        versions: [ "2.20.0" ]
+        versions: [ ">=2.20.0" ]
