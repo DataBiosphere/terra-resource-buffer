@@ -20,9 +20,3 @@ updates:
       - "gradle"
     commit-message:
       prefix: "[CORE-69]"
-    ignore:
-      # Jackson 2.19.2 is only specified for the `buildScript` classpath.
-      # As of this writing, Jib requires this specific version, and we want Dependabot
-      # to leave it alone. All other instances of jackson-bom are already updated to 2.20.0
-      - dependency-name: "com.fasterxml.jackson:jackson-bom"
-        versions: [ ">=2.20.0" ]
