@@ -7,7 +7,7 @@ buildscript {
         // jib build requires this dependency;
         // see https://github.com/GoogleContainerTools/jib/issues/4235
         classpath group: 'org.apache.commons', name: 'commons-compress', version: '1.28.0'
-        classpath group: 'com.fasterxml.jackson', name: 'jackson-bom', version: '2.20.1'
+        // classpath group: 'com.fasterxml.jackson', name: 'jackson-bom', version: '2.20.1'
     }
 }
 
