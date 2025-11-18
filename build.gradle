@@ -7,7 +7,10 @@ buildscript {
         // jib build requires this dependency;
         // see https://github.com/GoogleContainerTools/jib/issues/4235
         classpath group: 'org.apache.commons', name: 'commons-compress', version: '1.28.0'
-        // these are the Jackson dependencies jib needs; their versions are pulled from jackson-bom
+        // these are the Jackson dependencies jib needs; their versions are pulled from elsewhere in the
+        // buildscript config. As of this writing, this uses versions 2.19.2 as specified by the
+        // org.springframework.boot plugin. If spring boot changes their version, we might need
+        // to adjust the jackson versions specified here.
         classpath group: 'com.fasterxml.jackson.core', name: 'jackson-core'
         classpath group: 'com.fasterxml.jackson.core', name: 'jackson-annotations'
     }
