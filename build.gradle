@@ -7,7 +7,12 @@ buildscript {
         // jib build requires this dependency;
         // see https://github.com/GoogleContainerTools/jib/issues/4235
         classpath group: 'org.apache.commons', name: 'commons-compress', version: '1.28.0'
-        classpath group: 'com.fasterxml.jackson', name: 'jackson-bom', version: '2.19.2'
+        // these are the Jackson dependencies jib needs; their versions are pulled from elsewhere in the
+        // buildscript config. As of this writing, this uses versions 2.19.2 as specified by the
+        // org.springframework.boot plugin. If spring boot changes their version, we might need
+        // to adjust the jackson versions specified here.
+        classpath group: 'com.fasterxml.jackson.core', name: 'jackson-core'
+        classpath group: 'com.fasterxml.jackson.core', name: 'jackson-annotations'
     }
 }
 
@@ -18,7 +23,7 @@ plugins {
 
     id 'com.diffplug.spotless' version '8.0.0'
     id 'com.github.ben-manes.versions' version '0.53.0'
-    id 'com.google.cloud.tools.jib' version '3.4.5'
+    id 'com.google.cloud.tools.jib' version '3.5.0'
     id 'de.undercouch.download' version '5.6.0'
     id 'org.hidetake.swagger.generator' version '2.19.2'
     id 'org.sonarqube' version '7.0.1.6134'
