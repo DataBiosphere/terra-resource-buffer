@@ -20,3 +20,9 @@ updates:
       - "gradle"
     commit-message:
       prefix: "[CORE-69]"
+    ignore:
+      # CTM-272: Shedlock 7.x includes a transitive dependency on Spring Framework 7.x.
+      # RBS uses Spring Boot 3.5.7 which does not support Spring Framework 7.x. When
+      # RBS upgrades to Spring Boot 4.x, we can stop ignoring this dependency update
+      - dependency-name: "net.javacrumbs.shedlock:*"
+        versions: [ ">=7.0.0" ]
