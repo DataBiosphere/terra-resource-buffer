@@ -26,7 +26,7 @@ plugins {
     id 'com.google.cloud.tools.jib' version '3.5.1'
     id 'de.undercouch.download' version '5.6.0'
     id 'org.hidetake.swagger.generator' version '2.19.2'
-    id 'org.sonarqube' version '7.0.1.6134'
+    id 'org.sonarqube' version '7.1.0.6387'
     id 'org.springframework.boot' version "${springBootVersion}"
     id 'com.srcclr.gradle' version '3.1.12'
 }
@@ -70,7 +70,7 @@ repositories {
 
 dependencies {
     // Terra deps - we get Stairway via TCL
-    implementation group: 'bio.terra', name: 'terra-common-lib', version: '1.1.65-SNAPSHOT'
+    implementation group: 'bio.terra', name: 'terra-common-lib', version: '1.1.66-SNAPSHOT'
     implementation(group: 'bio.terra', name: 'terra-cloud-resource-lib', version: '1.2.41-SNAPSHOT') {
         exclude(group: 'com.microsoft.azure')
         exclude(group: 'com.azure')
@@ -104,8 +104,8 @@ dependencies {
     // Swagger deps
     implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.20.1'
     implementation group: 'io.swagger', name: 'swagger-annotations', version: '1.6.16'
-    implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.40'
-    runtimeOnly group: 'org.webjars.npm', name: 'swagger-ui-dist', version: '5.30.2'
+    implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.41'
+    runtimeOnly group: 'org.webjars.npm', name: 'swagger-ui-dist', version: '5.30.3'
     swaggerCodegen group: 'io.swagger.codegen.v3', name: 'swagger-codegen-cli', version: '3.0.61'
 
     // Test deps
