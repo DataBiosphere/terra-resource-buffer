@@ -26,3 +26,5 @@ updates:
       # RBS upgrades to Spring Boot 4.x, we can stop ignoring this dependency update
       - dependency-name: "net.javacrumbs.shedlock:*"
         versions: [ ">=7.0.0" ]
+      - dependency-name: "org.liquibase:liquibase-core"
+        versions: [ "5.x" ]
