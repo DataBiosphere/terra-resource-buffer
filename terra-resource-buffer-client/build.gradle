@@ -14,7 +14,7 @@ repositories {
 
 dependencies {
     swaggerCodegen group: 'io.swagger.codegen.v3', name: 'swagger-codegen-cli', version: '3.0.61'
-    implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.40'
+    implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.41'
     implementation group: 'io.swagger', name: 'swagger-annotations', version: '1.6.16'
     implementation group: 'org.glassfish.jersey.core', name: 'jersey-client', version: '3.1.10'
     implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version: '3.1.10'
