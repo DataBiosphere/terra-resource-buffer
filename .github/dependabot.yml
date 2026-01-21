@@ -28,3 +28,6 @@ updates:
         versions: [ ">=7.0.0" ]
       - dependency-name: "org.liquibase:liquibase-core"
         versions: [ "5.x" ]
+      # See CTM-335
+      - dependency-name: "org.springframework.boot:*"
+        versions: [ ">=4.0.0" ]
