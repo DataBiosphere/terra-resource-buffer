@@ -97,8 +97,9 @@ dependencies {
     implementation group: 'org.apache.commons', name: 'commons-dbcp2', version: '2.14.0'
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.20.0'
     implementation group: 'org.apache.commons', name: 'commons-pool2', version: '2.13.1'
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jdbc', version: "${springBootVersion}"
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: "${springBootVersion}"
+    implementation(enforcedPlatform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}"))
+    implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
+    implementation("org.springframework.boot:spring-boot-starter-web")
     implementation group: 'org.springframework.retry', name: 'spring-retry', version: '2.0.12'
 
     // Swagger deps
@@ -109,8 +110,9 @@ dependencies {
     swaggerCodegen group: 'io.swagger.codegen.v3', name: 'swagger-codegen-cli', version: '3.0.61'
 
     // Test deps
+    testImplementation(enforcedPlatform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}"))
     testImplementation 'org.awaitility:awaitility:4.3.0'
-    testImplementation("org.springframework.boot:spring-boot-starter-test:${springBootVersion}") {
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
 
