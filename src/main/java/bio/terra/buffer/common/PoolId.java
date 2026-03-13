@@ -14,6 +14,10 @@ public abstract class PoolId {
     return new AutoValue_PoolId(id);
   }
 
+  public String family() {
+    return id().replaceAll("_v\\d+$", "");
+  }
+
   @Override
   public String toString() {
     return id();

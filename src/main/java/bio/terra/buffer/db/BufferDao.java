@@ -102,6 +102,23 @@ public class BufferDao {
     return jdbcTemplate.query(sql, POOL_ROW_MAPPER);
   }
 
+  /** Retrieves the latest active pool whose ID matches the given family prefix. */
+  @Transactional(propagation = Propagation.SUPPORTS)
+  public Optional<Pool> retrieveLatestActivePoolByFamily(String family) {
+    String sql =
+        "select p.id, p.resource_config, p.resource_type, p.creation, p.size, p.status "
+            + "FROM pool p "
+            + "WHERE p.id LIKE :family_pattern AND p.status = :status "
+            + "ORDER BY p.creation DESC LIMIT 1";
+    MapSqlParameterSource params =
+        new MapSqlParameterSource()
+            .addValue("family_pattern", family + "_v%")
+            .addValue("status", PoolStatus.ACTIVE.toString());
+
+    return Optional.ofNullable(
+        DataAccessUtils.singleResult(jdbcTemplate.query(sql, params, POOL_ROW_MAPPER)));
+  }
+
   /** Retrieves a pool with id. */
   @Transactional(propagation = Propagation.SUPPORTS)
   public Optional<Pool> retrievePool(PoolId poolId) {
