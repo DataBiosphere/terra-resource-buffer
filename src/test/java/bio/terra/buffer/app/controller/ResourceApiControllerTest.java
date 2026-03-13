@@ -52,9 +52,9 @@ public class ResourceApiControllerTest {
     CloudResourceUid cloudResourceUid = new CloudResourceUid().googleProjectUid(googleProjectUid);
 
     Pool mockPool = Pool.builder()
-            .id(PoolId.create("test-pool"))
+            .id(PoolId.create("test-pool_v1"))
             .size(10)
-            .resourceConfig(new ResourceConfig()) // Use appropriate resource config
+            .resourceConfig(new ResourceConfig())
             .creation(BufferDao.currentInstant())
             .resourceType(ResourceType.GOOGLE_PROJECT)
             .status(PoolStatus.ACTIVE)
@@ -62,7 +62,7 @@ public class ResourceApiControllerTest {
 
     Resource mockResource = Resource.builder()
             .id(ResourceId.create(UUID.randomUUID()))
-            .poolId(PoolId.create("test-pool"))
+            .poolId(PoolId.create("test-pool_v1"))
             .cloudResourceUid(cloudResourceUid)
             .creation(BufferDao.currentInstant())
             .state(ResourceState.HANDED_OUT)
@@ -71,7 +71,7 @@ public class ResourceApiControllerTest {
 
     Mockito.when(bufferDao.retrieveResource(cloudResourceUid))
             .thenReturn(Optional.of(mockResource));
-    Mockito.when(mockBufferDAO.retrievePool(mockResource.poolId()))
+    Mockito.when(mockBufferDAO.retrieveLatestActivePoolByFamily("test-pool"))
             .thenReturn(Optional.of(mockPool));
     Mockito.when(mockFlightScheduler.submitRepairResourceFlight(mockPool, googleProjectUid))
             .thenReturn(Optional.of("flight-123"));
@@ -89,7 +89,7 @@ public class ResourceApiControllerTest {
             .perform(
                     post("/api/resource/v1/" + projectId + "/repair")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content("{}")) // no request body is needed for this endpoint
+                            .content("{}"))
             .andExpect(status().isAccepted())
             .andReturn()
             .getResponse()
@@ -99,6 +99,63 @@ public class ResourceApiControllerTest {
     assertEquals("flight-123", actualJob.getId());
     assertEquals("RepairResourceFlight", actualJob.getClassName());
     assertEquals(JobModel.JobStatusEnum.RUNNING, actualJob.getJobStatus());
+  }
+
+  @Test
+  public void repairResource_usesNewerActivePool() throws Exception {
+    String projectId = "test-project-id";
+    GoogleProjectUid googleProjectUid = new GoogleProjectUid().projectId(projectId);
+    CloudResourceUid cloudResourceUid = new CloudResourceUid().googleProjectUid(googleProjectUid);
+
+    PoolId oldPoolId = PoolId.create("cwb_ws_prod_v8");
+    PoolId newPoolId = PoolId.create("cwb_ws_prod_v9");
+
+    Pool newerPool = Pool.builder()
+            .id(newPoolId)
+            .size(10)
+            .resourceConfig(new ResourceConfig())
+            .creation(BufferDao.currentInstant())
+            .resourceType(ResourceType.GOOGLE_PROJECT)
+            .status(PoolStatus.ACTIVE)
+            .build();
+
+    Resource mockResource = Resource.builder()
+            .id(ResourceId.create(UUID.randomUUID()))
+            .poolId(oldPoolId)
+            .cloudResourceUid(cloudResourceUid)
+            .creation(BufferDao.currentInstant())
+            .state(ResourceState.HANDED_OUT)
+            .requestHandoutId(RequestHandoutId.create("test-handout-id"))
+            .build();
+
+    Mockito.when(bufferDao.retrieveResource(cloudResourceUid))
+            .thenReturn(Optional.of(mockResource));
+    Mockito.when(mockBufferDAO.retrieveLatestActivePoolByFamily("cwb_ws_prod"))
+            .thenReturn(Optional.of(newerPool));
+    Mockito.when(mockFlightScheduler.submitRepairResourceFlight(newerPool, googleProjectUid))
+            .thenReturn(Optional.of("flight-456"));
+
+    JobModel mockJobModel = new JobModel()
+            .id("flight-456")
+            .className("RepairResourceFlight")
+            .description("Repair resource for project " + projectId)
+            .jobStatus(JobModel.JobStatusEnum.RUNNING)
+            .statusCode(202);
+
+    Mockito.when(mockJobService.retrieveJob("flight-456")).thenReturn(mockJobModel);
+
+    String response = this.mvc
+            .perform(
+                    post("/api/resource/v1/" + projectId + "/repair")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{}"))
+            .andExpect(status().isAccepted())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+
+    JobModel actualJob = objectMapper.readValue(response, JobModel.class);
+    assertEquals("flight-456", actualJob.getId());
   }
 
   @Test
@@ -131,6 +188,8 @@ public class ResourceApiControllerTest {
             .build();
     Mockito.when(bufferDao.retrieveResource(cloudResourceUid))
             .thenReturn(Optional.of(resource));
+    Mockito.when(mockBufferDAO.retrieveLatestActivePoolByFamily("non-existent-pool"))
+            .thenReturn(Optional.empty());
     Mockito.when(mockBufferDAO.retrievePool(resource.poolId()))
             .thenThrow(new NotFoundException(String.format("Pool for this resource does not exist: %s.", resource.poolId())));
     this.mvc

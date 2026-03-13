@@ -112,6 +112,45 @@ public class PoolService {
             .orElseThrow(() -> new NotFoundException(String.format("Pool for this resource does not exist: %s.", poolId)));
   }
 
+  /**
+   * Resolves the best pool to use when repairing a Google project. Looks up the resource's original
+   * pool, then attempts to find the latest active pool in the same family (e.g. cwb_ws_prod_v8 ->
+   * cwb_ws_prod_v9). Falls back to the original pool if no newer active pool exists.
+   */
+  public Pool getLatestActivePoolForProject(GoogleProjectUid projectId) {
+    CloudResourceUid cloudResourceUid = new CloudResourceUid().googleProjectUid(projectId);
+    Optional<Resource> resource = bufferDao.retrieveResource(cloudResourceUid);
+    if (resource.isEmpty()) {
+      throw new NotFoundException(String.format("Resource id does not exist: %s.", projectId));
+    }
+    PoolId originalPoolId = resource.get().poolId();
+    String family = originalPoolId.family();
+
+    Optional<Pool> latestPool = bufferDao.retrieveLatestActivePoolByFamily(family);
+    if (latestPool.isPresent()) {
+      if (!latestPool.get().id().equals(originalPoolId)) {
+        logger.info(
+            "Resolved latest active pool {} (family: {}) for resource originally in pool {}",
+            latestPool.get().id(),
+            family,
+            originalPoolId);
+      }
+      return latestPool.get();
+    }
+
+    logger.warn(
+        "No active pool found in family '{}' for pool {}; falling back to original pool",
+        family,
+        originalPoolId);
+    return bufferDao
+        .retrievePool(originalPoolId)
+        .orElseThrow(
+            () ->
+                new NotFoundException(
+                    String.format(
+                        "Pool for this resource does not exist: %s.", originalPoolId)));
+  }
+
   /** Process handout resource in on transaction (anything failure will cause database rollback). */
   private Resource handoutResourceTransactionally(
       PoolId poolId, RequestHandoutId requestHandoutId) {
