@@ -130,6 +130,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Disabled;
@@ -1004,12 +1005,14 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
   private void assertServiceAccountExists(Project project, String serviceAccountEmail)
       throws Exception {
     List<ServiceAccount> serviceAccounts =
-        iamCow
-            .projects()
-            .serviceAccounts()
-            .list("projects/" + project.getProjectId())
-            .execute()
-            .getAccounts();
+        Optional.ofNullable(
+                iamCow
+                    .projects()
+                    .serviceAccounts()
+                    .list("projects/" + project.getProjectId())
+                    .execute()
+                    .getAccounts())
+            .orElse(List.of());
 
     assertTrue(serviceAccounts.stream().anyMatch(s -> serviceAccountEmail.equals(s.getEmail())));
   }
