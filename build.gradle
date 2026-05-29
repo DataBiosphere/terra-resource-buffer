@@ -130,6 +130,12 @@ dependencies {
     }
 }
 
+// Force netty-codec-http to override the version pinned by Spring Boot's enforcedPlatform.
+// CVE-2026-42587 (requires >= 4.1.133.Final)
+configurations.all {
+    resolutionStrategy.force 'io.netty:netty-codec-http:4.1.133.Final'
+}
+
 // for scans
 if (hasProperty('buildScan')) {
     buildScan {
