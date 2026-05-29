@@ -130,10 +130,31 @@ dependencies {
     }
 }
 
-// Force netty-codec-http to override the version pinned by Spring Boot's enforcedPlatform.
-// CVE-2026-42587 (requires >= 4.1.133.Final)
+// Force all netty artifacts to override the version pinned by Spring Boot's enforcedPlatform.
+// CVE-2026-42587 (requires >= 4.1.133.Final). All artifacts must be forced together to avoid
+// runtime errors from mixed netty versions within the suite.
 configurations.all {
-    resolutionStrategy.force 'io.netty:netty-codec-http:4.1.133.Final'
+    resolutionStrategy {
+        force 'io.netty:netty-buffer:4.1.133.Final'
+        force 'io.netty:netty-codec:4.1.133.Final'
+        force 'io.netty:netty-codec-dns:4.1.133.Final'
+        force 'io.netty:netty-codec-http:4.1.133.Final'
+        force 'io.netty:netty-codec-http2:4.1.133.Final'
+        force 'io.netty:netty-codec-socks:4.1.133.Final'
+        force 'io.netty:netty-common:4.1.133.Final'
+        force 'io.netty:netty-handler:4.1.133.Final'
+        force 'io.netty:netty-handler-proxy:4.1.133.Final'
+        force 'io.netty:netty-resolver:4.1.133.Final'
+        force 'io.netty:netty-resolver-dns:4.1.133.Final'
+        force 'io.netty:netty-resolver-dns-classes-macos:4.1.133.Final'
+        force 'io.netty:netty-resolver-dns-native-macos:4.1.133.Final'
+        force 'io.netty:netty-transport:4.1.133.Final'
+        force 'io.netty:netty-transport-classes-epoll:4.1.133.Final'
+        force 'io.netty:netty-transport-classes-kqueue:4.1.133.Final'
+        force 'io.netty:netty-transport-native-epoll:4.1.133.Final'
+        force 'io.netty:netty-transport-native-kqueue:4.1.133.Final'
+        force 'io.netty:netty-transport-native-unix-common:4.1.133.Final'
+    }
 }
 
 // for scans
