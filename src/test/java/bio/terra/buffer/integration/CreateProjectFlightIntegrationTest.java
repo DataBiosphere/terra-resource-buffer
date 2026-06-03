@@ -98,6 +98,7 @@ import bio.terra.common.stairway.StairwayComponent;
 import bio.terra.stairway.Flight;
 import bio.terra.stairway.FlightContext;
 import bio.terra.stairway.FlightMap;
+import bio.terra.stairway.FlightState;
 import bio.terra.stairway.FlightStatus;
 import bio.terra.stairway.RetryRule;
 import bio.terra.stairway.Step;
