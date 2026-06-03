@@ -172,8 +172,12 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
     Pool pool = preparePool(bufferDao, newBasicGcpConfig());
 
     String flightId = manager.submitCreationFlight(pool).get();
-    ResourceId resourceId =
-        extractResourceIdFromFlightState(blockUntilFlightComplete(stairwayComponent, flightId));
+    FlightState flightState = blockUntilFlightComplete(stairwayComponent, flightId);
+    assertEquals(
+        FlightStatus.SUCCESS,
+        flightState.getFlightStatus(),
+        "Flight failed with exception: " + flightState.getException());
+    ResourceId resourceId = extractResourceIdFromFlightState(flightState);
     Project project = assertProjectExists(resourceId);
     assertBillingIs(project, pool.resourceConfig().getGcpProjectConfig().getBillingAccount());
     assertEnableApisContains(project, pool.resourceConfig().getGcpProjectConfig().getEnabledApis());
