@@ -53,6 +53,7 @@ import static bio.terra.buffer.service.resource.flight.DeleteDefaultFirewallRule
 import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.REGION_TO_IP_RANGE;
 import static bio.terra.buffer.service.resource.flight.GoogleProjectConfigUtils.getRegionToIpRange;
 import static bio.terra.buffer.service.resource.flight.GoogleUtils.*;
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -127,11 +128,13 @@ import com.google.cloud.storage.StorageRoles;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.awaitility.core.ConditionFactory;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -691,28 +694,31 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
         Matchers.hasItems(serviceNames.toArray()));
   }
 
-  private void assertIamBindingsContains(Project project, List<IamBinding> iamBindings)
-      throws Exception {
+  private void assertIamBindingsContains(Project project, List<IamBinding> iamBindings) {
     // By default we enable some services, which causes GCP to automatically create Service Accounts
     // and grant them permissions on the project.
     // e.g.,"serviceAccount:{projectId}-compute@developer.gserviceaccount.com" has editor role.
     // So we need to iterate through all bindings and verify they at least contain the members &
     // roles we expect.
+    // IAM policy changes may not be visible immediately, so poll until they are.
+    awaitEventualConsistency()
+        .untilAsserted(
+            () -> {
+              Map<String, List<String>> allBindings =
+                  rmCow
+                      .projects()
+                      .getIamPolicy(project.getProjectId(), new GetIamPolicyRequest())
+                      .execute()
+                      .getBindings()
+                      .stream()
+                      .collect(Collectors.toMap(Binding::getRole, Binding::getMembers));
 
-    Map<String, List<String>> allBindings =
-        rmCow
-            .projects()
-            .getIamPolicy(project.getProjectId(), new GetIamPolicyRequest())
-            .execute()
-            .getBindings()
-            .stream()
-            .collect(Collectors.toMap(Binding::getRole, Binding::getMembers));
-
-    for (IamBinding iamBinding : iamBindings) {
-      assertThat(
-          new ArrayList<>(allBindings.get(iamBinding.getRole())),
-          Matchers.hasItems(iamBinding.getMembers().toArray()));
-    }
+              for (IamBinding iamBinding : iamBindings) {
+                assertThat(
+                    new ArrayList<>(allBindings.getOrDefault(iamBinding.getRole(), List.of())),
+                    Matchers.hasItems(iamBinding.getMembers().toArray()));
+              }
+            });
   }
 
   private void assertLogStorageBucketExists(Project project) throws Exception {
@@ -1002,19 +1008,30 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
             404));
   }
 
-  private void assertServiceAccountExists(Project project, String serviceAccountEmail)
-      throws Exception {
-    List<ServiceAccount> serviceAccounts =
-        Optional.ofNullable(
-                iamCow
-                    .projects()
-                    .serviceAccounts()
-                    .list("projects/" + project.getProjectId())
-                    .execute()
-                    .getAccounts())
-            .orElse(List.of());
+  private void assertServiceAccountExists(Project project, String serviceAccountEmail) {
+    // Newly created service accounts may not show up in the list immediately.
+    awaitEventualConsistency()
+        .untilAsserted(
+            () -> {
+              List<ServiceAccount> serviceAccounts =
+                  Optional.ofNullable(
+                          iamCow
+                              .projects()
+                              .serviceAccounts()
+                              .list("projects/" + project.getProjectId())
+                              .execute()
+                              .getAccounts())
+                      .orElse(List.of());
 
-    assertTrue(serviceAccounts.stream().anyMatch(s -> serviceAccountEmail.equals(s.getEmail())));
+              assertTrue(
+                  serviceAccounts.stream().anyMatch(s -> serviceAccountEmail.equals(s.getEmail())),
+                  "Service account " + serviceAccountEmail + " not found");
+            });
+  }
+
+  /** Polls for GCP state that may not be immediately visible after a flight completes. */
+  private static ConditionFactory awaitEventualConsistency() {
+    return await().atMost(Duration.ofMinutes(4)).pollInterval(Duration.ofSeconds(5));
   }
 
   private void assertDefaultServiceAccountExists(Project project) throws Exception {
