@@ -525,6 +525,8 @@ public class CreateProjectFlightIntegrationTest extends BaseIntegrationTest {
         FlightStatus.ERROR, stairwayComponent.get().getFlightState(flightId).getFlightStatus());
   }
 
+  @Disabled(
+      "Since Oct 2026, the integration test environment is not working correctly for quota changes; root cause unknown")
   @Test
   public void testCreateGoogleProject_createsConsumerOverride() throws Exception {
     FlightManager manager =
