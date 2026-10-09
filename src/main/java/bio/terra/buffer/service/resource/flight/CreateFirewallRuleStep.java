@@ -336,10 +336,10 @@ public class CreateFirewallRuleStep implements Step {
   }
 
   /**
-   * Helper method to build a new firewall rule that with network assosicated network.
+   * Helper method to build a new firewall rule that with network associated network.
    *
    * @param network the network to add the firewall rule to
-   * @param firewall the firewall to be assosicated with a network
+   * @param firewall the firewall to be associated with a network
    * @return firewall rule object
    */
   @VisibleForTesting
