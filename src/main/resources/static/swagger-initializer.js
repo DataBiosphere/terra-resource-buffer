@@ -29,6 +29,7 @@ window.onload = function() {
     defaultModelsExpandDepth: -1, // hide the huge list of schemas under the routes
     defaultModelRendering: 'model', // schema has the descriptions, unlike the example value
     defaultModelExpandDepth: 2, // affects the schema shown for a request or response
+    validatorUrl: 'none', // disable the online validator badge
   })
   // End Swagger UI call region
 
