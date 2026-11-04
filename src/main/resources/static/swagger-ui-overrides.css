@@ -1,0 +1,40 @@
+html
+{
+  box-sizing: border-box;
+  overflow: -moz-scrollbars-vertical;
+  overflow-y: scroll;
+}
+
+*,
+*:before,
+*:after
+{
+  box-sizing: inherit;
+}
+
+body
+{
+  margin:0;
+  background: #fafafa;
+}
+
+/* make the schema display full-width */
+.swagger-ui .model-example .model-box {
+  display: block;
+}
+
+/* these take a lot of vertical space by default */
+.swagger-ui div.info {
+  margin: 25px 0;
+}
+
+.swagger-ui .opblock .renderedMarkdown p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+/* everything's application/json, and links aren't useful */
+.swagger-ui section.response-controls, .swagger-ui td.response-col_links {
+  display: none;
+}
